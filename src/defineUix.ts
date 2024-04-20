@@ -11,7 +11,6 @@ export const declareNode = <T extends ZodObject<any>>(metaNodeDefinition: T) =>
     <D extends (...args: any) => any>(defineNode: (metaNodeDefinition: T) => D) => defineNode(metaNodeDefinition)
 
 
-
 const defineNode = declareNode(z.object({
     meta: z.object({
         nodeType: z.string(),
