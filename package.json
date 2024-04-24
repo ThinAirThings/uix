@@ -11,7 +11,7 @@
     "npmpub": "npm run build && git add . && git commit -m \"mod\" && git push && npm version patch && npm publish --access public",
     "format": "npx prettier --write .",
     "commit": "npx cz",
-    "testing": "NODE_ENV=dev node --import tsx/esm --env-file .env.local ./src/testing.ts",
+    "testing": "NODE_ENV=dev node --import tsx/esm --env-file .env.local ./testing.ts",
     "dev": "nodemon --watch src --ext ts,tsx --exec 'npm run build'"
   },
   "exports": {
@@ -29,6 +29,8 @@
   },
   "keywords": [],
   "dependencies": {
+    "@pulumi/pulumi": "^3.113.3",
+    "openai": "^4.38.3",
     "uuid": "^9.0.1",
     "zod": "^3.22.5"
   },
