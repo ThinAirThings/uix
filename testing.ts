@@ -1,93 +1,70 @@
-import { configureNeo4jLayer } from "./src/layers/Neo4j/configureNeo4jLayer";
-import { z, TypeOf, ZodObject } from 'zod'
-import { configureNeo4jLayer2 } from "./src/layers/Neo4j/configureNeo4jLayer2";
-import { defineGraph } from "./src/base/defineGraph";
-import { defineNode } from "./src/base/defineNode";
-import { graph } from "neo4j-driver";
+import { z } from 'zod'
+// import { Neo4jLayer } from "./src/layers/Neo4j/Neo4jLayer";
+// import { defineGraph } from "./src/base/defineGraph";
+// import { defineNode } from "./src/base/defineNode";
+// import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
+import { Neo4jLayer, defineGraph, defineNode, NextjsCacheLayer } from './dist'
 
-
-
-
-
-// const userNodeDefinition = defineNode(
-//     'User' as const,
-//     z.object({
-//         name: z.string(),
-//         email: z.string().email(),
-//         password: z.string()
-//     })
-// )
-
-// const graph = defineGraph({
-//     nodeDefinitions: [
-//         defineNode(
-//             'User' as const,
-//             z.object({
-//                 name: z.string(),
-//                 email: z.string().email(),
-//                 password: z.string()
-//             })
-//         ),
-//         defineNode(
-//             'Post' as const,
-//             z.object({
-//                 title: z.string(),
-//                 content: z.string()
-//             })
-//         )
-//     ] as const
-// })
-
-// graph.createNode('Post', {
-//     title: 'Hello World',
-//     content: 'This is a test post'
-// })
-
-// graph.createNode('User', {
-//     'email'
-// })
-const Neo4jLayer = configureNeo4jLayer2({
-    uri: 'bolt://localhost:7687',
-    user: 'neo4j',
-    password: 'testpassword'
-})
 const neoGraph = Neo4jLayer(defineGraph({
     nodeDefinitions: [
-        defineNode(
-            'User' as const,
-            z.object({
-                name: z.string(),
-                email: z.string().email(),
-                password: z.string()
-            }),
-            ['HAS_POST']
-        ),
-        defineNode(
-            'Post' as const,
-            z.object({
-                title: z.string(),
-                content: z.string()
-            }),
-            ['HAS_USER']
-        )
-    ] as const
+        defineNode('User' as const, z.object({
+            name: z.string(),
+            email: z.string().email(),
+            password: z.string()
+        })),
+        defineNode('Post' as const, z.object({
+            title: z.string(),
+            content: z.string()
+        })),
+        defineNode('Company' as const, z.object({
+            name: z.string()
+        }))
+    ] as const,
+    relationshipDefinitions: {
+        'User': {
+            HAS_POST: {
+                toNodeType: ['Post'],
+                stateDefinition: z.object({
+                    createdAt: z.string().optional(),
+                    updatedAt: z.string()
+                })
+            },
+            WORKED_AT: {
+                toNodeType: ['Company', 'Post']
+            }
+        }
+    } as const
 }), {
     uniqueIndexes: {
         'User': ['email'],
         'Post': ['title']
+    },
+    connection: {
+        uri: 'bolt://localhost:7687',
+        user: 'neo4j',
+        password: 'testpassword'
     }
 })
 const userNode = await neoGraph.getNode('User', 'email', 'dan@dan.com')
-console.log(userNode)
 // const post = await neoGraph.createNode('Post', {
 //     title: 'Hello World',
 //     content: 'This is a test post'
 // })
-const postNode = await neoGraph.getNode('Post', 'title','Goodbye World')
+const postNode = await neoGraph.getNode('Post', 'nodeId', 'Goodbye World')
 const updatedPostNode = await neoGraph.updateNode(postNode, {
     title: 'Goodbye World',
 })
-await neoGraph.createRelationship(userNode, 'HAS_POST', updatedPostNode)
+await neoGraph.createRelationship(userNode, 'HAS_POST', postNode, {
+    'createdAt': new Date().toISOString(),
+    'updatedAt': new Date().toISOString()
+})
+
+const posts = await neoGraph.getRelatedTo(userNode, 'HAS_POST', 'Post')
+console.log(posts)
+
+const cacheGraph = NextjsCacheLayer(neoGraph)
+
+// cacheGraph.getNode()
 // console.log(updatedPostNode)
 // neoGraph.createNode('User', {
 //    'password'

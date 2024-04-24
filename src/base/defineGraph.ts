@@ -2,28 +2,32 @@ import { TypeOf, ZodObject } from "zod"
 import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
-import { defineRelationship } from "./defineRelationship"
 import { NodeKey } from "../types/NodeKey"
-
-
-
-
-
-
 
 
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
 export const defineGraph = <
-    N extends readonly ReturnType<typeof defineNode<any, any, any>>[]
+    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    R extends {
+        [K in N[number]['nodeType']]?: {
+            [R: Uppercase<string>]: {
+                toNodeType: readonly N[number]['nodeType'][]
+                stateDefinition?: ZodObject<any>
+            }
+        }
+    }
 >({
     nodeDefinitions,
+    relationshipDefinitions
 }: {
     nodeDefinitions: N,
+    relationshipDefinitions: R
 }) => {
     const nodeMap = new Map<string, { nodeId: string, nodeType: string, createdAt: string }>
     return {
         nodeDefinitions,
+        relationshipDefinitions,
         createNode: <
             T extends N[number]['nodeType']
         >(
@@ -60,19 +64,6 @@ export const defineGraph = <
                 ...state
             })
             return nodeMap.get(nodeId) as UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
-        },
-        createRelationship: <
-            FN extends NodeKey<N[number]['nodeType']>,
-        >(
-            fromNode: FN,
-            relationshipType: (N[number] & { nodeType: FN['nodeType'] })['relationships'][number],
-            toNode: NodeKey<N[number]['nodeType']>
-        ) => {
-            return {
-                fromNode,
-                relationshipType,
-                toNode
-            }
         }
     }
 }
