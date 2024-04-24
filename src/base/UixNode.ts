@@ -1,20 +1,27 @@
 import { v4 as uuidv4 } from 'uuid'
 import { z, TypeOf, ZodObject } from 'zod'
+import { NodeDefinition } from '../layers/Neo4j/configureNeo4jLayer'
 
-export abstract class UixNode {
-    static nodeType: Capitalize<string>
-    nodeType: Capitalize<string>
+export abstract class UixNode<
+    SD extends ZodObject<any> = ZodObject<any>,
+> {
+    static nodeType: string
+    static stateDefinition: ZodObject<any>
     nodeId: string
     createdAt: string
     updatedAt?: string
-    constructor(nodeType: UixNode['nodeType']) {
-        this.nodeType = nodeType
-        this.nodeId = uuidv4()
-        this.createdAt = new Date().toISOString()
+    abstract state: TypeOf<SD>
+    constructor(hydration: {
+        nodeId: string,
+        createdAt: string,
+        updatedAt?: string
+    }) {
+        const { nodeId, createdAt, updatedAt } = hydration
+        this.nodeId = nodeId
+        this.createdAt = createdAt
+        this.updatedAt = updatedAt
     }
 }
-
-
 
 
 export const defineNode = <
@@ -24,7 +31,7 @@ export const defineNode = <
     nodeType: T,
     stateDefinition: SD
 ) => {
-    return class extends UixNode {
+    return class NodeType extends UixNode<SD> {
         // Static
         static nodeType = nodeType
         static stateDefinition = stateDefinition
@@ -32,9 +39,36 @@ export const defineNode = <
         nodeType = nodeType
         // Properties
         state: TypeOf<SD>
-
-        constructor(initialState: TypeOf<SD>) {
-            super(nodeType)
+        static create = (initialState: TypeOf<SD>) => {
+            return new NodeType({
+                nodeId: uuidv4(),
+                createdAt: new Date().toISOString(),
+                initialState
+            })
+        }
+        static get = (hydration: {
+            nodeId: string,
+            createdAt: string,
+            updatedAt?: string,
+            initialState: TypeOf<SD>
+        }) => {
+            return new NodeType(hydration)
+        }
+        static update = (state: Partial<TypeOf<SD>>) => {
+            return new NodeType({
+                nodeId: uuidv4(),
+                createdAt: new Date().toISOString(),
+                initialState: state
+            })
+        }
+        constructor(hydration: {
+            nodeId: string,
+            createdAt: string,
+            updatedAt?: string,
+            initialState: TypeOf<SD>
+        }) {
+            super(hydration)
+            const { initialState } = hydration
             stateDefinition.parse(initialState)
             this.state = initialState
         }
@@ -48,14 +82,4 @@ export const defineNode = <
     }
 }
 
-const UserNode = defineNode('User', z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string()
-}))
 
-const user = new UserNode({
-    name: 'John Doe',
-    email: '',
-    password: 'password'
-})
