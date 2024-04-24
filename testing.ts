@@ -5,7 +5,7 @@ import { z } from 'zod'
 // import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
 import { Neo4jLayer, defineGraph, defineNode, NextjsCacheLayer } from './dist'
 
-const neoGraph = Neo4jLayer(defineGraph({
+const graph = defineGraph({
     nodeDefinitions: [
         defineNode('User' as const, z.object({
             name: z.string(),
@@ -34,7 +34,10 @@ const neoGraph = Neo4jLayer(defineGraph({
             }
         }
     } as const
-}), {
+})
+
+
+const neoGraph = Neo4jLayer(graph, {
     uniqueIndexes: {
         'User': ['email'],
         'Post': ['title']
@@ -45,7 +48,7 @@ const neoGraph = Neo4jLayer(defineGraph({
         password: 'testpassword'
     }
 })
-const userNode = await neoGraph.getNode('User', 'email', 'dan@dan.com')
+const userNode = await neoGraph.getNode('User', 'nodeId', 'dan@dan.com')
 // const post = await neoGraph.createNode('Post', {
 //     title: 'Hello World',
 //     content: 'This is a test post'

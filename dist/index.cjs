@@ -1,3 +1,4 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -26,15 +27,15 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// index.ts
-var uix_exports = {};
-__export(uix_exports, {
+// src/index.ts
+var src_exports = {};
+__export(src_exports, {
   Neo4jLayer: () => Neo4jLayer,
   NextjsCacheLayer: () => NextjsCacheLayer,
   defineGraph: () => defineGraph,
   defineNode: () => defineNode
 });
-module.exports = __toCommonJS(uix_exports);
+module.exports = __toCommonJS(src_exports);
 
 // src/base/defineGraph.ts
 var import_uuid = require("uuid");

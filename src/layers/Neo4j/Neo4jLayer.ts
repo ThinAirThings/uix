@@ -8,18 +8,9 @@ import { NodeKey } from '@/src/types/NodeKey';
 import { UixNode } from '@/src/types/UixNode';
 
 
-
 export const Neo4jLayer = <
-    // N extends readonly ReturnType<typeof defineNode< any, any>>[],
-    // R extends {
-    //     [K in N[number]['nodeType']]?: {
-    //         [R: Uppercase<string>]: {
-    //             toNodeType: readonly N[number]['nodeType'][]
-    //             stateDefinition?: ZodObject<any>
-    //         }
-    //     }
-    // },
-    G extends ReturnType<typeof defineGraph<any, any>>,
+    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    G extends ReturnType<typeof defineGraph<N, any>>,
     UIdx extends {
         [T in G['nodeDefinitions'][number]['nodeType']]?: readonly (keyof TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>)[]
     }

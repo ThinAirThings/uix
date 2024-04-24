@@ -1,10 +1,13 @@
+import { defineNode } from "@/src/base/defineNode";
 import { Neo4jLayer } from "../Neo4j/Neo4jLayer";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
+import { defineGraph } from "@/src/base/defineGraph";
 
 
 
 export const NextjsCacheLayer = <
-    G extends ReturnType<typeof Neo4jLayer<any, any>>
+    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    G extends ReturnType<typeof Neo4jLayer<N, ReturnType<typeof defineGraph<N, any>>, any>>
 >(
     graph: G
 ): Pick<G, 'getNode' | 'updateNode'> => {
