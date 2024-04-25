@@ -6,46 +6,58 @@ import { createUniqueIndex } from './createUniqueIndex';
 import { defineNode } from '@/src/base/defineNode';
 import { NodeKey } from '@/src/types/NodeKey';
 import { UixNode } from '@/src/types/UixNode';
+import { GraphLayer } from '@/src/types/Graph';
 
 
 export const Neo4jLayer = <
-    N extends readonly ReturnType<typeof defineNode< any, any>>[],
-    G extends ReturnType<typeof defineGraph<N, any>>,
+    N extends readonly ReturnType<typeof defineNode<Capitalize<string>, any>>[],
+    R extends { [K in N[number]['nodeType']]?: {
+        [R: Uppercase<string>]: {
+            toNodeType: readonly N[number]['nodeType'][]
+            stateDefinition?: ZodObject<any>
+        }
+    } },
     UIdx extends {
-        [T in G['nodeDefinitions'][number]['nodeType']]?: readonly (keyof TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>)[]
+        [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
->(graph: G, config: {
-    connection: {
-        uri: string,
-        user: string,
-        password: string
-    }
+    G extends ReturnType<typeof defineGraph<N, R, UIdx>>
+>(graph: G, {
+    nodeDefinitions,
+    relationshipDefinitions,
+    uniqueIndexes
+}: {
+    nodeDefinitions: N
+    relationshipDefinitions: R,
     uniqueIndexes: UIdx
-}) => {
+},
+    config: {
+        connection: {
+            uri: string,
+            user: string,
+            password: string
+        }
+    }): GraphLayer<N, R, UIdx> => {
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
         config.connection.user,
         config.connection.password
     ))
-    const nodeDefinitions = graph.nodeDefinitions
     // Create Unique Indexes
     const uniqueIndexesCreated = [
         ...nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, 'nodeId')),
-        ...(config.uniqueIndexes && Object.entries(config.uniqueIndexes).map(([nodeType, index]) => {
+        ...(uniqueIndexes && Object.entries(uniqueIndexes).map(([nodeType, index]) => {
             return createUniqueIndex(neo4jDriver, nodeType, index as string)
         })) ?? []
     ]
     return {
-        uniqueIndexes: config.uniqueIndexes,
-        nodeDefinitions: graph.nodeDefinitions,
-        relationshipDefinitions: graph.relationshipDefinitions,
-        createNode: async <
-            T extends G['nodeDefinitions'][number]['nodeType']
-        >(
-            nodeType: T,
-            initialState: TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>
+        uniqueIndexes: uniqueIndexes,
+        nodeDefinitions: nodeDefinitions,
+        relationshipDefinitions: relationshipDefinitions,
+        createNode: async (
+            nodeType,
+            initialState
         ) => {
             await Promise.all(uniqueIndexesCreated)
-            const newNode = graph.createNode(nodeType, initialState)
+            const newNode = graph.createNode(nodeType, initialState) //as unknown as UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {
@@ -58,25 +70,19 @@ export const Neo4jLayer = <
                 session.close()
             }
         },
-        getNode: async <
-            T extends G['nodeDefinitions'][number]['nodeType'],
-        >(
-            nodeType: T,
-            nodeIndex: T extends keyof UIdx
-                ? UIdx[T] extends string[]
-                ? UIdx[T][number] | 'nodeId'
-                : 'nodeId'
-                : 'nodeId',
-            indexKey: string
+        getNode: async (
+            nodeType,
+            nodeIndex,
+            indexKey
         ) => {
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {
                 return await session.executeRead(async tx => {
                     return await tx.run<{
-                        node: Node<Integer, UixNode<T, TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>>
+                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
                     }>(`
-                        MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
+                        MATCH (node:${nodeType} {${nodeIndex}: $indexKey})
                         RETURN node
                     `, { indexKey })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
@@ -85,11 +91,9 @@ export const Neo4jLayer = <
                 session.close()
             }
         },
-        updateNode: async <
-            T extends G['nodeDefinitions'][number]['nodeType']
-        >(
-            { nodeType, nodeId }: NodeKey<T>,
-            state: Partial<TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>
+        updateNode: async (
+            { nodeType, nodeId },
+            state
         ) => {
             //// You can implement optimistic updates here
             // const initialState = graph.getNode(nodeType, nodeId)
@@ -97,14 +101,18 @@ export const Neo4jLayer = <
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {
-                const result = await session.run(`
-                    MATCH (n:${nodeType} {nodeId: $nodeId})
-                    SET n += $state
-                    RETURN n
-                `, { nodeId, state })
-                return result.records[0].get('n').properties
+                return await session.executeWrite(async tx => {
+                    return await tx.run<{
+                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                    }>(`
+                        MATCH (node:${nodeType} {nodeId: $nodeId})
+                        SET node += $state
+                        RETURN node
+                    `, { nodeId, state })
+                }).then(({ records }) => records.map(record => record.get('node').properties)[0])
             } catch (e) {
                 console.error(e)
+                throw e
                 // // Rollback
                 // graph.updateNode(nodeType, nodeId, initialState)
                 // optimisticUpdatedNode
@@ -112,16 +120,11 @@ export const Neo4jLayer = <
                 session.close()
             }
         },
-        createRelationship: async <
-            FNT extends G['nodeDefinitions'][number]['nodeType'],
-            RT extends keyof (G['relationshipDefinitions'][FNT]),
-        >(
-            fromNode: NodeKey<FNT>,
-            relationshipType: RT,
-            toNode: NodeKey<G['relationshipDefinitions'][FNT][RT]['toNodeType'][number]>,
-            ...[state]: (G['relationshipDefinitions'][FNT][RT])['stateDefinition'] extends ZodObject<ZodRawShape>
-                ? [TypeOf<(G['relationshipDefinitions'][FNT][RT])['stateDefinition']>]
-                : []
+        createRelationship: async (
+            fromNode,
+            relationshipType,
+            toNode,
+            ...[state]
         ) => {
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
@@ -140,14 +143,10 @@ export const Neo4jLayer = <
                 session.close()
             }
         },
-        getRelatedTo: async <
-            FNT extends G['nodeDefinitions'][number]['nodeType'],
-            RT extends keyof (G['relationshipDefinitions'][FNT]),
-            TNT extends G['relationshipDefinitions'][FNT][RT]['toNodeType'][number]
-        >(
-            fromNode: NodeKey<FNT>,
-            relationshipType: RT,
-            toNodeType: TNT
+        getRelatedTo: async (
+            fromNode,
+            relationshipType,
+            toNodeType
         ) => {
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
@@ -155,7 +154,7 @@ export const Neo4jLayer = <
                 const { nodeType, nodeId } = fromNode
                 return await session.executeRead(async tx => {
                     return await tx.run<{
-                        toNode: Node<Integer, UixNode<TNT, TypeOf<(G['nodeDefinitions'][number] & { nodeType: TNT })['stateDefinition']>>>
+                        toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(N[number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
                     }>(`
                         MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]->(toNode:${toNodeType})
                         RETURN toNode
@@ -165,7 +164,7 @@ export const Neo4jLayer = <
                 session.close()
             }
         }
-    }
+    } as GraphLayer<N, R, UIdx>
 }
 
 

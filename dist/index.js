@@ -2,12 +2,13 @@
 import { v4 as uuidv4 } from "uuid";
 var defineGraph = ({
   nodeDefinitions,
-  relationshipDefinitions
+  relationshipDefinitions,
+  uniqueIndexes
 }) => {
-  const nodeMap = /* @__PURE__ */ new Map();
   return {
     nodeDefinitions,
     relationshipDefinitions,
+    uniqueIndexes,
     createNode: (nodeType, initialState) => {
       const node = {
         nodeType,
@@ -15,22 +16,10 @@ var defineGraph = ({
         createdAt: (/* @__PURE__ */ new Date()).toISOString(),
         ...initialState
       };
-      nodeMap.set(node.nodeId, node);
       return node;
     },
-    getNode: ({ nodeType, nodeId }) => {
-      const node = nodeMap.get(nodeId);
-      return node;
-    },
-    updateNode: ({ nodeType, nodeId }, state) => {
-      const node = nodeMap.get(nodeId);
-      if (!node)
-        throw new Error("Node not found");
-      nodeMap.set(nodeId, {
-        ...node,
-        ...state
-      });
-      return nodeMap.get(nodeId);
+    createRelationship: (fromNode, relationshipType, toNode, ...[state]) => {
+      return null;
     }
   };
 };
@@ -74,22 +63,25 @@ var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
 };
 
 // src/layers/Neo4j/Neo4jLayer.ts
-var Neo4jLayer = (graph, config) => {
+var Neo4jLayer = (graph, {
+  nodeDefinitions,
+  relationshipDefinitions,
+  uniqueIndexes
+}, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
     config.connection.user,
     config.connection.password
   ));
-  const nodeDefinitions = graph.nodeDefinitions;
   const uniqueIndexesCreated = [
     ...nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, "nodeId")),
-    ...(config.uniqueIndexes && Object.entries(config.uniqueIndexes).map(([nodeType, index]) => {
+    ...(uniqueIndexes && Object.entries(uniqueIndexes).map(([nodeType, index]) => {
       return createUniqueIndex(neo4jDriver, nodeType, index);
     })) ?? []
   ];
   return {
-    uniqueIndexes: config.uniqueIndexes,
-    nodeDefinitions: graph.nodeDefinitions,
-    relationshipDefinitions: graph.relationshipDefinitions,
+    uniqueIndexes,
+    nodeDefinitions,
+    relationshipDefinitions,
     createNode: async (nodeType, initialState) => {
       await Promise.all(uniqueIndexesCreated);
       const newNode = graph.createNode(nodeType, initialState);
@@ -113,7 +105,7 @@ var Neo4jLayer = (graph, config) => {
       try {
         return await session.executeRead(async (tx) => {
           return await tx.run(`
-                        MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
+                        MATCH (node:${nodeType} {${nodeIndex}: $indexKey})
                         RETURN node
                     `, { indexKey });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
@@ -126,14 +118,16 @@ var Neo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        const result = await session.run(`
-                    MATCH (n:${nodeType} {nodeId: $nodeId})
-                    SET n += $state
-                    RETURN n
-                `, { nodeId, state });
-        return result.records[0].get("n").properties;
+        return await session.executeWrite(async (tx) => {
+          return await tx.run(`
+                        MATCH (node:${nodeType} {nodeId: $nodeId})
+                        SET node += $state
+                        RETURN node
+                    `, { nodeId, state });
+        }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
       } catch (e) {
         console.error(e);
+        throw e;
       } finally {
         session.close();
       }
@@ -175,39 +169,8 @@ var Neo4jLayer = (graph, config) => {
     }
   };
 };
-
-// src/layers/NextjsCache/NextjsCacheLayer.ts
-import { unstable_cache as cache, revalidateTag } from "next/cache";
-var NextjsCacheLayer = (graph) => {
-  const cacheMap = /* @__PURE__ */ new Map();
-  const uniqueIndexes = graph["uniqueIndexes"];
-  return {
-    getNode: async (nodeType, nodeIndex, indexKey) => {
-      const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`;
-      if (!cacheMap.has(cacheKey)) {
-        cacheMap.set(cacheKey, cache(
-          async (...[nodeType2, index, key]) => {
-            return await graph.getNode(nodeType2, index, key);
-          },
-          [cacheKey],
-          {
-            tags: [cacheKey]
-          }
-        ));
-      }
-      const node = await graph.getNode(nodeType, nodeIndex, indexKey);
-      return node;
-    },
-    updateNode: async ({ nodeType, nodeId }, state) => {
-      const node = await graph.updateNode({ nodeType, nodeId }, state);
-      uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(revalidateTag);
-      return node;
-    }
-  };
-};
 export {
   Neo4jLayer,
-  NextjsCacheLayer,
   defineGraph,
   defineNode
 };

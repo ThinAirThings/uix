@@ -2,7 +2,7 @@ import { TypeOf, ZodObject } from "zod"
 import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
-import { NodeKey } from "../types/NodeKey"
+import { GraphLayer } from "../types/Graph"
 
 
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
@@ -15,53 +15,41 @@ export const defineGraph = <
             stateDefinition?: ZodObject<any>
         }
     } },
+    UIdx extends {
+        [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
+    },
 >({
     nodeDefinitions,
-    relationshipDefinitions
+    relationshipDefinitions,
+    uniqueIndexes
 }: {
     nodeDefinitions: N,
     relationshipDefinitions: R
-}) => {
-    const nodeMap = new Map<string, { nodeId: string, nodeType: string, createdAt: string }>
+    uniqueIndexes: UIdx
+}): Pick<GraphLayer<N, R, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'uniqueIndexes' | 'createNode' | 'createRelationship'> => {
     return {
         nodeDefinitions,
         relationshipDefinitions,
-        createNode: <
-            T extends N[number]['nodeType']
-        >(
-            nodeType: T,
-            initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
-        ): UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>> => {
+        uniqueIndexes,
+        createNode: (
+            nodeType,
+            initialState
+        ) => {
             const node = {
                 nodeType,
                 nodeId: uuidv4(),
                 createdAt: new Date().toISOString(),
                 ...initialState
             }
-            nodeMap.set(node.nodeId, node)
             return node
         },
-        getNode: <
-            T extends N[number]['nodeType']
-        >(
-            { nodeType, nodeId }: NodeKey<T>
+        createRelationship: (
+            fromNode,
+            relationshipType,
+            toNode,
+            ...[state]
         ) => {
-            const node = nodeMap.get(nodeId)
-            return node as UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
-        },
-        updateNode: <
-            T extends N[number]['nodeType']
-        >(
-            { nodeType, nodeId }: NodeKey<T>,
-            state: Partial<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
-        ) => {
-            const node = nodeMap.get(nodeId)
-            if (!node) throw new Error('Node not found')
-            nodeMap.set(nodeId, {
-                ...node,
-                ...state
-            })
-            return nodeMap.get(nodeId) as UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
-        }
+            return null as any
+        } 
     }
 }

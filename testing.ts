@@ -3,7 +3,9 @@ import { z } from 'zod'
 // import { defineGraph } from "./src/base/defineGraph";
 // import { defineNode } from "./src/base/defineNode";
 // import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
-import { Neo4jLayer, defineGraph, defineNode, NextjsCacheLayer } from './dist'
+import { Neo4jLayer, defineGraph, defineNode, 
+    // NextjsCacheLayer 
+} from './dist'
 
 const graph = defineGraph({
     nodeDefinitions: [
@@ -19,30 +21,34 @@ const graph = defineGraph({
         defineNode('Company' as const, z.object({
             name: z.string()
         }))
-    ] as const,
+    ],
     relationshipDefinitions: {
         'User': {
             HAS_POST: {
                 toNodeType: ['Post'],
                 stateDefinition: z.object({
-                    createdAt: z.string().optional(),
+                    createdAt: z.string(),
                     updatedAt: z.string()
                 })
-            },
+            } ,
             WORKED_AT: {
                 toNodeType: ['Company', 'Post']
-            }
-        }
-    } as const
-})
-
-graph.getNode({nodeType: 'User', nodeId: '123'})
-
-const neoGraph = Neo4jLayer(graph, {
+            } 
+        } 
+    } as const,
     uniqueIndexes: {
         'User': ['email'],
         'Post': ['title']
-    },
+    }
+})
+
+// graph.getNode({nodeType: 'User', nodeId: '123'})
+
+const neoGraph = Neo4jLayer(graph, {
+    nodeDefinitions: graph.nodeDefinitions,
+    relationshipDefinitions: graph.relationshipDefinitions,
+    uniqueIndexes: graph.uniqueIndexes,
+}, {
     connection: {
         uri: 'bolt://localhost:7687',
         user: 'neo4j',
@@ -57,17 +63,18 @@ const userNode = await neoGraph.getNode('User', 'email', 'dan@dan.com')
 const postNode = await neoGraph.getNode('Post', 'nodeId', 'Goodbye World')
 const updatedPostNode = await neoGraph.updateNode(postNode, {
     title: 'Goodbye World',
+    thing: ''
 })
-// await neoGraph.createRelationship(userNode, 'HAS_POST', postNode, {
-//     'createdAt': new Date().toISOString(),
-//     'updatedAt': new Date().toISOString()
-// })
+await neoGraph.createRelationship(userNode, 'HAS_POST', postNode, {
+    'createdAt': new Date().toISOString(),
+    'updatedAt': new Date().toISOString()
+})
 
 // const posts = await neoGraph.getRelatedTo(userNode, 'HAS_POST', 'Post')
 // console.log(posts)
 
 const cacheGraph = NextjsCacheLayer(neoGraph)
-cacheGraph.getNode('User', 'email', 'fsda')
+cacheGraph.getNode('User', 'nodeId', 'fsda')
 // cacheGraph.getNode()
 // console.log(updatedPostNode)
 // neoGraph.createNode('User', {
