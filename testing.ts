@@ -3,6 +3,7 @@ import { Neo4jLayer } from "./src/layers/Neo4j/Neo4jLayer";
 import { defineGraph } from "./src/base/defineGraph";
 import { defineNode } from "./src/base/defineNode";
 import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
+import { NodeKey } from './src/types/NodeKey';
 // import { Neo4jLayer, defineGraph, defineNode, 
 //     NextjsCacheLayer 
 // } from './dist'
@@ -26,15 +27,16 @@ const graph = defineGraph({
         relationshipType: 'HAS_POST',
         stateDefinition: z.object({
             createdAt: z.string(),
-            updatedAt: z.string()
+            updatedAt: z.string(),
+            views: z.number()
         })
     }, {
         relationshipType: 'WORKED_AT'
-    }],
+    }] as const,
     edgeDefinitions: {
         'User': {
-            'HAS_POST': ['Post'] , 
-            'WORKED_AT': ['Company'] 
+            'HAS_POST': ['Post'],
+            'WORKED_AT': ['Company']
         },
     } as const,
     uniqueIndexes: {
@@ -45,10 +47,10 @@ const graph = defineGraph({
 graph.createNode('Company', {
     name: 'fdsa'
 })
-graph.createRelationship({nodeType: 'User', nodeId: '123'}, 'HAS_POST', {nodeType: 'Post', nodeId: '123'}, {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-})
+// graph.createRelationship({ nodeType: 'User', nodeId: '123' }, 'HAS_POST', { nodeType: 'Post', nodeId: '123' }, {
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString()
+// })
 // graph.getNode({nodeType: 'User', nodeId: '123'})
 
 const neoGraph = Neo4jLayer(graph, {
@@ -59,22 +61,18 @@ const neoGraph = Neo4jLayer(graph, {
     }
 })
 const userNode = await neoGraph.getNode('User', 'email', 'dan@dan.com')
-// const post = await neoGraph.createNode('Post', {
-//     title: 'Hello World',
-//     content: 'This is a test post'
-// })
 const postNode = await neoGraph.getNode('Post', 'nodeId', 'Goodbye World')
 const updatedPostNode = await neoGraph.updateNode(postNode, {
     title: 'Goodbye World',
     thing: ''
 })
-await neoGraph.createRelationship(userNode, 'HAS_POST', postNode, {
-    'createdAt': new Date().toISOString(),
-    'updatedAt': new Date().toISOString()
-})
+await neoGraph.createRelationship(userNode, 'WORKED_AT', null as unknown as NodeKey<'Company'>,
+    // {
+    //     'createdAt': new Date().toISOString(),
+    //     'updatedAt': new Date().toISOString()
+    // }
+)
 
-// const posts = await neoGraph.getRelatedTo(userNode, 'HAS_POST', 'Post')
-// console.log(posts)
 
 const cacheGraph = NextjsCacheLayer(neoGraph)
 cacheGraph.getNode('User', 'nodeId', 'fsda')
@@ -82,9 +80,10 @@ cacheGraph.getNode('User', 'email', '')
 cacheGraph.updateNode(userNode, {
     name: 'John Doe'
 })
-cacheGraph.createRelationship(userNode, 'HAS_POST', postNode, {
+const rel = await cacheGraph.createRelationship(userNode, 'HAS_POST', postNode, {
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    views: 0
 })
 // cacheGraph.getNode()
 // console.log(updatedPostNode)

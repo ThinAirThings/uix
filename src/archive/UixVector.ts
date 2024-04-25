@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { UixError } from "./UixError"
+import { UixError } from "../base/UixError"
 
 
 

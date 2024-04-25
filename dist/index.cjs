@@ -39,6 +39,7 @@ module.exports = __toCommonJS(src_exports);
 
 // src/base/defineGraph.ts
 var import_uuid = require("uuid");
+var import_ts_results = require("ts-results");
 var defineGraph = ({
   nodeDefinitions,
   relationshipDefinitions,
@@ -50,17 +51,23 @@ var defineGraph = ({
     relationshipDefinitions,
     edgeDefinitions,
     uniqueIndexes,
-    createNode: (nodeType, initialState) => {
+    createNode: async (nodeType, initialState) => {
       const node = {
         nodeType,
         nodeId: (0, import_uuid.v4)(),
         createdAt: (/* @__PURE__ */ new Date()).toISOString(),
         ...initialState
       };
-      return node;
-    },
-    createRelationship: (fromNode, relationshipType, toNode, ...[state]) => {
+      return new import_ts_results.Ok(node);
     }
+    // createRelationship: (
+    //     fromNode,
+    //     relationshipType,
+    //     toNode,
+    //     ...[state]
+    // ) => {
+    //     // return null as any
+    // }
   };
 };
 
@@ -73,36 +80,44 @@ var defineNode = (nodeType, stateDefinition) => ({
 // src/layers/Neo4j/Neo4jLayer.ts
 var import_neo4j_driver = __toESM(require("neo4j-driver"), 1);
 
-// src/base/UixError.ts
-var UixError = class extends Error {
-  errorType;
-  constructor(errorType, ...[message, options]) {
-    super(message, { cause: options?.cause });
-    this.errorType = errorType;
-    this.name = "UixError";
-  }
-};
-
 // src/layers/Neo4j/createUniqueIndex.ts
 var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
   const neo4jSession = neo4jDriver.session();
   try {
     console.log(`Creating unique index for ${nodeType}.${propertyName}`);
-    return await neo4jSession.executeWrite(async (tx) => tx.run(`
+    return await neo4jSession.executeWrite(async (tx) => await tx.run(`
             CREATE CONSTRAINT ${propertyName}_index IF NOT EXISTS
             FOR (node:${nodeType})
             REQUIRE node.${propertyName} IS UNIQUE
         `));
   } catch (error) {
-    throw new UixError("Fatal", "Error creating unique index in Neo4j", {
-      cause: error
-    });
+    throw error;
   } finally {
-    neo4jSession.close();
+    await neo4jSession.close();
+  }
+};
+
+// src/base/UixError.ts
+var UixError = class extends Error {
+  layer;
+  errorType;
+  constructor(layer, errorType, ...[message, options]) {
+    super(message, { cause: options?.cause });
+    this.layer = layer;
+    this.errorType = errorType;
+    this.name = "UixError";
+  }
+};
+
+// src/layers/Neo4j/Neo4jLayerError.ts
+var Neo4jLayerError = class extends UixError {
+  constructor(errorType, ...[message, options]) {
+    super("Neo4j", errorType, message, { cause: options?.cause });
   }
 };
 
 // src/layers/Neo4j/Neo4jLayer.ts
+var import_ts_results2 = require("ts-results");
 var Neo4jLayer = (graph, config) => {
   const neo4jDriver = import_neo4j_driver.default.driver(config.connection.uri, import_neo4j_driver.default.auth.basic(
     config.connection.user,
@@ -116,20 +131,29 @@ var Neo4jLayer = (graph, config) => {
   ];
   return {
     ...graph,
+    neo4jDriver,
     createNode: async (nodeType, initialState) => {
       await Promise.all(uniqueIndexesCreated);
-      const newNode = graph.createNode(nodeType, initialState);
+      const newNode = await graph.createNode(nodeType, initialState);
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        const result = await session.run(`
-                    CREATE (n:${nodeType} $newNode)
-                    RETURN n
-                `, { newNode });
-        return newNode;
+        const result = await session.executeWrite(async (tx) => {
+          return await tx.run(`
+                        CREATE (node:${nodeType} $newNode)
+                        RETURN node
+                    `, { newNode: newNode.ok ? newNode.val : {} });
+        }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
+          return new import_ts_results2.Err(new Neo4jLayerError("UniqueIndexViolation", e.message));
+        }
+        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
-        session.close();
+        await session.close();
       }
     },
     getNode: async (nodeType, nodeIndex, indexKey) => {
@@ -137,12 +161,18 @@ var Neo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        return await session.executeRead(async (tx) => {
+        const result = await session.executeRead(async (tx) => {
           return await tx.run(`
                         MATCH (node:${nodeType} {${nodeIndex}: $indexKey})
                         RETURN node
                     `, { indexKey });
-        }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
+        }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
+        if (!result)
+          return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found`));
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", e.message));
       } finally {
         session.close();
       }
@@ -152,18 +182,42 @@ var Neo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        return await session.executeWrite(async (tx) => {
+        const result = await session.executeWrite(async (tx) => {
           return await tx.run(`
                         MATCH (node:${nodeType} {nodeId: $nodeId})
                         SET node += $state
                         RETURN node
                     `, { nodeId, state });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
-      } catch (e) {
-        console.error(e);
-        throw e;
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
-        session.close();
+        await session.close();
+      }
+    },
+    deleteNode: async ({ nodeType, nodeId }) => {
+      if (!neo4jDriver)
+        throw new Error("Neo4jNode.neo4jDriver is not configured");
+      const session = neo4jDriver.session();
+      try {
+        const result = await session.executeWrite(async (tx) => {
+          return await tx.run(`
+                    MATCH (node:${nodeType} {nodeId: $nodeId})
+                    OPTIONAL MATCH (node)-[r]-() 
+                    DELETE r, node 
+                    RETURN node
+                    `, { nodeId });
+        }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
+        if (!result)
+          return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with nodeId: ${nodeId} not found`));
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+      } finally {
+        await session.close();
       }
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...[state]) => {
@@ -171,18 +225,27 @@ var Neo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        const result = await session.run(`
-                    MATCH (from:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
-                    MATCH (to:${toNode.nodeType} {nodeId: $toNode.nodeId})
-                    MERGE (from)-[:${relationshipType}]->(to)
-                    RETURN from, to
-                `, { fromNode, toNode });
-        return {
-          fromNode: result.records[0].get("from").properties,
-          toNode: result.records[0].get("to").properties
-        };
+        const result = await session.executeWrite(async (tx) => {
+          return await tx.run(`
+                        MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
+                        MATCH (toNode:${toNode.nodeType} {nodeId: $toNode.nodeId})
+                        MERGE (fromNode)-[relationship:${relationshipType}]->(toNode)
+                        SET relationship += $state
+                        RETURN fromNode, toNode, relationship
+                    `, { fromNode, toNode, state: state ?? {} });
+        }).then(({ records }) => records.map((record) => {
+          return {
+            fromNode: record.get("fromNode").properties,
+            relationship: record.get("relationship").properties,
+            toNode: record.get("toNode").properties
+          };
+        })[0]);
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
-        session.close();
+        await session.close();
       }
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
@@ -191,14 +254,18 @@ var Neo4jLayer = (graph, config) => {
       const session = neo4jDriver.session();
       try {
         const { nodeType, nodeId } = fromNode;
-        return await session.executeRead(async (tx) => {
+        const result = await session.executeRead(async (tx) => {
           return await tx.run(`
                         MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType}]->(toNode:${toNodeType})
                         RETURN toNode
                     `, { fromNodeId: nodeId });
         }).then(({ records }) => records.map((record) => record.get("toNode").properties));
+        return new import_ts_results2.Ok(result);
+      } catch (_e) {
+        const e = _e;
+        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
-        session.close();
+        await session.close();
       }
     }
   };
@@ -227,9 +294,12 @@ var NextjsCacheLayer = (graph) => {
       return node;
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
-      const node = await graph.updateNode({ nodeType, nodeId }, state);
-      graph.uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(import_cache.revalidateTag);
-      return node;
+      const nodeResult = await graph.updateNode({ nodeType, nodeId }, state);
+      if (!nodeResult.ok) {
+        return nodeResult;
+      }
+      graph.uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach(import_cache.revalidateTag);
+      return nodeResult;
     }
   };
 };

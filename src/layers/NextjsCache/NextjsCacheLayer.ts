@@ -2,6 +2,7 @@ import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/Graph";
+import { NextjsCacheLayerError } from "./NextjsCacheLayerError";
 
 
 
@@ -19,7 +20,7 @@ export const NextjsCacheLayer = <
     },
 >(
     graph: GraphLayer<N, R, E, UIdx>,
-): GraphLayer<N, R, E, UIdx> => {
+): GraphLayer<N, R, E, UIdx, NextjsCacheLayerError> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>
     return {
         ...graph,
@@ -38,11 +39,14 @@ export const NextjsCacheLayer = <
             return node
         },
         updateNode: async ({ nodeType, nodeId }, state) => {
-            const node = await graph.updateNode({ nodeType, nodeId }, state)
+            const nodeResult = await graph.updateNode({ nodeType, nodeId }, state)
+            if (!nodeResult.ok) {
+                return nodeResult
+            }
             graph.uniqueIndexes[nodeType]!
-                .map((indexKey: any) => `${nodeType}-${indexKey as string}-${node[indexKey]}`)
+                .map((indexKey: any) => `${nodeType}-${indexKey as string}-${nodeResult.val[indexKey]}`)
                 .forEach(revalidateTag)
-            return node
+            return nodeResult
         }
     }
 }

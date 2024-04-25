@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
 import { GraphLayer } from "../types/Graph"
-
+import { Ok, Err } from 'ts-results';
 
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
@@ -30,20 +30,20 @@ export const defineGraph = <
     edgeDefinitions: E
     uniqueIndexes: UIdx
 }): Pick<
-    GraphLayer<N, R, E, UIdx>, 
-    | 'nodeDefinitions' 
-    | 'relationshipDefinitions' 
-    | 'edgeDefinitions' 
-    | 'uniqueIndexes' 
-    | 'createNode' 
-    | 'createRelationship'
+    GraphLayer<N, R, E, UIdx>,
+    | 'nodeDefinitions'
+    | 'relationshipDefinitions'
+    | 'edgeDefinitions'
+    | 'uniqueIndexes'
+    | 'createNode'
+// | 'createRelationship'
 > => {
     return {
         nodeDefinitions,
         relationshipDefinitions,
         edgeDefinitions,
         uniqueIndexes,
-        createNode: (
+        createNode: async (
             nodeType,
             initialState
         ) => {
@@ -53,15 +53,15 @@ export const defineGraph = <
                 createdAt: new Date().toISOString(),
                 ...initialState
             }
-            return node
+            return new Ok(node)
         },
-        createRelationship: (
-            fromNode,
-            relationshipType,
-            toNode,
-            ...[state]
-        ) => {
-            // return null as any
-        }
+        // createRelationship: (
+        //     fromNode,
+        //     relationshipType,
+        //     toNode,
+        //     ...[state]
+        // ) => {
+        //     // return null as any
+        // }
     }
 }
