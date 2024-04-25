@@ -32,7 +32,6 @@
   },
   "keywords": [],
   "dependencies": {
-    "@pulumi/pulumi": "^3.113.3",
     "openai": "^4.38.3",
     "uuid": "^9.0.1"
   },
