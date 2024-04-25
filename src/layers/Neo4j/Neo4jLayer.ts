@@ -10,10 +10,10 @@ import { UixNode } from '@/src/types/UixNode';
 
 export const Neo4jLayer = <
     N extends readonly ReturnType<typeof defineNode< any, any>>[],
-    G extends ReturnType<typeof defineGraph<N, any>>,
     UIdx extends {
-        [T in G['nodeDefinitions'][number]['nodeType']]?: readonly (keyof TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>)[]
-    }
+        [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
+    },
+    G extends ReturnType<typeof defineGraph<N, any>>,
 >(graph: G, config: {
     connection: {
         uri: string,
@@ -35,7 +35,7 @@ export const Neo4jLayer = <
         })) ?? []
     ]
     return {
-        uniqueIndexes: config.uniqueIndexes as UIdx,
+        uniqueIndexes: config.uniqueIndexes,
         nodeDefinitions: graph.nodeDefinitions,
         relationshipDefinitions: graph.relationshipDefinitions,
         createNode: async <
