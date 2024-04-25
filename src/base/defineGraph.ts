@@ -9,14 +9,12 @@ export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' |
 
 export const defineGraph = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
-    R extends {
-        [K in N[number]['nodeType']]?: {
-            [R: Uppercase<string>]: {
-                toNodeType: readonly N[number]['nodeType'][]
-                stateDefinition?: ZodObject<any>
-            }
+    R extends { [K in N[number]['nodeType']]?: {
+        [R: Uppercase<string>]: {
+            toNodeType: readonly N[number]['nodeType'][]
+            stateDefinition?: ZodObject<any>
         }
-    },
+    } },
 >({
     nodeDefinitions,
     relationshipDefinitions
