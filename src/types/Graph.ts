@@ -150,9 +150,6 @@ export type GraphLayer<
         nodeKey: NodeKey<T>,
         state: Partial<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
     ) => Promise<UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>>
-
-
-
 }
 
-
+// export type PickGraphMethods<> = 

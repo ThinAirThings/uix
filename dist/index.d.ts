@@ -95,12 +95,7 @@ declare const Neo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, G extends Pick<GraphLayer<N, R, E, UIdx>, "createRelationship" | "nodeDefinitions" | "relationshipDefinitions" | "edgeDefinitions" | "uniqueIndexes" | "createNode">>(graph: G, { nodeDefinitions, relationshipDefinitions, edgeDefinitions, uniqueIndexes }: {
-    nodeDefinitions: N;
-    relationshipDefinitions: R;
-    edgeDefinitions: E;
-    uniqueIndexes: UIdx;
-}, config: {
+})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode'>, config: {
     connection: {
         uri: string;
         user: string;
@@ -120,11 +115,6 @@ declare const NextjsCacheLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, G extends Pick<GraphLayer<N, R, E, UIdx>, "getNode" | "updateNode">>(graph: G, { nodeDefinitions, relationshipDefinitions, edgeDefinitions, uniqueIndexes }: {
-    nodeDefinitions: N;
-    relationshipDefinitions: R;
-    edgeDefinitions: E;
-    uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'>;
+})["stateDefinition"]>)[] | undefined; }>(graph: GraphLayer<N, R, E, UIdx>) => GraphLayer<N, R, E, UIdx>;
 
 export { Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, defineGraph, defineNode };

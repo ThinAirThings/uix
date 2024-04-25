@@ -4,7 +4,6 @@ import neo4j, { Integer, Node } from 'neo4j-driver';
 import { TypeOf, ZodObject, ZodRawShape } from 'zod';
 import { createUniqueIndex } from './createUniqueIndex';
 import { defineNode } from '@/src/base/defineNode';
-import { NodeKey } from '@/src/types/NodeKey';
 import { UixNode } from '@/src/types/UixNode';
 import { GraphLayer } from '@/src/types/Graph';
 
@@ -20,42 +19,34 @@ export const Neo4jLayer = <
     } },
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
-    },
-    G extends ReturnType<typeof defineGraph<N, R, E, UIdx>>
->(graph: G, {
-    nodeDefinitions,
-    relationshipDefinitions,
-    edgeDefinitions,
-    uniqueIndexes
-}: {
-    nodeDefinitions: N
-    relationshipDefinitions: R,
-    edgeDefinitions: E,
-    uniqueIndexes: UIdx
-},
-    config: {
-        connection: {
-            uri: string,
-            user: string,
-            password: string
-        }
-    }): GraphLayer<N, R, E, UIdx> => {
+    }
+>(graph: Pick<
+    GraphLayer<N, R, E, UIdx>,
+    | 'relationshipDefinitions'
+    | 'edgeDefinitions'
+    | 'nodeDefinitions'
+    | 'uniqueIndexes'
+    | 'createNode'
+>, config: {
+    connection: {
+        uri: string,
+        user: string,
+        password: string
+    }
+}): GraphLayer<N, R, E, UIdx> => {
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
         config.connection.user,
         config.connection.password
     ))
     // Create Unique Indexes
     const uniqueIndexesCreated = [
-        ...nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, 'nodeId')),
-        ...(uniqueIndexes && Object.entries(uniqueIndexes).map(([nodeType, index]) => {
+        ...graph.nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, 'nodeId')),
+        ...(graph.uniqueIndexes && Object.entries(graph.uniqueIndexes).map(([nodeType, index]) => {
             return createUniqueIndex(neo4jDriver, nodeType, index as string)
         })) ?? []
     ]
     return {
-        uniqueIndexes: uniqueIndexes,
-        nodeDefinitions: nodeDefinitions,
-        edgeDefinitions: edgeDefinitions,
-        relationshipDefinitions: relationshipDefinitions,
+        ...graph,
         createNode: async (
             nodeType,
             initialState

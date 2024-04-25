@@ -64,27 +64,19 @@ var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
 };
 
 // src/layers/Neo4j/Neo4jLayer.ts
-var Neo4jLayer = (graph, {
-  nodeDefinitions,
-  relationshipDefinitions,
-  edgeDefinitions,
-  uniqueIndexes
-}, config) => {
+var Neo4jLayer = (graph, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
     config.connection.user,
     config.connection.password
   ));
   const uniqueIndexesCreated = [
-    ...nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, "nodeId")),
-    ...(uniqueIndexes && Object.entries(uniqueIndexes).map(([nodeType, index]) => {
+    ...graph.nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, "nodeId")),
+    ...(graph.uniqueIndexes && Object.entries(graph.uniqueIndexes).map(([nodeType, index]) => {
       return createUniqueIndex(neo4jDriver, nodeType, index);
     })) ?? []
   ];
   return {
-    uniqueIndexes,
-    nodeDefinitions,
-    edgeDefinitions,
-    relationshipDefinitions,
+    ...graph,
     createNode: async (nodeType, initialState) => {
       await Promise.all(uniqueIndexesCreated);
       const newNode = graph.createNode(nodeType, initialState);
@@ -175,14 +167,10 @@ var Neo4jLayer = (graph, {
 
 // src/layers/NextjsCache/NextjsCacheLayer.ts
 import { unstable_cache as cache, revalidateTag } from "next/cache";
-var NextjsCacheLayer = (graph, {
-  nodeDefinitions,
-  relationshipDefinitions,
-  edgeDefinitions,
-  uniqueIndexes
-}) => {
+var NextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
   return {
+    ...graph,
     getNode: async (nodeType, nodeIndex, indexKey) => {
       const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`;
       if (!cacheMap.has(cacheKey)) {
@@ -201,7 +189,7 @@ var NextjsCacheLayer = (graph, {
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
       const node = await graph.updateNode({ nodeType, nodeId }, state);
-      uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(revalidateTag);
+      graph.uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(revalidateTag);
       return node;
     }
   };

@@ -17,20 +17,12 @@ export const NextjsCacheLayer = <
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
-    G extends Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'>
->(graph: G, {
-    nodeDefinitions,
-    relationshipDefinitions,
-    edgeDefinitions,
-    uniqueIndexes
-}: {
-    nodeDefinitions: N
-    relationshipDefinitions: R,
-    edgeDefinitions: E,
-    uniqueIndexes: UIdx
-}): Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'> => {
+>(
+    graph: GraphLayer<N, R, E, UIdx>,
+): GraphLayer<N, R, E, UIdx> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>
     return {
+        ...graph,
         getNode: async (nodeType, nodeIndex, indexKey) => {
             const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`
             if (!cacheMap.has(cacheKey)) {
@@ -47,7 +39,7 @@ export const NextjsCacheLayer = <
         },
         updateNode: async ({ nodeType, nodeId }, state) => {
             const node = await graph.updateNode({ nodeType, nodeId }, state)
-            uniqueIndexes[nodeType]!
+            graph.uniqueIndexes[nodeType]!
                 .map((indexKey: any) => `${nodeType}-${indexKey as string}-${node[indexKey]}`)
                 .forEach(revalidateTag)
             return node
