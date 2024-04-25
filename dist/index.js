@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 var defineGraph = ({
   nodeDefinitions,
   relationshipDefinitions,
+  edgeDefinitions,
   uniqueIndexes
 }) => {
   return {
@@ -66,6 +67,7 @@ var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
 var Neo4jLayer = (graph, {
   nodeDefinitions,
   relationshipDefinitions,
+  edgeDefinitions,
   uniqueIndexes
 }, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(

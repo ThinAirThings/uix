@@ -4,7 +4,6 @@ import { NodeKey } from "./NodeKey"
 import { UixNode } from "./UixNode"
 
 
-
 type ThisGraph = GraphLayer<[
     ReturnType<typeof defineNode< 'User', ReturnType<typeof z.object<{
         email: ReturnType<typeof z.string>
@@ -18,28 +17,32 @@ type ThisGraph = GraphLayer<[
     ReturnType<typeof defineNode< 'Company', ReturnType<typeof z.object<{
         name: ReturnType<typeof z.string>
     }>>>>
+], [
+    {
+        relationshipType: 'HAS_POST', 
+        stateDefinition: ReturnType<typeof z.object<{
+            createdAtTime: ReturnType<typeof z.string>
+            updatedAt: ReturnType<typeof z.string>
+        }>>,
+    },
+    {
+        relationshipType: 'WORKED_AT',
+    },
+    {
+        relationshipType: 'HAS_USER',
+        stateDefinition: ReturnType<typeof z.object<{
+            createdAt: ReturnType<typeof z.string>
+            updatedAt: ReturnType<typeof z.string>
+        }>>
+    }
 ], {
     'User': {
-        'HAS_POST': {
-            toNodeType: ['Post'],
-            stateDefinition: ReturnType<typeof z.object<{
-                createdAt: ReturnType<typeof z.string>,
-                updatedAt: ReturnType<typeof z.string>
-            }>>
-        },
-        'WORKED_AT': {
-            toNodeType: ['Company']
-        }
+        'HAS_POST': ['Post'],
+        'WORKED_AT': ['Company', 'Post']
     },
     'Post': {
-        'HAS_USER': {
-            toNodeType: ['User', 'Company'],
-            stateDefinition: ReturnType<typeof z.object<{
-                createdAt: ReturnType<typeof z.string>,
-                updatedAt: ReturnType<typeof z.string>
-            }>>
-        }
-    },
+        'HAS_USER': ['User']
+    }
 }, {
     'User': ['email'],
     'Post': ['title']
@@ -47,11 +50,15 @@ type ThisGraph = GraphLayer<[
 
 type CreateRelationship = ThisGraph['createRelationship']
 const createRelationship = null as unknown as CreateRelationship
-createRelationship({ nodeType: 'Post', nodeId: '123' }, 'HAS_USER', null as unknown as NodeKey<'Company'>, {
-    createdAt: '2021-01-01',
+createRelationship({ nodeType: 'User', nodeId: '123' }, 'WORKED_AT', null as unknown as NodeKey<'Company'>)
+
+createRelationship({ nodeType: 'User', nodeId: '123' }, 'HAS_POST', null as unknown as NodeKey<'Post'>, 
+{
+    createdAtTime: '2021-01-01',
     updatedAt: '2021-01-01'
-})
-createRelationship({ nodeType: 'User', nodeId: '123' }, 'HAS_POST', null as unknown as NodeKey<'Company'>, {
+}
+)
+createRelationship({ nodeType: 'Post', nodeId: '123' }, 'HAS_USER', null as unknown as NodeKey<'User'>, {
     createdAt: '2021-01-01',
     updatedAt: '2021-01-01'
 })
@@ -61,19 +68,20 @@ getNode('User', 'email', '')
 
 export type GraphLayer<
     N extends readonly ReturnType<typeof defineNode< any, any>>[],
-    // R extends readonly ReturnType<typeof >
-    R extends { [K in N[number]['nodeType']]?: {
-        readonly [R: Uppercase<string>]: {
-            toNodeType: readonly N[number]['nodeType'][]
-            stateDefinition?: ZodObject<any>
-        }
-    }},
+    R extends readonly {
+        relationshipType: Uppercase<string>
+        stateDefinition?: ZodObject<any>
+    }[],
+    E extends Readonly<{ [NT in (N[number]['nodeType'])]?: {
+        [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][]
+    }}>,
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
 > = {
     nodeDefinitions: N,
     relationshipDefinitions: R,
+    edgeDefinitions: E,
     uniqueIndexes: UIdx,
     //      ___              _         ___     _      _   _             _    _      
     //     / __|_ _ ___ __ _| |_ ___  | _ \___| |__ _| |_(_)___ _ _  __| |_ (_)_ __ 
@@ -81,25 +89,31 @@ export type GraphLayer<
     //     \___|_| \___\__,_|\__\___| |_|_\___|_\__,_|\__|_\___/_||_/__/_||_|_| .__/
     //                                                                        |_|   
     createRelationship: <
-        NodeType extends N[number]['nodeType'],
-        RelationshipType extends (keyof (R[NodeType]))
+        NodeType extends keyof E,
+        RelationshipType extends ((keyof E[NodeType])),
+        ToNodeType extends E[NodeType][RelationshipType] extends readonly any[] ? E[NodeType][RelationshipType][number] : never
     >(
-        fromNode: NodeKey<NodeType>,
+        fromNode: NodeKey<NodeType&Capitalize<string>>,
         relationshipType: RelationshipType,
-        toNode: NodeKey<{
-            [RelationshipTypeKey in keyof R[NodeType]]: {
-                [Key in keyof R[NodeType][RelationshipTypeKey]]: R[NodeType][RelationshipTypeKey][Key] extends any[] 
-                    ? R[NodeType][RelationshipTypeKey][Key][number] extends Capitalize<string> ? R[NodeType][RelationshipTypeKey][Key][number] : never
-                    : R[NodeType][RelationshipTypeKey][Key] extends Capitalize<string> ? R[NodeType][RelationshipTypeKey][Key] : never
-            }[keyof R[NodeType][RelationshipTypeKey]]
-        }[keyof R[NodeType]]>,
-        ...[state]: {[RelationshipTypeKey in keyof R[NodeType]]: {
-                [Key in keyof R[NodeType][RelationshipTypeKey]]: R[NodeType][RelationshipTypeKey][Key] extends ZodObject<ZodRawShape> 
-                    ? R[NodeType][RelationshipTypeKey][Key] extends ZodObject<ZodRawShape> ? [TypeOf<R[NodeType][RelationshipTypeKey][Key]>] : []
-                : never
-            }[keyof R[NodeType][RelationshipTypeKey]]
-        }[keyof R[NodeType]]
+        toNode: NodeKey<ToNodeType>,
+       ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
+            ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
+            : []
     ) => void
+    //      ___     _     ___     _      _          _   _____    
+    //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
+    //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
+    //     \___\___|\__| |_|_\___|_\__,_|\__\___\__,_|   |_|\___/
+    getRelatedTo: <
+        FromNodeType extends keyof E,
+        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
+        ToNodeType extends E[FromNodeType][RelationshipType] extends any[] ? E[FromNodeType][RelationshipType][number] : never
+    >(
+        fromNode: NodeKey<FromNodeType&Capitalize<string>>,
+        relationshipType: RelationshipType,
+        toNodeType: ToNodeType
+    ) => Promise<UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[]>
+
     //      ___              _         _  _         _     
     //     / __|_ _ ___ __ _| |_ ___  | \| |___  __| |___ 
     //    | (__| '_/ -_) _` |  _/ -_) | .` / _ \/ _` / -_)
@@ -139,25 +153,6 @@ export type GraphLayer<
 
 
 
-    //      ___     _     ___     _      _          _   _____    
-    //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
-    //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
-    //     \___\___|\__| |_|_\___|_\__,_|\__\___\__,_|   |_|\___/
-    getRelatedTo: <
-        FromNodeType extends N[number]['nodeType'],
-        RelationshipType extends (keyof (R[FromNodeType])),
-        ToNodeType extends {
-            [RelationshipTypeKey in keyof R[FromNodeType]]: {
-                [Key in keyof R[FromNodeType][RelationshipTypeKey]]: R[FromNodeType][RelationshipTypeKey][Key] extends any[] 
-                    ? R[FromNodeType][RelationshipTypeKey][Key][number] extends Capitalize<string> ? R[FromNodeType][RelationshipTypeKey][Key][number] : never
-                    : R[FromNodeType][RelationshipTypeKey][Key] extends Capitalize<string> ? R[FromNodeType][RelationshipTypeKey][Key] : never
-            }[keyof R[FromNodeType][RelationshipTypeKey]]
-        }[keyof R[FromNodeType]]
-    >(
-        fromNode: NodeKey<FromNodeType>,
-        relationshipType: RelationshipType,
-        toNodeType: ToNodeType
-    ) => Promise<UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[]>
 }
 
 

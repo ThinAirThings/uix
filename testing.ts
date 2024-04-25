@@ -1,11 +1,11 @@
 import { z } from 'zod'
-// import { Neo4jLayer } from "./src/layers/Neo4j/Neo4jLayer";
-// import { defineGraph } from "./src/base/defineGraph";
-// import { defineNode } from "./src/base/defineNode";
-// import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
-import { Neo4jLayer, defineGraph, defineNode, 
-    // NextjsCacheLayer 
-} from './dist'
+import { Neo4jLayer } from "./src/layers/Neo4j/Neo4jLayer";
+import { defineGraph } from "./src/base/defineGraph";
+import { defineNode } from "./src/base/defineNode";
+import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
+// import { Neo4jLayer, defineGraph, defineNode, 
+//     // NextjsCacheLayer 
+// } from './dist'
 
 const graph = defineGraph({
     nodeDefinitions: [
@@ -22,32 +22,40 @@ const graph = defineGraph({
             name: z.string()
         }))
     ],
-    relationshipDefinitions: {
+    relationshipDefinitions: [{
+        relationshipType: 'HAS_POST' as const,
+        stateDefinition: z.object({
+            createdAt: z.string(),
+            updatedAt: z.string()
+        })
+    }, {
+        relationshipType: 'WORKED_AT' as const
+    }] as const,
+    edgeDefinitions: {
         'User': {
-            HAS_POST: {
-                toNodeType: ['Post'],
-                stateDefinition: z.object({
-                    createdAt: z.string(),
-                    updatedAt: z.string()
-                })
-            } ,
-            WORKED_AT: {
-                toNodeType: ['Company', 'Post']
-            } 
-        } 
+            'HAS_POST': ['Post'] , 
+            'WORKED_AT': ['Company'] 
+        },
     } as const,
     uniqueIndexes: {
         'User': ['email'],
         'Post': ['title']
     }
 })
-
+graph.createNode('Company', {
+    name: 'fdsa'
+})
+graph.createRelationship({nodeType: 'User', nodeId: '123'}, 'HAS_POST', {nodeType: 'Post', nodeId: '123'}, {
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+})
 // graph.getNode({nodeType: 'User', nodeId: '123'})
 
 const neoGraph = Neo4jLayer(graph, {
     nodeDefinitions: graph.nodeDefinitions,
     relationshipDefinitions: graph.relationshipDefinitions,
     uniqueIndexes: graph.uniqueIndexes,
+    edgeDefinitions: graph.edgeDefinitions
 }, {
     connection: {
         uri: 'bolt://localhost:7687',

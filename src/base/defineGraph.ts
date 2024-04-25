@@ -9,11 +9,12 @@ export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' |
 
 export const defineGraph = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
-    R extends { [K in N[number]['nodeType']]?: {
-        [R: Uppercase<string>]: {
-            toNodeType: readonly N[number]['nodeType'][]
-            stateDefinition?: ZodObject<any>
-        }
+    R extends readonly {
+        relationshipType: Uppercase<string>
+        stateDefinition?: ZodObject<any>
+    }[],
+    E extends { [NT in (N[number]['nodeType'])]?: {
+        [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][]
     } },
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
@@ -21,15 +22,26 @@ export const defineGraph = <
 >({
     nodeDefinitions,
     relationshipDefinitions,
+    edgeDefinitions,
     uniqueIndexes
 }: {
     nodeDefinitions: N,
     relationshipDefinitions: R
+    edgeDefinitions: E
     uniqueIndexes: UIdx
-}): Pick<GraphLayer<N, R, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'uniqueIndexes' | 'createNode' | 'createRelationship'> => {
+}): Pick<
+    GraphLayer<N, R, E, UIdx>, 
+    | 'nodeDefinitions' 
+    | 'relationshipDefinitions' 
+    | 'edgeDefinitions' 
+    | 'uniqueIndexes' 
+    | 'createNode' 
+    | 'createRelationship'
+> => {
     return {
         nodeDefinitions,
         relationshipDefinitions,
+        edgeDefinitions,
         uniqueIndexes,
         createNode: (
             nodeType,
@@ -49,7 +61,7 @@ export const defineGraph = <
             toNode,
             ...[state]
         ) => {
-            return null as any
-        } 
+            // return null as any
+        }
     }
 }

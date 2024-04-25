@@ -10,24 +10,27 @@ import { GraphLayer } from '@/src/types/Graph';
 
 
 export const Neo4jLayer = <
-    N extends readonly ReturnType<typeof defineNode<Capitalize<string>, any>>[],
-    R extends { [K in N[number]['nodeType']]?: {
-        [R: Uppercase<string>]: {
-            toNodeType: readonly N[number]['nodeType'][]
-            stateDefinition?: ZodObject<any>
-        }
+    N extends readonly ReturnType<typeof defineNode<any, any>>[],
+    R extends readonly {
+        relationshipType: Uppercase<string>
+        stateDefinition?: ZodObject<any>
+    }[],
+    E extends { [NT in (N[number]['nodeType'])]?: {
+        [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][]
     } },
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
-    G extends ReturnType<typeof defineGraph<N, R, UIdx>>
+    G extends ReturnType<typeof defineGraph<N, R, E, UIdx>>
 >(graph: G, {
     nodeDefinitions,
     relationshipDefinitions,
+    edgeDefinitions,
     uniqueIndexes
 }: {
     nodeDefinitions: N
     relationshipDefinitions: R,
+    edgeDefinitions: E,
     uniqueIndexes: UIdx
 },
     config: {
@@ -36,7 +39,7 @@ export const Neo4jLayer = <
             user: string,
             password: string
         }
-    }): GraphLayer<N, R, UIdx> => {
+    }): GraphLayer<N, R, E, UIdx> => {
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
         config.connection.user,
         config.connection.password
@@ -164,7 +167,7 @@ export const Neo4jLayer = <
                 session.close()
             }
         }
-    } as GraphLayer<N, R, UIdx>
+    }
 }
 
 
