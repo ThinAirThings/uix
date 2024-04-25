@@ -23,14 +23,14 @@ const graph = defineGraph({
         }))
     ],
     relationshipDefinitions: [{
-        relationshipType: 'HAS_POST' as const,
+        relationshipType: 'HAS_POST',
         stateDefinition: z.object({
             createdAt: z.string(),
             updatedAt: z.string()
         })
     }, {
-        relationshipType: 'WORKED_AT' as const
-    }] as const,
+        relationshipType: 'WORKED_AT'
+    }],
     edgeDefinitions: {
         'User': {
             'HAS_POST': ['Post'] , 
@@ -81,8 +81,17 @@ await neoGraph.createRelationship(userNode, 'HAS_POST', postNode, {
 // const posts = await neoGraph.getRelatedTo(userNode, 'HAS_POST', 'Post')
 // console.log(posts)
 
-const cacheGraph = NextjsCacheLayer(neoGraph)
+const cacheGraph = NextjsCacheLayer(neoGraph, {
+    nodeDefinitions: graph.nodeDefinitions,
+    relationshipDefinitions: graph.relationshipDefinitions,
+    uniqueIndexes: graph.uniqueIndexes,
+    edgeDefinitions: graph.edgeDefinitions
+})
 cacheGraph.getNode('User', 'nodeId', 'fsda')
+cacheGraph.getNode('User', 'email', '')
+cacheGraph.updateNode(userNode, {
+    name: 'John Doe'
+})
 // cacheGraph.getNode()
 // console.log(updatedPostNode)
 // neoGraph.createNode('User', {

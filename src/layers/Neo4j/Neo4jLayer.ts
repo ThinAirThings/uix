@@ -54,6 +54,7 @@ export const Neo4jLayer = <
     return {
         uniqueIndexes: uniqueIndexes,
         nodeDefinitions: nodeDefinitions,
+        edgeDefinitions: edgeDefinitions,
         relationshipDefinitions: relationshipDefinitions,
         createNode: async (
             nodeType,
@@ -89,7 +90,6 @@ export const Neo4jLayer = <
                         RETURN node
                     `, { indexKey })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
-                // return result.records[0].get('node').properties as UixNode<T, TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>
             } finally {
                 session.close()
             }

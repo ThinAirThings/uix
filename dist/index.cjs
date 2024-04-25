@@ -31,6 +31,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var src_exports = {};
 __export(src_exports, {
   Neo4jLayer: () => Neo4jLayer,
+  NextjsCacheLayer: () => NextjsCacheLayer,
   defineGraph: () => defineGraph,
   defineNode: () => defineNode
 });
@@ -47,6 +48,7 @@ var defineGraph = ({
   return {
     nodeDefinitions,
     relationshipDefinitions,
+    edgeDefinitions,
     uniqueIndexes,
     createNode: (nodeType, initialState) => {
       const node = {
@@ -58,7 +60,6 @@ var defineGraph = ({
       return node;
     },
     createRelationship: (fromNode, relationshipType, toNode, ...[state]) => {
-      return null;
     }
   };
 };
@@ -121,6 +122,7 @@ var Neo4jLayer = (graph, {
   return {
     uniqueIndexes,
     nodeDefinitions,
+    edgeDefinitions,
     relationshipDefinitions,
     createNode: async (nodeType, initialState) => {
       await Promise.all(uniqueIndexesCreated);
@@ -209,9 +211,44 @@ var Neo4jLayer = (graph, {
     }
   };
 };
+
+// src/layers/NextjsCache/NextjsCacheLayer.ts
+var import_cache = require("next/cache");
+var NextjsCacheLayer = (graph, {
+  nodeDefinitions,
+  relationshipDefinitions,
+  edgeDefinitions,
+  uniqueIndexes
+}) => {
+  const cacheMap = /* @__PURE__ */ new Map();
+  return {
+    getNode: async (nodeType, nodeIndex, indexKey) => {
+      const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`;
+      if (!cacheMap.has(cacheKey)) {
+        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(
+          async (...[nodeType2, index, key]) => {
+            return await graph.getNode(nodeType2, index, key);
+          },
+          [cacheKey],
+          {
+            tags: [cacheKey]
+          }
+        ));
+      }
+      const node = await graph.getNode(nodeType, nodeIndex, indexKey);
+      return node;
+    },
+    updateNode: async ({ nodeType, nodeId }, state) => {
+      const node = await graph.updateNode({ nodeType, nodeId }, state);
+      uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(import_cache.revalidateTag);
+      return node;
+    }
+  };
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   Neo4jLayer,
+  NextjsCacheLayer,
   defineGraph,
   defineNode
 });

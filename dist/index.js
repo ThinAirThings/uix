@@ -9,6 +9,7 @@ var defineGraph = ({
   return {
     nodeDefinitions,
     relationshipDefinitions,
+    edgeDefinitions,
     uniqueIndexes,
     createNode: (nodeType, initialState) => {
       const node = {
@@ -20,7 +21,6 @@ var defineGraph = ({
       return node;
     },
     createRelationship: (fromNode, relationshipType, toNode, ...[state]) => {
-      return null;
     }
   };
 };
@@ -83,6 +83,7 @@ var Neo4jLayer = (graph, {
   return {
     uniqueIndexes,
     nodeDefinitions,
+    edgeDefinitions,
     relationshipDefinitions,
     createNode: async (nodeType, initialState) => {
       await Promise.all(uniqueIndexesCreated);
@@ -171,8 +172,43 @@ var Neo4jLayer = (graph, {
     }
   };
 };
+
+// src/layers/NextjsCache/NextjsCacheLayer.ts
+import { unstable_cache as cache, revalidateTag } from "next/cache";
+var NextjsCacheLayer = (graph, {
+  nodeDefinitions,
+  relationshipDefinitions,
+  edgeDefinitions,
+  uniqueIndexes
+}) => {
+  const cacheMap = /* @__PURE__ */ new Map();
+  return {
+    getNode: async (nodeType, nodeIndex, indexKey) => {
+      const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`;
+      if (!cacheMap.has(cacheKey)) {
+        cacheMap.set(cacheKey, cache(
+          async (...[nodeType2, index, key]) => {
+            return await graph.getNode(nodeType2, index, key);
+          },
+          [cacheKey],
+          {
+            tags: [cacheKey]
+          }
+        ));
+      }
+      const node = await graph.getNode(nodeType, nodeIndex, indexKey);
+      return node;
+    },
+    updateNode: async ({ nodeType, nodeId }, state) => {
+      const node = await graph.updateNode({ nodeType, nodeId }, state);
+      uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach(revalidateTag);
+      return node;
+    }
+  };
+};
 export {
   Neo4jLayer,
+  NextjsCacheLayer,
   defineGraph,
   defineNode
 };

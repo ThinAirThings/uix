@@ -1,22 +1,35 @@
 import { defineNode } from "@/src/base/defineNode";
-import { Neo4jLayer } from "../Neo4j/Neo4jLayer";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
-import { defineGraph } from "@/src/base/defineGraph";
-import { TypeOf } from "zod";
+import { TypeOf, ZodObject } from "zod";
+import { GraphLayer } from "@/src/types/Graph";
 
 
 
 export const NextjsCacheLayer = <
-    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    N extends readonly ReturnType<typeof defineNode<any, any>>[],
+    R extends readonly {
+        relationshipType: Uppercase<string>
+        stateDefinition?: ZodObject<any>
+    }[],
+    E extends { [NT in (N[number]['nodeType'])]?: {
+        [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][]
+    } },
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
-    G extends ReturnType<typeof Neo4jLayer<N, ReturnType<typeof defineGraph<N, any>>, UIdx>>
->(
-    graph: G
-): Pick<G, 'getNode' | 'updateNode'> => {
+    G extends Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'>
+>(graph: G, {
+    nodeDefinitions,
+    relationshipDefinitions,
+    edgeDefinitions,
+    uniqueIndexes
+}: {
+    nodeDefinitions: N
+    relationshipDefinitions: R,
+    edgeDefinitions: E,
+    uniqueIndexes: UIdx
+}): Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>
-    const uniqueIndexes = graph['uniqueIndexes']
     return {
         getNode: async (nodeType, nodeIndex, indexKey) => {
             const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`

@@ -27,26 +27,27 @@ type NodeKey<T extends Capitalize<string>> = {
 type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R extends readonly {
     relationshipType: Uppercase<string>;
     stateDefinition?: ZodObject<any>;
-}[], E extends {
+}[], E extends Readonly<{
     [NT in (N[number]['nodeType'])]?: {
         [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][];
     };
-}, UIdx extends {
+}>, UIdx extends {
     [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>)[];
 }> = {
     nodeDefinitions: N;
     relationshipDefinitions: R;
+    edgeDefinitions: E;
     uniqueIndexes: UIdx;
-    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<UixNode<ToNodeType, TypeOf<(N[number] & {
-        nodeType: ToNodeType;
-    })['stateDefinition']>>[]>;
-    createRelationship: <NodeType extends keyof E, RelationshipType extends ((keyof E[NodeType]) & R[number]['relationshipType'])>(fromNode: NodeKey<NodeType & Capitalize<string>>, relationshipType: RelationshipType, toNode: NodeKey<E[NodeType][RelationshipType] extends any[] ? E[NodeType][RelationshipType][number] : never>, ...[state]: NonNullable<(R[number] & {
+    createRelationship: <NodeType extends keyof E, RelationshipType extends ((keyof E[NodeType])), ToNodeType extends E[NodeType][RelationshipType] extends readonly any[] ? E[NodeType][RelationshipType][number] : never>(fromNode: NodeKey<NodeType & Capitalize<string>>, relationshipType: RelationshipType, toNode: NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']>>] : []) => void;
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })['stateDefinition']>>[]>;
     createNode: <T extends N[number]['nodeType']>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>) => Promise<UixNode<T, TypeOf<(N[number] & {
@@ -80,7 +81,7 @@ declare const defineGraph: <N extends readonly {
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'uniqueIndexes' | 'createNode' | 'createRelationship'>;
+}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'createRelationship'>;
 
 declare const Neo4jLayer: <N extends readonly {
     nodeType: any;
@@ -94,7 +95,7 @@ declare const Neo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, G extends Pick<GraphLayer<N, R, E, UIdx>, "createRelationship" | "nodeDefinitions" | "relationshipDefinitions" | "uniqueIndexes" | "createNode">>(graph: G, { nodeDefinitions, relationshipDefinitions, edgeDefinitions, uniqueIndexes }: {
+})["stateDefinition"]>)[] | undefined; }, G extends Pick<GraphLayer<N, R, E, UIdx>, "createRelationship" | "nodeDefinitions" | "relationshipDefinitions" | "edgeDefinitions" | "uniqueIndexes" | "createNode">>(graph: G, { nodeDefinitions, relationshipDefinitions, edgeDefinitions, uniqueIndexes }: {
     nodeDefinitions: N;
     relationshipDefinitions: R;
     edgeDefinitions: E;
@@ -107,4 +108,23 @@ declare const Neo4jLayer: <N extends readonly {
     };
 }) => GraphLayer<N, R, E, UIdx>;
 
-export { Neo4jLayer, type OmitNodeContants, defineGraph, defineNode };
+declare const NextjsCacheLayer: <N extends readonly {
+    nodeType: any;
+    stateDefinition: any;
+}[], R extends readonly {
+    relationshipType: Uppercase<string>;
+    stateDefinition?: ZodObject<any, zod.UnknownKeysParam, zod.ZodTypeAny, {
+        [x: string]: any;
+    }, {
+        [x: string]: any;
+    }> | undefined;
+}[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
+    nodeType: T;
+})["stateDefinition"]>)[] | undefined; }, G extends Pick<GraphLayer<N, R, E, UIdx>, "getNode" | "updateNode">>(graph: G, { nodeDefinitions, relationshipDefinitions, edgeDefinitions, uniqueIndexes }: {
+    nodeDefinitions: N;
+    relationshipDefinitions: R;
+    edgeDefinitions: E;
+    uniqueIndexes: UIdx;
+}) => Pick<GraphLayer<N, R, E, UIdx>, 'getNode' | 'updateNode'>;
+
+export { Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, defineGraph, defineNode };
