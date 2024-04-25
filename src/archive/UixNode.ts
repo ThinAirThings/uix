@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { z, TypeOf, ZodObject } from 'zod'
-import { NodeDefinition } from '../archive/configureNeo4jLayer'
+import { NodeDefinition } from './configureNeo4jLayer'
 
 export abstract class UixNode<
     SD extends ZodObject<any> = ZodObject<any>,

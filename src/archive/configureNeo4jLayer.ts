@@ -1,5 +1,5 @@
 import neo4j from 'neo4j-driver';
-import { UixNode, defineNode } from '../base/UixNode';
+import { UixNode, defineNode } from './UixNode';
 import { createUniqueIndex } from '../layers/Neo4j/createUniqueIndex';
 import { createVectorNodeIndexes } from '../layers/Neo4j/createVectorIndex';
 import { ZodObject } from 'zod';

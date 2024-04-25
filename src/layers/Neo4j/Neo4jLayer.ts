@@ -1,11 +1,10 @@
 
-import { defineGraph } from '@/src/base/defineGraph';
 import neo4j, { Integer, Node } from 'neo4j-driver';
 import { TypeOf, ZodObject, ZodRawShape } from 'zod';
 import { createUniqueIndex } from './createUniqueIndex';
-import { defineNode } from '@/src/base/defineNode';
-import { UixNode } from '@/src/types/UixNode';
-import { GraphLayer } from '@/src/types/Graph';
+import { defineNode } from '../../base/defineNode';
+import { GraphLayer } from '../../types/Graph';
+import { UixNode } from '../../types/UixNode';
 
 
 export const Neo4jLayer = <
