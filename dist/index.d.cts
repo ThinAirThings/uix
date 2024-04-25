@@ -36,9 +36,9 @@ declare const defineGraph: <N extends readonly {
     relationshipDefinitions: R;
     createNode: <T extends N[number]["nodeType"]>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>) => Promise<UixNode<T, TypeOf<(N[number] & {
+    })['stateDefinition']>) => UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>>>;
+    })['stateDefinition']>>;
     getNode: <T_1 extends N[number]["nodeType"]>({ nodeType, nodeId }: NodeKey<T_1>) => UixNode<T_1, TypeOf<(N[number] & {
         nodeType: T_1;
     })["stateDefinition"]>>;
@@ -61,25 +61,25 @@ declare const defineNode: <T extends Capitalize<string>, SD extends ZodObject<an
 declare const Neo4jLayer: <N extends readonly {
     nodeType: any;
     stateDefinition: any;
-}[], UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
-    nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, G extends {
+}[], G extends {
     nodeDefinitions: N;
     relationshipDefinitions: any;
-    createNode: <T_1 extends N[number]["nodeType"]>(nodeType: T_1, initialState: TypeOf<(N[number] & {
+    createNode: <T extends N[number]["nodeType"]>(nodeType: T, initialState: TypeOf<(N[number] & {
+        nodeType: T;
+    })["stateDefinition"]>) => UixNode<T, TypeOf<(N[number] & {
+        nodeType: T;
+    })["stateDefinition"]>>;
+    getNode: <T_1 extends N[number]["nodeType"]>({ nodeType, nodeId }: NodeKey<T_1>) => UixNode<T_1, TypeOf<(N[number] & {
         nodeType: T_1;
-    })["stateDefinition"]>) => Promise<UixNode<T_1, TypeOf<(N[number] & {
-        nodeType: T_1;
-    })["stateDefinition"]>>>;
-    getNode: <T_2 extends N[number]["nodeType"]>({ nodeType, nodeId }: NodeKey<T_2>) => UixNode<T_2, TypeOf<(N[number] & {
+    })["stateDefinition"]>>;
+    updateNode: <T_2 extends N[number]["nodeType"]>({ nodeType, nodeId }: NodeKey<T_2>, state: Partial<TypeOf<(N[number] & {
+        nodeType: T_2;
+    })["stateDefinition"]>>) => UixNode<T_2, TypeOf<(N[number] & {
         nodeType: T_2;
     })["stateDefinition"]>>;
-    updateNode: <T_3 extends N[number]["nodeType"]>({ nodeType, nodeId }: NodeKey<T_3>, state: Partial<TypeOf<(N[number] & {
-        nodeType: T_3;
-    })["stateDefinition"]>>) => UixNode<T_3, TypeOf<(N[number] & {
-        nodeType: T_3;
-    })["stateDefinition"]>>;
-}>(graph: G, config: {
+}, UIdx extends { [T_3 in G["nodeDefinitions"][number]["nodeType"]]?: readonly (keyof TypeOf<(G["nodeDefinitions"][number] & {
+    nodeType: T_3;
+})["stateDefinition"]>)[] | undefined; }>(graph: G, config: {
     connection: {
         uri: string;
         user: string;
@@ -138,6 +138,6 @@ declare const NextjsCacheLayer: <N extends readonly {
     getRelatedTo: <FNT_1 extends N[number]["nodeType"], RT_1 extends string | number | symbol, TNT extends any>(fromNode: NodeKey<FNT_1>, relationshipType: RT_1, toNodeType: TNT) => Promise<UixNode<TNT, TypeOf<(N[number] & {
         nodeType: TNT;
     })["stateDefinition"]>>[]>;
-}>(graph: NoInfer<G>) => Pick<G, 'getNode' | 'updateNode'>;
+}>(graph: G) => Pick<G, 'getNode' | 'updateNode'>;
 
 export { Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, defineGraph, defineNode };

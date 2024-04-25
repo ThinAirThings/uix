@@ -11,9 +11,9 @@ export const NextjsCacheLayer = <
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
-    G extends ReturnType<typeof Neo4jLayer<N, UIdx, ReturnType<typeof defineGraph<N, any>>>>
+    G extends ReturnType<typeof Neo4jLayer<N, ReturnType<typeof defineGraph<N, any>>, UIdx>>
 >(
-    graph: NoInfer<G>
+    graph: G
 ): Pick<G, 'getNode' | 'updateNode'> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>
     const uniqueIndexes = graph['uniqueIndexes']
@@ -35,7 +35,7 @@ export const NextjsCacheLayer = <
         updateNode: async ({ nodeType, nodeId }, state) => {
             const node = await graph.updateNode({ nodeType, nodeId }, state)
             uniqueIndexes[nodeType]!
-                .map(indexKey => `${nodeType}-${indexKey as string}-${node[indexKey]}`)
+                .map((indexKey: any) => `${nodeType}-${indexKey as string}-${node[indexKey]}`)
                 .forEach(revalidateTag)
             return node
         }

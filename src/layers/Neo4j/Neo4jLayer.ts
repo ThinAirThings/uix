@@ -10,10 +10,10 @@ import { UixNode } from '@/src/types/UixNode';
 
 export const Neo4jLayer = <
     N extends readonly ReturnType<typeof defineNode< any, any>>[],
-    UIdx extends {
-        [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
-    },
     G extends ReturnType<typeof defineGraph<N, any>>,
+    UIdx extends {
+        [T in G['nodeDefinitions'][number]['nodeType']]?: readonly (keyof TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>)[]
+    },
 >(graph: G, config: {
     connection: {
         uri: string,
@@ -72,11 +72,15 @@ export const Neo4jLayer = <
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {
-                const result = await session.run(`
-                    MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
-                    RETURN n
-                `, { indexKey })
-                return result.records[0].get('n').properties as UixNode<T, TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>
+                return await session.executeRead(async tx => {
+                    return await tx.run<{
+                        node: Node<Integer, UixNode<T, TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>>
+                    }>(`
+                        MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
+                        RETURN node
+                    `, { indexKey })
+                }).then(({ records }) => records.map(record => record.get('node').properties)[0])
+                // return result.records[0].get('node').properties as UixNode<T, TypeOf<(G['nodeDefinitions'][number] & { nodeType: T })['stateDefinition']>>
             } finally {
                 session.close()
             }

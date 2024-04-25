@@ -8,7 +8,7 @@ import { NodeKey } from "../types/NodeKey"
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
 export const defineGraph = <
-    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends {
         [K in N[number]['nodeType']]?: {
             [R: Uppercase<string>]: {
@@ -16,7 +16,7 @@ export const defineGraph = <
                 stateDefinition?: ZodObject<any>
             }
         }
-    }
+    },
 >({
     nodeDefinitions,
     relationshipDefinitions
@@ -33,7 +33,7 @@ export const defineGraph = <
         >(
             nodeType: T,
             initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
-        ): Promise<UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>> => {
+        ): UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>> => {
             const node = {
                 nodeType,
                 nodeId: uuidv4(),

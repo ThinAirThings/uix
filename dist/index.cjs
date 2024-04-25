@@ -150,11 +150,12 @@ var Neo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        const result = await session.run(`
-                    MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
-                    RETURN n
-                `, { indexKey });
-        return result.records[0].get("n").properties;
+        return await session.executeRead(async (tx) => {
+          return await tx.run(`
+                        MATCH (n:${nodeType} {${nodeIndex}: $indexKey})
+                        RETURN node
+                    `, { indexKey });
+        }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
       } finally {
         session.close();
       }
