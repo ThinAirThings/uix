@@ -60,14 +60,6 @@ var defineGraph = ({
       };
       return new import_ts_results.Ok(node);
     }
-    // createRelationship: (
-    //     fromNode,
-    //     relationshipType,
-    //     toNode,
-    //     ...[state]
-    // ) => {
-    //     // return null as any
-    // }
   };
 };
 
@@ -120,7 +112,7 @@ var Neo4jLayerError = class extends UixError {
 var import_ts_results2 = require("ts-results");
 var Neo4jLayer = (graph, config) => {
   const neo4jDriver = import_neo4j_driver.default.driver(config.connection.uri, import_neo4j_driver.default.auth.basic(
-    config.connection.user,
+    config.connection.username,
     config.connection.password
   ));
   const uniqueIndexesCreated = [

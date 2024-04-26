@@ -132,7 +132,7 @@ declare const Neo4jLayer: <N extends readonly {
 })["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode'>, config: {
     connection: {
         uri: string;
-        user: string;
+        username: string;
         password: string;
     };
 }) => GraphLayer<N, R, E, UIdx, Neo4jLayerError> & {

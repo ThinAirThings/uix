@@ -21,14 +21,6 @@ var defineGraph = ({
       };
       return new Ok(node);
     }
-    // createRelationship: (
-    //     fromNode,
-    //     relationshipType,
-    //     toNode,
-    //     ...[state]
-    // ) => {
-    //     // return null as any
-    // }
   };
 };
 
@@ -81,7 +73,7 @@ var Neo4jLayerError = class extends UixError {
 import { Ok as Ok2, Err as Err2 } from "ts-results";
 var Neo4jLayer = (graph, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
-    config.connection.user,
+    config.connection.username,
     config.connection.password
   ));
   const uniqueIndexesCreated = [

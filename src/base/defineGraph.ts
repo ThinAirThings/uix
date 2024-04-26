@@ -36,7 +36,6 @@ export const defineGraph = <
     | 'edgeDefinitions'
     | 'uniqueIndexes'
     | 'createNode'
-// | 'createRelationship'
 > => {
     return {
         nodeDefinitions,
@@ -55,13 +54,5 @@ export const defineGraph = <
             }
             return new Ok(node)
         },
-        // createRelationship: (
-        //     fromNode,
-        //     relationshipType,
-        //     toNode,
-        //     ...[state]
-        // ) => {
-        //     // return null as any
-        // }
     }
 }

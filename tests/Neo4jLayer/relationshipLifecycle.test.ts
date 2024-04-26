@@ -3,13 +3,11 @@ import { Neo4jLayer } from "../../dist";
 import { testGraph } from "../testGraph";
 
 describe('Relationship Lifecycle', () => {
-
-
     test('should create a WORKED_AT relationship between two nodes', async () => {
         const graph = Neo4jLayer(testGraph, {
             connection: {
                 uri: 'bolt://localhost:7687',
-                user: 'neo4j',
+                username: 'neo4j',
                 password: 'testpassword'
             }
         });
