@@ -24,7 +24,7 @@ export const defineNextjsCacheLayer = <
     return {
         ...graph,
         getNode: async (nodeType, nodeIndex, indexKey) => {
-            const uniqueIndexes = graph.uniqueIndexes[nodeType]! as string[]
+            const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[]
             const cacheKeys = uniqueIndexes.map(index => `${nodeType}-${index}-${indexKey}`)
             // Create caches for each unique index
             cacheKeys.forEach(cacheKey => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
@@ -53,7 +53,7 @@ export const defineNextjsCacheLayer = <
                 return getRelatedToNodesResult
             }
             // Create caches for each unique index and returned node. This will invalidate the cache if any of the returned nodes are updated.
-            const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType] ?? []
+            const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
             const relatedToNodes = getRelatedToNodesResult.val
             const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `${toNodeType}-${index as string}-${node[index]}`)).flat()
             relatedToNodeCacheKeys.forEach(cacheKey => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
@@ -69,7 +69,7 @@ export const defineNextjsCacheLayer = <
             if (!nodeResult.ok) {
                 return nodeResult
             }
-            graph.uniqueIndexes[nodeType]!
+            (['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[])
                 .map((indexKey: any) => `${nodeType}-${indexKey as string}-${nodeResult.val[indexKey]}`)
                 .forEach(revalidateTag)
             return nodeResult

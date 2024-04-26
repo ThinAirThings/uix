@@ -282,7 +282,7 @@ var defineNextjsCacheLayer = (graph) => {
   return {
     ...graph,
     getNode: async (nodeType, nodeIndex, indexKey) => {
-      const uniqueIndexes = graph.uniqueIndexes[nodeType];
+      const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []];
       const cacheKeys = uniqueIndexes.map((index) => `${nodeType}-${index}-${indexKey}`);
       cacheKeys.forEach((cacheKey) => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(
         async (...[nodeType2, index, key]) => {
@@ -313,7 +313,7 @@ var defineNextjsCacheLayer = (graph) => {
       if (!getRelatedToNodesResult.ok) {
         return getRelatedToNodesResult;
       }
-      const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType] ?? [];
+      const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType] ?? []];
       const relatedToNodes = getRelatedToNodesResult.val;
       const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `${toNodeType}-${index}-${node[index]}`)).flat();
       relatedToNodeCacheKeys.forEach((cacheKey2) => !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, (0, import_cache.unstable_cache)(
@@ -332,7 +332,7 @@ var defineNextjsCacheLayer = (graph) => {
       if (!nodeResult.ok) {
         return nodeResult;
       }
-      graph.uniqueIndexes[nodeType].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach(import_cache.revalidateTag);
+      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach(import_cache.revalidateTag);
       return nodeResult;
     }
   };
