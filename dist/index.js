@@ -277,15 +277,18 @@ var defineNextjsCacheLayer = (graph) => {
       const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType] ?? []];
       const relatedToNodes = getRelatedToNodesResult.val;
       const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `${toNodeType}-${index}-${node[index]}`)).flat();
-      relatedToNodeCacheKeys.forEach((cacheKey2) => !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, cache(
-        async (...[nodeType, index, key]) => {
-          return await graph.getNode(nodeType, index, key);
-        },
-        [cacheKey2],
-        {
-          tags: [cacheKey2]
-        }
-      )));
+      relatedToNodeCacheKeys.forEach((cacheKey2) => {
+        !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, cache(
+          async (...[nodeType, index, key]) => {
+            return await graph.getNode(nodeType, index, key);
+          },
+          [cacheKey2],
+          {
+            tags: [cacheKey2]
+          }
+        ));
+        console.log(cacheKey2);
+      });
       return getRelatedToNodesResult;
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
