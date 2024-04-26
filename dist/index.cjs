@@ -66,7 +66,8 @@ var defineGraph = ({
     },
     getDefinition: (nodeType) => {
       return definitionMap.get(nodeType);
-    }
+    },
+    getNodeType: (nodeType) => null
   };
 };
 
