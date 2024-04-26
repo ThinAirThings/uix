@@ -158,13 +158,13 @@ declare const NextjsCacheLayer: <N extends readonly {
     nodeType: T;
 })["stateDefinition"]>)[] | undefined; }>(graph: GraphLayer<N, R, E, UIdx>) => GraphLayer<N, R, E, UIdx, NextjsCacheLayerError>;
 
-type GetUixNodeType<G extends GraphLayer<any, any, any, any, any>, T extends G extends GraphLayer<infer N extends {
+type GetUixNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
     nodeType: string;
     stateDefinition: ZodObject<any>;
-}[], any, any, any, any> ? N[number]['nodeType'] : never> = UixNode<T, TypeOf<(G extends GraphLayer<infer N extends {
+}[], any, any, any, any>, 'nodeDefinitions'> ? N[number]['nodeType'] : never> = UixNode<T, TypeOf<(G extends Pick<GraphLayer<infer N extends {
     nodeType: string;
     stateDefinition: ZodObject<any>;
-}[], any, any, any, any> ? (N[number] & {
+}[], any, any, any, any>, 'nodeDefinitions'> ? (N[number] & {
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
