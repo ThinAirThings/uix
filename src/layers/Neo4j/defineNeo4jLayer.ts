@@ -10,7 +10,9 @@ import { Neo4jLayerError } from './Neo4jLayerError';
 import { Ok, Err } from 'ts-results';
 
 
-
+type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+}[keyof T][];
 
 export const defineNeo4jLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
@@ -43,11 +45,13 @@ export const defineNeo4jLayer = <
         config.connection.username,
         config.connection.password
     ))
+    const uniqueIndexes = graph.uniqueIndexes
     // Create Unique Indexes
     const uniqueIndexesCreated = [
         ...graph.nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, 'nodeId')),
-        ...(graph.uniqueIndexes && Object.entries(graph.uniqueIndexes).map(([nodeType, index]) => {
-            return createUniqueIndex(neo4jDriver, nodeType, index as string)
+        ...(uniqueIndexes && (Object.entries(uniqueIndexes) as Entries<typeof uniqueIndexes>).map(async ([nodeType, _indexes]) => {
+            const indexes = _indexes as string[]
+            return await Promise.all(indexes.map(async (index) => await createUniqueIndex(neo4jDriver, nodeType as string, index as string)))
         })) ?? []
     ]
     return {
