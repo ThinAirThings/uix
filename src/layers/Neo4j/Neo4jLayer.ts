@@ -32,6 +32,7 @@ export const Neo4jLayer = <
     | 'uniqueIndexes'
     | 'createNode'
     | 'getDefinition'
+    | 'getNodeType'
 >, config: {
     connection: {
         uri: string,

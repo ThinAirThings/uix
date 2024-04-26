@@ -39,6 +39,7 @@ export const defineGraph = <
     | 'uniqueIndexes'
     | 'createNode'
     | 'getDefinition'
+    | 'getNodeType'
 > => {
     const definitionMap = new Map<string, ReturnType<typeof defineNode<any, any>>>()
     nodeDefinitions.forEach(definition => {
@@ -63,6 +64,11 @@ export const defineGraph = <
         },
         getDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
-        }
+        },
+        getNodeType: (nodeType) => null as unknown as UixNode<
+            typeof nodeType,
+            TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']
+            >>
+
     }
 }
