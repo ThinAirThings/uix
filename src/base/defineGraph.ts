@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
 import { GraphLayer } from "../types/Graph"
-import { Ok, Err } from 'ts-results';
+import { Ok } from 'ts-results';
 
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
