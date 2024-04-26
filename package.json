@@ -34,8 +34,6 @@
   },
   "keywords": [],
   "dependencies": {
-    "@babel/preset-env": "^7.24.4",
-    "babel-jest": "^29.7.0",
     "openai": "^4.38.3",
     "ts-results": "^3.3.0",
     "uuid": "^9.0.1"
@@ -47,6 +45,8 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.4",
+    "babel-jest": "^29.7.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^10.0.2",
