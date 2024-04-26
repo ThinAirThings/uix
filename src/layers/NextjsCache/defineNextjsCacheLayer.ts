@@ -49,6 +49,7 @@ export const defineNextjsCacheLayer = <
                 }))
             }
             const getRelatedToNodesResult = await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            console.log(getRelatedToNodesResult.val)
             if (!getRelatedToNodesResult.ok) {
                 return getRelatedToNodesResult
             }
