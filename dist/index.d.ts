@@ -37,7 +37,7 @@ type UixRelationship<T extends Uppercase<string>, S extends Record<string, any> 
 
 declare class UixError<Layer extends string, T extends string> extends Error {
     layer: Layer;
-    errorType: T;
+    errorType: T | 'NodeNotFound';
     constructor(layer: Layer, errorType: UixError<Layer, T>['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
 }
 
@@ -68,9 +68,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     })['stateDefinition']>>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>, LayerError>>;
-    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
-        nodeType: T;
-    })['stateDefinition']>>, LayerError>>;
+    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, LayerError>>;
     createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
@@ -156,7 +154,7 @@ declare const defineNextjsCacheLayer: <N extends readonly {
     nodeType: T;
 })["stateDefinition"]>)[] | undefined; }>(graph: GraphLayer<N, R, E, UIdx>) => GraphLayer<N, R, E, UIdx, NextjsCacheLayerError>;
 
-type GetUixNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
+type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
     nodeType: string;
     stateDefinition: ZodObject<any>;
 }[], any, any, any, any>, 'nodeDefinitions'> ? N[number]['nodeType'] : never> = UixNode<T, TypeOf<(G extends Pick<GraphLayer<infer N extends {
@@ -166,4 +164,4 @@ type GetUixNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDef
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
-export { type GetUixNodeType, type GraphLayer, type OmitNodeContants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
+export { type GraphLayer, type GraphNodeType, type OmitNodeContants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };

@@ -3,7 +3,7 @@ import { GraphLayer } from "./GraphLayer";
 import { UixNode } from "./UixNode";
 
 
-export type GetUixNodeType<
+export type GraphNodeType<
     G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>,
     T extends G extends Pick<GraphLayer<infer N extends { nodeType: string, stateDefinition: ZodObject<any> }[], any, any, any, any>, 'nodeDefinitions'>
     ? N[number]['nodeType']
@@ -21,4 +21,4 @@ export type GetUixNodeType<
 // } as any)
 
 
-// type NodeType = GetUixNodeType<typeof testGraph, 'User'>
+// type NodeType = GraphNodeType<typeof testGraph, 'User'>

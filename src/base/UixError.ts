@@ -6,7 +6,7 @@ export class UixError<
     T extends string
 > extends Error {
     layer: Layer
-    errorType: T
+    errorType: T | 'NodeNotFound'
     constructor(
         layer: Layer,
         errorType: UixError<Layer, T>['errorType'],
