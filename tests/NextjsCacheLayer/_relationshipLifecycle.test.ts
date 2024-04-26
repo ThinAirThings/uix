@@ -1,16 +1,18 @@
 // tests/relationshipCreation.test.ts
-import { defineNeo4jLayer } from "../../dist";
+import { defineNeo4jLayer, defineNextjsCacheLayer } from "../../dist";
 import { testGraph } from "../testGraph";
 
-describe('Relationship Lifecycle Neo4j', () => {
+
+// NOTE: I don't think this can be tested outside of a nextjs environment
+describe('Relationship Lifecycle Nextjs Cache', () => {
     test('should create a WORKED_AT relationship between two nodes', async () => {
-        const graph = defineNeo4jLayer(testGraph, {
+        const graph = defineNextjsCacheLayer(defineNeo4jLayer(testGraph, {
             connection: {
                 uri: 'bolt://localhost:7687',
                 username: 'neo4j',
                 password: 'testpassword'
             }
-        });
+        }));
         // Assuming 'HAS_FRIEND' is a defined relationship in your graph
         // and 'User' nodes can have a 'HAS_FRIEND' relationship with each other.
         const aliceData = { name: 'Alice', email: 'alice@example.com', password: 'secure123' };
@@ -21,7 +23,6 @@ describe('Relationship Lifecycle Neo4j', () => {
             expect(getUserNodeResult.val.nodeType).toBe('User');
             const deleteNodeResult = await graph.deleteNode(getUserNodeResult.val);
             if (!deleteNodeResult.ok) {
-                await graph.neo4jDriver.close();
                 throw new Error(`Failed to delete User node: ${deleteNodeResult.val.message}`);
             }
         }
@@ -31,7 +32,6 @@ describe('Relationship Lifecycle Neo4j', () => {
             expect(getCompanyNodeResult.val.nodeType).toBe('Company');
             const deleteNodeResult = await graph.deleteNode(getCompanyNodeResult.val);
             if (!deleteNodeResult.ok) {
-                await graph.neo4jDriver.close();
                 throw new Error(`Failed to delete Company node: ${deleteNodeResult.val.message}`);
             }
         }
@@ -66,7 +66,6 @@ describe('Relationship Lifecycle Neo4j', () => {
         // Write tests to check that the related node
         expect(relatedToResult.val.length).toBeGreaterThan(0);
         expect(relatedToResult.val[0].nodeId).toBe(companyNodeResult.val.nodeId);
-        await graph.neo4jDriver.close();
     });
 
     // Add more test cases to cover other types of relationships and error cases.

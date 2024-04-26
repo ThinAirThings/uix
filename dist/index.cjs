@@ -83,7 +83,6 @@ var import_neo4j_driver = __toESM(require("neo4j-driver"), 1);
 var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
   const neo4jSession = neo4jDriver.session();
   try {
-    console.log(`Creating unique index for ${nodeType}.${propertyName}`);
     return await neo4jSession.executeWrite(async (tx) => await tx.run(`
             CREATE CONSTRAINT ${propertyName}_index IF NOT EXISTS
             FOR (node:${nodeType})
