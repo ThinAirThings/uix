@@ -118,7 +118,7 @@ declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unk
     constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
 }
 
-declare const Neo4jLayer: <N extends readonly {
+declare const defineNeo4jLayer: <N extends readonly {
     nodeType: any;
     stateDefinition: any;
 }[], R extends readonly {
@@ -144,7 +144,7 @@ declare class NextjsCacheLayerError extends UixError<'Nextjs', 'Unknown'> {
     constructor(errorType: NextjsCacheLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
 }
 
-declare const NextjsCacheLayer: <N extends readonly {
+declare const defineNextjsCacheLayer: <N extends readonly {
     nodeType: any;
     stateDefinition: any;
 }[], R extends readonly {
@@ -168,4 +168,4 @@ type GetUixNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDef
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
-export { type GetUixNodeType, type GraphLayer, Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, type UixNode, defineBaseGraph, defineNode };
+export { type GetUixNodeType, type GraphLayer, type OmitNodeContants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };

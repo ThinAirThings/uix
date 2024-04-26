@@ -6,7 +6,7 @@ import { NextjsCacheLayerError } from "./NextjsCacheLayerError";
 
 
 
-export const NextjsCacheLayer = <
+export const defineNextjsCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>

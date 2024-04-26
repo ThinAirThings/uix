@@ -30,9 +30,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  Neo4jLayer: () => Neo4jLayer,
-  NextjsCacheLayer: () => NextjsCacheLayer,
   defineBaseGraph: () => defineBaseGraph,
+  defineNeo4jLayer: () => defineNeo4jLayer,
+  defineNextjsCacheLayer: () => defineNextjsCacheLayer,
   defineNode: () => defineNode
 });
 module.exports = __toCommonJS(src_exports);
@@ -76,7 +76,7 @@ var defineNode = (nodeType, stateDefinition) => ({
   stateDefinition
 });
 
-// src/layers/Neo4j/Neo4jLayer.ts
+// src/layers/Neo4j/defineNeo4jLayer.ts
 var import_neo4j_driver = __toESM(require("neo4j-driver"), 1);
 
 // src/layers/Neo4j/createUniqueIndex.ts
@@ -115,9 +115,9 @@ var Neo4jLayerError = class extends UixError {
   }
 };
 
-// src/layers/Neo4j/Neo4jLayer.ts
+// src/layers/Neo4j/defineNeo4jLayer.ts
 var import_ts_results2 = require("ts-results");
-var Neo4jLayer = (graph, config) => {
+var defineNeo4jLayer = (graph, config) => {
   const neo4jDriver = import_neo4j_driver.default.driver(config.connection.uri, import_neo4j_driver.default.auth.basic(
     config.connection.username,
     config.connection.password
@@ -270,9 +270,9 @@ var Neo4jLayer = (graph, config) => {
   };
 };
 
-// src/layers/NextjsCache/NextjsCacheLayer.ts
+// src/layers/NextjsCache/defineNextjsCacheLayer.ts
 var import_cache = require("next/cache");
-var NextjsCacheLayer = (graph) => {
+var defineNextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
   return {
     ...graph,
@@ -304,8 +304,8 @@ var NextjsCacheLayer = (graph) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Neo4jLayer,
-  NextjsCacheLayer,
   defineBaseGraph,
+  defineNeo4jLayer,
+  defineNextjsCacheLayer,
   defineNode
 });
