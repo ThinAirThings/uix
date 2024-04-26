@@ -21,6 +21,10 @@ export const testGraph = defineBaseGraph({
         defineNode('BankAccount' as const, z.object({
             accountNumber: z.string(),
             balance: z.number()
+        })),
+        defineNode('Profile' as const, z.object({
+            bio: z.string().optional(),
+            profilePicture: z.string().optional()
         }))
     ],
     relationshipDefinitions: [{

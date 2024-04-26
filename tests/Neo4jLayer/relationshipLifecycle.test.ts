@@ -11,6 +11,11 @@ describe('Relationship Lifecycle Neo4j', () => {
                 password: 'testpassword'
             }
         });
+        // Check empty state createion
+        const emptyStateNode = await graph.createNode('Profile', {});
+        if (!emptyStateNode.ok) {
+            throw new Error(`Failed to create empty state node: ${emptyStateNode.val.message}`);
+        }
         // Assuming 'HAS_FRIEND' is a defined relationship in your graph
         // and 'User' nodes can have a 'HAS_FRIEND' relationship with each other.
         const aliceData = { name: 'Alice', email: 'alice@example.com', password: 'secure123' };
