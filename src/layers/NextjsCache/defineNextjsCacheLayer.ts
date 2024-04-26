@@ -56,12 +56,17 @@ export const defineNextjsCacheLayer = <
             const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
             const relatedToNodes = getRelatedToNodesResult.val
             const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `${toNodeType}-${index as string}-${node[index]}`)).flat()
-            relatedToNodeCacheKeys.forEach(cacheKey => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-                    return await graph.getNode(nodeType, index, key)
-                }, [cacheKey], {
-                tags: [cacheKey]
-            })))
+            relatedToNodeCacheKeys.forEach(cacheKey => {
+                !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+                    async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
+                        return await graph.getNode(nodeType, index, key)
+                    }, [cacheKey], {
+                    tags: [cacheKey]
+                }))
+                console.log(cacheKey)
+
+            })
+
             return getRelatedToNodesResult
         },
         updateNode: async ({ nodeType, nodeId }, state) => {
