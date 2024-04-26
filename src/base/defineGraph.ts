@@ -37,7 +37,6 @@ export const defineGraph = <
     | 'relationshipDefinitions'
     | 'edgeDefinitions'
     | 'uniqueIndexes'
-    | 'nodeTypeUnion'
     | 'createNode'
     | 'getDefinition'
 > => {
@@ -50,7 +49,6 @@ export const defineGraph = <
         relationshipDefinitions,
         edgeDefinitions,
         uniqueIndexes,
-        nodeTypeUnion: null as unknown as N[number]['nodeType'],
         createNode: async (
             nodeType,
             initialState

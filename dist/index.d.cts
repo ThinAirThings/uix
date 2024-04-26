@@ -57,7 +57,6 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-    nodeTypeUnion: N[number]['nodeType'];
     createNode: <T extends N[number]['nodeType']>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
@@ -113,7 +112,7 @@ declare const defineGraph: <N extends readonly {
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'nodeTypeUnion' | 'createNode' | 'getDefinition'>;
+}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>;
 
 declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound'> {
     constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
@@ -131,7 +130,7 @@ declare const Neo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'nodeTypeUnion' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>, config: {
+})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>, config: {
     connection: {
         uri: string;
         username: string;
@@ -159,4 +158,14 @@ declare const NextjsCacheLayer: <N extends readonly {
     nodeType: T;
 })["stateDefinition"]>)[] | undefined; }>(graph: GraphLayer<N, R, E, UIdx>) => GraphLayer<N, R, E, UIdx, NextjsCacheLayerError>;
 
-export { Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, defineGraph, defineNode };
+type GetUixNodeType<G extends GraphLayer<any, any, any, any, any>, T extends G extends GraphLayer<infer N extends {
+    nodeType: string;
+    stateDefinition: ZodObject<any>;
+}[], any, any, any, any> ? N[number]['nodeType'] : never> = UixNode<T, TypeOf<(G extends GraphLayer<infer N extends {
+    nodeType: string;
+    stateDefinition: ZodObject<any>;
+}[], any, any, any, any> ? (N[number] & {
+    nodeType: T;
+})['stateDefinition'] : never)>>;
+
+export { type GetUixNodeType, type GraphLayer, Neo4jLayer, NextjsCacheLayer, type OmitNodeContants, type UixNode, defineGraph, defineNode };

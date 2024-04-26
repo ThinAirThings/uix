@@ -31,7 +31,6 @@ export type GraphLayer<
     relationshipDefinitions: R,
     edgeDefinitions: E,
     uniqueIndexes: UIdx,
-    nodeTypeUnion: N[number]['nodeType'],
     //                   _  _         _       ___             _   _                           
     //     ___ ___ ___  | \| |___  __| |___  | __|  _ _ _  __| |_(_)___ _ _  ___  ___ ___ ___ 
     //    |___|___|___| | .` / _ \/ _` / -_) | _| || | ' \/ _|  _| / _ \ ' \(_-< |___|___|___|
