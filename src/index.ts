@@ -2,8 +2,8 @@
 
 export * from './base/defineBaseGraph'
 export * from './base/defineNode'
-export * from './layers/Neo4j/Neo4jLayer'
-export * from './layers/NextjsCache/NextjsCacheLayer'
+export * from './layers/Neo4j/defineNeo4jLayer'
+export * from './layers/NextjsCache/defineNextjsCacheLayer'
 
 
 // Types

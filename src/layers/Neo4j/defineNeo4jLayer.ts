@@ -12,7 +12,7 @@ import { Ok, Err } from 'ts-results';
 
 
 
-export const Neo4jLayer = <
+export const defineNeo4jLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>

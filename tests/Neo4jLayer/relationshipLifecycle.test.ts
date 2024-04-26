@@ -1,10 +1,10 @@
 // tests/relationshipCreation.test.ts
-import { Neo4jLayer } from "../../dist";
+import { defineNeo4jLayer } from "../../dist";
 import { testGraph } from "../testGraph";
 
 describe('Relationship Lifecycle', () => {
     test('should create a WORKED_AT relationship between two nodes', async () => {
-        const graph = Neo4jLayer(testGraph, {
+        const graph = defineNeo4jLayer(testGraph, {
             connection: {
                 uri: 'bolt://localhost:7687',
                 username: 'neo4j',

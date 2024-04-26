@@ -37,7 +37,7 @@ var defineNode = (nodeType, stateDefinition) => ({
   stateDefinition
 });
 
-// src/layers/Neo4j/Neo4jLayer.ts
+// src/layers/Neo4j/defineNeo4jLayer.ts
 import neo4j from "neo4j-driver";
 
 // src/layers/Neo4j/createUniqueIndex.ts
@@ -76,9 +76,9 @@ var Neo4jLayerError = class extends UixError {
   }
 };
 
-// src/layers/Neo4j/Neo4jLayer.ts
+// src/layers/Neo4j/defineNeo4jLayer.ts
 import { Ok as Ok2, Err as Err2 } from "ts-results";
-var Neo4jLayer = (graph, config) => {
+var defineNeo4jLayer = (graph, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
     config.connection.username,
     config.connection.password
@@ -231,9 +231,9 @@ var Neo4jLayer = (graph, config) => {
   };
 };
 
-// src/layers/NextjsCache/NextjsCacheLayer.ts
+// src/layers/NextjsCache/defineNextjsCacheLayer.ts
 import { unstable_cache as cache, revalidateTag } from "next/cache";
-var NextjsCacheLayer = (graph) => {
+var defineNextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
   return {
     ...graph,
@@ -264,8 +264,8 @@ var NextjsCacheLayer = (graph) => {
   };
 };
 export {
-  Neo4jLayer,
-  NextjsCacheLayer,
   defineBaseGraph,
+  defineNeo4jLayer,
+  defineNextjsCacheLayer,
   defineNode
 };
