@@ -122,10 +122,12 @@ var defineNeo4jLayer = (graph, config) => {
     config.connection.username,
     config.connection.password
   ));
+  const uniqueIndexes = graph.uniqueIndexes;
   const uniqueIndexesCreated = [
     ...graph.nodeDefinitions.map(async ({ nodeType }) => createUniqueIndex(neo4jDriver, nodeType, "nodeId")),
-    ...(graph.uniqueIndexes && Object.entries(graph.uniqueIndexes).map(([nodeType, index]) => {
-      return createUniqueIndex(neo4jDriver, nodeType, index);
+    ...(uniqueIndexes && Object.entries(uniqueIndexes).map(async ([nodeType, _indexes]) => {
+      const indexes = _indexes;
+      return await Promise.all(indexes.map(async (index) => await createUniqueIndex(neo4jDriver, nodeType, index)));
     })) ?? []
   ];
   return {

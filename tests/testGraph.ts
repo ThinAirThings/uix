@@ -8,7 +8,8 @@ export const testGraph = defineBaseGraph({
         defineNode('User' as const, z.object({
             name: z.string(),
             email: z.string().email(),
-            password: z.string()
+            password: z.string(),
+            providerId: z.string().optional()
         })),
         defineNode('Post' as const, z.object({
             title: z.string(),
@@ -46,7 +47,7 @@ export const testGraph = defineBaseGraph({
         }
     } as const,
     uniqueIndexes: {
-        'User': ['email'],
+        'User': ['email', 'providerId'],
         'Company': ['name']
     }
 })
