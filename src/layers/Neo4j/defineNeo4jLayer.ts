@@ -7,7 +7,7 @@ import { GraphLayer } from '../../types/GraphLayer';
 import { UixNode } from '../../types/UixNode';
 import { UixRelationship } from '@/src/types/UixRelationship';
 import { Neo4jLayerError } from './Neo4jLayerError';
-import { Ok, Err } from 'ts-results';
+import { Ok, Err, Result } from 'ts-results';
 
 
 type Entries<T> = {
@@ -171,6 +171,10 @@ export const defineNeo4jLayer = <
             toNode,
             ...[state]
         ) => {
+            // Handle passing Result type in as toNode for common pattern
+            if (toNode instanceof Err) return toNode
+            if (toNode instanceof Ok) toNode = toNode.val
+            // Check for driver
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {

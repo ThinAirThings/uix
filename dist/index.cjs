@@ -221,6 +221,10 @@ var defineNeo4jLayer = (graph, config) => {
       }
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...[state]) => {
+      if (toNode instanceof import_ts_results2.Err)
+        return toNode;
+      if (toNode instanceof import_ts_results2.Ok)
+        toNode = toNode.val;
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();

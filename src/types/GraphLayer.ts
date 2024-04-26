@@ -113,7 +113,7 @@ export type GraphLayer<
     >(
         fromNode: NodeKey<FromNodeType>,
         relationshipType: RelationshipType,
-        toNode: NodeKey<ToNodeType>,
+        toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>,
         ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
