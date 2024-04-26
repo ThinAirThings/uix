@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { defineNode } from "../base/defineNode"
-import { GraphLayer } from "./Graph"
+import { GraphLayer } from "./GraphLayer"
 import { NodeKey } from "./NodeKey"
 
 

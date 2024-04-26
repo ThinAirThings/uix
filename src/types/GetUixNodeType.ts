@@ -1,7 +1,6 @@
 import { TypeOf, ZodObject } from "zod";
-import { GraphLayer } from "./Graph";
+import { GraphLayer } from "./GraphLayer";
 import { UixNode } from "./UixNode";
-import { testGraph } from "@/tests/testGraph";
 
 
 export type GetUixNodeType<

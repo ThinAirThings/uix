@@ -1,7 +1,7 @@
-// src/base/defineGraph.ts
+// src/base/defineBaseGraph.ts
 import { v4 as uuidv4 } from "uuid";
 import { Ok } from "ts-results";
-var defineGraph = ({
+var defineBaseGraph = ({
   nodeDefinitions,
   relationshipDefinitions,
   edgeDefinitions,
@@ -266,6 +266,6 @@ var NextjsCacheLayer = (graph) => {
 export {
   Neo4jLayer,
   NextjsCacheLayer,
-  defineGraph,
+  defineBaseGraph,
   defineNode
 };
