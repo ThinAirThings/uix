@@ -44,7 +44,6 @@ import neo4j from "neo4j-driver";
 var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
   const neo4jSession = neo4jDriver.session();
   try {
-    console.log(`Creating unique index for ${nodeType}.${propertyName}`);
     return await neo4jSession.executeWrite(async (tx) => await tx.run(`
             CREATE CONSTRAINT ${propertyName}_index IF NOT EXISTS
             FOR (node:${nodeType})
