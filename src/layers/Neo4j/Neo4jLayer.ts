@@ -31,12 +31,12 @@ export const Neo4jLayer = <
 >, config: {
     connection: {
         uri: string,
-        user: string,
+        username: string,
         password: string
     }
 }): GraphLayer<N, R, E, UIdx, Neo4jLayerError> & { neo4jDriver: Driver } => {
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
-        config.connection.user,
+        config.connection.username,
         config.connection.password
     ))
     // Create Unique Indexes
