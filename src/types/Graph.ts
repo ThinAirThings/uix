@@ -121,5 +121,16 @@ export type GraphLayer<
         UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
         LayerError
     >>
+
+    //      ___     _     ___       __ _      _ _   _          
+    //     / __|___| |_  |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
+    //    | (_ / -_)  _| | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
+    //     \___\___|\__| |___/\___|_| |_|_||_|_|\__|_\___/_||_|
+    getDefinition: <
+        T extends N[number]['nodeType']
+    >(
+        nodeType: T
+    ) => ReturnType<typeof defineNode<any, any>>,
+
 }
 

@@ -91,6 +91,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>, LayerError>>;
+    getDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<any, any>>;
 };
 
 type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>;
@@ -111,7 +112,7 @@ declare const defineGraph: <N extends readonly {
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode'>;
+}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>;
 
 declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound'> {
     constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
@@ -129,7 +130,7 @@ declare const Neo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode'>, config: {
+})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>, config: {
     connection: {
         uri: string;
         username: string;

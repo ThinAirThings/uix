@@ -46,6 +46,10 @@ var defineGraph = ({
   edgeDefinitions,
   uniqueIndexes
 }) => {
+  const definitionMap = /* @__PURE__ */ new Map();
+  nodeDefinitions.forEach((definition) => {
+    definitionMap.set(definition.nodeType, definition);
+  });
   return {
     nodeDefinitions,
     relationshipDefinitions,
@@ -59,6 +63,9 @@ var defineGraph = ({
         ...initialState
       };
       return new import_ts_results.Ok(node);
+    },
+    getDefinition: (nodeType) => {
+      return definitionMap.get(nodeType);
     }
   };
 };

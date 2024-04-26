@@ -38,7 +38,12 @@ export const defineGraph = <
     | 'edgeDefinitions'
     | 'uniqueIndexes'
     | 'createNode'
+    | 'getDefinition'
 > => {
+    const definitionMap = new Map<string, ReturnType<typeof defineNode<any, any>>>()
+    nodeDefinitions.forEach(definition => {
+        definitionMap.set(definition.nodeType, definition)
+    })
     return {
         nodeDefinitions,
         relationshipDefinitions,
@@ -56,5 +61,8 @@ export const defineGraph = <
             }
             return new Ok(node)
         },
+        getDefinition: (nodeType) => {
+            return definitionMap.get(nodeType)!
+        }
     }
 }
