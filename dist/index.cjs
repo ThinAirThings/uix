@@ -326,7 +326,7 @@ var defineNextjsCacheLayer = (graph) => {
             tags: [cacheKey2]
           }
         ));
-        console.log(cacheKey2);
+        console.log(`Related to node cache key: ${cacheKey2}`);
       });
       return getRelatedToNodesResult;
     },
@@ -335,7 +335,10 @@ var defineNextjsCacheLayer = (graph) => {
       if (!nodeResult.ok) {
         return nodeResult;
       }
-      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach(import_cache.revalidateTag);
+      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach((cacheKey) => {
+        console.log(`Updated with cache key: ${cacheKey}`);
+        (0, import_cache.revalidateTag)(cacheKey);
+      });
       return nodeResult;
     }
   };
