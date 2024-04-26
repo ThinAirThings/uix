@@ -145,7 +145,7 @@ var defineNeo4jLayer = (graph, config) => {
                         RETURN node
                     `, { newNode: newNode.ok ? newNode.val : {} });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
-        return new import_ts_results2.Ok(result);
+        return new import_ts_results2.Ok({ nodeType: result.nodeType, nodeId: result.nodeId });
       } catch (_e) {
         const e = _e;
         if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
@@ -277,10 +277,40 @@ var defineNeo4jLayer = (graph, config) => {
 
 // src/layers/NextjsCache/defineNextjsCacheLayer.ts
 var import_cache = require("next/cache");
+var import_ts_results3 = require("ts-results");
 var defineNextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
   return {
     ...graph,
+    // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
+    createNode: async (nodeType, initialState) => {
+      const createNodeResult = await graph.createNode(nodeType, initialState);
+      if (!createNodeResult.ok) {
+        return createNodeResult;
+      }
+      const getNodeResult = await graph.getNode(nodeType, "nodeId", createNodeResult.val.nodeId);
+      if (!getNodeResult.ok)
+        return getNodeResult;
+      const node = getNodeResult.val;
+      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach((cacheKey) => {
+        console.log(`Created with cache key: ${cacheKey}`);
+        (0, import_cache.revalidateTag)(cacheKey);
+      });
+      return new import_ts_results3.Ok({ nodeType: node.nodeType, nodeId: node.nodeId });
+    },
+    createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
+      if (toNode instanceof import_ts_results3.Err)
+        return toNode;
+      if (toNode instanceof import_ts_results3.Ok)
+        toNode = toNode.val;
+      const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args);
+      if (!createRelationshipResult.ok) {
+        return createRelationshipResult;
+      }
+      const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
+      (0, import_cache.revalidateTag)(cacheKey);
+      return createRelationshipResult;
+    },
     getNode: async (nodeType, nodeIndex, indexKey) => {
       const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []];
       const cacheKeys = uniqueIndexes.map((index) => `${nodeType}-${index}-${indexKey}`);

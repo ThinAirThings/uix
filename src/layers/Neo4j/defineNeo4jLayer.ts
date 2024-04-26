@@ -74,7 +74,7 @@ export const defineNeo4jLayer = <
                         RETURN node
                     `, { newNode: newNode.ok ? newNode.val : {} })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
-                return new Ok(result)
+                return new Ok({ nodeType: result.nodeType, nodeId: result.nodeId })
             } catch (_e) {
                 const e = _e as Error
                 if (e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed') {

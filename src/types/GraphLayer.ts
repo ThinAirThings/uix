@@ -46,7 +46,7 @@ export type GraphLayer<
         nodeType: T,
         initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
     ) => Promise<Result<
-        UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
+        NodeKey<T>,
         LayerError
     >>,
 

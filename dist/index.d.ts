@@ -59,9 +59,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     uniqueIndexes: UIdx;
     createNode: <T extends N[number]['nodeType']>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
-        nodeType: T;
-    })['stateDefinition']>>, LayerError>>;
+    })['stateDefinition']>) => Promise<Result<NodeKey<T>, LayerError>>;
     getNode: <T extends N[number]['nodeType']>(nodeType: T, nodeIndex: UIdx[T] extends string[] ? UIdx[T][number] | 'nodeId' : 'nodeId', indexKey: string) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>, LayerError>>;
