@@ -63,7 +63,7 @@ export const defineNextjsCacheLayer = <
                     }, [cacheKey], {
                     tags: [cacheKey]
                 }))
-                console.log(cacheKey)
+                console.log(`Related to node cache key: ${cacheKey}`)
 
             })
 
@@ -75,8 +75,11 @@ export const defineNextjsCacheLayer = <
                 return nodeResult
             }
             (['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[])
-                .map((indexKey: any) => `${nodeType}-${indexKey as string}-${nodeResult.val[indexKey]}`)
-                .forEach(revalidateTag)
+                .map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`)
+                .forEach((cacheKey) => {
+                    console.log(`Updated with cache key: ${cacheKey}`)
+                    revalidateTag(cacheKey)
+                })
             return nodeResult
         },
 
