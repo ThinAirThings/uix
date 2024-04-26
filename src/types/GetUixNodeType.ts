@@ -1,15 +1,16 @@
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "./Graph";
 import { UixNode } from "./UixNode";
+import { testGraph } from "@/tests/testGraph";
 
 
 export type GetUixNodeType<
-    G extends GraphLayer<any, any, any, any, any>,
-    T extends G extends GraphLayer<infer N extends { nodeType: string, stateDefinition: ZodObject<any> }[], any, any, any, any>
+    G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>,
+    T extends G extends Pick<GraphLayer<infer N extends { nodeType: string, stateDefinition: ZodObject<any> }[], any, any, any, any>, 'nodeDefinitions'>
     ? N[number]['nodeType']
     : never
 > = UixNode<T, TypeOf<
-    (G extends GraphLayer<infer N extends { nodeType: string, stateDefinition: ZodObject<any> }[], any, any, any, any>
+    (G extends Pick<GraphLayer<infer N extends { nodeType: string, stateDefinition: ZodObject<any> }[], any, any, any, any>, 'nodeDefinitions'>
         ? (N[number] & { nodeType: T })['stateDefinition']
         : never
     )
@@ -21,4 +22,4 @@ export type GetUixNodeType<
 // } as any)
 
 
-// type NodeType = GetUixNodeType<typeof neo4jLayer, 'User'>
+// type NodeType = GetUixNodeType<typeof testGraph, 'User'>
