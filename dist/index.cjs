@@ -306,14 +306,11 @@ var defineNextjsCacheLayer = (graph) => {
         ));
       }
       const getRelatedToNodesResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
-      console.log(getRelatedToNodesResult.val);
       if (!getRelatedToNodesResult.ok) {
         return getRelatedToNodesResult;
       }
       const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType] ?? [];
       const relatedToNodes = getRelatedToNodesResult.val;
-      console.log(toNodeTypeUniqueIndexes);
-      console.log(relatedToNodes);
       const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `${toNodeType}-${index}-${node[index]}`)).flat();
       relatedToNodeCacheKeys.forEach((cacheKey2) => !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, (0, import_cache.unstable_cache)(
         async (...[nodeType, index, key]) => {
