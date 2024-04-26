@@ -267,6 +267,7 @@ var defineNextjsCacheLayer = (graph) => {
         ));
       }
       const getRelatedToNodesResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
+      console.log(getRelatedToNodesResult.val);
       if (!getRelatedToNodesResult.ok) {
         return getRelatedToNodesResult;
       }
