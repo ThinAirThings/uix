@@ -37,9 +37,9 @@ export const defineGraph = <
     | 'relationshipDefinitions'
     | 'edgeDefinitions'
     | 'uniqueIndexes'
+    | 'nodeTypeUnion'
     | 'createNode'
     | 'getDefinition'
-    | 'getNodeType'
 > => {
     const definitionMap = new Map<string, ReturnType<typeof defineNode<any, any>>>()
     nodeDefinitions.forEach(definition => {
@@ -50,6 +50,7 @@ export const defineGraph = <
         relationshipDefinitions,
         edgeDefinitions,
         uniqueIndexes,
+        nodeTypeUnion: null as unknown as N[number]['nodeType'],
         createNode: async (
             nodeType,
             initialState
@@ -65,13 +66,6 @@ export const defineGraph = <
         getDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
         },
-        getNodeType: (nodeType) => {
-            throw new Error(`getNodeType should never be called in the runtime. It's a type-level utlity function.`)
-            return null as unknown as UixNode<
-                typeof nodeType,
-                TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']
-                >>
-        }
 
     }
 }

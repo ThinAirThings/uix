@@ -31,7 +31,7 @@ export type GraphLayer<
     relationshipDefinitions: R,
     edgeDefinitions: E,
     uniqueIndexes: UIdx,
-
+    nodeTypeUnion: N[number]['nodeType'],
     //                   _  _         _       ___             _   _                           
     //     ___ ___ ___  | \| |___  __| |___  | __|  _ _ _  __| |_(_)___ _ _  ___  ___ ___ ___ 
     //    |___|___|___| | .` / _ \/ _` / -_) | _| || | ' \/ _|  _| / _ \ ' \(_-< |___|___|___|
@@ -155,16 +155,5 @@ export type GraphLayer<
     >(
         nodeType: T
     ) => ReturnType<typeof defineNode<any, any>>,
-
-    //      ___     _     _  _         _       _____               
-    //     / __|___| |_  | \| |___  __| |___  |_   _|  _ _ __  ___ 
-    //    | (_ / -_)  _| | .` / _ \/ _` / -_)   | || || | '_ \/ -_)
-    //     \___\___|\__| |_|\_\___/\__,_\___|   |_| \_, | .__/\___|
-    //                                              |__/|_|        
-    getNodeType: <
-        T extends N[number]['nodeType']
-    >(
-        nodeKey: T
-    ) => UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
 }
 
