@@ -9,7 +9,7 @@ export * from './layers/NextjsCache/defineNextjsCacheLayer'
 // Types
 export * from './types/GraphLayer'
 export * from './types/UixNode'
-export * from './types/GetUixNodeType'
+export * from './types/GraphNodeType'
 
 
 

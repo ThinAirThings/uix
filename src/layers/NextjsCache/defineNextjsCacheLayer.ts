@@ -4,6 +4,7 @@ import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { NextjsCacheLayerError } from "./NextjsCacheLayerError";
 import { Err, Ok } from "ts-results";
+import { GraphNodeType } from "@/src/types/GraphNodeType";
 
 
 export const defineNextjsCacheLayer = <
@@ -22,8 +23,60 @@ export const defineNextjsCacheLayer = <
     graph: GraphLayer<N, R, E, UIdx>,
 ): GraphLayer<N, R, E, UIdx, NextjsCacheLayerError> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
+    const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
+    const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
+        const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
+        const cacheKeys = uniqueIndexes.map(index => invalidationFnKeys.map(fnKey => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat()
+        cacheKeys.forEach(cacheKey => {
+            revalidateTag(cacheKey)
+        })
+    }
+
     return {
         ...graph,
+        // Get node has an explicit cache key
+        getNode: async (nodeType, nodeIndex, indexKey) => {
+            const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
+            // Create caches for each unique index
+            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+                async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
+                    return await graph.getNode(nodeType, index, key)
+                }, [cacheKey], {
+                tags: [cacheKey]
+            }))
+            // Use index 0, but either would work.
+            const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
+            return node
+        },
+        getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
+            // Set explicit cache key
+            const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
+            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+                async (...[fromNode, relationshipType, toNodeType]: Parameters<typeof graph.getRelatedTo>) => {
+                    return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+                }, [cacheKey], {
+                tags: [cacheKey]
+            }))
+            // Get the related nodes
+            const getRelatedToNodesResult = await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            if (!getRelatedToNodesResult.ok) {
+                return getRelatedToNodesResult
+            }
+            // Create caches for each unique index and returned node. This will invalidate the cache if any of the returned nodes are updated.
+            const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
+            const relatedToNodes = getRelatedToNodesResult.val
+            const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()
+            relatedToNodeCacheKeys.forEach(cacheKey => {
+                !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+                    async () => {
+                        return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+                    }, [cacheKey], {
+                    tags: [cacheKey]
+                }))
+                console.log(`Related to node cache key: ${cacheKey}`)
+            })
+            return getRelatedToNodesResult
+        },
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
             const createNodeResult = await graph.createNode(nodeType, initialState)
@@ -35,14 +88,30 @@ export const defineNextjsCacheLayer = <
             if (!getNodeResult.ok) return getNodeResult;
             const node = getNodeResult.val;
             // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
-            (['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[])
-                .map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`)
-                .forEach((cacheKey) => {
-                    console.log(`Created with cache key: ${cacheKey}`)
-                    revalidateTag(cacheKey)
-                })
+            invalidateCacheKeys(node)
             // Return the nodekey
             return new Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
+        },
+        updateNode: async (nodeKey, state) => {
+            const updateNodeResult = await graph.updateNode(nodeKey, state)
+            if (!updateNodeResult.ok) return updateNodeResult
+            const node = updateNodeResult.val
+            invalidateCacheKeys(node)
+            return updateNodeResult
+        },
+        deleteNode: async (nodeKey) => {
+            const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
+            if (!getNodeResult.ok) {
+                if (getNodeResult.val.errorType === 'NodeNotFound') {
+                    return new Ok(null)
+                }
+                return getNodeResult
+            }
+            const node = getNodeResult.val
+            const nodeResult = await graph.deleteNode(nodeKey)
+            invalidateCacheKeys(node)
+            if (!nodeResult.ok) return nodeResult
+            return nodeResult
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
             // Handle passing Result type in as toNode for common pattern
@@ -53,68 +122,11 @@ export const defineNextjsCacheLayer = <
                 return createRelationshipResult
             }
             // Invalidate all caches for the fromNode and toNode
-            const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
+            const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
             revalidateTag(cacheKey)
             return createRelationshipResult
         },
-        getNode: async (nodeType, nodeIndex, indexKey) => {
-            const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[]
-            const cacheKeys = uniqueIndexes.map(index => `${nodeType}-${index}-${indexKey}`)
-            // Create caches for each unique index
-            cacheKeys.forEach(cacheKey => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-                    return await graph.getNode(nodeType, index, key)
-                }, [cacheKey], {
-                tags: [cacheKey]
-            })))
-            // Use index 0, but either would work.
-            const node = await cacheMap.get(cacheKeys[0])!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
-            return node
-        },
-        getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
-            const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-            if (!cacheMap.has(cacheKey)) {
-                cacheMap.set(cacheKey, cache(
-                    async (...[fromNode, relationshipType, toNodeType]: Parameters<typeof graph.getRelatedTo>) => {
-                        return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
-                    }, [cacheKey], {
-                    tags: [cacheKey]
-                }))
-            }
-            const getRelatedToNodesResult = await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
-            if (!getRelatedToNodesResult.ok) {
-                return getRelatedToNodesResult
-            }
-            // Create caches for each unique index and returned node. This will invalidate the cache if any of the returned nodes are updated.
-            const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
-            const relatedToNodes = getRelatedToNodesResult.val
-            const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `${toNodeType}-${index as string}-${node[index]}`)).flat()
-            relatedToNodeCacheKeys.forEach(cacheKey => {
-                !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                    async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-                        return await graph.getNode(nodeType, index, key)
-                    }, [cacheKey], {
-                    tags: [cacheKey]
-                }))
-                console.log(`Related to node cache key: ${cacheKey}`)
 
-            })
-
-            return getRelatedToNodesResult
-        },
-        updateNode: async ({ nodeType, nodeId }, state) => {
-            const nodeResult = await graph.updateNode({ nodeType, nodeId }, state)
-            if (!nodeResult.ok) {
-                return nodeResult
-            }
-            (['nodeId', ...graph.uniqueIndexes[nodeType] ?? []] as string[])
-                .map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`)
-                .forEach((cacheKey) => {
-                    console.log(`Updated with cache key: ${cacheKey}`)
-                    revalidateTag(cacheKey)
-                })
-            return nodeResult
-        },
 
     }
 }

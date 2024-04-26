@@ -157,7 +157,7 @@ export const defineNeo4jLayer = <
                     `, { nodeId })
                 }).then(({ records }) => records.length ? records.map(record => record.get('node').properties)[0] : null)
                 if (!result) return new Err(new Neo4jLayerError('NodeNotFound', `Node of type ${nodeType} with nodeId: ${nodeId} not found`))
-                return new Ok(result)
+                return new Ok(null)
             } catch (_e) {
                 const e = _e as Error
                 return new Err(new Neo4jLayerError('Unknown', e.message))

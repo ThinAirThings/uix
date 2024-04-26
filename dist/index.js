@@ -173,7 +173,7 @@ var defineNeo4jLayer = (graph, config) => {
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         if (!result)
           return new Err2(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with nodeId: ${nodeId} not found`));
-        return new Ok2(result);
+        return new Ok2(null);
       } catch (_e) {
         const e = _e;
         return new Err2(new Neo4jLayerError("Unknown", e.message));
@@ -241,41 +241,20 @@ import { unstable_cache as cache, revalidateTag } from "next/cache";
 import { Err as Err3, Ok as Ok3 } from "ts-results";
 var defineNextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
+  const invalidationFnKeys = ["getNode", "getRelatedTo"];
+  const invalidateCacheKeys = (node) => {
+    const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
+    const cacheKeys = uniqueIndexes.map((index) => invalidationFnKeys.map((fnKey) => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat();
+    cacheKeys.forEach((cacheKey) => {
+      revalidateTag(cacheKey);
+    });
+  };
   return {
     ...graph,
-    // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
-    createNode: async (nodeType, initialState) => {
-      const createNodeResult = await graph.createNode(nodeType, initialState);
-      if (!createNodeResult.ok) {
-        return createNodeResult;
-      }
-      const getNodeResult = await graph.getNode(nodeType, "nodeId", createNodeResult.val.nodeId);
-      if (!getNodeResult.ok)
-        return getNodeResult;
-      const node = getNodeResult.val;
-      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${node[indexKey]}`).forEach((cacheKey) => {
-        console.log(`Created with cache key: ${cacheKey}`);
-        revalidateTag(cacheKey);
-      });
-      return new Ok3({ nodeType: node.nodeType, nodeId: node.nodeId });
-    },
-    createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
-      if (toNode instanceof Err3)
-        return toNode;
-      if (toNode instanceof Ok3)
-        toNode = toNode.val;
-      const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args);
-      if (!createRelationshipResult.ok) {
-        return createRelationshipResult;
-      }
-      const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
-      revalidateTag(cacheKey);
-      return createRelationshipResult;
-    },
+    // Get node has an explicit cache key
     getNode: async (nodeType, nodeIndex, indexKey) => {
-      const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []];
-      const cacheKeys = uniqueIndexes.map((index) => `${nodeType}-${index}-${indexKey}`);
-      cacheKeys.forEach((cacheKey) => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+      const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`;
+      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
         async (...[nodeType2, index, key]) => {
           return await graph.getNode(nodeType2, index, key);
         },
@@ -283,34 +262,32 @@ var defineNextjsCacheLayer = (graph) => {
         {
           tags: [cacheKey]
         }
-      )));
-      const node = await cacheMap.get(cacheKeys[0])(nodeType, nodeIndex, indexKey);
+      ));
+      const node = await cacheMap.get(cacheKey)(nodeType, nodeIndex, indexKey);
       return node;
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
-      const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
-      if (!cacheMap.has(cacheKey)) {
-        cacheMap.set(cacheKey, cache(
-          async (...[fromNode2, relationshipType2, toNodeType2]) => {
-            return await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
-          },
-          [cacheKey],
-          {
-            tags: [cacheKey]
-          }
-        ));
-      }
+      const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
+      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+        async (...[fromNode2, relationshipType2, toNodeType2]) => {
+          return await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
+        },
+        [cacheKey],
+        {
+          tags: [cacheKey]
+        }
+      ));
       const getRelatedToNodesResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
       if (!getRelatedToNodesResult.ok) {
         return getRelatedToNodesResult;
       }
       const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType] ?? []];
       const relatedToNodes = getRelatedToNodesResult.val;
-      const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `${toNodeType}-${index}-${node[index]}`)).flat();
+      const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat();
       relatedToNodeCacheKeys.forEach((cacheKey2) => {
         !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, cache(
-          async (...[nodeType, index, key]) => {
-            return await graph.getNode(nodeType, index, key);
+          async () => {
+            return await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
           },
           [cacheKey2],
           {
@@ -321,16 +298,54 @@ var defineNextjsCacheLayer = (graph) => {
       });
       return getRelatedToNodesResult;
     },
-    updateNode: async ({ nodeType, nodeId }, state) => {
-      const nodeResult = await graph.updateNode({ nodeType, nodeId }, state);
-      if (!nodeResult.ok) {
-        return nodeResult;
+    // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
+    createNode: async (nodeType, initialState) => {
+      const createNodeResult = await graph.createNode(nodeType, initialState);
+      if (!createNodeResult.ok) {
+        return createNodeResult;
       }
-      ["nodeId", ...graph.uniqueIndexes[nodeType] ?? []].map((indexKey) => `${nodeType}-${indexKey}-${nodeResult.val[indexKey]}`).forEach((cacheKey) => {
-        console.log(`Updated with cache key: ${cacheKey}`);
-        revalidateTag(cacheKey);
-      });
+      const getNodeResult = await graph.getNode(nodeType, "nodeId", createNodeResult.val.nodeId);
+      if (!getNodeResult.ok)
+        return getNodeResult;
+      const node = getNodeResult.val;
+      invalidateCacheKeys(node);
+      return new Ok3({ nodeType: node.nodeType, nodeId: node.nodeId });
+    },
+    updateNode: async (nodeKey, state) => {
+      const updateNodeResult = await graph.updateNode(nodeKey, state);
+      if (!updateNodeResult.ok)
+        return updateNodeResult;
+      const node = updateNodeResult.val;
+      invalidateCacheKeys(node);
+      return updateNodeResult;
+    },
+    deleteNode: async (nodeKey) => {
+      const getNodeResult = await graph.getNode(nodeKey.nodeType, "nodeId", nodeKey.nodeId);
+      if (!getNodeResult.ok) {
+        if (getNodeResult.val.errorType === "NodeNotFound") {
+          return new Ok3(null);
+        }
+        return getNodeResult;
+      }
+      const node = getNodeResult.val;
+      const nodeResult = await graph.deleteNode(nodeKey);
+      invalidateCacheKeys(node);
+      if (!nodeResult.ok)
+        return nodeResult;
       return nodeResult;
+    },
+    createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
+      if (toNode instanceof Err3)
+        return toNode;
+      if (toNode instanceof Ok3)
+        toNode = toNode.val;
+      const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args);
+      if (!createRelationshipResult.ok) {
+        return createRelationshipResult;
+      }
+      const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
+      revalidateTag(cacheKey);
+      return createRelationshipResult;
     }
   };
 };
