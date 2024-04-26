@@ -271,7 +271,7 @@ var defineNextjsCacheLayer = (graph) => {
       if (!getRelatedToNodesResult.ok) {
         return getRelatedToNodesResult;
       }
-      const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType];
+      const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType] ?? [];
       const relatedToNodes = getRelatedToNodesResult.val;
       console.log(toNodeTypeUniqueIndexes);
       console.log(relatedToNodes);
