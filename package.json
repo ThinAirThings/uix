@@ -1,5 +1,5 @@
 {
-  "name": "@thinairthingslocal/uix",
+  "name": "@thinairthings/uix",
   "author": "Dan Lannan",
   "version": "1.0.6",
   "main": "dist/index.js",
