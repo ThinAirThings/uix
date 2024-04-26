@@ -55,7 +55,6 @@ var defineGraph = ({
     relationshipDefinitions,
     edgeDefinitions,
     uniqueIndexes,
-    nodeTypeUnion: null,
     createNode: async (nodeType, initialState) => {
       const node = {
         nodeType,

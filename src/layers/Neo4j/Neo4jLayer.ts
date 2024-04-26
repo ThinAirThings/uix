@@ -29,7 +29,6 @@ export const Neo4jLayer = <
     | 'relationshipDefinitions'
     | 'edgeDefinitions'
     | 'nodeDefinitions'
-    | 'nodeTypeUnion'
     | 'uniqueIndexes'
     | 'createNode'
     | 'getDefinition'
