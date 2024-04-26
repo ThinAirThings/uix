@@ -32,15 +32,15 @@ var src_exports = {};
 __export(src_exports, {
   Neo4jLayer: () => Neo4jLayer,
   NextjsCacheLayer: () => NextjsCacheLayer,
-  defineGraph: () => defineGraph,
+  defineBaseGraph: () => defineBaseGraph,
   defineNode: () => defineNode
 });
 module.exports = __toCommonJS(src_exports);
 
-// src/base/defineGraph.ts
+// src/base/defineBaseGraph.ts
 var import_uuid = require("uuid");
 var import_ts_results = require("ts-results");
-var defineGraph = ({
+var defineBaseGraph = ({
   nodeDefinitions,
   relationshipDefinitions,
   edgeDefinitions,
@@ -306,6 +306,6 @@ var NextjsCacheLayer = (graph) => {
 0 && (module.exports = {
   Neo4jLayer,
   NextjsCacheLayer,
-  defineGraph,
+  defineBaseGraph,
   defineNode
 });

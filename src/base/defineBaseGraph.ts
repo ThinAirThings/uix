@@ -2,14 +2,14 @@ import { TypeOf, ZodObject } from "zod"
 import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
-import { GraphLayer } from "../types/Graph"
+import { GraphLayer } from "../types/GraphLayer"
 import { Ok, Err } from 'ts-results';
 
 export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
 
 
-export const defineGraph = <
+export const defineBaseGraph = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>

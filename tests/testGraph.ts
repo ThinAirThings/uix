@@ -1,9 +1,9 @@
-import { defineGraph, defineNode } from "../dist";
+import { defineBaseGraph, defineNode } from "../dist";
 import { z } from "zod";
 
 
 
-export const testGraph = defineGraph({
+export const testGraph = defineBaseGraph({
     nodeDefinitions: [
         defineNode('User' as const, z.object({
             name: z.string(),

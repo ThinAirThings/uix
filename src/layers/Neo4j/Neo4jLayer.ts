@@ -3,7 +3,7 @@ import neo4j, { Driver, Integer, Node, Relationship } from 'neo4j-driver';
 import { TypeOf, ZodObject, ZodRawShape } from 'zod';
 import { createUniqueIndex } from './createUniqueIndex';
 import { defineNode } from '../../base/defineNode';
-import { GraphLayer } from '../../types/Graph';
+import { GraphLayer } from '../../types/GraphLayer';
 import { UixNode } from '../../types/UixNode';
 import { UixRelationship } from '@/src/types/UixRelationship';
 import { Neo4jLayerError } from './Neo4jLayerError';

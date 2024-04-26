@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Neo4jLayer } from "./src/layers/Neo4j/Neo4jLayer";
-import { defineGraph } from "./src/base/defineGraph";
+import { defineGraph } from "./src/base/defineBaseGraph";
 import { defineNode } from "./src/base/defineNode";
 import { NextjsCacheLayer } from './src/layers/NextjsCache/NextjsCacheLayer';
 import { NodeKey } from './src/types/NodeKey';
