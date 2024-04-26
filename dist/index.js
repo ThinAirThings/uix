@@ -16,6 +16,7 @@ var defineGraph = ({
     relationshipDefinitions,
     edgeDefinitions,
     uniqueIndexes,
+    nodeTypeUnion: null,
     createNode: async (nodeType, initialState) => {
       const node = {
         nodeType,
@@ -27,10 +28,6 @@ var defineGraph = ({
     },
     getDefinition: (nodeType) => {
       return definitionMap.get(nodeType);
-    },
-    getNodeType: (nodeType) => {
-      throw new Error(`getNodeType should never be called in the runtime. It's a type-level utlity function.`);
-      return null;
     }
   };
 };
