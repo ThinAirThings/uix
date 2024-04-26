@@ -240,11 +240,26 @@ var defineNextjsCacheLayer = (graph) => {
   return {
     ...graph,
     getNode: async (nodeType, nodeIndex, indexKey) => {
-      const cacheKey = `${nodeType}-${nodeIndex}-${indexKey}`;
+      const uniqueIndexes = graph.uniqueIndexes[nodeType];
+      const cacheKeys = uniqueIndexes.map((index) => `${nodeType}-${index}-${indexKey}`);
+      cacheKeys.forEach((cacheKey) => !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+        async (...[nodeType2, index, key]) => {
+          return await graph.getNode(nodeType2, index, key);
+        },
+        [cacheKey],
+        {
+          tags: [cacheKey]
+        }
+      )));
+      const node = await cacheMap.get(cacheKeys[0])(nodeType, nodeIndex, indexKey);
+      return node;
+    },
+    getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
+      const cacheKey = `${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
       if (!cacheMap.has(cacheKey)) {
         cacheMap.set(cacheKey, cache(
-          async (...[nodeType2, index, key]) => {
-            return await graph.getNode(nodeType2, index, key);
+          async (...[fromNode2, relationshipType2, toNodeType2]) => {
+            return await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
           },
           [cacheKey],
           {
@@ -252,8 +267,23 @@ var defineNextjsCacheLayer = (graph) => {
           }
         ));
       }
-      const node = await graph.getNode(nodeType, nodeIndex, indexKey);
-      return node;
+      const getRelatedToNodesResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
+      if (!getRelatedToNodesResult.ok) {
+        return getRelatedToNodesResult;
+      }
+      const toNodeTypeUniqueIndexes = graph.uniqueIndexes[toNodeType];
+      const relatedToNodes = getRelatedToNodesResult.val;
+      const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `${toNodeType}-${index}-${node[index]}`)).flat();
+      relatedToNodeCacheKeys.forEach((cacheKey2) => !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, cache(
+        async (...[nodeType, index, key]) => {
+          return await graph.getNode(nodeType, index, key);
+        },
+        [cacheKey2],
+        {
+          tags: [cacheKey2]
+        }
+      )));
+      return getRelatedToNodesResult;
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
       const nodeResult = await graph.updateNode({ nodeType, nodeId }, state);
