@@ -65,10 +65,13 @@ export const defineGraph = <
         getDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
         },
-        getNodeType: (nodeType) => null as unknown as UixNode<
-            typeof nodeType,
-            TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']
-            >>
+        getNodeType: (nodeType) => {
+            throw new Error(`getNodeType should never be called in the runtime. It's a type-level utlity function.`)
+            return null as unknown as UixNode<
+                typeof nodeType,
+                TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']
+                >>
+        }
 
     }
 }

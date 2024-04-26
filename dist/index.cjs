@@ -67,7 +67,10 @@ var defineGraph = ({
     getDefinition: (nodeType) => {
       return definitionMap.get(nodeType);
     },
-    getNodeType: (nodeType) => null
+    getNodeType: (nodeType) => {
+      throw new Error(`getNodeType should never be called in the runtime. It's a type-level utlity function.`);
+      return null;
+    }
   };
 };
 
