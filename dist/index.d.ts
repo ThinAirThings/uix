@@ -167,4 +167,4 @@ type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefi
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
-export { type GraphLayer, type GraphNodeType, type OmitNodeConstants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
+export { type GraphLayer, type GraphNodeType, type NodeKey, type OmitNodeConstants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
