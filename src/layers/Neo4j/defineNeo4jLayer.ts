@@ -180,9 +180,12 @@ export const defineNeo4jLayer = <
             toNode,
             ...[state]
         ) => {
-            // Handle passing Result type in as toNode for common pattern
+            // Handle passing Result type in as fromNode or toNode for common pattern
+            if (fromNode instanceof Err) return fromNode
+            if (fromNode instanceof Ok) fromNode = fromNode.val
             if (toNode instanceof Err) return toNode
             if (toNode instanceof Ok) toNode = toNode.val
+
             // Check for driver
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
