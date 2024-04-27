@@ -60,7 +60,7 @@ var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
 import { Ok as Ok2, Err } from "ts-results";
 
 // src/base/UixErr.ts
-var UixErrLayer = () => (layer, type, subtype, opts) => ({
+var ExtendUixError = () => (layer, type, subtype, opts) => ({
   layer,
   type,
   subtype,
@@ -69,7 +69,7 @@ var UixErrLayer = () => (layer, type, subtype, opts) => ({
 
 // src/layers/Neo4j/defineNeo4jLayer.ts
 var defineNeo4jLayer = (graph, config) => {
-  const UixErr = UixErrLayer();
+  const UixErr = ExtendUixError();
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
     config.connection.username,
     config.connection.password
@@ -109,9 +109,9 @@ var defineNeo4jLayer = (graph, config) => {
       } catch (_e) {
         const e = _e;
         if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
-          return new Err(UixErr("Neo4j", "Normal", "UniqueConstraintViolation", { message: e.message }));
+          return new Err(UixErr("Neo4j", "Normal", "UniqueIndexViolation", { message: e.message }));
         }
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -132,7 +132,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         session.close();
       }
@@ -152,7 +152,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -175,7 +175,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(null);
       } catch (_e) {
         const e = _e;
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -201,7 +201,7 @@ var defineNeo4jLayer = (graph, config) => {
                         `, { fromNode, toNode });
           }).then(({ records }) => records.length ? records.map((record) => record.get("relationship").properties)[0] : null);
           if (result)
-            return new Err(UixErr("Neo4j", "Normal", "UniqueFromNodeRelationshipViolation", { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }));
+            return new Err(UixErr("Neo4j", "Normal", "LayerImplementationError", { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }));
         }
         const executeWriteResult = await session.executeWrite(async (tx) => {
           return await tx.run(`
@@ -221,7 +221,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(executeWriteResult);
       } catch (_e) {
         const e = _e;
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -241,7 +241,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
+        return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
       } finally {
         await session.close();
       }

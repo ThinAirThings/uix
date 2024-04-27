@@ -4,7 +4,7 @@ import { NodeKey } from "./NodeKey"
 import { UixNode } from "./UixNode"
 import { UixRelationship } from "./UixRelationship"
 import { Result } from 'ts-results';
-import { UixErrLayer } from "../base/UixErr"
+import { ExtendUixError } from "../base/UixErr"
 
 
 export type GraphLayer<
@@ -32,6 +32,7 @@ export type GraphLayer<
     relationshipDefinitions: R,
     edgeDefinitions: E,
     uniqueIndexes: UIdx,
+
     //                   _  _         _       ___             _   _                           
     //     ___ ___ ___  | \| |___  __| |___  | __|  _ _ _  __| |_(_)___ _ _  ___  ___ ___ ___ 
     //    |___|___|___| | .` / _ \/ _` / -_) | _| || | ' \/ _|  _| / _ \ ' \(_-< |___|___|___|
@@ -48,7 +49,7 @@ export type GraphLayer<
         initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
     ) => Promise<Result<
         NodeKey<T>,
-        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>,
 
     //      ___     _     _  _         _     
@@ -65,7 +66,7 @@ export type GraphLayer<
         indexKey: string
     ) => Promise<Result<
         UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
-        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>,
 
     //  _   _          _      _         _  _         _     
@@ -80,7 +81,7 @@ export type GraphLayer<
         state: Partial<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
     ) => Promise<Result<
         UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
-        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>
 
     //  ___      _     _         _  _         _     
@@ -93,7 +94,7 @@ export type GraphLayer<
         nodeKey: NodeKey<T>
     ) => Promise<Result<
         null,
-        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>
 
     //                   ___     _      _   _             _    _        ___             _   _                           
@@ -112,9 +113,9 @@ export type GraphLayer<
         RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>),
         ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
     >(
-        fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<FromNodeType>,
+        fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<FromNodeType>,
         relationshipType: RelationshipType,
-        toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<ToNodeType>,
+        toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<ToNodeType>,
         ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
@@ -122,7 +123,7 @@ export type GraphLayer<
         fromNode: UixNode<FromNodeType, TypeOf<(N[number] & { nodeType: FromNodeType })['stateDefinition']>>,
         relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
         toNode: UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
-    }, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>
+    }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>
     //      ___     _     ___     _      _          _   _____    
     //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
     //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
@@ -137,7 +138,7 @@ export type GraphLayer<
         toNodeType: ToNodeType
     ) => Promise<Result<
         UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[],
-        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>
 
     //                   __  __     _          ___             _   _               _ _ _                      
