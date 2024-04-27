@@ -62,6 +62,7 @@ export const defineNextjsCacheLayer = <
                     const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
                     const relatedToNodes = getRelatedToNodesResult.val
                     relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()]
+                    console.log(`Related inside: ${relatedToNodeCacheKeys}`)
                     return getRelatedToNodesResult
                 }, relatedToNodeCacheKeys, {
                 tags: relatedToNodeCacheKeys
