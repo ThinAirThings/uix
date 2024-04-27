@@ -263,7 +263,6 @@ var defineNextjsCacheLayer = (graph) => {
     const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
     const cacheKeys = uniqueIndexes.map((index) => invalidationFnKeys.map((fnKey) => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat();
     cacheKeys.forEach((cacheKey) => {
-      console.log(`InvalidateCacheKey: ${cacheKey}`);
       revalidateTag(cacheKey);
     });
   };
