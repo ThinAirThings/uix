@@ -54,18 +54,21 @@ export const defineNextjsCacheLayer = <
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-            let relatedToNodeCacheKeys: string[] = [cacheKey, 'getRelatedTo-Profile-nodeId-35ff3df7-06dc-4e58-ae26-6c3de715b842']
-            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                async (...[fromNode, relationshipType, toNodeType]: Parameters<typeof graph.getRelatedTo>) => {
-                    const getRelatedToNodesResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
-                    if (!getRelatedToNodesResult.ok) return getRelatedToNodesResult
-                    const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
-                    const relatedToNodes = getRelatedToNodesResult.val
-                    relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()]
-                    console.log(`Related inside: ${relatedToNodeCacheKeys}`)
-                    return getRelatedToNodesResult
-                }, [...relatedToNodeCacheKeys], {
-                tags: [...relatedToNodeCacheKeys]
+            // Cached function. This is getting sort of recursively set into the cacheMap
+            const getRelatedToNodes = async (...[fromNode, relationshipType, toNodeType]: Parameters<typeof graph.getRelatedTo>) => {
+                const getRelatedToNodesResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+                if (!getRelatedToNodesResult.ok) return getRelatedToNodesResult
+                const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
+                const relatedToNodes = getRelatedToNodesResult.val
+                const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()]
+                // Reset cache keys
+                cacheMap.set(cacheKey, cache(getRelatedToNodes, relatedToNodeCacheKeys, {
+                    tags: relatedToNodeCacheKeys
+                }))
+                return getRelatedToNodesResult
+            }
+            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
+                tags: [cacheKey]
             }))
             // Get the related nodes
             return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>

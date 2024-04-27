@@ -325,23 +325,21 @@ var defineNextjsCacheLayer = (graph) => {
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
-      let relatedToNodeCacheKeys = [cacheKey, "getRelatedTo-Profile-nodeId-35ff3df7-06dc-4e58-ae26-6c3de715b842"];
-      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(
-        async (...[fromNode2, relationshipType2, toNodeType2]) => {
-          const getRelatedToNodesResult = await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
-          if (!getRelatedToNodesResult.ok)
-            return getRelatedToNodesResult;
-          const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType2] ?? []];
-          const relatedToNodes = getRelatedToNodesResult.val;
-          relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
-          console.log(`Related inside: ${relatedToNodeCacheKeys}`);
+      const getRelatedToNodes = async (...[fromNode2, relationshipType2, toNodeType2]) => {
+        const getRelatedToNodesResult = await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
+        if (!getRelatedToNodesResult.ok)
           return getRelatedToNodesResult;
-        },
-        [...relatedToNodeCacheKeys],
-        {
-          tags: [...relatedToNodeCacheKeys]
-        }
-      ));
+        const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType2] ?? []];
+        const relatedToNodes = getRelatedToNodesResult.val;
+        const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
+        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(getRelatedToNodes, relatedToNodeCacheKeys, {
+          tags: relatedToNodeCacheKeys
+        }));
+        return getRelatedToNodesResult;
+      };
+      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(getRelatedToNodes, [cacheKey], {
+        tags: [cacheKey]
+      }));
       return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
     },
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
