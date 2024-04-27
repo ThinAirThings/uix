@@ -1,4 +1,4 @@
-import { UixError } from "../base/UixError"
+import { UixError } from "../base/UixErr"
 
 export type UixResult<T extends 'success' | 'error', R> = {
     type: T

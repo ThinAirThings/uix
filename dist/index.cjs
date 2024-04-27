@@ -95,28 +95,20 @@ var createUniqueIndex = async (neo4jDriver, nodeType, propertyName) => {
   }
 };
 
-// src/base/UixError.ts
-var UixError = class extends Error {
-  layer;
-  errorType;
-  constructor(layer, errorType, ...[message, options]) {
-    super(message, { cause: options?.cause });
-    this.layer = layer;
-    this.errorType = errorType;
-    this.name = "UixError";
-  }
-};
-
-// src/layers/Neo4j/Neo4jLayerError.ts
-var Neo4jLayerError = class extends UixError {
-  constructor(errorType, ...[message, options]) {
-    super("Neo4j", errorType, message, { cause: options?.cause });
-  }
-};
-
 // src/layers/Neo4j/defineNeo4jLayer.ts
 var import_ts_results2 = require("ts-results");
+
+// src/base/UixErr.ts
+var UixErrLayer = () => (layer, type, subtype, opts) => ({
+  layer,
+  type,
+  subtype,
+  ...opts
+});
+
+// src/layers/Neo4j/defineNeo4jLayer.ts
 var defineNeo4jLayer = (graph, config) => {
+  const UixErr = UixErrLayer();
   const neo4jDriver = import_neo4j_driver.default.driver(config.connection.uri, import_neo4j_driver.default.auth.basic(
     config.connection.username,
     config.connection.password
@@ -156,9 +148,9 @@ var defineNeo4jLayer = (graph, config) => {
       } catch (_e) {
         const e = _e;
         if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
-          return new import_ts_results2.Err(new Neo4jLayerError("UniqueIndexViolation", e.message));
+          return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "UniqueConstraintViolation", { message: e.message }));
         }
-        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -175,11 +167,11 @@ var defineNeo4jLayer = (graph, config) => {
                     `, { indexKey });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         if (!result)
-          return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found`));
+          return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }));
         return new import_ts_results2.Ok(result);
       } catch (_e) {
         const e = _e;
-        return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         session.close();
       }
@@ -199,7 +191,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new import_ts_results2.Ok(result);
       } catch (_e) {
         const e = _e;
-        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -218,11 +210,11 @@ var defineNeo4jLayer = (graph, config) => {
                     `, { nodeId });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         if (!result)
-          return new import_ts_results2.Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with nodeId: ${nodeId} not found`));
+          return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${nodeType} with nodeId: ${nodeId} not found` }));
         return new import_ts_results2.Ok(null);
       } catch (_e) {
         const e = _e;
-        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -248,7 +240,7 @@ var defineNeo4jLayer = (graph, config) => {
                         `, { fromNode, toNode });
           }).then(({ records }) => records.length ? records.map((record) => record.get("relationship").properties)[0] : null);
           if (result)
-            return new import_ts_results2.Err(new Neo4jLayerError("UniqueFromNodeRelationshipViolation", `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists`));
+            return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "UniqueFromNodeRelationshipViolation", { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }));
         }
         const executeWriteResult = await session.executeWrite(async (tx) => {
           return await tx.run(`
@@ -268,7 +260,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new import_ts_results2.Ok(executeWriteResult);
       } catch (_e) {
         const e = _e;
-        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -288,7 +280,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new import_ts_results2.Ok(result);
       } catch (_e) {
         const e = _e;
-        return new import_ts_results2.Err(new Neo4jLayerError("Unknown", e.message));
+        return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "Unknown", { message: e.message }));
       } finally {
         await session.close();
       }
@@ -369,7 +361,7 @@ var defineNextjsCacheLayer = (graph) => {
     deleteNode: async (nodeKey) => {
       const getNodeResult = await graph.getNode(nodeKey.nodeType, "nodeId", nodeKey.nodeId);
       if (!getNodeResult.ok) {
-        if (getNodeResult.val.errorType === "NodeNotFound") {
+        if (getNodeResult.val.subtype === "NodeNotFound") {
           return new import_ts_results3.Ok(null);
         }
         return getNodeResult;

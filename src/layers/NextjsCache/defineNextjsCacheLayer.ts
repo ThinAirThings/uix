@@ -2,7 +2,6 @@ import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
-import { NextjsCacheLayerError } from "./NextjsCacheLayerError";
 import { Err, Ok } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 
@@ -20,9 +19,10 @@ export const defineNextjsCacheLayer = <
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
+    PreviousLayers extends Capitalize<string>
 >(
-    graph: GraphLayer<N, R, E, UIdx>,
-): GraphLayer<N, R, E, UIdx, NextjsCacheLayerError> => {
+    graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
+): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
@@ -96,7 +96,7 @@ export const defineNextjsCacheLayer = <
         deleteNode: async (nodeKey) => {
             const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
             if (!getNodeResult.ok) {
-                if (getNodeResult.val.errorType === 'NodeNotFound') {
+                if (getNodeResult.val.subtype === 'NodeNotFound') {
                     return new Ok(null)
                 }
                 return getNodeResult
