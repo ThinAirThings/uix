@@ -91,7 +91,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     getDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<any, any>>;
 };
 
-type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>;
+type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>;
 declare const defineBaseGraph: <N extends readonly {
     nodeType: any;
     stateDefinition: any;
@@ -168,4 +168,4 @@ type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefi
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
-export { type GraphLayer, type GraphNodeType, type OmitNodeContants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
+export { type GraphLayer, type GraphNodeType, type OmitNodeConstants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
