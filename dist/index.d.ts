@@ -88,7 +88,9 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
     })['stateDefinition']>>[], LayerError>>;
-    getDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<any, any>>;
+    getDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
+        nodeType: T;
+    })['stateDefinition']>>;
 };
 
 type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>;
