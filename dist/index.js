@@ -25,7 +25,7 @@ var defineBaseGraph = ({
       };
       return new Ok(node);
     },
-    getDefinition: (nodeType) => {
+    getNodeDefinition: (nodeType) => {
       return definitionMap.get(nodeType);
     }
   };

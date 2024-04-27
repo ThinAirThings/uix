@@ -150,7 +150,7 @@ export type GraphLayer<
     //     / __|___| |_  |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
     //    | (_ / -_)  _| | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
     //     \___\___|\__| |___/\___|_| |_|_||_|_|\__|_\___/_||_|
-    getDefinition: <
+    getNodeDefinition: <
         T extends N[number]['nodeType']
     >(
         nodeType: T
