@@ -7,11 +7,11 @@ import { Err, Ok } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 
 
-
 export const defineNextjsCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>
+        uniqueFromNode?: boolean
         stateDefinition?: ZodObject<any>
     }[],
     E extends { [NT in (N[number]['nodeType'])]?: {

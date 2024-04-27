@@ -4,7 +4,7 @@ import { UixError } from "@/src/base/UixError";
 
 export class Neo4jLayerError extends UixError<
     'Neo4j',
-    'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound'
+    'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound' | 'UniqueFromNodeRelationshipViolation'
 > {
     constructor(
         errorType: Neo4jLayerError['errorType'],
