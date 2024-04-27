@@ -70,7 +70,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         nodeType: T;
     })['stateDefinition']>>, LayerError>>;
     deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, LayerError>>;
-    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
+    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: Result<NodeKey<FromNodeType>, LayerError> | NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
         relationshipType: RelationshipType;

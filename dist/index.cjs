@@ -228,6 +228,10 @@ var defineNeo4jLayer = (graph, config) => {
       }
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...[state]) => {
+      if (fromNode instanceof import_ts_results2.Err)
+        return fromNode;
+      if (fromNode instanceof import_ts_results2.Ok)
+        fromNode = fromNode.val;
       if (toNode instanceof import_ts_results2.Err)
         return toNode;
       if (toNode instanceof import_ts_results2.Ok)
@@ -378,6 +382,10 @@ var defineNextjsCacheLayer = (graph) => {
       return nodeResult;
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
+      if (fromNode instanceof import_ts_results3.Err)
+        return fromNode;
+      if (fromNode instanceof import_ts_results3.Ok)
+        fromNode = fromNode.val;
       if (toNode instanceof import_ts_results3.Err)
         return toNode;
       if (toNode instanceof import_ts_results3.Ok)

@@ -76,7 +76,7 @@ var Neo4jLayerError = class extends UixError {
 };
 
 // src/layers/Neo4j/defineNeo4jLayer.ts
-import { Ok as Ok2, Err as Err2 } from "ts-results";
+import { Ok as Ok2, Err } from "ts-results";
 var defineNeo4jLayer = (graph, config) => {
   const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
     config.connection.username,
@@ -117,9 +117,9 @@ var defineNeo4jLayer = (graph, config) => {
       } catch (_e) {
         const e = _e;
         if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
-          return new Err2(new Neo4jLayerError("UniqueIndexViolation", e.message));
+          return new Err(new Neo4jLayerError("UniqueIndexViolation", e.message));
         }
-        return new Err2(new Neo4jLayerError("Unknown", e.message));
+        return new Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
         await session.close();
       }
@@ -136,11 +136,11 @@ var defineNeo4jLayer = (graph, config) => {
                     `, { indexKey });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         if (!result)
-          return new Err2(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found`));
+          return new Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found`));
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err2(new Neo4jLayerError("NodeNotFound", e.message));
+        return new Err(new Neo4jLayerError("NodeNotFound", e.message));
       } finally {
         session.close();
       }
@@ -160,7 +160,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err2(new Neo4jLayerError("Unknown", e.message));
+        return new Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
         await session.close();
       }
@@ -179,17 +179,21 @@ var defineNeo4jLayer = (graph, config) => {
                     `, { nodeId });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         if (!result)
-          return new Err2(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with nodeId: ${nodeId} not found`));
+          return new Err(new Neo4jLayerError("NodeNotFound", `Node of type ${nodeType} with nodeId: ${nodeId} not found`));
         return new Ok2(null);
       } catch (_e) {
         const e = _e;
-        return new Err2(new Neo4jLayerError("Unknown", e.message));
+        return new Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
         await session.close();
       }
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...[state]) => {
-      if (toNode instanceof Err2)
+      if (fromNode instanceof Err)
+        return fromNode;
+      if (fromNode instanceof Ok2)
+        fromNode = fromNode.val;
+      if (toNode instanceof Err)
         return toNode;
       if (toNode instanceof Ok2)
         toNode = toNode.val;
@@ -205,7 +209,7 @@ var defineNeo4jLayer = (graph, config) => {
                         `, { fromNode, toNode });
           }).then(({ records }) => records.length ? records.map((record) => record.get("relationship").properties)[0] : null);
           if (result)
-            return new Err2(new Neo4jLayerError("UniqueFromNodeRelationshipViolation", `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists`));
+            return new Err(new Neo4jLayerError("UniqueFromNodeRelationshipViolation", `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists`));
         }
         const executeWriteResult = await session.executeWrite(async (tx) => {
           return await tx.run(`
@@ -225,7 +229,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(executeWriteResult);
       } catch (_e) {
         const e = _e;
-        return new Err2(new Neo4jLayerError("Unknown", e.message));
+        return new Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
         await session.close();
       }
@@ -245,7 +249,7 @@ var defineNeo4jLayer = (graph, config) => {
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
-        return new Err2(new Neo4jLayerError("Unknown", e.message));
+        return new Err(new Neo4jLayerError("Unknown", e.message));
       } finally {
         await session.close();
       }
@@ -255,7 +259,7 @@ var defineNeo4jLayer = (graph, config) => {
 
 // src/layers/NextjsCache/defineNextjsCacheLayer.ts
 import { unstable_cache as cache, revalidateTag } from "next/cache";
-import { Err as Err3, Ok as Ok3 } from "ts-results";
+import { Err as Err2, Ok as Ok3 } from "ts-results";
 var defineNextjsCacheLayer = (graph) => {
   const cacheMap = /* @__PURE__ */ new Map();
   const invalidationFnKeys = ["getNode", "getRelatedTo"];
@@ -339,7 +343,11 @@ var defineNextjsCacheLayer = (graph) => {
       return nodeResult;
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
-      if (toNode instanceof Err3)
+      if (fromNode instanceof Err2)
+        return fromNode;
+      if (fromNode instanceof Ok3)
+        fromNode = fromNode.val;
+      if (toNode instanceof Err2)
         return toNode;
       if (toNode instanceof Ok3)
         toNode = toNode.val;
