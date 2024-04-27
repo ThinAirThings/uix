@@ -5,7 +5,7 @@ import { defineNode } from "./defineNode"
 import { GraphLayer } from "../types/GraphLayer"
 import { Ok, Err } from 'ts-results';
 
-export type OmitNodeContants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
+export type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
 
 
