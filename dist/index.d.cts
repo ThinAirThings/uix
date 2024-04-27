@@ -97,6 +97,7 @@ declare const defineBaseGraph: <N extends readonly {
     stateDefinition: any;
 }[], R extends readonly {
     relationshipType: Uppercase<string>;
+    uniqueFromNode?: boolean | undefined;
     stateDefinition?: ZodObject<any, zod.UnknownKeysParam, zod.ZodTypeAny, {
         [x: string]: any;
     }, {
