@@ -298,9 +298,9 @@ var defineNextjsCacheLayer = (graph) => {
           console.log(`Related inside: ${relatedToNodeCacheKeys}`);
           return getRelatedToNodesResult;
         },
-        relatedToNodeCacheKeys,
+        [...relatedToNodeCacheKeys],
         {
-          tags: relatedToNodeCacheKeys
+          tags: [...relatedToNodeCacheKeys]
         }
       ));
       return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
