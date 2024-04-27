@@ -18,6 +18,7 @@ export const defineNeo4jLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>
+        uniqueFromNode?: boolean
         stateDefinition?: ZodObject<any>
     }[],
     E extends { [NT in (N[number]['nodeType'])]?: {
@@ -54,6 +55,14 @@ export const defineNeo4jLayer = <
             return await Promise.all(indexes.map(async (index) => await createUniqueIndex(neo4jDriver, nodeType as string, index as string)))
         })) ?? []
     ]
+    // Create relationship dictionary
+    const relationshipDictionary = Object.fromEntries(
+        graph.relationshipDefinitions.map(({
+            relationshipType,
+            stateDefinition,
+            uniqueFromNode
+        }) => [relationshipType, { stateDefinition, uniqueFromNode }])
+    )
     return {
         ...graph,
         neo4jDriver,
@@ -178,7 +187,19 @@ export const defineNeo4jLayer = <
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             const session = neo4jDriver.session()
             try {
-                const result = await session.executeWrite(async tx => {
+                // Check for unique relationship defniiton
+                if (relationshipDictionary[relationshipType].uniqueFromNode) {
+                    const result = await session.executeRead(async tx => {
+                        return await tx.run<{
+                            relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: typeof relationshipType })['stateDefinition']>>>>
+                        }>(`
+                            MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})-[relationship:${relationshipType as string}]->(toNode:${toNode.nodeType})
+                            RETURN relationship
+                        `, { fromNode, toNode })
+                    }).then(({ records }) => records.length ? records.map(record => record.get('relationship').properties)[0] : null)
+                    if (result) return new Err(new Neo4jLayerError('UniqueFromNodeRelationshipViolation', `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists`))
+                }
+                const executeWriteResult = await session.executeWrite(async tx => {
                     return await tx.run<{
                         fromNode: Node<Integer, UixNode<typeof fromNode.nodeType, TypeOf<(N[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>,
                         relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(R[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>>,
@@ -197,7 +218,7 @@ export const defineNeo4jLayer = <
                         toNode: record.get('toNode').properties
                     }
                 })[0])
-                return new Ok(result)
+                return new Ok(executeWriteResult)
             } catch (_e) {
                 const e = _e as Error
                 return new Err(new Neo4jLayerError('Unknown', e.message))

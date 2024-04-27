@@ -43,6 +43,7 @@ declare class UixError<Layer extends string, T extends string> extends Error {
 
 type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R extends readonly {
     relationshipType: Uppercase<string>;
+    uniqueFromNode?: boolean;
     stateDefinition?: ZodObject<any>;
 }[], E extends Readonly<{
     [NT in (N[number]['nodeType'])]?: {
@@ -110,7 +111,7 @@ declare const defineBaseGraph: <N extends readonly {
     uniqueIndexes: UIdx;
 }) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>;
 
-declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound'> {
+declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound' | 'UniqueFromNodeRelationshipViolation'> {
     constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
 }
 
@@ -119,6 +120,7 @@ declare const defineNeo4jLayer: <N extends readonly {
     stateDefinition: any;
 }[], R extends readonly {
     relationshipType: Uppercase<string>;
+    uniqueFromNode?: boolean | undefined;
     stateDefinition?: ZodObject<any, zod.UnknownKeysParam, zod.ZodTypeAny, {
         [x: string]: any;
     }, {
@@ -145,6 +147,7 @@ declare const defineNextjsCacheLayer: <N extends readonly {
     stateDefinition: any;
 }[], R extends readonly {
     relationshipType: Uppercase<string>;
+    uniqueFromNode?: boolean | undefined;
     stateDefinition?: ZodObject<any, zod.UnknownKeysParam, zod.ZodTypeAny, {
         [x: string]: any;
     }, {
