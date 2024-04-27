@@ -286,36 +286,22 @@ var defineNextjsCacheLayer = (graph) => {
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
+      let relatedToNodeCacheKeys = [cacheKey];
       !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
         async (...[fromNode2, relationshipType2, toNodeType2]) => {
-          return await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
+          const getRelatedToNodesResult = await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
+          if (!getRelatedToNodesResult.ok)
+            return getRelatedToNodesResult;
+          const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType2] ?? []];
+          const relatedToNodes = getRelatedToNodesResult.val;
+          relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
         },
-        [cacheKey],
+        relatedToNodeCacheKeys,
         {
-          tags: [cacheKey]
+          tags: relatedToNodeCacheKeys
         }
       ));
-      const getRelatedToNodesResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
-      if (!getRelatedToNodesResult.ok) {
-        return getRelatedToNodesResult;
-      }
-      const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType] ?? []];
-      const relatedToNodes = getRelatedToNodesResult.val;
-      const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat();
-      relatedToNodeCacheKeys.forEach((cacheKey2) => {
-        !cacheMap.has(cacheKey2) && cacheMap.set(cacheKey2, cache(
-          async (fromNode2, relationshipType2, toNodeType2) => {
-            console.log(`relatedToNodeCacheKey Invalidated: ${cacheKey2}`);
-            return await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
-          },
-          [cacheKey2],
-          {
-            tags: [cacheKey2]
-          }
-        ));
-        console.log(`Related to node cache key: ${cacheKey2}`);
-      });
-      return getRelatedToNodesResult;
+      return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
     },
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
     createNode: async (nodeType, initialState) => {
