@@ -154,6 +154,6 @@ export type GraphLayer<
         T extends N[number]['nodeType']
     >(
         nodeType: T
-    ) => ReturnType<typeof defineNode<any, any>>,
+    ) => ReturnType<typeof defineNode<T, (N[number] & { nodeType: T })['stateDefinition']>>,
 }
 
