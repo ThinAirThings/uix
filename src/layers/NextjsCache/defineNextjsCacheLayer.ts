@@ -54,7 +54,7 @@ export const defineNextjsCacheLayer = <
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-            let relatedToNodeCacheKeys: string[] = [cacheKey]
+            let relatedToNodeCacheKeys: string[] = [cacheKey, 'getRelatedTo-Profile-nodeId-35ff3df7-06dc-4e58-ae26-6c3de715b842']
             !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
                 async (...[fromNode, relationshipType, toNodeType]: Parameters<typeof graph.getRelatedTo>) => {
                     const getRelatedToNodesResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
