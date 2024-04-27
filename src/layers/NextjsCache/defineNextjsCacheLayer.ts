@@ -71,7 +71,8 @@ export const defineNextjsCacheLayer = <
             const relatedToNodeCacheKeys = relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()
             relatedToNodeCacheKeys.forEach(cacheKey => {
                 !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                    async () => {
+                    async (fromNode, relationshipType, toNodeType) => {
+                        console.log(`relatedToNodeCacheKey Invalidated: ${cacheKey}`)
                         return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
                     }, [cacheKey], {
                     tags: [cacheKey]
