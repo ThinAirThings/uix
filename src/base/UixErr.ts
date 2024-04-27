@@ -12,10 +12,21 @@ import { Err, ErrImpl, Result } from "ts-results";
 
 
 // // Note, the first set of type arguments is the same thing as what you do on a generic function
-export const UixErrLayer = <LayerStack extends Capitalize<string>>() => <
+export const ExtendUixError = <
+    LayerStack extends Capitalize<string>
+>() => <
     Layer extends LayerStack,
     T extends 'Fatal' | 'Normal' | 'Warning' = 'Fatal' | 'Normal' | 'Warning',
-    ST extends string = string,
+    ST extends
+    | 'NodeNotFound'
+    | 'UniqueIndexViolation'
+    | 'UniqueRelationshipViolation'
+    | 'LayerImplementationError'
+    =
+    | 'NodeNotFound'
+    | 'UniqueIndexViolation'
+    | 'UniqueRelationshipViolation'
+    | 'LayerImplementationError',
     D extends Record<string, any> = Record<string, any>
 >(
     layer: Layer,
@@ -31,6 +42,50 @@ export const UixErrLayer = <LayerStack extends Capitalize<string>>() => <
     subtype,
     ...opts
 })
+
+
+// ExtendUixError((layer: 'Base') => {
+//     return layer
+// }, 'Base')
+// export const UixErrorLayer = {
+//     extend: ExtendUixError,
+//     UixError: ExtendUixError((layer: 'Base') => {}, 'Base')
+// }
+// const UixError = UixErrorLayer.UixError
+
+// const nextLayer = UixErrorLayer.extend(UixErrorLayer.UixError,  'NextjsCache')
+// UixErrLayer['extend'] = <LayerStack extends Capitalize<string>>() => ({
+//     UixErr: <
+//         Layer extends LayerStack,
+//         T extends 'Fatal' | 'Normal' | 'Warning' = 'Fatal' | 'Normal' | 'Warning',
+//         ST extends
+//         | 'NodeNotFound'
+//         | 'UniqueIndexViolation'
+//         | 'UniqueRelationshipViolation'
+//         | 'LayerImplementationError'
+//         =
+//         | 'NodeNotFound'
+//         | 'UniqueIndexViolation'
+//         | 'UniqueRelationshipViolation'
+//         | 'LayerImplementationError',
+//         D extends Record<string, any> = Record<string, any>
+//     >(
+//         layer: Layer,
+//         type: T,
+//         subtype: ST,
+//         opts?: {
+//             message?: string,
+//             data?: D
+//         }
+//     ) => ({
+//         layer,
+//         type,
+//         subtype,
+//         ...opts
+//     })
+// })
+
+
 
 // export class UixErr<
 //     Layer extends string,

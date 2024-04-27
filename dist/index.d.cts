@@ -35,7 +35,7 @@ type UixRelationship<T extends Uppercase<string>, S extends Record<string, any> 
     [K in keyof S as Exclude<K, 'relationshipType' | 'relationshipId' | 'createdAt' | 'updatedAt'>]: S[K];
 };
 
-declare const UixErrLayer: <LayerStack extends Capitalize<string>>() => <Layer extends LayerStack, T extends "Fatal" | "Normal" | "Warning" = "Fatal" | "Normal" | "Warning", ST extends string = string, D extends Record<string, any> = Record<string, any>>(layer: Layer, type: T, subtype: ST, opts?: {
+declare const ExtendUixError: <LayerStack extends Capitalize<string>>() => <Layer extends LayerStack, T extends "Fatal" | "Normal" | "Warning" = "Fatal" | "Normal" | "Warning", ST extends "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError" = "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError", D extends Record<string, any> = Record<string, any>>(layer: Layer, type: T, subtype: ST, opts?: {
     message?: string;
     data?: D;
 }) => {
@@ -65,17 +65,17 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     uniqueIndexes: UIdx;
     createNode: <T extends N[number]['nodeType']>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>) => Promise<Result<NodeKey<T>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    })['stateDefinition']>) => Promise<Result<NodeKey<T>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getNode: <T extends N[number]['nodeType']>(nodeType: T, nodeIndex: UIdx[T] extends string[] ? UIdx[T][number] | 'nodeId' : 'nodeId', indexKey: string) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    })['stateDefinition']>>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     updateNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>, state: Partial<TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
-    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
-    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
+    })['stateDefinition']>>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
+    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
+    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
         relationshipType: RelationshipType;
@@ -89,10 +89,10 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         toNode: UixNode<ToNodeType, TypeOf<(N[number] & {
             nodeType: ToNodeType;
         })['stateDefinition']>>;
-    }, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
-    })['stateDefinition']>>[], ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getNodeDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
         nodeType: T;
     })['stateDefinition']>>;

@@ -7,7 +7,7 @@ import { GraphLayer } from '../../types/GraphLayer';
 import { UixNode } from '../../types/UixNode';
 import { UixRelationship } from '@/src/types/UixRelationship';
 import { Ok, Err } from 'ts-results';
-import { UixErrLayer } from '@/src/base/UixErr';
+import { ExtendUixError } from '@/src/base/UixErr';
 
 
 type Entries<T> = {
@@ -43,7 +43,7 @@ export const defineNeo4jLayer = <
         password: string
     }
 }): GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & { neo4jDriver: Driver } => {
-    const UixErr = UixErrLayer<PreviousLayers | 'Neo4j'>()
+    const UixErr = ExtendUixError<PreviousLayers | 'Neo4j'>()
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
         config.connection.username,
         config.connection.password
@@ -89,9 +89,9 @@ export const defineNeo4jLayer = <
             } catch (_e) {
                 const e = _e as Error
                 if (e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed') {
-                    return new Err(UixErr('Neo4j', 'Normal', 'UniqueConstraintViolation', { message: e.message }))
+                    return new Err(UixErr('Neo4j', 'Normal', 'UniqueIndexViolation', { message: e.message }))
                 }
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
@@ -116,7 +116,7 @@ export const defineNeo4jLayer = <
                 return new Ok(result)
             } catch (_e) {
                 const e = _e as Error
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 session.close()
             }
@@ -143,7 +143,7 @@ export const defineNeo4jLayer = <
                 return new Ok(result)
             } catch (_e) {
                 const e = _e as Error
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
                 // // Rollback
                 // graph.updateNode(nodeType, nodeId, initialState)
                 // optimisticUpdatedNode
@@ -171,7 +171,7 @@ export const defineNeo4jLayer = <
                 return new Ok(null)
             } catch (_e) {
                 const e = _e as Error
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
@@ -202,7 +202,7 @@ export const defineNeo4jLayer = <
                             RETURN relationship
                         `, { fromNode, toNode })
                     }).then(({ records }) => records.length ? records.map(record => record.get('relationship').properties)[0] : null)
-                    if (result) return new Err(UixErr('Neo4j', 'Normal', 'UniqueFromNodeRelationshipViolation', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
+                    if (result) return new Err(UixErr('Neo4j', 'Normal', 'LayerImplementationError', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
                 }
                 const executeWriteResult = await session.executeWrite(async tx => {
                     return await tx.run<{
@@ -226,7 +226,7 @@ export const defineNeo4jLayer = <
                 return new Ok(executeWriteResult)
             } catch (_e) {
                 const e = _e as Error
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
@@ -251,7 +251,7 @@ export const defineNeo4jLayer = <
                 return new Ok(result)
             } catch (_e) {
                 const e = _e as Error
-                return new Err(UixErr('Neo4j', 'Fatal', 'Unknown', { message: e.message }))
+                return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
