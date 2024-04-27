@@ -88,7 +88,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
     })['stateDefinition']>>[], LayerError>>;
-    getDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
+    getNodeDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
         nodeType: T;
     })['stateDefinition']>>;
 };
@@ -112,7 +112,7 @@ declare const defineBaseGraph: <N extends readonly {
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>;
+}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>;
 
 declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound' | 'UniqueFromNodeRelationshipViolation'> {
     constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
@@ -131,7 +131,7 @@ declare const defineNeo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getDefinition'>, config: {
+})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>, config: {
     connection: {
         uri: string;
         username: string;

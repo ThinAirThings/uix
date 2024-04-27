@@ -39,7 +39,7 @@ export const defineBaseGraph = <
     | 'edgeDefinitions'
     | 'uniqueIndexes'
     | 'createNode'
-    | 'getDefinition'
+    | 'getNodeDefinition'
 > => {
     const definitionMap = new Map<string, ReturnType<typeof defineNode<any, any>>>()
     nodeDefinitions.forEach(definition => {
@@ -62,7 +62,7 @@ export const defineBaseGraph = <
             }
             return new Ok(node)
         },
-        getDefinition: (nodeType) => {
+        getNodeDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
         },
 
