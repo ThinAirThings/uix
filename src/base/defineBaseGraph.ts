@@ -32,7 +32,7 @@ export const defineBaseGraph = <
     edgeDefinitions: E
     uniqueIndexes: UIdx
 }): Pick<
-    GraphLayer<N, R, E, UIdx>,
+    GraphLayer<N, R, E, UIdx, 'Base'>,
     | 'nodeDefinitions'
     | 'relationshipDefinitions'
     | 'edgeDefinitions'

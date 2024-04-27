@@ -35,11 +35,16 @@ type UixRelationship<T extends Uppercase<string>, S extends Record<string, any> 
     [K in keyof S as Exclude<K, 'relationshipType' | 'relationshipId' | 'createdAt' | 'updatedAt'>]: S[K];
 };
 
-declare class UixError<Layer extends string, T extends string> extends Error {
+declare const UixErrLayer: <LayerStack extends Capitalize<string>>() => <Layer extends LayerStack, T extends "Fatal" | "Normal" | "Warning" = "Fatal" | "Normal" | "Warning", ST extends string = string, D extends Record<string, any> = Record<string, any>>(layer: Layer, type: T, subtype: ST, opts?: {
+    message?: string;
+    data?: D;
+}) => {
+    message?: string | undefined;
+    data?: D | undefined;
     layer: Layer;
-    errorType: T | 'NodeNotFound';
-    constructor(layer: Layer, errorType: UixError<Layer, T>['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
-}
+    type: T;
+    subtype: ST;
+};
 
 type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R extends readonly {
     relationshipType: Uppercase<string>;
@@ -53,24 +58,24 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>)[];
-}, LayerError extends UixError<any, any> = UixError<any, any>> = {
+}, LayerStack extends Capitalize<string>> = {
     nodeDefinitions: N;
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
     createNode: <T extends N[number]['nodeType']>(nodeType: T, initialState: TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>) => Promise<Result<NodeKey<T>, LayerError>>;
+    })['stateDefinition']>) => Promise<Result<NodeKey<T>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
     getNode: <T extends N[number]['nodeType']>(nodeType: T, nodeIndex: UIdx[T] extends string[] ? UIdx[T][number] | 'nodeId' : 'nodeId', indexKey: string) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>>, LayerError>>;
+    })['stateDefinition']>>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
     updateNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>, state: Partial<TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
-    })['stateDefinition']>>, LayerError>>;
-    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, LayerError>>;
-    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: Result<NodeKey<FromNodeType>, LayerError> | NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
+    })['stateDefinition']>>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    deleteNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>) => Promise<Result<null, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
+    createRelationship: <FromNodeType extends (keyof E & Capitalize<string>), RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<FromNodeType>, relationshipType: RelationshipType, toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
         relationshipType: RelationshipType;
@@ -84,10 +89,10 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         toNode: UixNode<ToNodeType, TypeOf<(N[number] & {
             nodeType: ToNodeType;
         })['stateDefinition']>>;
-    }, LayerError>>;
+    }, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
     getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
-    })['stateDefinition']>>[], LayerError>>;
+    })['stateDefinition']>>[], ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>;
     getNodeDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
         nodeType: T;
     })['stateDefinition']>>;
@@ -112,11 +117,7 @@ declare const defineBaseGraph: <N extends readonly {
     relationshipDefinitions: R;
     edgeDefinitions: E;
     uniqueIndexes: UIdx;
-}) => Pick<GraphLayer<N, R, E, UIdx>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>;
-
-declare class Neo4jLayerError extends UixError<'Neo4j', 'Neo4jConnection' | 'Unknown' | 'UniqueIndexViolation' | 'NodeNotFound' | 'UniqueFromNodeRelationshipViolation'> {
-    constructor(errorType: Neo4jLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
-}
+}) => Pick<GraphLayer<N, R, E, UIdx, 'Base'>, 'nodeDefinitions' | 'relationshipDefinitions' | 'edgeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>;
 
 declare const defineNeo4jLayer: <N extends readonly {
     nodeType: any;
@@ -131,19 +132,15 @@ declare const defineNeo4jLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }>(graph: Pick<GraphLayer<N, R, E, UIdx>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>, config: {
+})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: Pick<GraphLayer<N, R, E, UIdx, PreviousLayers>, 'relationshipDefinitions' | 'edgeDefinitions' | 'nodeDefinitions' | 'uniqueIndexes' | 'createNode' | 'getNodeDefinition'>, config: {
     connection: {
         uri: string;
         username: string;
         password: string;
     };
-}) => GraphLayer<N, R, E, UIdx, Neo4jLayerError> & {
+}) => GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & {
     neo4jDriver: Driver;
 };
-
-declare class NextjsCacheLayerError extends UixError<'Nextjs', 'Unknown'> {
-    constructor(errorType: NextjsCacheLayerError['errorType'], ...[message, options]: ConstructorParameters<typeof Error>);
-}
 
 declare const defineNextjsCacheLayer: <N extends readonly {
     nodeType: any;
@@ -158,7 +155,7 @@ declare const defineNextjsCacheLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }>(graph: GraphLayer<N, R, E, UIdx>) => GraphLayer<N, R, E, UIdx, NextjsCacheLayerError>;
+})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>;
 
 type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
     nodeType: string;

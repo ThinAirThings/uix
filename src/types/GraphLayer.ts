@@ -4,7 +4,7 @@ import { NodeKey } from "./NodeKey"
 import { UixNode } from "./UixNode"
 import { UixRelationship } from "./UixRelationship"
 import { Result } from 'ts-results';
-import { UixError } from "../base/UixError"
+import { UixErrLayer } from "../base/UixErr"
 
 
 export type GraphLayer<
@@ -20,7 +20,7 @@ export type GraphLayer<
     UIdx extends {
         [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
     },
-    LayerError extends UixError<any, any> = UixError<any, any>
+    LayerStack extends Capitalize<string>
 > = {
 
     //                   _____                 __  __     _           _      _                      
@@ -48,7 +48,7 @@ export type GraphLayer<
         initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
     ) => Promise<Result<
         NodeKey<T>,
-        LayerError
+        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
     >>,
 
     //      ___     _     _  _         _     
@@ -65,7 +65,7 @@ export type GraphLayer<
         indexKey: string
     ) => Promise<Result<
         UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
-        LayerError
+        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
     >>,
 
     //  _   _          _      _         _  _         _     
@@ -80,7 +80,7 @@ export type GraphLayer<
         state: Partial<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
     ) => Promise<Result<
         UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
-        LayerError
+        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
     >>
 
     //  ___      _     _         _  _         _     
@@ -93,7 +93,7 @@ export type GraphLayer<
         nodeKey: NodeKey<T>
     ) => Promise<Result<
         null,
-        LayerError
+        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
     >>
 
     //                   ___     _      _   _             _    _        ___             _   _                           
@@ -112,9 +112,9 @@ export type GraphLayer<
         RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>),
         ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
     >(
-        fromNode: Result<NodeKey<FromNodeType>, LayerError> | NodeKey<FromNodeType>,
+        fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<FromNodeType>,
         relationshipType: RelationshipType,
-        toNode: Result<NodeKey<ToNodeType>, LayerError> | NodeKey<ToNodeType>,
+        toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>> | NodeKey<ToNodeType>,
         ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
@@ -122,7 +122,7 @@ export type GraphLayer<
         fromNode: UixNode<FromNodeType, TypeOf<(N[number] & { nodeType: FromNodeType })['stateDefinition']>>,
         relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
         toNode: UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
-    }, LayerError>>
+    }, ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>>>
     //      ___     _     ___     _      _          _   _____    
     //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
     //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
@@ -137,7 +137,7 @@ export type GraphLayer<
         toNodeType: ToNodeType
     ) => Promise<Result<
         UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[],
-        LayerError
+        ReturnType<ReturnType<typeof UixErrLayer<LayerStack>>>
     >>
 
     //                   __  __     _          ___             _   _               _ _ _                      
