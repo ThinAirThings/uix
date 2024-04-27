@@ -13,6 +13,7 @@ export const defineBaseGraph = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>
+        uniqueFromNode?: boolean
         stateDefinition?: ZodObject<any>
     }[],
     E extends { [NT in (N[number]['nodeType'])]?: {
