@@ -1,7 +1,7 @@
 {
   "name": "@thinairthings/uix",
   "author": "Dan Lannan",
-  "version": "1.0.36",
+  "version": "1.0.37",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
