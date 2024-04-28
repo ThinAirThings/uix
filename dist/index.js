@@ -310,7 +310,7 @@ var defineNextjsCacheLayer = (graph) => {
         cacheMap.set(cacheKey, cache(async (...args) => {
           return await graph.getRelatedTo(...args);
         }, [cacheKey], {
-          tags: [cacheKey]
+          tags: [cacheKey, `getRelatedTo-${toNodeType}`]
         }));
       }
       return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
@@ -349,6 +349,7 @@ var defineNextjsCacheLayer = (graph) => {
       const node = getNodeResult.val;
       const nodeResult = await graph.deleteNode(nodeKey);
       invalidateCacheKeys(node);
+      revalidateTag(`getRelatedTo-${node.nodeType}`);
       if (!nodeResult.ok)
         return nodeResult;
       return nodeResult;
