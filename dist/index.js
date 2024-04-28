@@ -208,11 +208,7 @@ var defineNeo4jLayer = (graph, config) => {
             return toNodeKeyOrResult;
           toNode = toNodeKeyOrResult.val;
         }
-        console.log("TO NODE KEY", toNode);
-        console.log("STATE", state);
-        console.log("FROM NODE", fromNode);
         const executeWriteResult = await session.executeWrite(async (tx) => {
-          console.log("EXECUTING WRITE");
           const txRes = await tx.run(`
                         MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
                         MATCH (toNode:${toNode.nodeType} {nodeId: $toNode.nodeId})
@@ -220,17 +216,14 @@ var defineNeo4jLayer = (graph, config) => {
                         SET relationship += $state
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} });
-          console.log("TX RES", JSON.stringify(txRes));
           return txRes;
         }).then(({ records }) => records.map((record) => {
-          console.log(record);
           return {
             fromNode: record.get("fromNode").properties,
             relationship: record.get("relationship").properties,
             toNode: record.get("toNode").properties
           };
         })[0]);
-        console.log("WRITE RESULT", JSON.stringify(executeWriteResult));
         return new Ok2(executeWriteResult);
       } catch (_e) {
         const e = _e;
