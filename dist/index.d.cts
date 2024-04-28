@@ -59,6 +59,13 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         nodeType: T;
     })['stateDefinition']>)[];
 }, LayerStack extends Capitalize<string>> = {
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
+        relationshipType: RelationshipType;
+    })['uniqueFromNode'] extends true ? UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })['stateDefinition']>> : UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     nodeDefinitions: N;
     relationshipDefinitions: R;
     edgeDefinitions: E;
@@ -91,9 +98,6 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         })['stateDefinition']>>>;
         toNodeKey: NodeKey<ToNodeType>;
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
-    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
-        nodeType: ToNodeType;
-    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getNodeDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
         nodeType: T;
     })['stateDefinition']>>;

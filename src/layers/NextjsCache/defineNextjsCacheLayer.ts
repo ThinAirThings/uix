@@ -74,7 +74,7 @@ export const defineNextjsCacheLayer = <
                 }))
             }
             // Get the related nodes
-            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as any
         },
         // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
         // return type here to be NodeKeys.
