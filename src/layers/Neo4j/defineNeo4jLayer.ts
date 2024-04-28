@@ -186,8 +186,6 @@ export const defineNeo4jLayer = <
             // Handle passing Result type in as fromNode or toNode for common pattern
             if (fromNode instanceof Err) return fromNode
             if (fromNode instanceof Ok) fromNode = fromNode.val
-            // if (toNode instanceof Err) return toNode
-            // if (toNode instanceof Ok) toNode = toNode.val
 
             // Check for driver
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
@@ -230,6 +228,7 @@ export const defineNeo4jLayer = <
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} })
                 }).then(({ records }) => records.map(record => {
+                    console.log(record)
                     return {
                         fromNode: record.get('fromNode').properties,
                         relationship: record.get('relationship').properties,
