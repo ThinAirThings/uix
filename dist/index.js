@@ -226,7 +226,17 @@ var defineNeo4jLayer = (graph, config) => {
             toNode: record.get("toNode").properties
           };
         })[0]);
-        return new Ok2(executeWriteResult);
+        return new Ok2({
+          fromNodeKey: {
+            nodeType: executeWriteResult.fromNode.nodeType,
+            nodeId: executeWriteResult.fromNode.nodeId
+          },
+          relationship: executeWriteResult.relationship,
+          toNodeKey: {
+            nodeType: executeWriteResult.toNode.nodeType,
+            nodeId: executeWriteResult.toNode.nodeId
+          }
+        });
       } catch (_e) {
         const e = _e;
         return new Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));

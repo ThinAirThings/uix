@@ -236,7 +236,17 @@ export const defineNeo4jLayer = <
                         toNode: record.get('toNode').properties
                     }
                 })[0])
-                return new Ok(executeWriteResult)
+                return new Ok({
+                    fromNodeKey: {
+                        nodeType: executeWriteResult.fromNode.nodeType,
+                        nodeId: executeWriteResult.fromNode.nodeId
+                    },
+                    relationship: executeWriteResult.relationship,
+                    toNodeKey: {
+                        nodeType: executeWriteResult.toNode.nodeType,
+                        nodeId: executeWriteResult.toNode.nodeId
+                    }
+                })
             } catch (_e) {
                 const e = _e as Error
                 return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
