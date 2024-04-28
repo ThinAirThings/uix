@@ -52,6 +52,7 @@ describe('Relationship Lifecycle Neo4j', () => {
             'WORKED_AT',
             { nodeType: 'Company', nodeId: companyNodeResult.val.nodeId }
         );
+
         if (!relationshipResult.ok) {
             throw new Error(`Failed to create relationship: ${relationshipResult.val.message}`);
         }
