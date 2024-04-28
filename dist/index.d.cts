@@ -161,7 +161,9 @@ declare const defineNextjsCacheLayer: <N extends readonly {
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
 })["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | "NextjsCache">, "getRelatedTo"> & {
-    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends keyof E[FromNodeType] & R[number]["relationshipType"], ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<NodeKey<ToNodeType>[], {
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends keyof E[FromNodeType] & R[number]["relationshipType"], ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
+        relationshipType: RelationshipType;
+    })["uniqueFromNode"] extends true ? NodeKey<ToNodeType> : NodeKey<ToNodeType>[], {
         message?: string | undefined;
         data?: Record<string, any> | undefined;
         layer: PreviousLayers;
