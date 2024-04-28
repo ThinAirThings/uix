@@ -123,9 +123,9 @@ export type GraphLayer<
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
     ) => Promise<Result<{
-        fromNode: UixNode<FromNodeType, TypeOf<(N[number] & { nodeType: FromNodeType })['stateDefinition']>>,
+        fromNodeKey: NodeKey<FromNodeType>,
         relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
-        toNode: UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
+        toNodeKey: NodeKey<ToNodeType>
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>
     //      ___     _     ___     _      _          _   _____    
     //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 

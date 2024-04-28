@@ -85,15 +85,11 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     })['stateDefinition']> extends ZodObject<ZodRawShape> ? [TypeOf<NonNullable<(R[number] & {
         relationshipType: RelationshipType;
     })['stateDefinition']>>] : []) => Promise<Result<{
-        fromNode: UixNode<FromNodeType, TypeOf<(N[number] & {
-            nodeType: FromNodeType;
-        })['stateDefinition']>>;
+        fromNodeKey: NodeKey<FromNodeType>;
         relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & {
             relationshipType: RelationshipType;
         })['stateDefinition']>>>;
-        toNode: UixNode<ToNodeType, TypeOf<(N[number] & {
-            nodeType: ToNodeType;
-        })['stateDefinition']>>;
+        toNodeKey: NodeKey<ToNodeType>;
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
