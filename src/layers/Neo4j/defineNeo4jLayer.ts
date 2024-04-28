@@ -261,6 +261,7 @@ export const defineNeo4jLayer = <
             const session = neo4jDriver.session()
             try {
                 const { nodeType, nodeId } = fromNode
+                const uniqueRelationship = relationshipDictionary[relationshipType].uniqueFromNode
                 const result = await session.executeRead(async tx => {
                     return await tx.run<{
                         toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(N[number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
@@ -268,8 +269,14 @@ export const defineNeo4jLayer = <
                         MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]->(toNode:${toNodeType})
                         RETURN toNode
                     `, { fromNodeId: nodeId })
-                }).then(({ records }) => records.map(record => record.get('toNode').properties))
-                return new Ok(result)
+                }).then(({ records }) =>
+                    // records.map(record => record.get('toNode').properties)
+                    uniqueRelationship === true
+                        ? records.length ? records.map(record => record.get('toNode').properties)[0] : null
+                        : records.map(record => record.get('toNode').properties)
+                )
+                if (!result) return new Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to ${nodeType} with nodeId: ${nodeId} not found` }))
+                return new Ok(result as any)   // TS is struggling to infer this. But it is correct
             } catch (_e) {
                 const e = _e as Error
                 return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
