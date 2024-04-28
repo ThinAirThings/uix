@@ -242,7 +242,7 @@ var defineNeo4jLayer = (graph, config) => {
         if ("nodeId" in toNode) {
           toNode = toNode;
         } else {
-          const toNodeKeyOrResult = await graph.createNode(toNode.nodeType, toNode.initialState);
+          const toNodeKeyOrResult = await thisGraphLayer.createNode(toNode.nodeType, toNode.initialState);
           if (!toNodeKeyOrResult.ok)
             return toNodeKeyOrResult;
           toNode = toNodeKeyOrResult.val;
