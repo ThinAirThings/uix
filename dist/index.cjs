@@ -168,6 +168,7 @@ var defineNeo4jLayer = (graph, config) => {
                     `, { indexKey });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
         console.log(`Got node: ${result}`);
+        console.log(`Got node: ${JSON.stringify(result)}`);
         if (!result)
           return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }));
         return new import_ts_results2.Ok(result);
