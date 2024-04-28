@@ -310,8 +310,8 @@ var defineNeo4jLayer = (graph, config) => {
 // src/layers/NextjsCache/defineNextjsCacheLayer.ts
 var import_cache = require("next/cache");
 var import_ts_results3 = require("ts-results");
+var cacheMap = /* @__PURE__ */ new Map();
 var defineNextjsCacheLayer = (graph) => {
-  const cacheMap = /* @__PURE__ */ new Map();
   const invalidationFnKeys = ["getNode", "getRelatedTo"];
   const invalidateCacheKeys = (node) => {
     const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
