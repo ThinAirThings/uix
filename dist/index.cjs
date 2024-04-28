@@ -316,6 +316,7 @@ var defineNextjsCacheLayer = (graph) => {
   const invalidateCacheKeys = (node) => {
     const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
     const cacheKeys = uniqueIndexes.map((index) => invalidationFnKeys.map((fnKey) => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat();
+    console.log(`Invalidating cache keys: ${cacheKeys}`);
     cacheKeys.forEach((cacheKey) => {
       (0, import_cache.revalidateTag)(cacheKey);
     });
@@ -346,6 +347,7 @@ var defineNextjsCacheLayer = (graph) => {
         const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType2] ?? []];
         const relatedToNodes = getRelatedToNodesResult.val;
         const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
+        console.log(`Related to cache keys: ${relatedToNodeCacheKeys}`);
         cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(getRelatedToNodes, relatedToNodeCacheKeys, {
           tags: relatedToNodeCacheKeys
         }));

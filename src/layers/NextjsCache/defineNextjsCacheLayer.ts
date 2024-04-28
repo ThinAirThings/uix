@@ -28,6 +28,7 @@ export const defineNextjsCacheLayer = <
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
         const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
         const cacheKeys = uniqueIndexes.map(index => invalidationFnKeys.map(fnKey => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat()
+        console.log(`Invalidating cache keys: ${cacheKeys}`)
         cacheKeys.forEach(cacheKey => {
             revalidateTag(cacheKey)
         })
@@ -59,6 +60,7 @@ export const defineNextjsCacheLayer = <
                 const toNodeTypeUniqueIndexes = ['nodeId', ...graph.uniqueIndexes[toNodeType] ?? []] as string[]
                 const relatedToNodes = getRelatedToNodesResult.val
                 const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()]
+                console.log(`Related to cache keys: ${relatedToNodeCacheKeys}`)
                 // Reset cache keys
                 cacheMap.set(cacheKey, cache(getRelatedToNodes, relatedToNodeCacheKeys, {
                     tags: relatedToNodeCacheKeys
