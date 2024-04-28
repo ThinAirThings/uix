@@ -33,7 +33,9 @@ export const defineNextjsCacheLayer = <
         RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
         ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
     >(...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>) => Promise<Result<
-        NodeKey<ToNodeType>[],
+        (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
+        ? NodeKey<ToNodeType>
+        : NodeKey<ToNodeType>[],
         ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
     >>
 }) => {
@@ -74,7 +76,7 @@ export const defineNextjsCacheLayer = <
                 }))
             }
             // Get the related nodes
-            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as any
+            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType)
         },
         // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
         // return type here to be NodeKeys.
