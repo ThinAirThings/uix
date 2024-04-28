@@ -8,6 +8,7 @@ import { UixNode } from '../../types/UixNode';
 import { UixRelationship } from '@/src/types/UixRelationship';
 import { Ok, Err } from 'ts-results';
 import { ExtendUixError } from '@/src/base/UixErr';
+import { NodeKey } from '@/src/types/NodeKey';
 
 
 type Entries<T> = {
@@ -65,7 +66,7 @@ export const defineNeo4jLayer = <
             uniqueFromNode
         }) => [relationshipType, { stateDefinition, uniqueFromNode }])
     )
-    return {
+    const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & { neo4jDriver: Driver } = {
         ...graph,
         neo4jDriver,
         createNode: async (
@@ -185,8 +186,8 @@ export const defineNeo4jLayer = <
             // Handle passing Result type in as fromNode or toNode for common pattern
             if (fromNode instanceof Err) return fromNode
             if (fromNode instanceof Ok) fromNode = fromNode.val
-            if (toNode instanceof Err) return toNode
-            if (toNode instanceof Ok) toNode = toNode.val
+            // if (toNode instanceof Err) return toNode
+            // if (toNode instanceof Ok) toNode = toNode.val
 
             // Check for driver
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
@@ -202,7 +203,19 @@ export const defineNeo4jLayer = <
                             RETURN relationship
                         `, { fromNode, toNode })
                     }).then(({ records }) => records.length ? records.map(record => record.get('relationship').properties)[0] : null)
-                    if (result) return new Err(UixErr('Neo4j', 'Normal', 'LayerImplementationError', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
+                    // Delete the 'toNode' from the db as it shouldn't have. This may be a poor design. Come back to this later
+                    if (result) {
+                        return new Err(UixErr('Neo4j', 'Normal', 'LayerImplementationError', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
+                    }
+                }
+                // If needed create toNode
+                let toNodeKey: NodeKey<typeof toNode.nodeType>
+                if ('nodeId' in toNode) {
+                    toNodeKey = toNode
+                } else {
+                    const toNodeKeyOrResult = await graph.createNode(toNode.nodeType, toNode.initialState)
+                    if (!toNodeKeyOrResult.ok) return toNodeKeyOrResult
+                    toNodeKey = toNodeKeyOrResult.val
                 }
                 const executeWriteResult = await session.executeWrite(async tx => {
                     return await tx.run<{
@@ -257,6 +270,7 @@ export const defineNeo4jLayer = <
             }
         }
     }
+    return thisGraphLayer
 }
 
 

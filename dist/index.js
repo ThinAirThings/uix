@@ -89,7 +89,7 @@ var defineNeo4jLayer = (graph, config) => {
       uniqueFromNode
     }) => [relationshipType, { stateDefinition, uniqueFromNode }])
   );
-  return {
+  const thisGraphLayer = {
     ...graph,
     neo4jDriver,
     createNode: async (nodeType, initialState) => {
@@ -185,10 +185,6 @@ var defineNeo4jLayer = (graph, config) => {
         return fromNode;
       if (fromNode instanceof Ok2)
         fromNode = fromNode.val;
-      if (toNode instanceof Err)
-        return toNode;
-      if (toNode instanceof Ok2)
-        toNode = toNode.val;
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
@@ -200,8 +196,18 @@ var defineNeo4jLayer = (graph, config) => {
                             RETURN relationship
                         `, { fromNode, toNode });
           }).then(({ records }) => records.length ? records.map((record) => record.get("relationship").properties)[0] : null);
-          if (result)
+          if (result) {
             return new Err(UixErr("Neo4j", "Normal", "LayerImplementationError", { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }));
+          }
+        }
+        let toNodeKey;
+        if ("nodeId" in toNode) {
+          toNodeKey = toNode;
+        } else {
+          const toNodeKeyOrResult = await graph.createNode(toNode.nodeType, toNode.initialState);
+          if (!toNodeKeyOrResult.ok)
+            return toNodeKeyOrResult;
+          toNodeKey = toNodeKeyOrResult.val;
         }
         const executeWriteResult = await session.executeWrite(async (tx) => {
           return await tx.run(`
@@ -247,6 +253,7 @@ var defineNeo4jLayer = (graph, config) => {
       }
     }
   };
+  return thisGraphLayer;
 };
 
 // src/layers/NextjsCache/defineNextjsCacheLayer.ts
