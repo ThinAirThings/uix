@@ -62,16 +62,18 @@ export const defineNextjsCacheLayer = <
                 const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map(index => `getRelatedTo-${toNodeType}-${index}-${node[index]}`)).flat()]
                 console.log(`Related to cache keys: ${relatedToNodeCacheKeys}`)
                 // Reset cache keys
-                cacheMap.set(cacheKey, cache(getRelatedToNodes, relatedToNodeCacheKeys, {
+                cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
                     tags: relatedToNodeCacheKeys
                 }))
                 return getRelatedToNodesResult
             }
             console.log(`Cache key: ${cacheKey}`)
             console.log(`Cache map: ${JSON.stringify([...cacheMap])}`)
-            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
-                tags: [cacheKey]
-            }))
+            if (!cacheMap.has(cacheKey)) {
+                cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
+                    tags: [cacheKey]
+                }))
+            }
             // Get the related nodes
             return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
         },
