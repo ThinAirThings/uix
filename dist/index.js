@@ -220,7 +220,7 @@ var defineNeo4jLayer = (graph, config) => {
                         SET relationship += $state
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} });
-          console.log("TX RES", txRes);
+          console.log("TX RES", JSON.stringify(txRes));
           return txRes;
         }).then(({ records }) => records.map((record) => {
           console.log(record);
