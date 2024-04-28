@@ -2,8 +2,10 @@ import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
-import { Err, Ok } from "ts-results";
+import { Err, Ok, Result } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
+import { ExtendUixError } from "@/src/base/UixErr";
+import { NodeKey } from "@/src/types/NodeKey";
 
 
 
@@ -24,7 +26,17 @@ export const defineNextjsCacheLayer = <
     PreviousLayers extends Capitalize<string>
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
+): (Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>, 'getRelatedTo'> & {
+    // Override getRelatedTo to only return NodeKeys. There's likely cleaner ways to do this. But for now this works.
+    getRelatedTo: <
+        FromNodeType extends keyof E,
+        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
+        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
+    >(...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>) => Promise<Result<
+        NodeKey<ToNodeType>[],
+        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
+    >>
+}) => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
@@ -68,6 +80,8 @@ export const defineNextjsCacheLayer = <
             // Get the related nodes
             return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
         },
+        // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
+        // return type here to be NodeKeys.
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
             const createNodeResult = await graph.createNode(nodeType, initialState)

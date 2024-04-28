@@ -312,6 +312,8 @@ var defineNextjsCacheLayer = (graph) => {
       }
       return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
     },
+    // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
+    // return type here to be NodeKeys.
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
     createNode: async (nodeType, initialState) => {
       const createNodeResult = await graph.createNode(nodeType, initialState);
