@@ -309,16 +309,18 @@ var defineNextjsCacheLayer = (graph) => {
         const relatedToNodes = getRelatedToNodesResult.val;
         const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
         console.log(`Related to cache keys: ${relatedToNodeCacheKeys}`);
-        cacheMap.set(cacheKey, cache(getRelatedToNodes, relatedToNodeCacheKeys, {
+        cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
           tags: relatedToNodeCacheKeys
         }));
         return getRelatedToNodesResult;
       };
       console.log(`Cache key: ${cacheKey}`);
       console.log(`Cache map: ${JSON.stringify([...cacheMap])}`);
-      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
-        tags: [cacheKey]
-      }));
+      if (!cacheMap.has(cacheKey)) {
+        cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
+          tags: [cacheKey]
+        }));
+      }
       return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
     },
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
