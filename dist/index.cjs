@@ -160,20 +160,15 @@ var defineNeo4jLayer = (graph, config) => {
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
       try {
-        console.log(`Getting node: ${nodeType} with ${nodeIndex} ${indexKey}`);
         const result = await session.executeRead(async (tx) => {
           return await tx.run(`
                         MATCH (node:${nodeType} {${nodeIndex}: $indexKey})
                         RETURN node
                     `, { indexKey });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
-        console.log(`Got node: ${result}`);
-        console.log(`Got node: ${JSON.stringify(result)}`);
         if (!result)
           return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }));
-        const wrappedResult = new import_ts_results2.Ok(result);
-        console.log(`Returning node: ${JSON.stringify(wrappedResult)}`);
-        return wrappedResult;
+        return new import_ts_results2.Ok(result);
       } catch (_e) {
         const e = _e;
         return new import_ts_results2.Err(UixErr("Neo4j", "Fatal", "LayerImplementationError", { message: e.message }));
