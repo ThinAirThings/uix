@@ -315,7 +315,7 @@ var defineNextjsCacheLayer = (graph) => {
         return getRelatedToNodesResult;
       };
       console.log(`Cache key: ${cacheKey}`);
-      console.log(`Cache map: ${cacheMap.keys()}`);
+      console.log(`Cache map: ${JSON.stringify([...cacheMap])}`);
       !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
         tags: [cacheKey]
       }));
