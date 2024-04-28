@@ -214,11 +214,7 @@ export const defineNeo4jLayer = <
                     if (!toNodeKeyOrResult.ok) return toNodeKeyOrResult
                     toNode = toNodeKeyOrResult.val
                 }
-                console.log('TO NODE KEY', toNode)
-                console.log('STATE', state)
-                console.log('FROM NODE', fromNode)
                 const executeWriteResult = await session.executeWrite(async tx => {
-                    console.log("EXECUTING WRITE")
                     const txRes = await tx.run<{
                         fromNode: Node<Integer, UixNode<typeof fromNode.nodeType, TypeOf<(N[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>,
                         relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(R[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>>,
@@ -230,17 +226,14 @@ export const defineNeo4jLayer = <
                         SET relationship += $state
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} })
-                    console.log('TX RES', JSON.stringify(txRes))
                     return txRes
                 }).then(({ records }) => records.map(record => {
-                    console.log(record)
                     return {
                         fromNode: record.get('fromNode').properties,
                         relationship: record.get('relationship').properties,
                         toNode: record.get('toNode').properties
                     }
                 })[0])
-                console.log('WRITE RESULT', JSON.stringify(executeWriteResult))
                 return new Ok(executeWriteResult)
             } catch (_e) {
                 const e = _e as Error
