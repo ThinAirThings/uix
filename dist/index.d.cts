@@ -156,7 +156,15 @@ declare const defineNextjsCacheLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>;
+})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | "NextjsCache">, "getRelatedTo"> & {
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends keyof E[FromNodeType] & R[number]["relationshipType"], ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<NodeKey<ToNodeType>[], {
+        message?: string | undefined;
+        data?: Record<string, any> | undefined;
+        layer: PreviousLayers;
+        type: "Fatal" | "Normal" | "Warning";
+        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
+    }>>;
+};
 
 type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
     nodeType: string;
