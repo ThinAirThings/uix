@@ -225,6 +225,7 @@ var defineNeo4jLayer = (graph, config) => {
             toNode: record.get("toNode").properties
           };
         })[0]);
+        console.log("WRITE RESULT", executeWriteResult);
         return new Ok2(executeWriteResult);
       } catch (_e) {
         const e = _e;

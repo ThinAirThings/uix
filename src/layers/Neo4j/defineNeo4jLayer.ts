@@ -235,6 +235,7 @@ export const defineNeo4jLayer = <
                         toNode: record.get('toNode').properties
                     }
                 })[0])
+                console.log('WRITE RESULT', executeWriteResult)
                 return new Ok(executeWriteResult)
             } catch (_e) {
                 const e = _e as Error
