@@ -67,6 +67,7 @@ export const defineNextjsCacheLayer = <
                 }))
                 return getRelatedToNodesResult
             }
+            console.log(`Cache key: ${cacheKey}`)
             !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(getRelatedToNodes, [cacheKey], {
                 tags: [cacheKey]
             }))
