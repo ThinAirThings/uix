@@ -215,6 +215,9 @@ export const defineNeo4jLayer = <
                     if (!toNodeKeyOrResult.ok) return toNodeKeyOrResult
                     toNodeKey = toNodeKeyOrResult.val
                 }
+                console.log('TO NODE KEY', toNodeKey)
+                console.log('STATE', state)
+                console.log('FROM NODE', fromNode)
                 const executeWriteResult = await session.executeWrite(async tx => {
                     return await tx.run<{
                         fromNode: Node<Integer, UixNode<typeof fromNode.nodeType, TypeOf<(N[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>,
