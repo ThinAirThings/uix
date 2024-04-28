@@ -252,6 +252,7 @@ var defineNeo4jLayer = (graph, config) => {
         console.log("STATE", state);
         console.log("FROM NODE", fromNode);
         const executeWriteResult = await session.executeWrite(async (tx) => {
+          console.log("EXECUTING WRITE");
           return await tx.run(`
                         MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
                         MATCH (toNode:${toNode.nodeType} {nodeId: $toNode.nodeId})
