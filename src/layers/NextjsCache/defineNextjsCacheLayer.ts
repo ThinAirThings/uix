@@ -5,6 +5,8 @@ import { GraphLayer } from "@/src/types/GraphLayer";
 import { Err, Ok } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 
+const cacheMap = new Map<string, ReturnType<typeof cache>>()
+
 
 export const defineNextjsCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
@@ -23,7 +25,7 @@ export const defineNextjsCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
-    const cacheMap = new Map<string, ReturnType<typeof cache>>()
+
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
         const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
