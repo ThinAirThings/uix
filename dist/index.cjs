@@ -241,14 +241,14 @@ var defineNeo4jLayer = (graph, config) => {
         }
         let toNodeKey;
         if ("nodeId" in toNode) {
-          toNodeKey = toNode;
+          toNode = toNode;
         } else {
           const toNodeKeyOrResult = await graph.createNode(toNode.nodeType, toNode.initialState);
           if (!toNodeKeyOrResult.ok)
             return toNodeKeyOrResult;
-          toNodeKey = toNodeKeyOrResult.val;
+          toNode = toNodeKeyOrResult.val;
         }
-        console.log("TO NODE KEY", toNodeKey);
+        console.log("TO NODE KEY", toNode);
         console.log("STATE", state);
         console.log("FROM NODE", fromNode);
         const executeWriteResult = await session.executeWrite(async (tx) => {
