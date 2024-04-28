@@ -142,6 +142,7 @@ export const defineNeo4jLayer = <
                         RETURN node
                     `, { nodeId, state })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
+                console.log(JSON.stringify(result))
                 return new Ok(result)
             } catch (_e) {
                 const e = _e as Error

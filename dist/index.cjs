@@ -189,6 +189,7 @@ var defineNeo4jLayer = (graph, config) => {
                         RETURN node
                     `, { nodeId, state });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
+        console.log(JSON.stringify(result));
         return new import_ts_results2.Ok(result);
       } catch (_e) {
         const e = _e;

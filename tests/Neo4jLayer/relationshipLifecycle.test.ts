@@ -69,9 +69,24 @@ describe('Relationship Lifecycle Neo4j', () => {
         if (!relatedToResult.ok) {
             throw new Error(`Failed to get related nodes: ${relatedToResult.val.message}`);
         }
+
         // Write tests to check that the related node
         expect(relatedToResult.val.length).toBeGreaterThan(0);
         expect(relatedToResult.val[0].nodeId).toBe(companyNodeResult.val.nodeId);
+        const companyNode = relatedToResult.val[0];
+        // Test Updates
+        const createEmptyCompanyNodeResult = await graph.createNode('Company', {});
+        if (!createEmptyCompanyNodeResult.ok) {
+            throw new Error(`Failed to create empty company node: ${createEmptyCompanyNodeResult.val.message}`);
+        }
+        const emptyCompanyNode = createEmptyCompanyNodeResult.val;
+        await graph.updateNode(emptyCompanyNode, { name: 'Cheese Fries' });
+        const updatedNodeResult = await graph.getNode('Company', 'nodeId', emptyCompanyNode.nodeId);
+        if (!updatedNodeResult.ok) {
+            throw new Error(`Failed to get updated node: ${updatedNodeResult.val.message}`);
+        }
+        expect(updatedNodeResult.val.nodeType).toBe('Company');
+        expect(updatedNodeResult.val.name).toBe('Cheese Fries');
         await graph.neo4jDriver.close();
     });
 
