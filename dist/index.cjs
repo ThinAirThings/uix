@@ -387,10 +387,6 @@ var defineNextjsCacheLayer = (graph) => {
         return fromNode;
       if (fromNode instanceof import_ts_results3.Ok)
         fromNode = fromNode.val;
-      if (toNode instanceof import_ts_results3.Err)
-        return toNode;
-      if (toNode instanceof import_ts_results3.Ok)
-        toNode = toNode.val;
       const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args);
       if (!createRelationshipResult.ok) {
         return createRelationshipResult;

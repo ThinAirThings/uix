@@ -111,8 +111,6 @@ export const defineNextjsCacheLayer = <
             // Handle passing Result type in as toNode for common pattern
             if (fromNode instanceof Err) return fromNode
             if (fromNode instanceof Ok) fromNode = fromNode.val
-            if (toNode instanceof Err) return toNode
-            if (toNode instanceof Ok) toNode = toNode.val
             const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args)
             if (!createRelationshipResult.ok) {
                 return createRelationshipResult
