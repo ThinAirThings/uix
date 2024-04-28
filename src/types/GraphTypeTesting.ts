@@ -20,6 +20,7 @@ type ThisGraph = GraphLayer<[
 ], [
         {
             relationshipType: 'HAS_POST',
+            uniqueFromNode: true,
             stateDefinition: ReturnType<typeof z.object<{
                 createdAtTime: ReturnType<typeof z.string>
                 updatedAt: ReturnType<typeof z.string>
@@ -46,7 +47,13 @@ type ThisGraph = GraphLayer<[
     }, {
         'User': ['email'],
         'Post': ['title']
-    }>
+    },
+    'Neo4j'>
+
+type GetRelatedTo = ThisGraph['getRelatedTo']
+const getRelatedTo = null as unknown as GetRelatedTo
+
+const val = await getRelatedTo(null as unknown as NodeKey<'User'>, 'WORKED_AT', 'Post')
 
 type CreateRelationship = ThisGraph['createRelationship']
 const createRelationship = null as unknown as CreateRelationship
@@ -65,3 +72,13 @@ createRelationship({ nodeType: 'Post', nodeId: '123' }, 'HAS_USER', null as unkn
 type GetNode = ThisGraph['getNode']
 const getNode = null as unknown as GetNode
 getNode('User', 'email', '')
+
+
+
+const obj = z.object({
+    email: z.string(),
+    name: z.string(),
+    password: z.string()
+})
+
+Object.keys(obj.shape)
