@@ -115,7 +115,10 @@ export type GraphLayer<
     >(
         fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<FromNodeType>,
         relationshipType: RelationshipType,
-        toNode: Result<NodeKey<ToNodeType>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>> | NodeKey<ToNodeType>,
+        toNode: {
+            nodeType: ToNodeType,
+            initialState: TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>
+        } | NodeKey<ToNodeType>,
         ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
