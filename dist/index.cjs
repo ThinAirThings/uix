@@ -177,6 +177,7 @@ var defineNeo4jLayer = (graph, config) => {
       }
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
+      console.log("Updating node", { nodeType, nodeId, state });
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
