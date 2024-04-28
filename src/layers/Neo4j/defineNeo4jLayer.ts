@@ -116,7 +116,9 @@ export const defineNeo4jLayer = <
                 console.log(`Got node: ${result}`)
                 console.log(`Got node: ${JSON.stringify(result)}`)
                 if (!result) return new Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }))
-                return new Ok(result)
+                const wrappedResult = new Ok(result)
+                console.log(`Returning node: ${JSON.stringify(wrappedResult)}`)
+                return wrappedResult
             } catch (_e) {
                 const e = _e as Error
                 return new Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
