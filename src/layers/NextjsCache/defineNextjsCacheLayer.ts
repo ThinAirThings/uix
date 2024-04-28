@@ -72,7 +72,7 @@ export const defineNextjsCacheLayer = <
                 cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getRelatedTo>) => {
                     return await graph.getRelatedTo(...args)
                 }, [cacheKey], {
-                    tags: [cacheKey]
+                    tags: [cacheKey, `getRelatedTo-${toNodeType}`]
                 }))
             }
             // Get the related nodes
@@ -113,6 +113,7 @@ export const defineNextjsCacheLayer = <
             const node = getNodeResult.val
             const nodeResult = await graph.deleteNode(nodeKey)
             invalidateCacheKeys(node)
+            revalidateTag(`getRelatedTo-${node.nodeType}`)
             if (!nodeResult.ok) return nodeResult
             return nodeResult
         },
