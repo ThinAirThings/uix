@@ -16,7 +16,7 @@ export const testGraph = defineBaseGraph({
             content: z.string()
         })),
         defineNode('Company' as const, z.object({
-            name: z.string()
+            name: z.string().optional()
         })),
         defineNode('BankAccount' as const, z.object({
             accountNumber: z.string(),
