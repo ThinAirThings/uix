@@ -4,11 +4,13 @@ import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { Err, Ok } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
+import { QueryClient, useQuery } from "@tanstack/react-query";
+import { testGraph } from "@/tests/testGraph";
+import { defineNeo4jLayer } from "@/dist";
 
 
 
-// NOTE!!! This was a failed attempt. NextJS caching fails for dynamic caching
-export const defineNextjsCacheLayer = <
+export const defineReactCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>
@@ -24,50 +26,32 @@ export const defineNextjsCacheLayer = <
     PreviousLayers extends Capitalize<string>
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
-    const cacheMap = new Map<string, ReturnType<typeof cache>>()
+): GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'> & {
+    useNode: (...args: Parameters<typeof graph.getNode>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getNode>>>
+    useRelatedTo: (...args: Parameters<typeof graph.getRelatedTo>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo>>>
+} => {
+
+    const queryClient = new QueryClient()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
         const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
         const cacheKeys = uniqueIndexes.map(index => invalidationFnKeys.map(fnKey => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat()
-        cacheKeys.forEach(cacheKey => {
-            revalidateTag(cacheKey)
-        })
+        cacheKeys.forEach(cacheKey => queryClient.invalidateQueries(cacheKey))
     }
-
     return {
         ...graph,
-        // Get node has an explicit cache key
-        getNode: async (nodeType, nodeIndex, indexKey) => {
-            const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
-            // Create caches for each unique index
-            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-                    return await graph.getNode(nodeType, index, key)
-                }, [cacheKey], {
-                tags: [cacheKey]
-            }))
-            // Use index 0, but either would work.
-            const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
-            return node
-        },
-        getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
-            // Set explicit cache key
-            const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-
-            console.log(`Cache key: ${cacheKey}`)
-            console.log(`Cache map: ${JSON.stringify([...cacheMap])}`)
-            if (!cacheMap.has(cacheKey)) {
-                console.log("Resetting cache key")
-                cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getRelatedTo>) => {
-                    return await graph.getRelatedTo(...args)
-                }, [cacheKey], {
-                    tags: [cacheKey]
-                }))
+        useNode: (nodeType, nodeIndex, indexKey) => useQuery({
+            queryKey: [nodeType, nodeIndex, indexKey],
+            queryFn: async () => {
+                return await graph.getNode(nodeType, nodeIndex, indexKey)
             }
-            // Get the related nodes
-            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
-        },
+        }),
+        useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
+            queryKey: [fromNode, relationshipType, toNodeType],
+            queryFn: async () => {
+                return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+            }
+        }),
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
             const createNodeResult = await graph.createNode(nodeType, initialState)

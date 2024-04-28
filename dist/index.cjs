@@ -310,13 +310,12 @@ var defineNeo4jLayer = (graph, config) => {
 // src/layers/NextjsCache/defineNextjsCacheLayer.ts
 var import_cache = require("next/cache");
 var import_ts_results3 = require("ts-results");
-var cacheMap = /* @__PURE__ */ new Map();
 var defineNextjsCacheLayer = (graph) => {
+  const cacheMap = /* @__PURE__ */ new Map();
   const invalidationFnKeys = ["getNode", "getRelatedTo"];
   const invalidateCacheKeys = (node) => {
     const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
     const cacheKeys = uniqueIndexes.map((index) => invalidationFnKeys.map((fnKey) => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat();
-    console.log(`Invalidating cache keys: ${cacheKeys}`);
     cacheKeys.forEach((cacheKey) => {
       (0, import_cache.revalidateTag)(cacheKey);
     });
@@ -340,24 +339,13 @@ var defineNextjsCacheLayer = (graph) => {
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
-      const getRelatedToNodes = async (...[fromNode2, relationshipType2, toNodeType2]) => {
-        const getRelatedToNodesResult = await graph.getRelatedTo(fromNode2, relationshipType2, toNodeType2);
-        if (!getRelatedToNodesResult.ok)
-          return getRelatedToNodesResult;
-        const toNodeTypeUniqueIndexes = ["nodeId", ...graph.uniqueIndexes[toNodeType2] ?? []];
-        const relatedToNodes = getRelatedToNodesResult.val;
-        const relatedToNodeCacheKeys = [cacheKey, ...relatedToNodes.map((node) => toNodeTypeUniqueIndexes.map((index) => `getRelatedTo-${toNodeType2}-${index}-${node[index]}`)).flat()];
-        console.log(`Related to cache keys: ${relatedToNodeCacheKeys}`);
-        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(getRelatedToNodes, [cacheKey], {
-          tags: relatedToNodeCacheKeys
-        }));
-        return getRelatedToNodesResult;
-      };
       console.log(`Cache key: ${cacheKey}`);
       console.log(`Cache map: ${JSON.stringify([...cacheMap])}`);
       if (!cacheMap.has(cacheKey)) {
         console.log("Resetting cache key");
-        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(getRelatedToNodes, [cacheKey], {
+        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(async (...args) => {
+          return await graph.getRelatedTo(...args);
+        }, [cacheKey], {
           tags: [cacheKey]
         }));
       }
