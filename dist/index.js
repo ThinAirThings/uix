@@ -200,7 +200,6 @@ var defineNeo4jLayer = (graph, config) => {
             return new Err(UixErr("Neo4j", "Normal", "LayerImplementationError", { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }));
           }
         }
-        let toNodeKey;
         if ("nodeId" in toNode) {
           toNode = toNode;
         } else {
@@ -214,13 +213,15 @@ var defineNeo4jLayer = (graph, config) => {
         console.log("FROM NODE", fromNode);
         const executeWriteResult = await session.executeWrite(async (tx) => {
           console.log("EXECUTING WRITE");
-          return await tx.run(`
+          const txRes = await tx.run(`
                         MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
                         MATCH (toNode:${toNode.nodeType} {nodeId: $toNode.nodeId})
                         MERGE (fromNode)-[relationship:${relationshipType}]->(toNode)
                         SET relationship += $state
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} });
+          console.log("TX RES", txRes);
+          return txRes;
         }).then(({ records }) => records.map((record) => {
           console.log(record);
           return {
