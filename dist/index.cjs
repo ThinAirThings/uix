@@ -180,6 +180,10 @@ var defineNeo4jLayer = (graph, config) => {
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
+      const stateKeys = Object.keys(state);
+      const stateDefinitionKeys = Object.keys(graph.getNodeDefinition(nodeType).stateDefinition.shape);
+      const stateKeysNotInDefinition = stateKeys.filter((key) => !stateDefinitionKeys.includes(key));
+      stateKeysNotInDefinition.forEach((key) => delete state[key]);
       try {
         const result = await session.executeWrite(async (tx) => {
           return await tx.run(`
@@ -287,17 +291,13 @@ var defineNeo4jLayer = (graph, config) => {
       const session = neo4jDriver.session();
       try {
         const { nodeType, nodeId } = fromNode;
-        const uniqueRelationship = relationshipDictionary[relationshipType].uniqueFromNode;
         const result = await session.executeRead(async (tx) => {
           return await tx.run(`
                         MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType}]->(toNode:${toNodeType})
                         RETURN toNode
                     `, { fromNodeId: nodeId });
         }).then(
-          ({ records }) => (
-            // records.map(record => record.get('toNode').properties)
-            uniqueRelationship === true ? records.length ? records.map((record) => record.get("toNode").properties)[0] : null : records.map((record) => record.get("toNode").properties)
-          )
+          ({ records }) => relationshipDictionary[relationshipType].uniqueFromNode ? records.length ? records.map((record) => record.get("toNode").properties)[0] : null : records.map((record) => record.get("toNode").properties)
         );
         if (!result)
           return new import_ts_results2.Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${toNodeType} related to ${nodeType} with nodeId: ${nodeId} not found` }));
