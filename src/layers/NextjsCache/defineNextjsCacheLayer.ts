@@ -27,7 +27,7 @@ export const defineNextjsCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): (Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>, 'getRelatedTo'> & {
-    // Override getRelatedTo to only return NodeKeys. There's likely cleaner ways to do this. But for now this works.
+    // Override getRelatedTo to only return NodeKeys. There's likely cleaner ways to do the types for this. But for now this works.
     getRelatedTo: <
         FromNodeType extends keyof E,
         RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
@@ -66,11 +66,7 @@ export const defineNextjsCacheLayer = <
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-
-            console.log(`Cache key: ${cacheKey}`)
-            console.log(`Cache map: ${JSON.stringify([...cacheMap])}`)
             if (!cacheMap.has(cacheKey)) {
-                console.log("Resetting cache key")
                 cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getRelatedTo>) => {
                     return await graph.getRelatedTo(...args)
                 }, [cacheKey], {
