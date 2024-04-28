@@ -126,7 +126,6 @@ export const defineNeo4jLayer = <
             { nodeType, nodeId },
             state
         ) => {
-            console.log("Updating node", { nodeType, nodeId, state })
             //// You can implement optimistic updates here
             // const initialState = graph.getNode(nodeType, nodeId)
             // const optimisticUpdatedNode = graph.updateNode(nodeType, nodeId, state)
@@ -142,7 +141,6 @@ export const defineNeo4jLayer = <
                         RETURN node
                     `, { nodeId, state })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
-                console.log(JSON.stringify(result))
                 return new Ok(result)
             } catch (_e) {
                 const e = _e as Error

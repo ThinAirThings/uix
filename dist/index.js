@@ -138,7 +138,6 @@ var defineNeo4jLayer = (graph, config) => {
       }
     },
     updateNode: async ({ nodeType, nodeId }, state) => {
-      console.log("Updating node", { nodeType, nodeId, state });
       if (!neo4jDriver)
         throw new Error("Neo4jNode.neo4jDriver is not configured");
       const session = neo4jDriver.session();
@@ -150,7 +149,6 @@ var defineNeo4jLayer = (graph, config) => {
                         RETURN node
                     `, { nodeId, state });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
-        console.log(JSON.stringify(result));
         return new Ok2(result);
       } catch (_e) {
         const e = _e;
@@ -300,10 +298,7 @@ var defineNextjsCacheLayer = (graph) => {
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
-      console.log(`Cache key: ${cacheKey}`);
-      console.log(`Cache map: ${JSON.stringify([...cacheMap])}`);
       if (!cacheMap.has(cacheKey)) {
-        console.log("Resetting cache key");
         cacheMap.set(cacheKey, cache(async (...args) => {
           return await graph.getRelatedTo(...args);
         }, [cacheKey], {
