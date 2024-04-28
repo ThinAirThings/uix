@@ -218,6 +218,7 @@ var defineNeo4jLayer = (graph, config) => {
                         RETURN fromNode, toNode, relationship
                     `, { fromNode, toNode, state: state ?? {} });
         }).then(({ records }) => records.map((record) => {
+          console.log(record);
           return {
             fromNode: record.get("fromNode").properties,
             relationship: record.get("relationship").properties,
