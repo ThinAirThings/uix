@@ -7,7 +7,6 @@ import { Ok } from 'ts-results';
 
 export type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
-
 export const defineBaseGraph = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
