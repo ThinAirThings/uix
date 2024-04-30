@@ -61,7 +61,7 @@ export const defineReactCacheLayer = <
         const cacheKey = cacheKeyMap.get(node.nodeId)
         if (!cacheKey) return
         cacheKey.forEach(key => queryClient.invalidateQueries({
-            queryKey: key.split('-')
+            queryKey: key.split('::')
         }))
     }
 
@@ -91,7 +91,7 @@ export const defineReactCacheLayer = <
                     if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
                         cacheKeyMap.set(getRelatedToResult.val.nodeId, new Set())
                     }
-                    cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`)
+                    cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}::${relationshipType}::${toNodeType}`)
                     console.log(cacheKeyMap)
                 }
                 return getRelatedToResult.val

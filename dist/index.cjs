@@ -454,7 +454,7 @@ var defineReactCacheLayer = (graph) => {
     if (!cacheKey)
       return;
     cacheKey.forEach((key) => queryClient.invalidateQueries({
-      queryKey: key.split("-")
+      queryKey: key.split("::")
     }));
   };
   return {
@@ -484,7 +484,7 @@ var defineReactCacheLayer = (graph) => {
           if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
             cacheKeyMap.set(getRelatedToResult.val.nodeId, /* @__PURE__ */ new Set());
           }
-          cacheKeyMap.get(getRelatedToResult.val.nodeId).add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`);
+          cacheKeyMap.get(getRelatedToResult.val.nodeId).add(`${fromNode.nodeId}::${relationshipType}::${toNodeType}`);
           console.log(cacheKeyMap);
         }
         return getRelatedToResult.val;
