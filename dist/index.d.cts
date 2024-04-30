@@ -1,6 +1,5 @@
 import * as zod from 'zod';
 import { ZodObject, TypeOf, ZodRawShape } from 'zod';
-import { Result } from 'ts-results';
 import { Driver } from 'neo4j-driver';
 
 type UixNode<T extends Capitalize<string>, S extends Record<string, any>> = {
@@ -46,6 +45,16 @@ declare const ExtendUixError: <LayerStack extends Capitalize<string>>() => <Laye
     subtype: ST;
 };
 
+type Result<T, E> = {
+    ok: true;
+    val: T;
+} | {
+    ok: false;
+    val: E;
+};
+declare const Ok: <T>(val: T) => Result<T, never>;
+declare const Err: <E>(val: E) => Result<never, E>;
+
 type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R extends readonly {
     relationshipType: Uppercase<string>;
     uniqueFromNode?: boolean;
@@ -59,13 +68,6 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         nodeType: T;
     })['stateDefinition']>)[];
 }, LayerStack extends Capitalize<string>> = {
-    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
-        relationshipType: RelationshipType;
-    })['uniqueFromNode'] extends true ? UixNode<ToNodeType, TypeOf<(N[number] & {
-        nodeType: ToNodeType;
-    })['stateDefinition']>> : UixNode<ToNodeType, TypeOf<(N[number] & {
-        nodeType: ToNodeType;
-    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     nodeDefinitions: N;
     relationshipDefinitions: R;
     edgeDefinitions: E;
@@ -76,6 +78,9 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
     getNode: <T extends N[number]['nodeType']>(nodeType: T, nodeIndex: UIdx[T] extends string[] ? UIdx[T][number] | 'nodeId' : 'nodeId', indexKey: string) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
+    getNodeType: <T extends N[number]['nodeType']>(nodeType: T) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
+        nodeType: T;
+    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     updateNode: <T extends N[number]['nodeType']>(nodeKey: NodeKey<T>, state: Partial<TypeOf<(N[number] & {
         nodeType: T;
     })['stateDefinition']>>) => Promise<Result<UixNode<T, TypeOf<(N[number] & {
@@ -98,6 +103,13 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
         })['stateDefinition']>>>;
         toNodeKey: NodeKey<ToNodeType>;
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
+        relationshipType: RelationshipType;
+    })['uniqueFromNode'] extends true ? UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })['stateDefinition']>> : UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })['stateDefinition']>>[], ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
     getNodeDefinition: <T extends N[number]['nodeType']>(nodeType: T) => ReturnType<typeof defineNode<T, (N[number] & {
         nodeType: T;
     })['stateDefinition']>>;
@@ -170,6 +182,13 @@ declare const defineNextjsCacheLayer: <N extends readonly {
         type: "Fatal" | "Normal" | "Warning";
         subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
     }>>;
+    getNodeType: <NodeType extends N[number]["nodeType"]>(nodeType: NodeType) => Promise<Result<NodeKey<NodeType>[], {
+        message?: string | undefined;
+        data?: Record<string, any> | undefined;
+        layer: PreviousLayers;
+        type: "Fatal" | "Normal" | "Warning";
+        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
+    }>>;
 };
 
 type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
@@ -182,4 +201,4 @@ type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefi
     nodeType: T;
 })['stateDefinition'] : never)>>;
 
-export { type GraphLayer, type GraphNodeType, type NodeKey, type OmitNodeConstants, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };
+export { Err, type GraphLayer, type GraphNodeType, type NodeKey, Ok, type OmitNodeConstants, type Result, type UixNode, defineBaseGraph, defineNeo4jLayer, defineNextjsCacheLayer, defineNode };

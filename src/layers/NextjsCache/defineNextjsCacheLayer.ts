@@ -2,14 +2,12 @@ import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
-import { Err, Ok, Result } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { ExtendUixError } from "@/src/base/UixErr";
 import { NodeKey } from "@/src/types/NodeKey";
+import { Ok, Result } from "@/src/types/Result";
 
 
-
-// NOTE!!! This was a failed attempt. NextJS caching fails for dynamic caching
 export const defineNextjsCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
@@ -36,6 +34,12 @@ export const defineNextjsCacheLayer = <
         (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
         ? NodeKey<ToNodeType>
         : NodeKey<ToNodeType>[],
+        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
+    >>
+    getNodeType: <
+        NodeType extends N[number]['nodeType']
+    >(nodeType: NodeType) => Promise<Result<
+        NodeKey<NodeType>[],
         ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
     >>
 }) => {
@@ -65,6 +69,17 @@ export const defineNextjsCacheLayer = <
             const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
             return node
         },
+        getNodeType: async (nodeType) => {
+            const cacheKey = `getNodeType-${nodeType}`
+            if (!cacheMap.has(cacheKey)) {
+                cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getNodeType>) => {
+                    return await graph.getNodeType(...args)
+                }, [cacheKey], {
+                    tags: [cacheKey]
+                }))
+            }
+            return await cacheMap.get(cacheKey)!(nodeType)
+        },
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
@@ -93,7 +108,7 @@ export const defineNextjsCacheLayer = <
             // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
             invalidateCacheKeys(node)
             // Return the nodekey
-            return new Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
+            return Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
         },
         updateNode: async (nodeKey, state) => {
             const updateNodeResult = await graph.updateNode(nodeKey, state)
@@ -106,7 +121,7 @@ export const defineNextjsCacheLayer = <
             const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
             if (!getNodeResult.ok) {
                 if (getNodeResult.val.subtype === 'NodeNotFound') {
-                    return new Ok(null)
+                    return Ok(null)
                 }
                 return getNodeResult
             }
@@ -119,8 +134,8 @@ export const defineNextjsCacheLayer = <
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
             // Handle passing Result type in as toNode for common pattern
-            if (fromNode instanceof Err) return fromNode
-            if (fromNode instanceof Ok) fromNode = fromNode.val
+            if ('ok' in fromNode && !fromNode.ok) return fromNode
+            if ('ok' in fromNode && fromNode.ok) fromNode = fromNode.val
             const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args)
             if (!createRelationshipResult.ok) {
                 return createRelationshipResult

@@ -38,14 +38,13 @@
   "dependencies": {
     "@tanstack/react-query": "^5.32.0",
     "openai": "^4.38.3",
-    "ts-results": "^3.3.0",
     "uuid": "^9.0.1"
   },
   "peerDependencies": {
     "neo4j-driver": "^5.19.0",
+    "next": "^14.2.0-canary.62",
     "zod": "^3.22.5",
-    "zustand": "^4.5.2",
-    "next": "^14.2.0-canary.62"
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.24.4",

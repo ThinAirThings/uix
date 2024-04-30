@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
 import { defineNode } from "./defineNode"
 import { GraphLayer } from "../types/GraphLayer"
-import { Ok } from 'ts-results';
+import { Ok } from "../types/Result"
 
 export type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>
 
@@ -59,7 +59,7 @@ export const defineBaseGraph = <
                 createdAt: new Date().toISOString(),
                 ...initialState
             }
-            return new Ok(node)
+            return Ok(node)
         },
         getNodeDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
