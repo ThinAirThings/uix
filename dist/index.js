@@ -418,7 +418,7 @@ var defineReactCacheLayer = (graph) => {
           return getNodeResult.val;
         },
         select: selector ? useCallback(selector, []) : void 0
-      });
+      }, queryClient);
     },
     // useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
     //     queryKey: [fromNode, relationshipType, toNodeType],

@@ -62,7 +62,7 @@ export const defineReactCacheLayer = <
                     return getNodeResult.val
                 },
                 select: selector ? useCallback(selector, []) : undefined
-            })
+            }, queryClient)
         },
         // useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
         //     queryKey: [fromNode, relationshipType, toNodeType],
