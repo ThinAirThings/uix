@@ -46,7 +46,9 @@ export const defineReactCacheLayer = <
         ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
     >(
         ...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>
-    ) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>>>
+    ) => ReturnType<typeof useQuery<
+        (Awaited<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>> & { ok: true })['val']
+    >>
 } => {
     const queryClient = new QueryClient()
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
@@ -72,7 +74,9 @@ export const defineReactCacheLayer = <
         useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
             queryKey: [fromNode.nodeId, relationshipType, toNodeType],
             queryFn: async () => {
-                return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+                const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+                if (!getRelatedToResult.ok) throw new Error(getRelatedToResult.val.message)
+                return getRelatedToResult.val
             }
         }, queryClient),
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
