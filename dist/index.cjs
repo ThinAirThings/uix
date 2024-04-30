@@ -464,12 +464,12 @@ var defineReactCacheLayer = (graph) => {
         select: selector ? (0, import_react.useCallback)(selector, []) : void 0
       }, queryClient);
     },
-    // useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
-    //     queryKey: [fromNode, relationshipType, toNodeType],
-    //     queryFn: async () => {
-    //         return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
-    //     }
-    // }),
+    useRelatedTo: (fromNode, relationshipType, toNodeType) => (0, import_react_query.useQuery)({
+      queryKey: [fromNode.nodeId, relationshipType, toNodeType],
+      queryFn: async () => {
+        return await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
+      }
+    }, queryClient),
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
     createNode: async (nodeType, initialState) => {
       const createNodeResult = await graph.createNode(nodeType, initialState);

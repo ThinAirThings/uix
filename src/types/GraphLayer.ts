@@ -150,7 +150,7 @@ export type GraphLayer<
         RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
         ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
     >(
-        fromNode: NodeKey<FromNodeType & Capitalize<string>>,
+        fromNodeKey: NodeKey<FromNodeType & Capitalize<string>>,
         relationshipType: RelationshipType,
         toNodeType: ToNodeType
     ) => Promise<Result<

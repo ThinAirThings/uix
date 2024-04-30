@@ -110,7 +110,7 @@ type GraphLayer<N extends readonly ReturnType<typeof defineNode<any, any>>[], R 
             nodeType: ToNodeType;
         })['stateDefinition']>>;
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>;
-    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
+    getRelatedTo: <FromNodeType extends keyof E, RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']), ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNodeKey: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => Promise<Result<(R[number] & {
         relationshipType: RelationshipType;
     })['uniqueFromNode'] extends true ? UixNode<ToNodeType, TypeOf<(N[number] & {
         nodeType: ToNodeType;
@@ -221,7 +221,7 @@ declare const defineNextjsCacheLayer: <N extends readonly {
         type: "Fatal" | "Normal" | "Warning";
         subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
     }>>;
-    getRelatedTo: <FromNodeType_1 extends keyof E, RelationshipType_1 extends keyof E[FromNodeType_1] & R[number]["relationshipType"], ToNodeType_1 extends E[FromNodeType_1][RelationshipType_1] extends readonly any[] ? E[FromNodeType_1][RelationshipType_1][number] : never>(fromNode: NodeKey<FromNodeType_1 & Capitalize<string>>, relationshipType: RelationshipType_1, toNodeType: ToNodeType_1) => Promise<Result<(R[number] & {
+    getRelatedTo: <FromNodeType_1 extends keyof E, RelationshipType_1 extends keyof E[FromNodeType_1] & R[number]["relationshipType"], ToNodeType_1 extends E[FromNodeType_1][RelationshipType_1] extends readonly any[] ? E[FromNodeType_1][RelationshipType_1][number] : never>(fromNodeKey: NodeKey<FromNodeType_1 & Capitalize<string>>, relationshipType: RelationshipType_1, toNodeType: ToNodeType_1) => Promise<Result<(R[number] & {
         relationshipType: RelationshipType_1;
     })["uniqueFromNode"] extends true ? NodeKey<ToNodeType_1> : NodeKey<ToNodeType_1>[], {
         message?: string | undefined;
@@ -258,6 +258,19 @@ declare const defineReactCacheLayer: <N extends readonly {
     })["stateDefinition"]>>>(nodeType: T_1, nodeIndex: UIdx[T_1] extends string[] ? "nodeId" | UIdx[T_1][number] : "nodeId", indexKey: string, selector?: ((node: UixNode<T_1, TypeOf<(N[number] & {
         nodeType: T_1;
     })["stateDefinition"]>>) => R_1) | undefined) => _tanstack_react_query.UseQueryResult<R_1, Error>;
+    useRelatedTo: (fromNodeKey: NodeKey<keyof E & Capitalize<string>>, relationshipType: keyof E[keyof E] & R[number]["relationshipType"], toNodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never) => _tanstack_react_query.UseQueryResult<Promise<Result<(R[number] & {
+        relationshipType: keyof E[keyof E] & R[number]["relationshipType"];
+    })["uniqueFromNode"] extends true ? UixNode<E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never, TypeOf<(N[number] & {
+        nodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never;
+    })["stateDefinition"]>> : UixNode<E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never, TypeOf<(N[number] & {
+        nodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never;
+    })["stateDefinition"]>>[], {
+        message?: string | undefined;
+        data?: Record<string, any> | undefined;
+        layer: PreviousLayers;
+        type: "Fatal" | "Normal" | "Warning";
+        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
+    }>>, Error>;
 };
 
 type GraphNodeType<G extends Pick<GraphLayer<any, any, any, any, any>, 'nodeDefinitions'>, T extends G extends Pick<GraphLayer<infer N extends {
