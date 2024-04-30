@@ -84,11 +84,14 @@ export const defineReactCacheLayer = <
             queryFn: async () => {
                 const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
                 if (!getRelatedToResult.ok) throw new Error(getRelatedToResult.val.message)
+
                 if (!(getRelatedToResult.val instanceof Array)) {
+                    console.log("HERE")
                     if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
                         cacheKeyMap.set(getRelatedToResult.val.nodeId, new Set())
                     }
                     cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`)
+                    console.log(cacheKeyMap)
                 }
                 return getRelatedToResult.val
             }

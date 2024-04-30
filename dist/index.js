@@ -436,10 +436,12 @@ var defineReactCacheLayer = (graph) => {
         if (!getRelatedToResult.ok)
           throw new Error(getRelatedToResult.val.message);
         if (!(getRelatedToResult.val instanceof Array)) {
+          console.log("HERE");
           if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
             cacheKeyMap.set(getRelatedToResult.val.nodeId, /* @__PURE__ */ new Set());
           }
           cacheKeyMap.get(getRelatedToResult.val.nodeId).add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`);
+          console.log(cacheKeyMap);
         }
         return getRelatedToResult.val;
       }
