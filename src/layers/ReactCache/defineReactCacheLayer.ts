@@ -58,6 +58,7 @@ export const defineReactCacheLayer = <
                 queryKey: [nodeType, nodeIndex, indexKey],
                 queryFn: async () => {
                     const getNodeResult = await graph.getNode(nodeType, nodeIndex, indexKey)
+                    console.log(getNodeResult)
                     if (!getNodeResult.ok) throw new Error(getNodeResult.val.message)
                     return getNodeResult.val
                 },
