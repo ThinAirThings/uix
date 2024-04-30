@@ -321,6 +321,8 @@ var defineNeo4jLayer = (graph, config) => {
         }).then(
           ({ records }) => relationshipDictionary[relationshipType].uniqueFromNode ? records.length ? records.map((record) => record.get("toNode").properties)[0] : null : records.map((record) => record.get("toNode").properties)
         );
+        if (!result)
+          return Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${toNodeType} related to node ${nodeType} with ${nodeId} not found` }));
         return Ok(result);
       } catch (_e) {
         const e = _e;

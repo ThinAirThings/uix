@@ -289,6 +289,7 @@ export const defineNeo4jLayer = <
                     ? records.length ? records.map(record => record.get('toNode').properties)[0] : null
                     : records.map(record => record.get('toNode').properties)
                 )
+                if (!result) return Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to node ${nodeType} with ${nodeId} not found` }))
                 return Ok(result as any)   // TS is struggling to infer this. But it is correct
             } catch (_e) {
                 const e = _e as Error
