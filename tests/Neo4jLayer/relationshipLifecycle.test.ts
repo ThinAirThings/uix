@@ -22,22 +22,27 @@ describe('Relationship Lifecycle Neo4j', () => {
         const companyData = { name: 'Blueprint' };
         const getUserNodeResult = await graph.getNode('User', 'email', aliceData.email);
         if (getUserNodeResult.ok) {
-            console.log("User already exists, deleting node");
-            expect(getUserNodeResult.val.nodeType).toBe('User');
-            const deleteNodeResult = await graph.deleteNode(getUserNodeResult.val);
-            if (!deleteNodeResult.ok) {
-                await graph.neo4jDriver.close();
-                throw new Error(`Failed to delete User node: ${deleteNodeResult.val.message}`);
+            const userNode = getUserNodeResult.val;
+            if (userNode) {
+                console.log("User already exists, deleting node");
+                expect(userNode.nodeType).toBe('User');
+                const deleteNodeResult = await graph.deleteNode(userNode);
+                if (!deleteNodeResult.ok) {
+                    await graph.neo4jDriver.close();
+                    throw new Error(`Failed to delete User node: ${deleteNodeResult.val.message}`);
+                }
             }
         }
         const getCompanyNodeResult = await graph.getNode('Company', 'nodeId', companyData.name);
         if (getCompanyNodeResult.ok) {
-            console.log("Company already exists, deleting node");
-            expect(getCompanyNodeResult.val.nodeType).toBe('Company');
-            const deleteNodeResult = await graph.deleteNode(getCompanyNodeResult.val);
-            if (!deleteNodeResult.ok) {
-                await graph.neo4jDriver.close();
-                throw new Error(`Failed to delete Company node: ${deleteNodeResult.val.message}`);
+            const companyNode = getCompanyNodeResult.val;
+            if (companyNode) {
+                expect(companyNode.nodeType).toBe('Company');
+                const deleteNodeResult = await graph.deleteNode(companyNode);
+                if (!deleteNodeResult.ok) {
+                    await graph.neo4jDriver.close();
+                    throw new Error(`Failed to delete Company node: ${deleteNodeResult.val.message}`);
+                }
             }
         }
         const aliceNodeResult = await graph.createNode('User', aliceData);
@@ -58,8 +63,8 @@ describe('Relationship Lifecycle Neo4j', () => {
         }
         expect(relationshipResult.val).toHaveProperty('relationship');
         // expect(relationshipResult.val.relationship.relationshipType).toBe('WORKED_AT');
-        expect(relationshipResult.val.fromNodeKey.nodeId).toBe(aliceNodeResult.val.nodeId);
-        expect(relationshipResult.val.toNodeKey.nodeId).toBe(companyNodeResult.val.nodeId);
+        expect(relationshipResult.val.fromNode.nodeId).toBe(aliceNodeResult.val.nodeId);
+        expect(relationshipResult.val.toNode.nodeId).toBe(companyNodeResult.val.nodeId);
         // Test Related To
         const relatedToResult = await graph.getRelatedTo(
             aliceNodeResult.val,
@@ -84,6 +89,9 @@ describe('Relationship Lifecycle Neo4j', () => {
         const updatedNodeResult = await graph.getNode('Company', 'nodeId', emptyCompanyNode.nodeId);
         if (!updatedNodeResult.ok) {
             throw new Error(`Failed to get updated node: ${updatedNodeResult.val.message}`);
+        }
+        if (!updatedNodeResult.val) {
+            throw new Error(`Updated node is null`);
         }
         expect(updatedNodeResult.val.nodeType).toBe('Company');
         expect(updatedNodeResult.val.name).toBe('Cheese Fries');

@@ -1,4 +1,5 @@
-import { defineBaseGraph, defineNode } from "../dist";
+import { useQuery } from "@tanstack/react-query";
+import { defineBaseGraph, defineNode, defineNeo4jLayer, defineReactCacheLayer } from "../dist";
 import { z } from "zod";
 
 
@@ -55,3 +56,38 @@ export const testGraph = defineBaseGraph({
         'Company': ['name']
     }
 })
+
+
+// const g = defineReactCacheLayer(defineNeo4jLayer(testGraph, {} as any))
+
+// const { data, isSuccess, error, isPending } = g.useNode('User', 'email', '',
+//     (node) => {
+//         return node.email
+//     }
+// )
+// if (isPending) {
+//     console.log('Loading...')
+// }
+// data
+// data
+// class Other extends Error {
+//     thing: number
+//     constructor(thing: number) {
+//         super()
+//         this.thing = thing
+//     }
+// }
+
+// const {data} = useQuery({
+//     queryKey: ['User', 'email', ''],
+//     queryFn: async () => {
+//         throw new Error('Error')
+//         return await g.getNode('User', 'email', '')
+//     },
+//     select: (getNodeResult) => {
+//         if (!getNodeResult.ok) return getNodeResult
+//         return getNodeResult.val.email
+//     }
+// })
+
+// useQuery

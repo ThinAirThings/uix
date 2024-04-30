@@ -1,11 +1,12 @@
 import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
-import { TypeOf, ZodObject } from "zod";
+import { TypeOf, ZodObject, ZodRawShape } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { ExtendUixError } from "@/src/base/UixErr";
 import { NodeKey } from "@/src/types/NodeKey";
 import { Ok, Result } from "@/src/types/Result";
+import { UixRelationship } from "@/src/types/UixRelationship";
 
 
 export const defineNextjsCacheLayer = <
@@ -24,8 +25,40 @@ export const defineNextjsCacheLayer = <
     PreviousLayers extends Capitalize<string>
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): (Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>, 'getRelatedTo'> & {
-    // Override getRelatedTo to only return NodeKeys. There's likely cleaner ways to do the types for this. But for now this works.
+): (Omit<
+    GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>,
+    'getRelatedTo' | 'createNode' | 'createRelationship'
+> & {
+    // Modify signatures to return nodekeys to force cache invalidation.
+    createNode: <
+        T extends N[number]['nodeType']
+    >(
+        nodeType: T,
+        initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
+    ) => Promise<Result<
+        NodeKey<T>,
+        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
+    >>
+    createRelationship: <
+        FromNodeType extends (keyof E & Capitalize<string>),
+        RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>),
+        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
+    >(
+        fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>> | NodeKey<FromNodeType>,
+        relationshipType: RelationshipType,
+        toNode: {
+            nodeType: ToNodeType,
+            initialState: TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>
+        } | NodeKey<ToNodeType>,
+        ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
+            ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
+            : []
+    ) => Promise<Result<{
+        fromNodeKey: NodeKey<FromNodeType>,
+        relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
+        toNodeKey: NodeKey<ToNodeType>
+    }, ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>>>
+
     getRelatedTo: <
         FromNodeType extends keyof E,
         RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
@@ -34,13 +67,13 @@ export const defineNextjsCacheLayer = <
         (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
         ? NodeKey<ToNodeType>
         : NodeKey<ToNodeType>[],
-        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
+        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
     >>
     getNodeType: <
         NodeType extends N[number]['nodeType']
     >(nodeType: NodeType) => Promise<Result<
         NodeKey<NodeType>[],
-        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers>>>
+        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
     >>
 }) => {
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
@@ -101,10 +134,7 @@ export const defineNextjsCacheLayer = <
             if (!createNodeResult.ok) {
                 return createNodeResult
             }
-            // Get the node so you can invalidate all the caches.
-            const getNodeResult = await graph.getNode(nodeType, 'nodeId', createNodeResult.val.nodeId)
-            if (!getNodeResult.ok) return getNodeResult;
-            const node = getNodeResult.val;
+            const node = createNodeResult.val
             // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
             invalidateCacheKeys(node)
             // Return the nodekey
@@ -119,18 +149,13 @@ export const defineNextjsCacheLayer = <
         },
         deleteNode: async (nodeKey) => {
             const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
-            if (!getNodeResult.ok) {
-                if (getNodeResult.val.subtype === 'NodeNotFound') {
-                    return Ok(null)
-                }
-                return getNodeResult
-            }
+            const deleteNodeResult = await graph.deleteNode(nodeKey)
+            if (!deleteNodeResult.ok) return deleteNodeResult
+            if (!getNodeResult.ok) return getNodeResult
             const node = getNodeResult.val
-            const nodeResult = await graph.deleteNode(nodeKey)
             invalidateCacheKeys(node)
             revalidateTag(`getRelatedTo-${node.nodeType}`)
-            if (!nodeResult.ok) return nodeResult
-            return nodeResult
+            return deleteNodeResult
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
             // Handle passing Result type in as toNode for common pattern
@@ -143,7 +168,11 @@ export const defineNextjsCacheLayer = <
             // Invalidate all caches for the fromNode and toNode
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
             revalidateTag(cacheKey)
-            return createRelationshipResult
+            return Ok({
+                fromNodeKey: { nodeType: fromNode.nodeType, nodeId: fromNode.nodeId },
+                relationship: createRelationshipResult.val.relationship,
+                toNodeKey: { nodeType: toNode.nodeType, nodeId: createRelationshipResult.val.toNode.nodeId }
+            })
         },
     }
 }

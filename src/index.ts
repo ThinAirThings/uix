@@ -4,6 +4,7 @@ export * from './base/defineBaseGraph'
 export * from './base/defineNode'
 export * from './layers/Neo4j/defineNeo4jLayer'
 export * from './layers/NextjsCache/defineNextjsCacheLayer'
+export * from './layers/ReactCache/defineReactCacheLayer'
 
 
 // Types

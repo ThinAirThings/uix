@@ -1,12 +1,10 @@
 import { defineNode } from "@/src/base/defineNode";
-import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
-import { Err, Ok } from "ts-results";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { testGraph } from "@/tests/testGraph";
-import { defineNeo4jLayer } from "@/dist";
+import { Ok } from "@/src/types/Result";
+import { useCallback } from 'react'
 
 
 
@@ -27,45 +25,60 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'> & {
-    useNode: (...args: Parameters<typeof graph.getNode>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getNode>>>
-    useRelatedTo: (...args: Parameters<typeof graph.getRelatedTo>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo>>>
+    useNode: <
+        T extends N[number]['nodeType'],
+        R = (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']
+    >(
+        nodeType: Parameters<typeof graph.getNode<T>>[0],
+        nodeIndex: Parameters<typeof graph.getNode<T>>[1],
+        indexKey: Parameters<typeof graph.getNode<T>>[2],
+        selector?: ((node: (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']) => R)
+    ) => ReturnType<
+        typeof useQuery<
+            (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val'],
+            Error,
+            R
+        >
+    >
+    // useRelatedTo: (...args: Parameters<typeof graph.getRelatedTo>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo>>>
 } => {
 
     const queryClient = new QueryClient()
-    const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
         const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
-        const cacheKeys = uniqueIndexes.map(index => invalidationFnKeys.map(fnKey => `${fnKey}-${node.nodeType}-${index}-${node[index]}`)).flat()
-        cacheKeys.forEach(cacheKey => queryClient.invalidateQueries(cacheKey))
+        const cacheKeys = uniqueIndexes.map(index => [node.nodeType, index, node[index]])
+        cacheKeys.forEach(cacheKey => queryClient.invalidateQueries({
+            queryKey: cacheKey
+        }))
     }
     return {
         ...graph,
-        useNode: (nodeType, nodeIndex, indexKey) => useQuery({
-            queryKey: [nodeType, nodeIndex, indexKey],
-            queryFn: async () => {
-                return await graph.getNode(nodeType, nodeIndex, indexKey)
-            }
-        }),
-        useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
-            queryKey: [fromNode, relationshipType, toNodeType],
-            queryFn: async () => {
-                return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
-            }
-        }),
+        useNode: (nodeType, nodeIndex, indexKey, selector) => {
+            return useQuery({
+                queryKey: [nodeType, nodeIndex, indexKey],
+                queryFn: async () => {
+                    const getNodeResult = await graph.getNode(nodeType, nodeIndex, indexKey)
+                    if (!getNodeResult.ok) throw new Error(getNodeResult.val.message)
+                    return getNodeResult.val
+                },
+                select: selector ? useCallback(selector, []) : undefined
+            })
+        },
+        // useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
+        //     queryKey: [fromNode, relationshipType, toNodeType],
+        //     queryFn: async () => {
+        //         return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+        //     }
+        // }),
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
             const createNodeResult = await graph.createNode(nodeType, initialState)
-            if (!createNodeResult.ok) {
-                return createNodeResult
-            }
-            // Get the node so you can invalidate all the caches.
-            const getNodeResult = await graph.getNode(nodeType, 'nodeId', createNodeResult.val.nodeId)
-            if (!getNodeResult.ok) return getNodeResult;
-            const node = getNodeResult.val;
+            if (!createNodeResult.ok) return createNodeResult
+            const node = createNodeResult.val
             // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
             invalidateCacheKeys(node)
             // Return the nodekey
-            return new Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
+            return Ok(node)
         },
         updateNode: async (nodeKey, state) => {
             const updateNodeResult = await graph.updateNode(nodeKey, state)
@@ -76,29 +89,26 @@ export const defineReactCacheLayer = <
         },
         deleteNode: async (nodeKey) => {
             const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
-            if (!getNodeResult.ok) {
-                if (getNodeResult.val.subtype === 'NodeNotFound') {
-                    return new Ok(null)
-                }
-                return getNodeResult
-            }
+            const deleteNodeResult = await graph.deleteNode(nodeKey)
+            if (!deleteNodeResult.ok) return deleteNodeResult
+            if (!getNodeResult.ok) return deleteNodeResult
             const node = getNodeResult.val
-            const nodeResult = await graph.deleteNode(nodeKey)
+            if (!node) return deleteNodeResult
             invalidateCacheKeys(node)
-            if (!nodeResult.ok) return nodeResult
-            return nodeResult
+            return deleteNodeResult
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
             // Handle passing Result type in as toNode for common pattern
-            if (fromNode instanceof Err) return fromNode
-            if (fromNode instanceof Ok) fromNode = fromNode.val
+            if ('ok' in fromNode && !fromNode.ok) return fromNode
+            if ('ok' in fromNode && fromNode.ok) fromNode = fromNode.val
             const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args)
             if (!createRelationshipResult.ok) {
                 return createRelationshipResult
             }
             // Invalidate all caches for the fromNode and toNode
+
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
-            revalidateTag(cacheKey)
+            // revalidateTag(cacheKey)
             return createRelationshipResult
         },
     }

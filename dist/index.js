@@ -113,7 +113,7 @@ var defineNeo4jLayer = (graph, config) => {
                         RETURN node
                     `, { newNode: newNode.ok ? newNode.val : {} });
         }).then(({ records }) => records.map((record) => record.get("node").properties)[0]);
-        return Ok({ nodeType: result.nodeType, nodeId: result.nodeId });
+        return Ok(result);
       } catch (_e) {
         const e = _e;
         if (e.message === "Neo.ClientError.Schema.ConstraintValidationFailed") {
@@ -201,8 +201,6 @@ var defineNeo4jLayer = (graph, config) => {
                     RETURN node
                     `, { nodeId });
         }).then(({ records }) => records.length ? records.map((record) => record.get("node").properties)[0] : null);
-        if (!result)
-          return Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${nodeType} with nodeId: ${nodeId} not found` }));
         return Ok(null);
       } catch (_e) {
         const e = _e;
@@ -256,15 +254,9 @@ var defineNeo4jLayer = (graph, config) => {
           };
         })[0]);
         return Ok({
-          fromNodeKey: {
-            nodeType: executeWriteResult.fromNode.nodeType,
-            nodeId: executeWriteResult.fromNode.nodeId
-          },
+          fromNode: executeWriteResult.fromNode,
           relationship: executeWriteResult.relationship,
-          toNodeKey: {
-            nodeType: executeWriteResult.toNode.nodeType,
-            nodeId: executeWriteResult.toNode.nodeId
-          }
+          toNode: executeWriteResult.toNode
         });
       } catch (_e) {
         const e = _e;
@@ -287,8 +279,6 @@ var defineNeo4jLayer = (graph, config) => {
         }).then(
           ({ records }) => relationshipDictionary[relationshipType].uniqueFromNode ? records.length ? records.map((record) => record.get("toNode").properties)[0] : null : records.map((record) => record.get("toNode").properties)
         );
-        if (!result)
-          return Err(UixErr("Neo4j", "Normal", "NodeNotFound", { message: `Node of type ${toNodeType} related to ${nodeType} with nodeId: ${nodeId} not found` }));
         return Ok(result);
       } catch (_e) {
         const e = _e;
@@ -360,10 +350,7 @@ var defineNextjsCacheLayer = (graph) => {
       if (!createNodeResult.ok) {
         return createNodeResult;
       }
-      const getNodeResult = await graph.getNode(nodeType, "nodeId", createNodeResult.val.nodeId);
-      if (!getNodeResult.ok)
-        return getNodeResult;
-      const node = getNodeResult.val;
+      const node = createNodeResult.val;
       invalidateCacheKeys(node);
       return Ok({ nodeType: node.nodeType, nodeId: node.nodeId });
     },
@@ -377,19 +364,15 @@ var defineNextjsCacheLayer = (graph) => {
     },
     deleteNode: async (nodeKey) => {
       const getNodeResult = await graph.getNode(nodeKey.nodeType, "nodeId", nodeKey.nodeId);
-      if (!getNodeResult.ok) {
-        if (getNodeResult.val.subtype === "NodeNotFound") {
-          return Ok(null);
-        }
+      const deleteNodeResult = await graph.deleteNode(nodeKey);
+      if (!deleteNodeResult.ok)
+        return deleteNodeResult;
+      if (!getNodeResult.ok)
         return getNodeResult;
-      }
       const node = getNodeResult.val;
-      const nodeResult = await graph.deleteNode(nodeKey);
       invalidateCacheKeys(node);
       revalidateTag(`getRelatedTo-${node.nodeType}`);
-      if (!nodeResult.ok)
-        return nodeResult;
-      return nodeResult;
+      return deleteNodeResult;
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
       if ("ok" in fromNode && !fromNode.ok)
@@ -402,6 +385,87 @@ var defineNextjsCacheLayer = (graph) => {
       }
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
       revalidateTag(cacheKey);
+      return Ok({
+        fromNodeKey: { nodeType: fromNode.nodeType, nodeId: fromNode.nodeId },
+        relationship: createRelationshipResult.val.relationship,
+        toNodeKey: { nodeType: toNode.nodeType, nodeId: createRelationshipResult.val.toNode.nodeId }
+      });
+    }
+  };
+};
+
+// src/layers/ReactCache/defineReactCacheLayer.ts
+import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
+var defineReactCacheLayer = (graph) => {
+  const queryClient = new QueryClient();
+  const invalidateCacheKeys = (node) => {
+    const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
+    const cacheKeys = uniqueIndexes.map((index) => [node.nodeType, index, node[index]]);
+    cacheKeys.forEach((cacheKey) => queryClient.invalidateQueries({
+      queryKey: cacheKey
+    }));
+  };
+  return {
+    ...graph,
+    useNode: (nodeType, nodeIndex, indexKey, selector) => {
+      return useQuery({
+        queryKey: [nodeType, nodeIndex, indexKey],
+        queryFn: async () => {
+          const getNodeResult = await graph.getNode(nodeType, nodeIndex, indexKey);
+          if (!getNodeResult.ok)
+            throw new Error(getNodeResult.val.message);
+          return getNodeResult.val;
+        },
+        select: selector ? useCallback(selector, []) : void 0
+      });
+    },
+    // useRelatedTo: (fromNode, relationshipType, toNodeType) => useQuery({
+    //     queryKey: [fromNode, relationshipType, toNodeType],
+    //     queryFn: async () => {
+    //         return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+    //     }
+    // }),
+    // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
+    createNode: async (nodeType, initialState) => {
+      const createNodeResult = await graph.createNode(nodeType, initialState);
+      if (!createNodeResult.ok)
+        return createNodeResult;
+      const node = createNodeResult.val;
+      invalidateCacheKeys(node);
+      return Ok(node);
+    },
+    updateNode: async (nodeKey, state) => {
+      const updateNodeResult = await graph.updateNode(nodeKey, state);
+      if (!updateNodeResult.ok)
+        return updateNodeResult;
+      const node = updateNodeResult.val;
+      invalidateCacheKeys(node);
+      return updateNodeResult;
+    },
+    deleteNode: async (nodeKey) => {
+      const getNodeResult = await graph.getNode(nodeKey.nodeType, "nodeId", nodeKey.nodeId);
+      const deleteNodeResult = await graph.deleteNode(nodeKey);
+      if (!deleteNodeResult.ok)
+        return deleteNodeResult;
+      if (!getNodeResult.ok)
+        return deleteNodeResult;
+      const node = getNodeResult.val;
+      if (!node)
+        return deleteNodeResult;
+      invalidateCacheKeys(node);
+      return deleteNodeResult;
+    },
+    createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
+      if ("ok" in fromNode && !fromNode.ok)
+        return fromNode;
+      if ("ok" in fromNode && fromNode.ok)
+        fromNode = fromNode.val;
+      const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args);
+      if (!createRelationshipResult.ok) {
+        return createRelationshipResult;
+      }
+      const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
       return createRelationshipResult;
     }
   };
@@ -412,5 +476,6 @@ export {
   defineBaseGraph,
   defineNeo4jLayer,
   defineNextjsCacheLayer,
-  defineNode
+  defineNode,
+  defineReactCacheLayer
 };

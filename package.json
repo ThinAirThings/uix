@@ -41,6 +41,7 @@
     "uuid": "^9.0.1"
   },
   "peerDependencies": {
+    "react": "^18.3.1",
     "neo4j-driver": "^5.19.0",
     "next": "^14.2.0-canary.62",
     "zod": "^3.22.5",

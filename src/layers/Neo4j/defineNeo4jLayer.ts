@@ -85,7 +85,7 @@ export const defineNeo4jLayer = <
                         RETURN node
                     `, { newNode: newNode.ok ? newNode.val : {} })
                 }).then(({ records }) => records.map(record => record.get('node').properties)[0])
-                return Ok({ nodeType: result.nodeType, nodeId: result.nodeId })
+                return Ok(result)
             } catch (_e) {
                 const e = _e as Error
                 if (e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed') {
@@ -192,7 +192,6 @@ export const defineNeo4jLayer = <
                     RETURN node
                     `, { nodeId })
                 }).then(({ records }) => records.length ? records.map(record => record.get('node').properties)[0] : null)
-                if (!result) return Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${nodeType} with nodeId: ${nodeId} not found` }))
                 return Ok(null)
             } catch (_e) {
                 const e = _e as Error
@@ -259,15 +258,9 @@ export const defineNeo4jLayer = <
                     }
                 })[0])
                 return Ok({
-                    fromNodeKey: {
-                        nodeType: executeWriteResult.fromNode.nodeType,
-                        nodeId: executeWriteResult.fromNode.nodeId
-                    },
+                    fromNode: executeWriteResult.fromNode,
                     relationship: executeWriteResult.relationship,
-                    toNodeKey: {
-                        nodeType: executeWriteResult.toNode.nodeType,
-                        nodeId: executeWriteResult.toNode.nodeId
-                    }
+                    toNode: executeWriteResult.toNode
                 })
             } catch (_e) {
                 const e = _e as Error
@@ -296,7 +289,6 @@ export const defineNeo4jLayer = <
                     ? records.length ? records.map(record => record.get('toNode').properties)[0] : null
                     : records.map(record => record.get('toNode').properties)
                 )
-                if (!result) return Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to ${nodeType} with nodeId: ${nodeId} not found` }))
                 return Ok(result as any)   // TS is struggling to infer this. But it is correct
             } catch (_e) {
                 const e = _e as Error
