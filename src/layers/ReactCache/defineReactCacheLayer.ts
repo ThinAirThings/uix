@@ -50,6 +50,7 @@ export const defineReactCacheLayer = <
         (Awaited<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>> & { ok: true })['val']
     >>
 } => {
+    const cacheKeyMap = new Map<string, Set<string>>()
     const queryClient = new QueryClient()
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
         const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
@@ -57,7 +58,13 @@ export const defineReactCacheLayer = <
         cacheKeys.forEach(cacheKey => queryClient.invalidateQueries({
             queryKey: cacheKey
         }))
+        const cacheKey = cacheKeyMap.get(node.nodeId)
+        if (!cacheKey) return
+        cacheKey.forEach(key => queryClient.invalidateQueries({
+            queryKey: key.split('-')
+        }))
     }
+
     return {
         ...graph,
         useNode: (nodeType, nodeIndex, indexKey, selector) => {
@@ -66,6 +73,7 @@ export const defineReactCacheLayer = <
                 queryFn: async () => {
                     const getNodeResult = await graph.getNode(nodeType, nodeIndex, indexKey)
                     if (!getNodeResult.ok) throw new Error(getNodeResult.val.message)
+
                     return getNodeResult.val
                 },
                 select: selector ? useCallback(selector, []) : undefined
@@ -76,6 +84,12 @@ export const defineReactCacheLayer = <
             queryFn: async () => {
                 const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
                 if (!getRelatedToResult.ok) throw new Error(getRelatedToResult.val.message)
+                if (!(getRelatedToResult.val instanceof Array)) {
+                    if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
+                        cacheKeyMap.set(getRelatedToResult.val.nodeId, new Set())
+                    }
+                    cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`)
+                }
                 return getRelatedToResult.val
             }
         }, queryClient),

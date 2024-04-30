@@ -400,12 +400,19 @@ var defineNextjsCacheLayer = (graph) => {
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 var defineReactCacheLayer = (graph) => {
+  const cacheKeyMap = /* @__PURE__ */ new Map();
   const queryClient = new QueryClient();
   const invalidateCacheKeys = (node) => {
     const uniqueIndexes = ["nodeId", ...graph.uniqueIndexes[node.nodeType] ?? []];
     const cacheKeys = uniqueIndexes.map((index) => [node.nodeType, index, node[index]]);
-    cacheKeys.forEach((cacheKey) => queryClient.invalidateQueries({
-      queryKey: cacheKey
+    cacheKeys.forEach((cacheKey2) => queryClient.invalidateQueries({
+      queryKey: cacheKey2
+    }));
+    const cacheKey = cacheKeyMap.get(node.nodeId);
+    if (!cacheKey)
+      return;
+    cacheKey.forEach((key) => queryClient.invalidateQueries({
+      queryKey: key.split("-")
     }));
   };
   return {
@@ -428,6 +435,12 @@ var defineReactCacheLayer = (graph) => {
         const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
         if (!getRelatedToResult.ok)
           throw new Error(getRelatedToResult.val.message);
+        if (!(getRelatedToResult.val instanceof Array)) {
+          if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
+            cacheKeyMap.set(getRelatedToResult.val.nodeId, /* @__PURE__ */ new Set());
+          }
+          cacheKeyMap.get(getRelatedToResult.val.nodeId).add(`${fromNode.nodeId}-${relationshipType}-${toNodeType}`);
+        }
         return getRelatedToResult.val;
       }
     }, queryClient),
