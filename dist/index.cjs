@@ -474,9 +474,11 @@ var defineReactCacheLayer = (graph) => {
     useRelatedTo: (fromNode, relationshipType, toNodeType) => (0, import_react_query.useQuery)({
       queryKey: [fromNode.nodeId, relationshipType, toNodeType],
       queryFn: async () => {
+        console.log("Running queryFn");
         const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
         if (!getRelatedToResult.ok)
           throw new Error(getRelatedToResult.val.message);
+        console.log(getRelatedToResult.val);
         if (!(getRelatedToResult.val instanceof Array)) {
           console.log("HERE");
           if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
