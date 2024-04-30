@@ -40,7 +40,13 @@ export const defineReactCacheLayer = <
             R
         >
     >
-    useRelatedTo: (...args: Parameters<typeof graph.getRelatedTo>) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo>>>
+    useRelatedTo: <
+        FromNodeType extends keyof E,
+        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
+        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
+    >(
+        ...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>
+    ) => ReturnType<typeof useQuery<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>>>
 } => {
     const queryClient = new QueryClient()
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {

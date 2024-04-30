@@ -258,12 +258,12 @@ declare const defineReactCacheLayer: <N extends readonly {
     })["stateDefinition"]>>>(nodeType: T_1, nodeIndex: UIdx[T_1] extends string[] ? "nodeId" | UIdx[T_1][number] : "nodeId", indexKey: string, selector?: ((node: UixNode<T_1, TypeOf<(N[number] & {
         nodeType: T_1;
     })["stateDefinition"]>>) => R_1) | undefined) => _tanstack_react_query.UseQueryResult<R_1, Error>;
-    useRelatedTo: (fromNodeKey: NodeKey<keyof E & Capitalize<string>>, relationshipType: keyof E[keyof E] & R[number]["relationshipType"], toNodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never) => _tanstack_react_query.UseQueryResult<Promise<Result<(R[number] & {
-        relationshipType: keyof E[keyof E] & R[number]["relationshipType"];
-    })["uniqueFromNode"] extends true ? UixNode<E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never, TypeOf<(N[number] & {
-        nodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never;
-    })["stateDefinition"]>> : UixNode<E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never, TypeOf<(N[number] & {
-        nodeType: E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]] extends readonly any[] ? E[keyof E][keyof E[keyof E] & R[number]["relationshipType"]][number] : never;
+    useRelatedTo: <FromNodeType extends keyof E, RelationshipType extends keyof E[FromNodeType] & R[number]["relationshipType"], ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNodeKey: NodeKey<FromNodeType & Capitalize<string>>, relationshipType: RelationshipType, toNodeType: ToNodeType) => _tanstack_react_query.UseQueryResult<Promise<Result<(R[number] & {
+        relationshipType: RelationshipType;
+    })["uniqueFromNode"] extends true ? UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
+    })["stateDefinition"]>> : UixNode<ToNodeType, TypeOf<(N[number] & {
+        nodeType: ToNodeType;
     })["stateDefinition"]>>[], {
         message?: string | undefined;
         data?: Record<string, any> | undefined;
