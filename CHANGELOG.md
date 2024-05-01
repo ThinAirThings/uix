@@ -1,3 +1,10 @@
+## [1.0.10](https://github.com/ThinAirThings/uix/compare/v1.0.9...v1.0.10) (2024-04-29)
+
+
+### Bug Fixes
+
+* package.json pointing to local verdaccio ([5f5b2fa](https://github.com/ThinAirThings/uix/commit/5f5b2fa92be7d618befe242e876f77b41d1cb570))
+
 ## [1.0.9](https://github.com/ThinAirThings/uix/compare/v1.0.8...v1.0.9) (2024-04-29)
 
 
