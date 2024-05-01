@@ -1,3 +1,12 @@
+## [1.0.11](https://github.com/ThinAirThings/uix/compare/v1.0.10...v1.0.11) (2024-05-01)
+
+
+### Bug Fixes
+
+* merge local changes ([d861f5d](https://github.com/ThinAirThings/uix/commit/d861f5d83117b39ac5516f7dc08db53557a5e67b))
+* push ([33564cf](https://github.com/ThinAirThings/uix/commit/33564cf609e4ffdcb83688e49de14d0cc50613eb))
+* update ([697d4b5](https://github.com/ThinAirThings/uix/commit/697d4b5fa3256f7c150c774352eea408dce9001d))
+
 ## [1.0.10](https://github.com/ThinAirThings/uix/compare/v1.0.9...v1.0.10) (2024-04-29)
 
 
