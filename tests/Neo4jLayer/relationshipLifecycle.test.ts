@@ -63,8 +63,8 @@ describe('Relationship Lifecycle Neo4j', () => {
         }
         expect(relationshipResult.val).toHaveProperty('relationship');
         // expect(relationshipResult.val.relationship.relationshipType).toBe('WORKED_AT');
-        expect(relationshipResult.val.fromNodeKey.nodeId).toBe(aliceNodeResult.val.nodeId);
-        expect(relationshipResult.val.toNodeKey.nodeId).toBe(companyNodeResult.val.nodeId);
+        expect(relationshipResult.val.fromNode.nodeId).toBe(aliceNodeResult.val.nodeId);
+        expect(relationshipResult.val.toNode.nodeId).toBe(companyNodeResult.val.nodeId);
         // Test Related To
         const relatedToResult = await graph.getRelatedTo(
             aliceNodeResult.val,

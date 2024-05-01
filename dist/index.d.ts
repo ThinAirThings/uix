@@ -9,8 +9,8 @@ type UixNode<T extends Capitalize<string>, S extends Record<string, any>> = {
     createdAt: string;
     updatedAt?: string;
 } & {
-        [K in keyof S as Exclude<K, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>]: S[K];
-    };
+    [K in keyof S as Exclude<K, 'nodeType' | 'nodeId' | 'createdAt' | 'updatedAt'>]: S[K];
+};
 
 declare const defineNode: <T extends Capitalize<string>, SD extends ZodObject<any, zod.UnknownKeysParam, zod.ZodTypeAny, {
     [x: string]: any;
@@ -32,8 +32,8 @@ type UixRelationship<T extends Uppercase<string>, S extends Record<string, any> 
     createdAt: string;
     updatedAt?: string;
 } & {
-        [K in keyof S as Exclude<K, 'relationshipType' | 'relationshipId' | 'createdAt' | 'updatedAt'>]: S[K];
-    };
+    [K in keyof S as Exclude<K, 'relationshipType' | 'relationshipId' | 'createdAt' | 'updatedAt'>]: S[K];
+};
 
 declare const ExtendUixError: <LayerStack extends Capitalize<string>>() => <Layer extends LayerStack, T extends "Fatal" | "Normal" | "Warning" = "Fatal" | "Normal" | "Warning", ST extends "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError" = "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError", D extends Record<string, any> = Record<string, any>>(layer: Layer, type: T, subtype: ST, opts?: {
     message?: string;
