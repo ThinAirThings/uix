@@ -1,3 +1,10 @@
+## [1.0.12](https://github.com/ThinAirThings/uix/compare/v1.0.11...v1.0.12) (2024-05-01)
+
+
+### Bug Fixes
+
+* getNodeType invalidation ([6f1069e](https://github.com/ThinAirThings/uix/commit/6f1069e0a79b386c470ad0f0c6258a7ba84e6939))
+
 ## [1.0.11](https://github.com/ThinAirThings/uix/compare/v1.0.10...v1.0.11) (2024-05-01)
 
 
