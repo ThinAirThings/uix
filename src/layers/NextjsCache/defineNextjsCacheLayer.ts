@@ -137,6 +137,7 @@ export const defineNextjsCacheLayer = <
             const node = createNodeResult.val
             // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
             invalidateCacheKeys(node)
+            revalidateTag(`getNodeType-${node.nodeType}`)
             // Return the nodekey
             return Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
         },
@@ -155,6 +156,7 @@ export const defineNextjsCacheLayer = <
             const node = getNodeResult.val
             invalidateCacheKeys(node)
             revalidateTag(`getRelatedTo-${node.nodeType}`)
+            revalidateTag(`getNodeType-${node.nodeType}`)
             return deleteNodeResult
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
