@@ -471,25 +471,37 @@ var defineReactCacheLayer = (graph) => {
         select: selector ? (0, import_react.useCallback)(selector, []) : void 0
       }, queryClient);
     },
-    useRelatedTo: (fromNode, relationshipType, toNodeType) => (0, import_react_query.useQuery)({
-      queryKey: [fromNode.nodeId, relationshipType, toNodeType],
-      queryFn: async () => {
-        console.log("Running queryFn");
-        const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
-        if (!getRelatedToResult.ok)
-          throw new Error(getRelatedToResult.val.message);
-        console.log(getRelatedToResult.val);
-        if (!(getRelatedToResult.val instanceof Array)) {
-          console.log("HERE");
-          if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
-            cacheKeyMap.set(getRelatedToResult.val.nodeId, /* @__PURE__ */ new Set());
-          }
-          cacheKeyMap.get(getRelatedToResult.val.nodeId).add(`${fromNode.nodeId}::${relationshipType}::${toNodeType}`);
-          console.log(cacheKeyMap);
-        }
-        return getRelatedToResult.val;
-      }
-    }, queryClient),
+    // useRelatedTo: (fromNode, relationshipType, toNodeType) => {
+    // const queryResult = useQuery({
+    //     queryKey: [fromNode.nodeId, relationshipType, toNodeType],
+    //     queryFn: async () => {
+    //         console.log("Running queryFn")
+    //         const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+    //         if (!getRelatedToResult.ok) throw new Error(getRelatedToResult.val.message)
+    //         console.log(getRelatedToResult.val)
+    //         if (!(getRelatedToResult.val instanceof Array)) {
+    //             console.log("HERE")
+    //             if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
+    //                 cacheKeyMap.set(getRelatedToResult.val.nodeId, new Set())
+    //             }
+    //             cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}::${relationshipType}::${toNodeType}`)
+    //             console.log(cacheKeyMap)
+    //         }
+    //         return getRelatedToResult.val
+    //     }
+    // }, queryClient)
+    // const [nodeState, updateNodeState] = useImmer(queryResult.data)
+    // useEffect(() => {
+    //     updateNodeState(queryResult.data)
+    // }, [queryResult.data])
+    // const saveNode = useCallback(async () => {
+    //     if (queryResult.isPending) return
+    //     if (queryResult.isError) return
+    //     await graph.updateNode(queryResult.data)
+    // }, [queryResult.data])
+    //     return [
+    //     ]
+    // },
     // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
     createNode: async (nodeType, initialState) => {
       const createNodeResult = await graph.createNode(nodeType, initialState);
