@@ -3,8 +3,9 @@ import { defineNode } from "../base/defineNode"
 import { NodeKey } from "./NodeKey"
 import { UixNode } from "./UixNode"
 import { UixRelationship } from "./UixRelationship"
-import { Result } from 'ts-results';
+// import { Result } from 'ts-results';
 import { ExtendUixError } from "../base/UixErr"
+import { Result } from "./Result"
 
 
 export type GraphLayer<
@@ -22,24 +23,7 @@ export type GraphLayer<
     },
     LayerStack extends Capitalize<string>
 > = {
-    //      ___     _     ___     _      _          _   _____    
-    //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
-    //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
-    //     \___\___|\__| |_|_\___|_\__,_|\__\___\__,_|   |_|\___/
-    getRelatedTo: <
-        FromNodeType extends keyof E,
-        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
-        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
-    >(
-        fromNode: NodeKey<FromNodeType & Capitalize<string>>,
-        relationshipType: RelationshipType,
-        toNodeType: ToNodeType
-    ) => Promise<Result<
-        (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
-        ? UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
-        : UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[],
-        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
-    >>
+
     //                   _____                 __  __     _           _      _                      
     //     ___ ___ ___  |_   _|  _ _ __  ___  |  \/  |___| |_ __ _ __| |__ _| |_ __ _   ___ ___ ___ 
     //    |___|___|___|   | || || | '_ \/ -_) | |\/| / -_)  _/ _` / _` / _` |  _/ _` | |___|___|___|
@@ -65,7 +49,7 @@ export type GraphLayer<
         nodeType: T,
         initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
     ) => Promise<Result<
-        NodeKey<T>,
+        UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>,
         ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>,
 
@@ -86,6 +70,19 @@ export type GraphLayer<
         ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
     >>,
 
+    //     ___     _     _  _         _       _____               
+    //     / __|___| |_  | \| |___  __| |___  |_   _|  _ _ __  ___ 
+    //    | (_ / -_)  _| | .` / _ \/ _` / -_)   | || || | '_ \/ -_)
+    //     \___\___|\__| |_|\_\___/\__,_\___|   |_| \_, | .__/\___|
+    //                                              |__/|_|        
+    getNodeType: <
+        T extends N[number]['nodeType']
+    >(
+        nodeType: T
+    ) => Promise<Result<
+        UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>[],
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
+    >>
     //  _   _          _      _         _  _         _     
     // | | | |_ __  __| |__ _| |_ ___  | \| |___  __| |___ 
     // | |_| | '_ \/ _` / _` |  _/ -_) | .` / _ \/ _` / -_)
@@ -140,11 +137,28 @@ export type GraphLayer<
             ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
             : []
     ) => Promise<Result<{
-        fromNodeKey: NodeKey<FromNodeType>,
+        fromNode: UixNode<FromNodeType, TypeOf<(N[number] & { nodeType: FromNodeType })['stateDefinition']>>,
         relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
-        toNodeKey: NodeKey<ToNodeType>
+        toNode: UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
     }, ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>>>
-
+    //      ___     _     ___     _      _          _   _____    
+    //     / __|___| |_  | _ \___| |__ _| |_ ___ __| | |_   _|__ 
+    //    | (_ / -_)  _| |   / -_) / _` |  _/ -_) _` |   | |/ _ \
+    //     \___\___|\__| |_|_\___|_\__,_|\__\___\__,_|   |_|\___/
+    getRelatedTo: <
+        FromNodeType extends keyof E,
+        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
+        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
+    >(
+        fromNodeKey: NodeKey<FromNodeType & Capitalize<string>>,
+        relationshipType: RelationshipType,
+        toNodeType: ToNodeType
+    ) => Promise<Result<
+        (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
+        ? UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>
+        : UixNode<ToNodeType, TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>>[],
+        ReturnType<ReturnType<typeof ExtendUixError<LayerStack>>>
+    >>
 
     //                   __  __     _          ___             _   _               _ _ _                      
     //     ___ ___ ___  |  \/  |___| |_ __ _  | __|  _ _ _  __| |_(_)___ _ _  __ _| (_) |_ _  _   ___ ___ ___ 
