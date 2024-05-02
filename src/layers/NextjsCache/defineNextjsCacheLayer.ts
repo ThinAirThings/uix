@@ -4,7 +4,6 @@ import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { Ok } from "@/src/types/Result";
-import { get } from "http";
 
 
 
@@ -35,9 +34,9 @@ export const defineNextjsCacheLayer = <
             revalidateTag(cacheKey)
         })
     }
-    async function getCachedOrFetch<T>(cacheKey: string, fetchFunction: () => Promise<T>): Promise<T> {
+    async function getCachedOrFetch<T>(cacheKey: string, fetchFunction: () => Promise<T>, additionalKeys?: string[]): Promise<T> {
         if (!cacheMap.has(cacheKey)) {
-            cacheMap.set(cacheKey, cache(fetchFunction, [cacheKey], { tags: [cacheKey] }));
+            cacheMap.set(cacheKey, cache(fetchFunction, [cacheKey], { tags: [cacheKey, ...additionalKeys ? additionalKeys : []] }));
         }
         return cacheMap.get(cacheKey)!();
     }
@@ -47,18 +46,6 @@ export const defineNextjsCacheLayer = <
         // Get node has an explicit cache key
         getNode: async (nodeType, nodeIndex, indexKey) => {
             const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
-            // const node2 = await getCachedOrFetch(cacheKey, async () => {
-            //     return await graph.getNode(nodeType, nodeIndex, indexKey)
-            // })
-            // // Create caches for each unique index
-            // !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-            //     async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-            //         return await graph.getNode(nodeType, index, key)
-            //     }, [cacheKey], {
-            //     tags: [cacheKey]
-            // }))
-            // // Use index 0, but either would work.
-            // const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
             const node = await getCachedOrFetch(cacheKey, async () => {
                 return await graph.getNode(nodeType, nodeIndex, indexKey)
             })
@@ -66,15 +53,9 @@ export const defineNextjsCacheLayer = <
         },
         getNodeType: async (nodeType) => {
             const cacheKey = `getNodeType-${nodeType}`
-            if (!cacheMap.has(cacheKey)) {
-                cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getNodeType>) => {
-                    return await graph.getNodeType(...args)
-                }, [cacheKey], {
-                    tags: [cacheKey]
-                }))
-            }
-            // Get the node types
-            const nodeTypesResult = await cacheMap.get(cacheKey)!(nodeType) as Awaited<ReturnType<typeof graph.getNodeType>>
+            const nodeTypesResult = await getCachedOrFetch(cacheKey, async () => {
+                return await graph.getNodeType(nodeType)
+            })
             if (!nodeTypesResult.ok) return nodeTypesResult
             // Get the nodes from the getNode call to check for cache invalidations from node updates
             const nodeTypes = nodeTypesResult.val
@@ -88,15 +69,9 @@ export const defineNextjsCacheLayer = <
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`
-            if (!cacheMap.has(cacheKey)) {
-                cacheMap.set(cacheKey, cache(async (...args: Parameters<typeof graph.getRelatedTo>) => {
-                    return await graph.getRelatedTo(...args)
-                }, [cacheKey], {
-                    tags: [cacheKey, `getRelatedTo-${toNodeType}`]
-                }))
-            }
-            // Get the related nodes
-            const relatedNodeKeysResult = await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            const relatedNodeKeysResult = await getCachedOrFetch(cacheKey, async () => {
+                return await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
+            }, [`getRelatedTo-${toNodeType}`])
             // Get the nodes from the getNode call to check for cache invalidations from node updates
             if (!relatedNodeKeysResult.ok) return relatedNodeKeysResult
             const relatedNodeKeys = relatedNodeKeysResult.val
@@ -111,9 +86,6 @@ export const defineNextjsCacheLayer = <
             if (!relatedNodesOrNodeResult.ok) return relatedNodesOrNodeResult
             return Ok(relatedNodesOrNodeResult.val)
         },
-        // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
-        // return type here to be NodeKeys.
-        // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
             const createNodeResult = await graph.createNode(nodeType, initialState)
             if (!createNodeResult.ok) {
