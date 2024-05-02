@@ -1,3 +1,10 @@
+## [1.0.21](https://github.com/ThinAirThings/uix/compare/v1.0.20...v1.0.21) (2024-05-02)
+
+
+### Bug Fixes
+
+* remove package-lock.json ([bf4c9e1](https://github.com/ThinAirThings/uix/commit/bf4c9e13f80f11274d3ec1daf2fcc20644fb685a))
+
 ## [1.0.20](https://github.com/ThinAirThings/uix/compare/v1.0.19...v1.0.20) (2024-05-02)
 
 
