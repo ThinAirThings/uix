@@ -39,7 +39,6 @@ export const defineNextjsCacheLayer = <
         })
     }
 
-    const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions)
     // Define the graph layer
     const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> = {
         ...graph,
