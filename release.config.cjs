@@ -1,5 +1,3 @@
-require('dotenv').config(); // Ensure environment variables are loaded
-
 module.exports = {
     branches: [
         "main",
