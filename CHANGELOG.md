@@ -1,3 +1,11 @@
+## [1.0.13](https://github.com/ThinAirThings/uix/compare/v1.0.12...v1.0.13) (2024-05-02)
+
+
+### Bug Fixes
+
+* modify return types of nextjs cache ([d2eeb54](https://github.com/ThinAirThings/uix/commit/d2eeb54b3d529e6855f5bd505c7ae6379c83efbe))
+* tweak ([2a44a6e](https://github.com/ThinAirThings/uix/commit/2a44a6e7eb235a2ec7e05a7c9aaf31482e8019cb))
+
 ## [1.0.12](https://github.com/ThinAirThings/uix/compare/v1.0.11...v1.0.12) (2024-05-01)
 
 
