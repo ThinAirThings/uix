@@ -29,7 +29,7 @@ export const defineReactCacheLayer = <
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
     useNodeState: <
         T extends UixNode<N[number]['nodeType'], TypeOf<(N[number])['stateDefinition']>>,
-        R = T
+        R = OmitNodeConstants<T>
     >(
         node: T,
         selector?: ((nodeState: OmitNodeConstants<T>) => R)
@@ -81,7 +81,7 @@ export const defineReactCacheLayer = <
         ...graph,
         useNodeState: (node, selector) => {
             const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
-            return [nodeState, updateNodeState]
+            return [nodeState, updateNodeState] as const
         },
     }
     // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
