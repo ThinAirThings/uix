@@ -1,3 +1,10 @@
+## [1.0.26](https://github.com/ThinAirThings/uix/compare/v1.0.25...v1.0.26) (2024-05-02)
+
+
+### Bug Fixes
+
+* test ([55d618f](https://github.com/ThinAirThings/uix/commit/55d618f237b0c3413b698493159de9bc27123c70))
+
 ## [1.0.25](https://github.com/ThinAirThings/uix/compare/v1.0.24...v1.0.25) (2024-05-02)
 
 
