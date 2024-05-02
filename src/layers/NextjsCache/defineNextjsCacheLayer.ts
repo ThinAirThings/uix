@@ -23,7 +23,6 @@ export const defineNextjsCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
-    console.log("Inside nextjs layer construction")
     // Create data structures
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
@@ -45,9 +44,6 @@ export const defineNextjsCacheLayer = <
         ...graph,
         // Get node has an explicit cache key
         getNode: async (nodeType, nodeIndex, indexKey) => {
-            console.log("Running get node!")
-            console.log("RUNNING MORE NODE")
-            console.log("RUNNING MORE NODE 2222")
             const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
             const node = await getCachedOrFetch(cacheKey, async () => {
                 return await graph.getNode(nodeType, nodeIndex, indexKey)
