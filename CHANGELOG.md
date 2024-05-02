@@ -1,3 +1,10 @@
+## [1.0.23](https://github.com/ThinAirThings/uix/compare/v1.0.22...v1.0.23) (2024-05-02)
+
+
+### Bug Fixes
+
+* semantic release git assets ([1a526cf](https://github.com/ThinAirThings/uix/commit/1a526cf624b074608ff09187040b4264a592a790))
+
 ## [1.0.22](https://github.com/ThinAirThings/uix/compare/v1.0.21...v1.0.22) (2024-05-02)
 
 
