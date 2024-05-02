@@ -4,6 +4,7 @@ import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { Ok } from "@/src/types/Result";
+import { get } from "http";
 
 
 
@@ -34,22 +35,33 @@ export const defineNextjsCacheLayer = <
             revalidateTag(cacheKey)
         })
     }
-
+    async function getCachedOrFetch<T>(cacheKey: string, fetchFunction: () => Promise<T>): Promise<T> {
+        if (!cacheMap.has(cacheKey)) {
+            cacheMap.set(cacheKey, cache(fetchFunction, [cacheKey], { tags: [cacheKey] }));
+        }
+        return cacheMap.get(cacheKey)!();
+    }
     // Define the graph layer
     const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> = {
         ...graph,
         // Get node has an explicit cache key
         getNode: async (nodeType, nodeIndex, indexKey) => {
             const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
-            // Create caches for each unique index
-            !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
-                async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
-                    return await graph.getNode(nodeType, index, key)
-                }, [cacheKey], {
-                tags: [cacheKey]
-            }))
-            // Use index 0, but either would work.
-            const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
+            // const node2 = await getCachedOrFetch(cacheKey, async () => {
+            //     return await graph.getNode(nodeType, nodeIndex, indexKey)
+            // })
+            // // Create caches for each unique index
+            // !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, cache(
+            //     async (...[nodeType, index, key]: Parameters<typeof graph.getNode>) => {
+            //         return await graph.getNode(nodeType, index, key)
+            //     }, [cacheKey], {
+            //     tags: [cacheKey]
+            // }))
+            // // Use index 0, but either would work.
+            // const node = await cacheMap.get(cacheKey)!(nodeType, nodeIndex, indexKey) as ReturnType<typeof graph.getNode>
+            const node = await getCachedOrFetch(cacheKey, async () => {
+                return await graph.getNode(nodeType, nodeIndex, indexKey)
+            })
             return node
         },
         getNodeType: async (nodeType) => {
