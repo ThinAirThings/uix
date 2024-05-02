@@ -29,21 +29,14 @@ export const defineReactCacheLayer = <
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
     // NOTE: This can be types better to filter for things that have default zod types
     useNodeState: <
-        T extends UixNode<N[number]['nodeType'], TypeOf<(N[number])['stateDefinition']>>
+        T extends N[number]['nodeType'],
+        Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
     >(
-        node: T,
+        nodeType: T,
+        node?: Node
     ) => ReturnType<typeof useImmer<
-        OmitNodeConstants<T>
+        OmitNodeConstants<UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>>
     >>
-    // useRelatedTo: <
-    //     FromNodeType extends keyof E,
-    //     RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
-    //     ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
-    // >(
-    //     ...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>
-    // ) => ReturnType<typeof useQuery<
-    //     (Awaited<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>> & { ok: true })['val']
-    // >>
 } => {
 
     type ReactCache = {
@@ -80,8 +73,8 @@ export const defineReactCacheLayer = <
     )
     return {
         ...graph,
-        useNodeState: (node) => {
-            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
+        useNodeState: (nodeType, node) => {
+            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefinition.parse(node ?? {}))
             return [nodeState, updateNodeState] as const
         },
     }
