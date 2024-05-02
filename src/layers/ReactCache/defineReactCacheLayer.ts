@@ -81,7 +81,7 @@ export const defineReactCacheLayer = <
         ...graph,
         useNodeState: (node, selector) => {
             const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
-            return [nodeState, updateNodeState] as any
+            return [nodeState, updateNodeState]
         },
     }
     // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
