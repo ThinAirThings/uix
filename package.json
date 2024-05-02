@@ -8,14 +8,9 @@
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "npm run build",
-    "npmpub": "npm run build && git add . && git commit -m \"mod\" && git push && npm version patch && npm publish --access public",
     "format": "npx prettier --write .",
-    "commit": "npx cz",
-    "testing": "NODE_ENV=dev node --import tsx/esm --env-file .env.local ./testing.ts",
     "test": "npm run build && jest",
-    "dev": "nodemon --watch src --ext ts,tsx --exec 'npm run build'",
     "verdaccio": "pm2 start $(which verdaccio) --name verdaccio",
-    "localpublish": "npm run test && git add . && git commit -m \"mod\" && npm version patch && npm publish --registry http://localhost:4873",
     "prepare": "husky"
   },
   "exports": {
