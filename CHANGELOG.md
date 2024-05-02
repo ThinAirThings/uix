@@ -1,3 +1,10 @@
+## [1.0.24](https://github.com/ThinAirThings/uix/compare/v1.0.23...v1.0.24) (2024-05-02)
+
+
+### Bug Fixes
+
+* release ([edc03b9](https://github.com/ThinAirThings/uix/commit/edc03b9650d53cdb2f1b17b32bd982d440cbd9d7))
+
 ## [1.0.23](https://github.com/ThinAirThings/uix/compare/v1.0.22...v1.0.23) (2024-05-02)
 
 
