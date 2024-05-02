@@ -1,3 +1,11 @@
+## [1.0.20](https://github.com/ThinAirThings/uix/compare/v1.0.19...v1.0.20) (2024-05-02)
+
+
+### Bug Fixes
+
+* ignore files ([4e1ce00](https://github.com/ThinAirThings/uix/commit/4e1ce007b2e0d3d39e0f071aa6781781450659a9))
+* install process ([0464a35](https://github.com/ThinAirThings/uix/commit/0464a3556ac94b55bea3598ed7dc21bd7ac80d50))
+
 ## [1.0.19](https://github.com/ThinAirThings/uix/compare/v1.0.18...v1.0.19) (2024-05-02)
 
 
