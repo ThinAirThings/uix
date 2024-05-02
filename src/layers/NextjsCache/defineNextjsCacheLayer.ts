@@ -45,6 +45,7 @@ export const defineNextjsCacheLayer = <
         ...graph,
         // Get node has an explicit cache key
         getNode: async (nodeType, nodeIndex, indexKey) => {
+            console.log("Running get node!")
             const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`
             const node = await getCachedOrFetch(cacheKey, async () => {
                 return await graph.getNode(nodeType, nodeIndex, indexKey)
