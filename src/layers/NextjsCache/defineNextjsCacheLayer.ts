@@ -6,9 +6,6 @@ import { GraphNodeType } from "@/src/types/GraphNodeType";
 import { Ok } from "@/src/types/Result";
 
 
-
-
-console.log(" Stuff")
 export const defineNextjsCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
