@@ -9,8 +9,15 @@ module.exports = {
             prerelease: true
         }
     ],
-    plugins: [
-        ["@semantic-release/commit-analyzer", {
+    plugins: [...process.env.LOCAL === 'true'
+        ? [
+            ["@semantic-release/npm", {
+                npmPublish: true,
+                access: "public",
+                registry: process.env.NPM_REGISTRY_URL
+            }]
+        ]
+        : [["@semantic-release/commit-analyzer", {
             preset: "angular",
             releaseRules: [
                 {
@@ -27,13 +34,12 @@ module.exports = {
                 }
             ]
         }],
-        "@semantic-release/release-notes-generator",
-        "@semantic-release/changelog",
+            "@semantic-release/release-notes-generator",
+            "@semantic-release/changelog",
         ["@semantic-release/npm", {
             npmPublish: true,
             access: "public",
-            registry: process.env.NPM_REGISTRY_URL || "https://registry.npmjs.org/"
         }],
-        "@semantic-release/git"
-    ]
+            "@semantic-release/git"
+        ]]
 };
