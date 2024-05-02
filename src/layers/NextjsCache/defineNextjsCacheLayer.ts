@@ -7,6 +7,8 @@ import { ExtendUixError } from "@/src/base/UixErr";
 import { NodeKey } from "@/src/types/NodeKey";
 import { Ok, Result } from "@/src/types/Result";
 import { UixRelationship } from "@/src/types/UixRelationship";
+import { createRelationshipDictionary } from "@/src/utiltities/createRelationshipDictionary";
+import { UixNode } from "@/src/types/UixNode";
 
 
 export const defineNextjsCacheLayer = <
@@ -25,57 +27,8 @@ export const defineNextjsCacheLayer = <
     PreviousLayers extends Capitalize<string>
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): (Omit<
-    GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>,
-    'getRelatedTo' | 'createNode' | 'createRelationship'
-> & {
-    // Modify signatures to return nodekeys to force cache invalidation.
-    createNode: <
-        T extends N[number]['nodeType']
-    >(
-        nodeType: T,
-        initialState: TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
-    ) => Promise<Result<
-        NodeKey<T>,
-        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
-    >>
-    createRelationship: <
-        FromNodeType extends (keyof E & Capitalize<string>),
-        RelationshipType extends ((keyof E[FromNodeType]) & Uppercase<string>),
-        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
-    >(
-        fromNode: Result<NodeKey<FromNodeType>, ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>> | NodeKey<FromNodeType>,
-        relationshipType: RelationshipType,
-        toNode: {
-            nodeType: ToNodeType,
-            initialState: TypeOf<(N[number] & { nodeType: ToNodeType })['stateDefinition']>
-        } | NodeKey<ToNodeType>,
-        ...[state]: NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']> extends ZodObject<ZodRawShape>
-            ? [TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>]
-            : []
-    ) => Promise<Result<{
-        fromNodeKey: NodeKey<FromNodeType>,
-        relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: RelationshipType })['stateDefinition']>>>,
-        toNodeKey: NodeKey<ToNodeType>
-    }, ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>>>
-
-    getRelatedTo: <
-        FromNodeType extends keyof E,
-        RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
-        ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never
-    >(...args: Parameters<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>) => Promise<Result<
-        (R[number] & { relationshipType: RelationshipType })['uniqueFromNode'] extends true
-        ? NodeKey<ToNodeType>
-        : NodeKey<ToNodeType>[],
-        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
-    >>
-    getNodeType: <
-        NodeType extends N[number]['nodeType']
-    >(nodeType: NodeType) => Promise<Result<
-        NodeKey<NodeType>[],
-        ReturnType<ReturnType<typeof ExtendUixError<PreviousLayers | 'NextjsCache'>>>
-    >>
-}) => {
+): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
+    // Create data structures
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
     const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
@@ -86,7 +39,9 @@ export const defineNextjsCacheLayer = <
         })
     }
 
-    return {
+    const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions)
+    // Define the graph layer
+    const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> = {
         ...graph,
         // Get node has an explicit cache key
         getNode: async (nodeType, nodeIndex, indexKey) => {
@@ -124,7 +79,20 @@ export const defineNextjsCacheLayer = <
                 }))
             }
             // Get the related nodes
-            return await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType)
+            const relatedNodeKeysResult = await cacheMap.get(cacheKey)!(fromNode, relationshipType, toNodeType) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            // Get the nodes from the getNode call to check for cache invalidations from node updates
+            if (!relatedNodeKeysResult.ok) return relatedNodeKeysResult
+            const relatedNodeKeys = relatedNodeKeysResult.val
+            const relatedNodesOrNodeResult = (relatedNodeKeys instanceof Array
+                ? Ok(await Promise.all(
+                    relatedNodeKeys.map(async nodeKey => {
+                        const getNodeResult = await thisGraphLayer.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
+                        if (!getNodeResult.ok) return null
+                        return getNodeResult.val
+                    }).filter(node => node !== null)) as GraphNodeType<typeof graph, N[number]['nodeType']>[])
+                : await thisGraphLayer.getNode(relatedNodeKeys.nodeType, 'nodeId', relatedNodeKeys.nodeId)) as Awaited<ReturnType<typeof graph.getRelatedTo>>
+            if (!relatedNodesOrNodeResult.ok) return relatedNodesOrNodeResult
+            return Ok(relatedNodesOrNodeResult.val)
         },
         // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
         // return type here to be NodeKeys.
@@ -139,7 +107,7 @@ export const defineNextjsCacheLayer = <
             invalidateCacheKeys(node)
             revalidateTag(`getNodeType-${node.nodeType}`)
             // Return the nodekey
-            return Ok({ nodeType: node.nodeType, nodeId: node.nodeId })
+            return Ok(node)
         },
         updateNode: async (nodeKey, state) => {
             const updateNodeResult = await graph.updateNode(nodeKey, state)
@@ -170,11 +138,8 @@ export const defineNextjsCacheLayer = <
             // Invalidate all caches for the fromNode and toNode
             const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
             revalidateTag(cacheKey)
-            return Ok({
-                fromNodeKey: { nodeType: fromNode.nodeType, nodeId: fromNode.nodeId },
-                relationship: createRelationshipResult.val.relationship,
-                toNodeKey: { nodeType: toNode.nodeType, nodeId: createRelationshipResult.val.toNode.nodeId }
-            })
+            return Ok(createRelationshipResult.val)
         },
     }
+    return thisGraphLayer
 }

@@ -1406,7 +1406,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect2(create, deps) {
+        function useEffect(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -2189,7 +2189,7 @@ var require_react_development = __commonJS({
         exports.useContext = useContext;
         exports.useDebugValue = useDebugValue;
         exports.useDeferredValue = useDeferredValue;
-        exports.useEffect = useEffect2;
+        exports.useEffect = useEffect;
         exports.useId = useId;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
@@ -2308,6 +2308,16 @@ var ExtendUixError = () => (layer, type, subtype, opts) => ({
   ...opts
 });
 
+// src/utiltities/createRelationshipDictionary.ts
+init_esm_shims();
+var createRelationshipDictionary = (relationshipDefinitions) => Object.fromEntries(
+  relationshipDefinitions.map(({
+    relationshipType,
+    stateDefinition,
+    uniqueFromNode
+  }) => [relationshipType, { stateDefinition, uniqueFromNode }])
+);
+
 // src/layers/Neo4j/defineNeo4jLayer.ts
 var defineNeo4jLayer = (graph, config) => {
   const UixErr = ExtendUixError();
@@ -2323,13 +2333,7 @@ var defineNeo4jLayer = (graph, config) => {
       return await Promise.all(indexes.map(async (index) => await createUniqueIndex(neo4jDriver, nodeType, index)));
     })) ?? []
   ];
-  const relationshipDictionary = Object.fromEntries(
-    graph.relationshipDefinitions.map(({
-      relationshipType,
-      stateDefinition,
-      uniqueFromNode
-    }) => [relationshipType, { stateDefinition, uniqueFromNode }])
-  );
+  const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions);
   const thisGraphLayer = {
     ...graph,
     neo4jDriver,
@@ -2539,7 +2543,8 @@ var defineNextjsCacheLayer = (graph) => {
       revalidateTag(cacheKey);
     });
   };
-  return {
+  const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions);
+  const thisGraphLayer = {
     ...graph,
     // Get node has an explicit cache key
     getNode: async (nodeType, nodeIndex, indexKey) => {
@@ -2576,7 +2581,21 @@ var defineNextjsCacheLayer = (graph) => {
           tags: [cacheKey, `getRelatedTo-${toNodeType}`]
         }));
       }
-      return await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
+      const relatedNodeKeysResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
+      if (!relatedNodeKeysResult.ok)
+        return relatedNodeKeysResult;
+      const relatedNodeKeys = relatedNodeKeysResult.val;
+      const relatedNodesOrNodeResult = relatedNodeKeys instanceof Array ? Ok(await Promise.all(
+        relatedNodeKeys.map(async (nodeKey) => {
+          const getNodeResult = await thisGraphLayer.getNode(nodeKey.nodeType, "nodeId", nodeKey.nodeId);
+          if (!getNodeResult.ok)
+            return null;
+          return getNodeResult.val;
+        }).filter((node) => node !== null)
+      )) : await thisGraphLayer.getNode(relatedNodeKeys.nodeType, "nodeId", relatedNodeKeys.nodeId);
+      if (!relatedNodesOrNodeResult.ok)
+        return relatedNodesOrNodeResult;
+      return Ok(relatedNodesOrNodeResult.val);
     },
     // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
     // return type here to be NodeKeys.
@@ -2588,7 +2607,8 @@ var defineNextjsCacheLayer = (graph) => {
       }
       const node = createNodeResult.val;
       invalidateCacheKeys(node);
-      return Ok({ nodeType: node.nodeType, nodeId: node.nodeId });
+      revalidateTag(`getNodeType-${node.nodeType}`);
+      return Ok(node);
     },
     updateNode: async (nodeKey, state) => {
       const updateNodeResult = await graph.updateNode(nodeKey, state);
@@ -2608,6 +2628,7 @@ var defineNextjsCacheLayer = (graph) => {
       const node = getNodeResult.val;
       invalidateCacheKeys(node);
       revalidateTag(`getRelatedTo-${node.nodeType}`);
+      revalidateTag(`getNodeType-${node.nodeType}`);
       return deleteNodeResult;
     },
     createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
@@ -2621,13 +2642,10 @@ var defineNextjsCacheLayer = (graph) => {
       }
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`;
       revalidateTag(cacheKey);
-      return Ok({
-        fromNodeKey: { nodeType: fromNode.nodeType, nodeId: fromNode.nodeId },
-        relationship: createRelationshipResult.val.relationship,
-        toNodeKey: { nodeType: toNode.nodeType, nodeId: createRelationshipResult.val.toNode.nodeId }
-      });
+      return Ok(createRelationshipResult.val);
     }
   };
+  return thisGraphLayer;
 };
 
 // src/layers/ReactCache/defineReactCacheLayer.ts

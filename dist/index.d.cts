@@ -179,65 +179,7 @@ declare const defineNextjsCacheLayer: <N extends readonly {
     }> | undefined;
 }[], E extends { [NT in N[number]["nodeType"]]?: { [RT in R[number]["relationshipType"]]?: readonly N[number]["nodeType"][] | undefined; } | undefined; }, UIdx extends { [T in N[number]["nodeType"]]?: readonly (keyof TypeOf<(N[number] & {
     nodeType: T;
-})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => Omit<GraphLayer<N, R, E, UIdx, PreviousLayers | "NextjsCache">, "createNode" | "createRelationship" | "getRelatedTo"> & {
-    createNode: <T_1 extends N[number]["nodeType"]>(nodeType: T_1, initialState: TypeOf<(N[number] & {
-        nodeType: T_1;
-    })["stateDefinition"]>) => Promise<Result<NodeKey<T_1>, {
-        message?: string | undefined;
-        data?: Record<string, any> | undefined;
-        layer: PreviousLayers | "NextjsCache";
-        type: "Fatal" | "Normal" | "Warning";
-        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
-    }>>;
-    createRelationship: <FromNodeType extends keyof E & Capitalize<string>, RelationshipType extends keyof E[FromNodeType] & Uppercase<string>, ToNodeType extends E[FromNodeType][RelationshipType] extends readonly any[] ? E[FromNodeType][RelationshipType][number] : never>(fromNode: NodeKey<FromNodeType> | Result<NodeKey<FromNodeType>, {
-        message?: string | undefined;
-        data?: Record<string, any> | undefined;
-        layer: PreviousLayers | "NextjsCache";
-        type: "Fatal" | "Normal" | "Warning";
-        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
-    }>, relationshipType: RelationshipType, toNode: {
-        nodeType: ToNodeType;
-        initialState: TypeOf<(N[number] & {
-            nodeType: ToNodeType;
-        })["stateDefinition"]>;
-    } | NodeKey<ToNodeType>, ...[state]: NonNullable<(R[number] & {
-        relationshipType: RelationshipType;
-    })["stateDefinition"]> extends ZodObject<ZodRawShape, zod.UnknownKeysParam, zod.ZodTypeAny, {
-        [x: string]: any;
-    }, {
-        [x: string]: any;
-    }> ? [TypeOf<NonNullable<(R[number] & {
-        relationshipType: RelationshipType;
-    })["stateDefinition"]>>] : []) => Promise<Result<{
-        fromNodeKey: NodeKey<FromNodeType>;
-        relationship: UixRelationship<RelationshipType, TypeOf<NonNullable<(R[number] & {
-            relationshipType: RelationshipType;
-        })["stateDefinition"]>>>;
-        toNodeKey: NodeKey<ToNodeType>;
-    }, {
-        message?: string | undefined;
-        data?: Record<string, any> | undefined;
-        layer: PreviousLayers | "NextjsCache";
-        type: "Fatal" | "Normal" | "Warning";
-        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
-    }>>;
-    getRelatedTo: <FromNodeType_1 extends keyof E, RelationshipType_1 extends keyof E[FromNodeType_1] & R[number]["relationshipType"], ToNodeType_1 extends E[FromNodeType_1][RelationshipType_1] extends readonly any[] ? E[FromNodeType_1][RelationshipType_1][number] : never>(fromNodeKey: NodeKey<FromNodeType_1 & Capitalize<string>>, relationshipType: RelationshipType_1, toNodeType: ToNodeType_1) => Promise<Result<(R[number] & {
-        relationshipType: RelationshipType_1;
-    })["uniqueFromNode"] extends true ? NodeKey<ToNodeType_1> : NodeKey<ToNodeType_1>[], {
-        message?: string | undefined;
-        data?: Record<string, any> | undefined;
-        layer: PreviousLayers | "NextjsCache";
-        type: "Fatal" | "Normal" | "Warning";
-        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
-    }>>;
-    getNodeType: <NodeType extends N[number]["nodeType"]>(nodeType: NodeType) => Promise<Result<NodeKey<NodeType>[], {
-        message?: string | undefined;
-        data?: Record<string, any> | undefined;
-        layer: PreviousLayers | "NextjsCache";
-        type: "Fatal" | "Normal" | "Warning";
-        subtype: "NodeNotFound" | "UniqueIndexViolation" | "UniqueRelationshipViolation" | "LayerImplementationError";
-    }>>;
-};
+})["stateDefinition"]>)[] | undefined; }, PreviousLayers extends Capitalize<string>>(graph: GraphLayer<N, R, E, UIdx, PreviousLayers>) => GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'>;
 
 declare const defineReactCacheLayer: <N extends readonly {
     nodeType: any;

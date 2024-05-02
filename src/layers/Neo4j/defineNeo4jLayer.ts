@@ -8,6 +8,7 @@ import { UixNode } from '../../types/UixNode';
 import { UixRelationship } from '@/src/types/UixRelationship';
 import { ExtendUixError } from '@/src/base/UixErr';
 import { Ok, Err } from '@/src/types/Result';
+import { createRelationshipDictionary } from '@/src/utiltities/createRelationshipDictionary';
 
 
 type Entries<T> = {
@@ -58,13 +59,7 @@ export const defineNeo4jLayer = <
         })) ?? []
     ]
     // Create relationship dictionary
-    const relationshipDictionary = Object.fromEntries(
-        graph.relationshipDefinitions.map(({
-            relationshipType,
-            stateDefinition,
-            uniqueFromNode
-        }) => [relationshipType, { stateDefinition, uniqueFromNode }])
-    )
+    const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions)
     const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & { neo4jDriver: Driver } = {
         ...graph,
         neo4jDriver,
