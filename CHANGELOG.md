@@ -1,3 +1,14 @@
+## [1.0.17](https://github.com/ThinAirThings/uix/compare/v1.0.16...v1.0.17) (2024-05-02)
+
+
+### Bug Fixes
+
+* release ([8eb9134](https://github.com/ThinAirThings/uix/commit/8eb9134d113dce72e8ecf0f662a0a58a3a70dd8a))
+* release ([67cc38d](https://github.com/ThinAirThings/uix/commit/67cc38d650f5423cf4c29d7c7c0984c28808a954))
+* release ([aad60bb](https://github.com/ThinAirThings/uix/commit/aad60bb16d4060433a4684cd5ac3d750d800c0fd))
+* release test ([5d124f3](https://github.com/ThinAirThings/uix/commit/5d124f323cd3341317ba716f8034ce90c7b7ef14))
+* release.config filetype ([a85e7dd](https://github.com/ThinAirThings/uix/commit/a85e7dde2f2597c63c094dcf0fd8b640f2bdcf93))
+
 ## [1.0.16](https://github.com/ThinAirThings/uix/compare/v1.0.15...v1.0.16) (2024-05-02)
 
 
