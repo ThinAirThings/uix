@@ -1,3 +1,10 @@
+## [1.0.15](https://github.com/ThinAirThings/uix/compare/v1.0.14...v1.0.15) (2024-05-02)
+
+
+### Bug Fixes
+
+* update caching function ([1d94183](https://github.com/ThinAirThings/uix/commit/1d941831a131cb31970f2e84d033a84d62ae8940))
+
 ## [1.0.14](https://github.com/ThinAirThings/uix/compare/v1.0.13...v1.0.14) (2024-05-02)
 
 
