@@ -1,3 +1,10 @@
+## [1.0.22](https://github.com/ThinAirThings/uix/compare/v1.0.21...v1.0.22) (2024-05-02)
+
+
+### Bug Fixes
+
+* release to test package-lock ([f71575a](https://github.com/ThinAirThings/uix/commit/f71575a895a251a18d9d3074b713e28c53b5cab2))
+
 ## [1.0.21](https://github.com/ThinAirThings/uix/compare/v1.0.20...v1.0.21) (2024-05-02)
 
 
