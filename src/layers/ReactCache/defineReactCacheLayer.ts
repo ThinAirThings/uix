@@ -27,13 +27,14 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
+    // NOTE: This can be types better to filter for things that have default zod types
     useNodeState: <
-        T extends UixNode<N[number]['nodeType'], TypeOf<(N[number])['stateDefinition']>>,
-        R = OmitNodeConstants<T>
+        T extends UixNode<N[number]['nodeType'], TypeOf<(N[number])['stateDefinition']>>
     >(
         node: T,
-        selector?: ((nodeState: OmitNodeConstants<T>) => R)
-    ) => [R, (state: Draft<R>) => void]
+    ) => ReturnType<typeof useImmer<
+        OmitNodeConstants<T>
+    >>
     // useRelatedTo: <
     //     FromNodeType extends keyof E,
     //     RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
@@ -79,7 +80,7 @@ export const defineReactCacheLayer = <
     )
     return {
         ...graph,
-        useNodeState: (node, selector) => {
+        useNodeState: (node) => {
             const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
             return [nodeState, updateNodeState] as const
         },
