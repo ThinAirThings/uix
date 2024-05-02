@@ -1,12 +1,13 @@
 import { defineNode } from "@/src/base/defineNode";
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
-import { GraphNodeType } from "@/src/types/GraphNodeType";
-import { QueryClient, useQuery } from "@tanstack/react-query";
 import { Ok } from "@/src/types/Result";
-import { useCallback } from 'react'
+import { createStore, useStore } from "zustand";
+import { UixNode } from "@/src/types/UixNode";
+import { enableMapSet, Draft, produce } from 'immer'
+import { immer } from "zustand/middleware/immer";
 
-
+enableMapSet()
 export const defineReactCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
@@ -24,21 +25,14 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'> & {
-    useNode: <
+    useNodeState: <
         T extends N[number]['nodeType'],
         R = (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']
     >(
         nodeType: Parameters<typeof graph.getNode<T>>[0],
-        nodeIndex: Parameters<typeof graph.getNode<T>>[1],
-        indexKey: Parameters<typeof graph.getNode<T>>[2],
+        nodeId: string,
         selector?: ((node: (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']) => R)
-    ) => ReturnType<
-        typeof useQuery<
-            (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val'],
-            Error,
-            R
-        >
-    >
+    ) => [R, (state: Draft<R>) => void]
     // useRelatedTo: <
     //     FromNodeType extends keyof E,
     //     RelationshipType extends ((keyof E[FromNodeType]) & R[number]['relationshipType']),
@@ -49,108 +43,65 @@ export const defineReactCacheLayer = <
     //     (Awaited<ReturnType<typeof graph.getRelatedTo<FromNodeType, RelationshipType, ToNodeType>>> & { ok: true })['val']
     // >>
 } => {
-    const cacheKeyMap = new Map<string, Set<string>>()
-    const queryClient = new QueryClient()
-    const invalidateCacheKeys = (node: GraphNodeType<typeof graph, N[number]['nodeType']>) => {
-        const uniqueIndexes = ['nodeId', ...graph.uniqueIndexes[node.nodeType] ?? []] as string[]
-        const cacheKeys = uniqueIndexes.map(index => [node.nodeType, index, node[index]])
-        cacheKeys.forEach(cacheKey => queryClient.invalidateQueries({
-            queryKey: cacheKey
-        }))
-        const cacheKey = cacheKeyMap.get(node.nodeId)
-        if (!cacheKey) return
-        cacheKey.forEach(key => queryClient.invalidateQueries({
-            queryKey: key.split('::')
-        }))
-    }
 
-    return {
-        ...graph,
-        useNode: (nodeType, nodeIndex, indexKey, selector) => {
-            return useQuery({
-                queryKey: [nodeType, nodeIndex, indexKey],
-                queryFn: async () => {
-                    const getNodeResult = await graph.getNode(nodeType, nodeIndex, indexKey)
-                    if (!getNodeResult.ok) throw new Error(getNodeResult.val.message)
+    type ReactCache = {
+        nodeMap: Map<string, UixNode<any, any>>
+    } & Pick<
+        GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>,
+        'createNode' | 'updateNode'
+    >
 
-                    return getNodeResult.val
+    const nodeStore = createStore<ReactCache>()(
+        immer(
+            (set) => ({
+                nodeMap: new Map(),
+                createNode: async (nodeType, initialState) => {
+                    const createNodeResult = await graph.createNode(nodeType, initialState)
+                    if (!createNodeResult.ok) return createNodeResult
+                    const node = createNodeResult.val
+                    set((state) => {
+                        state.nodeMap.set(node.nodeId, node)
+                    })
+                    return Ok(node)
                 },
-                select: selector ? useCallback(selector, []) : undefined
-            }, queryClient)
+                updateNode: async (nodeKey, state) => {
+                    set((state) => {
+                        state.nodeMap.set(nodeKey.nodeId, {
+                            ...state.nodeMap.get(nodeKey.nodeId)!,
+                            ...state
+                        })
+                    })
+                    return await graph.updateNode(nodeKey, state)
+                },
+            })
+        )
+    )
+    const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
+        ...graph,
+        useNodeState: (nodeType, nodeId, selector) => {
+            const nodeState = useStore(nodeStore, (store) => {
+                return selector
+                    ? selector(store.nodeMap.get(nodeId)! as (Awaited<ReturnType<typeof graph.getNode<typeof nodeType>>> & { ok: true })['val'])
+                    : store.nodeMap.get('test')! as ReturnType<NonNullable<typeof selector>>
+            })
+            const updateNodeState = (updater: (draft: Draft<typeof nodeState>) => void) => nodeStore.setState(state => {
+                state.nodeMap.set(nodeId, produce(nodeState, updater) as any)
+            })
+            return [nodeState, updateNodeState] as any
         },
-        // useRelatedTo: (fromNode, relationshipType, toNodeType) => {
-        // const queryResult = useQuery({
-        //     queryKey: [fromNode.nodeId, relationshipType, toNodeType],
-        //     queryFn: async () => {
-        //         console.log("Running queryFn")
-        //         const getRelatedToResult = await graph.getRelatedTo(fromNode, relationshipType, toNodeType)
-        //         if (!getRelatedToResult.ok) throw new Error(getRelatedToResult.val.message)
-        //         console.log(getRelatedToResult.val)
-        //         if (!(getRelatedToResult.val instanceof Array)) {
-        //             console.log("HERE")
-        //             if (!cacheKeyMap.has(getRelatedToResult.val.nodeId)) {
-        //                 cacheKeyMap.set(getRelatedToResult.val.nodeId, new Set())
-        //             }
-        //             cacheKeyMap.get(getRelatedToResult.val.nodeId)!.add(`${fromNode.nodeId}::${relationshipType}::${toNodeType}`)
-        //             console.log(cacheKeyMap)
-        //         }
-        //         return getRelatedToResult.val
-        //     }
-        // }, queryClient)
-        // const [nodeState, updateNodeState] = useImmer(queryResult.data)
-        // useEffect(() => {
-        //     updateNodeState(queryResult.data)
-        // }, [queryResult.data])
-        // const saveNode = useCallback(async () => {
-        //     if (queryResult.isPending) return
-        //     if (queryResult.isError) return
-        //     await graph.updateNode(queryResult.data)
-        // }, [queryResult.data])
-        //     return [
-
-        //     ]
-
-        // },
         // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
         createNode: async (nodeType, initialState) => {
-            const createNodeResult = await graph.createNode(nodeType, initialState)
-            if (!createNodeResult.ok) return createNodeResult
-            const node = createNodeResult.val
-            // Invalidate all caches for the node, remember react will have run through the tree and tried all of the getNodes which returned null.
-            invalidateCacheKeys(node)
-            // Return the nodekey
-            return Ok(node)
+            return await nodeStore.getState().createNode(nodeType, initialState)
         },
         updateNode: async (nodeKey, state) => {
-            const updateNodeResult = await graph.updateNode(nodeKey, state)
-            if (!updateNodeResult.ok) return updateNodeResult
-            const node = updateNodeResult.val
-            invalidateCacheKeys(node)
-            return updateNodeResult
+            return await nodeStore.getState().updateNode(nodeKey, state)
         },
         deleteNode: async (nodeKey) => {
-            const getNodeResult = await graph.getNode(nodeKey.nodeType, 'nodeId', nodeKey.nodeId)
-            const deleteNodeResult = await graph.deleteNode(nodeKey)
-            if (!deleteNodeResult.ok) return deleteNodeResult
-            if (!getNodeResult.ok) return deleteNodeResult
-            const node = getNodeResult.val
-            if (!node) return deleteNodeResult
-            invalidateCacheKeys(node)
-            return deleteNodeResult
+            return null as any
         },
         createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
-            // Handle passing Result type in as toNode for common pattern
-            if ('ok' in fromNode && !fromNode.ok) return fromNode
-            if ('ok' in fromNode && fromNode.ok) fromNode = fromNode.val
-            const createRelationshipResult = await graph.createRelationship(fromNode, relationshipType, toNode, ...args)
-            if (!createRelationshipResult.ok) {
-                return createRelationshipResult
-            }
-            // Invalidate all caches for the fromNode and toNode
-
-            const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNode.nodeType}`
-            // revalidateTag(cacheKey)
-            return createRelationshipResult
+            return null as any
         },
     }
+    return thisGraphLayer
 }
