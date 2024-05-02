@@ -1,3 +1,10 @@
+## [1.0.14](https://github.com/ThinAirThings/uix/compare/v1.0.13...v1.0.14) (2024-05-02)
+
+
+### Bug Fixes
+
+* add getNodeType recaching ([3efaac0](https://github.com/ThinAirThings/uix/commit/3efaac01faa4c278da6c7ae4f39039e52112a8a7))
+
 ## [1.0.13](https://github.com/ThinAirThings/uix/compare/v1.0.12...v1.0.13) (2024-05-02)
 
 
