@@ -23,6 +23,7 @@ export const defineNextjsCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
+    console.log("Inside nextjs layer construction")
     // Create data structures
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
