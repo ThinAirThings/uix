@@ -1,14 +1,10 @@
 import { defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
-import { TypeOf, ZodObject, ZodRawShape } from "zod";
+import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { GraphNodeType } from "@/src/types/GraphNodeType";
-import { ExtendUixError } from "@/src/base/UixErr";
-import { NodeKey } from "@/src/types/NodeKey";
-import { Ok, Result } from "@/src/types/Result";
-import { UixRelationship } from "@/src/types/UixRelationship";
-import { createRelationshipDictionary } from "@/src/utiltities/createRelationshipDictionary";
-import { UixNode } from "@/src/types/UixNode";
+import { Ok } from "@/src/types/Result";
+
 
 
 export const defineNextjsCacheLayer = <
@@ -65,7 +61,17 @@ export const defineNextjsCacheLayer = <
                     tags: [cacheKey]
                 }))
             }
-            return await cacheMap.get(cacheKey)!(nodeType)
+            // Get the node types
+            const nodeTypesResult = await cacheMap.get(cacheKey)!(nodeType) as Awaited<ReturnType<typeof graph.getNodeType>>
+            if (!nodeTypesResult.ok) return nodeTypesResult
+            // Get the nodes from the getNode call to check for cache invalidations from node updates
+            const nodeTypes = nodeTypesResult.val
+            const nodesResult = ((await Promise.all(nodeTypes.map(async ({ nodeType, nodeId }) => {
+                return await thisGraphLayer.getNode(nodeType, 'nodeId', nodeId)
+            }))
+                .then(nodeResults => nodeResults.filter(nodeResult => nodeResult.ok))) as (Awaited<ReturnType<typeof graph.getNode>> & { ok: true })[])
+                .map(nodeResult => nodeResult.val)
+            return Ok(nodesResult)
         },
         getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
             // Set explicit cache key
