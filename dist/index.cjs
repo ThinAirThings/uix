@@ -2560,45 +2560,40 @@ var defineNextjsCacheLayer = (graph) => {
       (0, import_cache.revalidateTag)(cacheKey);
     });
   };
-  const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions);
+  async function getCachedOrFetch(cacheKey, fetchFunction, additionalKeys) {
+    if (!cacheMap.has(cacheKey)) {
+      cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(fetchFunction, [cacheKey], { tags: [cacheKey, ...additionalKeys ? additionalKeys : []] }));
+    }
+    return cacheMap.get(cacheKey)();
+  }
   const thisGraphLayer = {
     ...graph,
     // Get node has an explicit cache key
     getNode: async (nodeType, nodeIndex, indexKey) => {
       const cacheKey = `getNode-${nodeType}-${nodeIndex}-${indexKey}`;
-      !cacheMap.has(cacheKey) && cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(
-        async (...[nodeType2, index, key]) => {
-          return await graph.getNode(nodeType2, index, key);
-        },
-        [cacheKey],
-        {
-          tags: [cacheKey]
-        }
-      ));
-      const node = await cacheMap.get(cacheKey)(nodeType, nodeIndex, indexKey);
+      const node = await getCachedOrFetch(cacheKey, async () => {
+        return await graph.getNode(nodeType, nodeIndex, indexKey);
+      });
       return node;
     },
     getNodeType: async (nodeType) => {
       const cacheKey = `getNodeType-${nodeType}`;
-      if (!cacheMap.has(cacheKey)) {
-        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(async (...args) => {
-          return await graph.getNodeType(...args);
-        }, [cacheKey], {
-          tags: [cacheKey]
-        }));
-      }
-      return await cacheMap.get(cacheKey)(nodeType);
+      const nodeTypesResult = await getCachedOrFetch(cacheKey, async () => {
+        return await graph.getNodeType(nodeType);
+      });
+      if (!nodeTypesResult.ok)
+        return nodeTypesResult;
+      const nodeTypes = nodeTypesResult.val;
+      const nodesResult = (await Promise.all(nodeTypes.map(async ({ nodeType: nodeType2, nodeId }) => {
+        return await thisGraphLayer.getNode(nodeType2, "nodeId", nodeId);
+      })).then((nodeResults) => nodeResults.filter((nodeResult) => nodeResult.ok))).map((nodeResult) => nodeResult.val);
+      return Ok(nodesResult);
     },
     getRelatedTo: async (fromNode, relationshipType, toNodeType) => {
       const cacheKey = `getRelatedTo-${fromNode.nodeId}-${relationshipType}-${toNodeType}`;
-      if (!cacheMap.has(cacheKey)) {
-        cacheMap.set(cacheKey, (0, import_cache.unstable_cache)(async (...args) => {
-          return await graph.getRelatedTo(...args);
-        }, [cacheKey], {
-          tags: [cacheKey, `getRelatedTo-${toNodeType}`]
-        }));
-      }
-      const relatedNodeKeysResult = await cacheMap.get(cacheKey)(fromNode, relationshipType, toNodeType);
+      const relatedNodeKeysResult = await getCachedOrFetch(cacheKey, async () => {
+        return await graph.getRelatedTo(fromNode, relationshipType, toNodeType);
+      }, [`getRelatedTo-${toNodeType}`]);
       if (!relatedNodeKeysResult.ok)
         return relatedNodeKeysResult;
       const relatedNodeKeys = relatedNodeKeysResult.val;
@@ -2614,9 +2609,6 @@ var defineNextjsCacheLayer = (graph) => {
         return relatedNodesOrNodeResult;
       return Ok(relatedNodesOrNodeResult.val);
     },
-    // Note the NextJs cache layer needs to use modified return types. You need to redefine the Neo4j layer to return nodes and then change the
-    // return type here to be NodeKeys.
-    // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
     createNode: async (nodeType, initialState) => {
       const createNodeResult = await graph.createNode(nodeType, initialState);
       if (!createNodeResult.ok) {
