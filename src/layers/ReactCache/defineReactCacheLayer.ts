@@ -6,6 +6,8 @@ import { createStore, useStore } from "zustand";
 import { UixNode } from "@/src/types/UixNode";
 import { enableMapSet, Draft, produce } from 'immer'
 import { immer } from "zustand/middleware/immer";
+import { useImmer } from "@thinairthings/use-immer";
+import { OmitNodeConstants } from "@/src/base/defineBaseGraph";
 
 enableMapSet()
 export const defineReactCacheLayer = <
@@ -24,14 +26,13 @@ export const defineReactCacheLayer = <
     PreviousLayers extends Capitalize<string>
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'> & {
+): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
     useNodeState: <
-        T extends N[number]['nodeType'],
-        R = (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']
+        T extends UixNode<N[number]['nodeType'], TypeOf<(N[number])['stateDefinition']>>,
+        R = T
     >(
-        nodeType: Parameters<typeof graph.getNode<T>>[0],
-        nodeId: string,
-        selector?: ((node: (Awaited<ReturnType<typeof graph.getNode<T>>> & { ok: true })['val']) => R)
+        node: T,
+        selector?: ((nodeState: OmitNodeConstants<T>) => R)
     ) => [R, (state: Draft<R>) => void]
     // useRelatedTo: <
     //     FromNodeType extends keyof E,
@@ -76,33 +77,32 @@ export const defineReactCacheLayer = <
             })
         )
     )
-
-    const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
+    return {
         ...graph,
-        useNodeState: (nodeType, nodeId, selector) => {
-            const nodeState = useStore(nodeStore, (store) => {
-                return selector
-                    ? selector(store.nodeMap.get(nodeId)! as (Awaited<ReturnType<typeof graph.getNode<typeof nodeType>>> & { ok: true })['val'])
-                    : store.nodeMap.get('test')! as ReturnType<NonNullable<typeof selector>>
-            })
-            const updateNodeState = (updater: (draft: Draft<typeof nodeState>) => void) => nodeStore.setState(state => {
-                state.nodeMap.set(nodeId, produce(nodeState, updater) as any)
-            })
+        useNodeState: (node, selector) => {
+            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
             return [nodeState, updateNodeState] as any
         },
-        // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
-        createNode: async (nodeType, initialState) => {
-            return await nodeStore.getState().createNode(nodeType, initialState)
-        },
-        updateNode: async (nodeKey, state) => {
-            return await nodeStore.getState().updateNode(nodeKey, state)
-        },
-        deleteNode: async (nodeKey) => {
-            return null as any
-        },
-        createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
-            return null as any
-        },
     }
-    return thisGraphLayer
+    // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
+    //     ...graph,
+    //     useNodeState: (node, selector) => {
+    //         const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(node.nodeType).stateDefinition.parse(node))
+    //         return [nodeState, updateNodeState] as any
+    //     },
+    // // You need this to force the user to use getNode after creation. If you don't, then they could be stuck with a null value after creation.
+    // createNode: async (nodeType, initialState) => {
+    //     return await nodeStore.getState().createNode(nodeType, initialState)
+    // },
+    // updateNode: async (nodeKey, state) => {
+    //     return await nodeStore.getState().updateNode(nodeKey, state)
+    // },
+    // deleteNode: async (nodeKey) => {
+    //     return null as any
+    // },
+    // createRelationship: async (fromNode, relationshipType, toNode, ...args) => {
+    //     return null as any
+    // },
+    // }
+    // return thisGraphLayer
 }
