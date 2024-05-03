@@ -27,13 +27,13 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
-    useNodeState: <
-        T extends N[number]['nodeType'],
-        State = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
-    >(
-        nodeType: T,
-        node?: UixNode<T, State extends Record<string, any> ? State : never>
-    ) => ReturnType<typeof useImmer<State>>
+    // useNodeState: <
+    //     T extends N[number]['nodeType'],
+    //     State = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
+    // >(
+    //     nodeType: T,
+    //     node?: UixNode<T, State extends Record<string, any> ? State : never>
+    // ) => ReturnType<typeof useImmer<State>>
 } => {
 
     type ReactCache = {
@@ -69,10 +69,10 @@ export const defineReactCacheLayer = <
     )
     return {
         ...graph,
-        useNodeState: (nodeType, node) => {
-            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
-            return [nodeState, updateNodeState] as any
-        },
+        // useNodeState: (nodeType, node) => {
+        //     const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
+        //     return [nodeState, updateNodeState] as any
+        // },
     }
     // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
     //     ...graph,
