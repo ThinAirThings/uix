@@ -1,5 +1,5 @@
 import { TypeOf, ZodObject, ZodRawShape, z } from "zod"
-import { defineNode } from "../base/defineNode"
+import { NodeDefinition, defineNode } from "../base/defineNode"
 import { NodeKey } from "./NodeKey"
 import { UixNode } from "./UixNode"
 import { UixRelationship } from "./UixRelationship"
@@ -9,7 +9,7 @@ import { Result } from "./Result"
 
 
 export type GraphLayer<
-    N extends readonly ReturnType<typeof defineNode< any, any>>[],
+    N extends readonly ReturnType<typeof defineNode<any, any>>[],
     R extends readonly {
         relationshipType: Uppercase<string>
         uniqueFromNode?: boolean
@@ -174,6 +174,12 @@ export type GraphLayer<
         T extends N[number]['nodeType']
     >(
         nodeType: T
-    ) => ReturnType<typeof defineNode<T, (N[number] & { nodeType: T })['stateDefinition']>>,
+    ) => ReturnType<
+        typeof defineNode<
+            T,
+            (N[number] & { nodeType: T })['stateDefinition']
+
+        >
+    >,
 }
 

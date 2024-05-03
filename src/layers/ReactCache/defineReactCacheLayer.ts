@@ -1,4 +1,4 @@
-import { defineNode } from "@/src/base/defineNode";
+import { NodeDefinition, defineNode } from "@/src/base/defineNode";
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { Ok } from "@/src/types/Result";
@@ -30,13 +30,11 @@ export const defineReactCacheLayer = <
     // NOTE: This can be types better to filter for things that have default zod types
     useNodeState: <
         T extends N[number]['nodeType'],
-        Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
+        State extends TypeOf<(N[number] & { nodeType: T })['stateDefinition']> | TypeOf<(N[number] & { nodeType: T })['stateDefaults']> = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
     >(
         nodeType: T,
-        node?: Node
-    ) => ReturnType<typeof useImmer<
-        OmitNodeConstants<UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>>
-    >>
+        node?: UixNode<T, State>
+    ) => ReturnType<typeof useImmer<State>>
 } => {
 
     type ReactCache = {
@@ -74,8 +72,8 @@ export const defineReactCacheLayer = <
     return {
         ...graph,
         useNodeState: (nodeType, node) => {
-            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefinition.parse(node ?? {}))
-            return [nodeState, updateNodeState] as const
+            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
+            return [nodeState, updateNodeState] as any
         },
     }
     // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {

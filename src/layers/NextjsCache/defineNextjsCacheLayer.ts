@@ -1,4 +1,4 @@
-import { defineNode } from "@/src/base/defineNode";
+import { NodeDefinition, defineNode } from "@/src/base/defineNode";
 import { unstable_cache as cache, revalidateTag } from 'next/cache'
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
