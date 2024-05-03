@@ -13,7 +13,6 @@ type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };
 
-
 type DefaultType<T> = T extends ZodTypeAny ? InferZodSchema<T> : never;
 export class NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {
     nodeType: T;
