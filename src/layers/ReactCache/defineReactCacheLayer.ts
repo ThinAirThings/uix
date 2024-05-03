@@ -43,7 +43,6 @@ export const defineReactCacheLayer = <
         GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>,
         'createNode' | 'updateNode'
     >
-
     const nodeStore = createStore<ReactCache>()(
         immer(
             (set) => ({
