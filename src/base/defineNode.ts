@@ -18,10 +18,13 @@ export class NodeDefinition<T extends string, StateDefinition extends ZodObject<
         this.stateDefaults = stateDefaults ?? z.object({}) as StateDefaults;
     }
 
-    defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: ZodDefault<StateDefinition['shape'][K]> }>(
-        defineDefaults: (stateDefinition: StateDefinition['shape']) => Defaults
+    defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
+        defaults: Defaults
     ): NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>> {
-        const defaultsDefinition = defineDefaults(this.stateDefinition.shape);
+        const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
+            ...acc,
+            [key]: (value as any).default(defaults[key])
+        }), {});
         const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<InferZodSchema<Defaults>>;
         return new NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>>(this.nodeType, this.stateDefinition, defaultsSchema);
     }
