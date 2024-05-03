@@ -29,12 +29,10 @@ export const defineReactCacheLayer = <
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
     useNodeState: <
         T extends N[number]['nodeType'],
-        State extends Record<string, any>
-        // | TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
-        = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
+        State = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
     >(
         nodeType: T,
-        node?: UixNode<T, State>
+        node?: UixNode<T, State extends Record<string, any> ? State : never>
     ) => ReturnType<typeof useImmer<State>>
 } => {
 
