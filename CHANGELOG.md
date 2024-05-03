@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/ThinAirThings/uix/compare/v1.1.0...v1.1.1) (2024-05-03)
+
+
+### Bug Fixes
+
+* default types ([5f611aa](https://github.com/ThinAirThings/uix/commit/5f611aaa985772f3e0db0ad8148693d5a25bfec1))
+
 # [1.1.0](https://github.com/ThinAirThings/uix/compare/v1.0.27...v1.1.0) (2024-05-03)
 
 
