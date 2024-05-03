@@ -10,7 +10,7 @@ type InferZodSchema<T> = {
 //     [Property in keyof Type]: Type[Property] extends NonNullable<infer U> ? U : never;
 // };
 type Concrete<T extends Record<string, any>> = {
-    [P in keyof T]: T[P] extends undefined ? never : ZodDefault<T[P]>;
+    [P in keyof T]: NonNullable<T[P]>;
 };
 
 export class NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {
