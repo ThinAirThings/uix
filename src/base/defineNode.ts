@@ -6,6 +6,9 @@ type InferZodSchema<T> = {
     [P in keyof T]: T[P] extends ZodDefault<infer U> ? U : never;
 };
 
+type Concrete<Type> = {
+    [Property in keyof Type]-?: NonNullable<Type[Property]>;
+};
 
 export class NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {
     nodeType: T;
@@ -20,13 +23,13 @@ export class NodeDefinition<T extends string, StateDefinition extends ZodObject<
 
     defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
         defaults: Defaults
-    ): NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>> {
+    ): NodeDefinition<T, StateDefinition, ZodObject<Concrete<Defaults>>> {
         const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
             ...acc,
             [key]: (value as any).default(defaults[key])
         }), {});
-        const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<InferZodSchema<Defaults>>;
-        return new NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>>(this.nodeType, this.stateDefinition, defaultsSchema);
+        const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<Concrete<Defaults>>;
+        return new NodeDefinition<T, StateDefinition, ZodObject<Concrete<Defaults>>>(this.nodeType, this.stateDefinition, defaultsSchema);
     }
 }
 
