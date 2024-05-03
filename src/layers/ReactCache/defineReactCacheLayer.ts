@@ -27,10 +27,11 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
-    // NOTE: This can be types better to filter for things that have default zod types
     useNodeState: <
         T extends N[number]['nodeType'],
-        State extends TypeOf<(N[number] & { nodeType: T })['stateDefinition']> | TypeOf<(N[number] & { nodeType: T })['stateDefaults']> = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
+        State extends Record<string, any>
+        | TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
+        = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
     >(
         nodeType: T,
         node?: UixNode<T, State>
