@@ -9,6 +9,8 @@ import { immer } from "zustand/middleware/immer";
 import { useImmer } from "@thinairthings/use-immer";
 import { OmitNodeConstants } from "@/src/base/defineBaseGraph";
 
+
+
 enableMapSet()
 export const defineReactCacheLayer = <
     N extends readonly ReturnType<typeof defineNode<any, any>>[],
@@ -27,13 +29,16 @@ export const defineReactCacheLayer = <
 >(
     graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
 ): GraphLayer<N, R, E, UIdx, PreviousLayers> & {
-    // useNodeState: <
-    //     T extends N[number]['nodeType'],
-    //     State = TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
-    // >(
-    //     nodeType: T,
-    //     node?: UixNode<T, State extends Record<string, any> ? State : never>
-    // ) => ReturnType<typeof useImmer<State>>
+    useNodeState: <
+        T extends N[number]['nodeType'],
+        Node = undefined
+    >(
+        nodeType: T,
+        node?: Node
+    ) => ReturnType<typeof useImmer<Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
+        ? TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
+        : TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
+    >>
 } => {
 
     type ReactCache = {
@@ -69,10 +74,10 @@ export const defineReactCacheLayer = <
     )
     return {
         ...graph,
-        // useNodeState: (nodeType, node) => {
-        //     const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
-        //     return [nodeState, updateNodeState] as any
-        // },
+        useNodeState: (nodeType, node) => {
+            const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
+            return [nodeState, updateNodeState] as any
+        },
     }
     // const thisGraphLayer: ReturnType<typeof defineReactCacheLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>> = {
     //     ...graph,
