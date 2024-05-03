@@ -26,7 +26,7 @@ export class NodeDefinition<T extends string, StateDefinition extends ZodObject<
 
     defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
         defaults: Defaults
-    ): NodeDefinition<T, StateDefinition, ZodObject<Concrete<Defaults>>> {
+    ): NodeDefinition<T, StateDefinition, ZodObject<Concrete<Defaults>, any, any, Concrete<Defaults>>> {
         const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
             ...acc,
             [key]: (value as any).default(defaults[key])
