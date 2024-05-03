@@ -1,10 +1,7 @@
-import { TypeOf, ZodDefault, ZodObject, ZodTypeAny, z } from "zod";
+import { TypeOf, ZodDefault, ZodObject, ZodOptional, ZodTypeAny, z } from "zod";
 
 
-// // Note this will extract the actual zod type
-type InferZodSchema<T> = {
-    [P in keyof T]: T[P] extends ZodDefault<infer U> ? U : never;
-};
+type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
 
 // type Concrete<Type extends Record<string, any>> = {
 //     [Property in keyof Type]: Type[Property] extends NonNullable<infer U> ? U : never;
@@ -13,7 +10,6 @@ type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };
 
-type DefaultType<T> = T extends ZodTypeAny ? InferZodSchema<T> : never;
 export class NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {
     nodeType: T;
     stateDefinition: StateDefinition;
@@ -28,7 +24,7 @@ export class NodeDefinition<T extends string, StateDefinition extends ZodObject<
     defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
         defaults: Defaults
     ): NodeDefinition<T, StateDefinition, ZodObject<{
-        [K in keyof Defaults]: StateDefinition['shape'][K]
+        [K in keyof Defaults]: UnwrapZodOptional<StateDefinition['shape'][K]>
     }>> {
         const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
             ...acc,

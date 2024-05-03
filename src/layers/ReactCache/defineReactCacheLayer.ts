@@ -36,42 +36,43 @@ export const defineReactCacheLayer = <
         nodeType: T,
         node?: Node
     ) => ReturnType<typeof useImmer<Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
-        ? TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
+        ? (Omit<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>, keyof TypeOf<(N[number] & { nodeType: T })['stateDefaults']>>
+            & TypeOf<(N[number] & { nodeType: T })['stateDefaults']>)
         : TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
     >>
-} => {
 
+} => {
     type ReactCache = {
         nodeMap: Map<string, UixNode<any, any>>
     } & Pick<
         GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>,
         'createNode' | 'updateNode'
     >
-    const nodeStore = createStore<ReactCache>()(
-        immer(
-            (set) => ({
-                nodeMap: new Map(),
-                createNode: async (nodeType, initialState) => {
-                    const createNodeResult = await graph.createNode(nodeType, initialState)
-                    if (!createNodeResult.ok) return createNodeResult
-                    const node = createNodeResult.val
-                    set((state) => {
-                        state.nodeMap.set(node.nodeId, node)
-                    })
-                    return Ok(node)
-                },
-                updateNode: async (nodeKey, state) => {
-                    set((state) => {
-                        state.nodeMap.set(nodeKey.nodeId, {
-                            ...state.nodeMap.get(nodeKey.nodeId)!,
-                            ...state
-                        })
-                    })
-                    return await graph.updateNode(nodeKey, state)
-                },
-            })
-        )
-    )
+    // const nodeStore = createStore<ReactCache>()(
+    //     immer(
+    //         (set) => ({
+    //             nodeMap: new Map(),
+    //             createNode: async (nodeType, initialState) => {
+    //                 const createNodeResult = await graph.createNode(nodeType, initialState)
+    //                 if (!createNodeResult.ok) return createNodeResult
+    //                 const node = createNodeResult.val
+    //                 set((state) => {
+    //                     state.nodeMap.set(node.nodeId, node)
+    //                 })
+    //                 return Ok(node)
+    //             },
+    //             updateNode: async (nodeKey, state) => {
+    //                 set((state) => {
+    //                     state.nodeMap.set(nodeKey.nodeId, {
+    //                         ...state.nodeMap.get(nodeKey.nodeId)!,
+    //                         ...state
+    //                     })
+    //                 })
+    //                 return await graph.updateNode(nodeKey, state)
+    //             },
+    //         })
+    //     )
+    // )
     return {
         ...graph,
         useNodeState: (nodeType, node) => {
