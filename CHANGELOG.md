@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/ThinAirThings/uix/compare/v1.0.27...v1.1.0) (2024-05-03)
+
+
+### Features
+
+* add react layer ([42579ba](https://github.com/ThinAirThings/uix/commit/42579bab0ce86c8c5c1d8bd526eaafb6a9cf3076))
+
 ## [1.0.27](https://github.com/ThinAirThings/uix/compare/v1.0.26...v1.0.27) (2024-05-02)
 
 
