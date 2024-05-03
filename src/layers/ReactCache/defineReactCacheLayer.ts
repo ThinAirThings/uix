@@ -37,7 +37,7 @@ export const defineReactCacheLayer = <
         node?: Node
     ) => ReturnType<typeof useImmer<Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
         ? TypeOf<(N[number] & { nodeType: T })['stateDefinition']>
-        : (N[number] & { nodeType: T })['stateDefaults']
+        : TypeOf<(N[number] & { nodeType: T })['stateDefaults']>
     >>
 } => {
 
