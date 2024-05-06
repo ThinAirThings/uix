@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/ThinAirThings/uix/compare/v1.1.4...v1.1.5) (2024-05-06)
+
+
+### Bug Fixes
+
+* **NextjsCacheLayer:** fix missing invalidations when creating relationships ([a01f7ea](https://github.com/ThinAirThings/uix/commit/a01f7ead3045e95e1f40ff8d8d82992192eea743))
+
 ## [1.1.4](https://github.com/ThinAirThings/uix/compare/v1.1.3...v1.1.4) (2024-05-06)
 
 
