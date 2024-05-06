@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/ThinAirThings/uix/compare/v1.1.1...v1.1.2) (2024-05-06)
+
+
+### Bug Fixes
+
+* add revalidation every 10 seconds ([d3d9e4f](https://github.com/ThinAirThings/uix/commit/d3d9e4fcd503131043fff6bab8d7d13c80aa8006))
+
 ## [1.1.1](https://github.com/ThinAirThings/uix/compare/v1.1.0...v1.1.1) (2024-05-03)
 
 
