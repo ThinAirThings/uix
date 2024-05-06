@@ -3,9 +3,6 @@ import { TypeOf, ZodDefault, ZodObject, ZodOptional, ZodTypeAny, z } from "zod";
 
 type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
 
-// type Concrete<Type extends Record<string, any>> = {
-//     [Property in keyof Type]: Type[Property] extends NonNullable<infer U> ? U : never;
-// };
 type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };

@@ -35,7 +35,12 @@ export const defineNextjsCacheLayer = <
     }
     async function getCachedOrFetch<T>(cacheKey: string, fetchFunction: () => Promise<T>, additionalKeys?: string[]): Promise<T> {
         if (!cacheMap.has(cacheKey)) {
-            cacheMap.set(cacheKey, cache(fetchFunction, [cacheKey], { tags: [cacheKey, ...additionalKeys ? additionalKeys : []] }));
+            cacheMap.set(cacheKey, cache(
+                fetchFunction,
+                [cacheKey], {
+                tags: [cacheKey, ...additionalKeys ? additionalKeys : []],
+                revalidate: 10
+            }));
         }
         return cacheMap.get(cacheKey)!();
     }

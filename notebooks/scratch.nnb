@@ -43,9 +43,21 @@
         {
             "language": "typescript",
             "source": [
-                "import {z, ZodObject, TypeOf, ZodDefault} from 'zod'\n\n// Note this will extract the actual zod type\ntype InferZodSchema<T> = {\n    [P in keyof T]: T[P] extends ZodDefault<infer U> ? U : never;\n  };\n\nclass NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {\n    nodeType: T;\n    stateDefinition: StateDefinition;\n    stateDefaults: StateDefaults;\n\n    constructor(nodeType: T, stateDefinition: StateDefinition, stateDefaults?: StateDefaults) {\n        this.nodeType = nodeType;\n        this.stateDefinition = stateDefinition;\n        this.stateDefaults = stateDefaults ?? z.object({}) as StateDefaults;\n    }\n\n    defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: ZodDefault<StateDefinition['shape'][K]> }>(\n        defineDefaults: (stateDefinition: StateDefinition['shape']) => Defaults\n    ): NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>> {\n        const defaultsDefinition = defineDefaults(this.stateDefinition.shape);\n        const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<InferZodSchema<Defaults>>;\n        return new NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>>(this.nodeType, this.stateDefinition, defaultsSchema);\n    }\n}\n\nconst defineNode = <\n    T extends Capitalize<string>,\n    StateDefinition extends ZodObject<any>,\n>(nodeType: T, stateDefinition: StateDefinition) => new NodeDefinition(nodeType, stateDefinition);\n\nconst nodeDefinition = defineNode('User' as const, z.object({\n    name: z.string(),\n    age: z.number(),\n}))\n\nconst defaultedNodeDefinition = nodeDefinition.defaults(({name, age}) => ({\n    name: name.default(''),\n    age: age.default(30)\n}))\n\nnodeDefinition.stateDefaults.shape\ndefaultedNodeDefinition.stateDefaults.shape\n\n\n  "
+                "import {z, ZodObject, TypeOf, ZodDefault, ZodTypeAny} from 'zod'\n\n// Note this will extract the actual zod type\ntype InferZodSchema<T> = {\n    [P in keyof T]: T[P] extends ZodDefault<infer U> ? U : never;\n  };\n// type Concrete<Type> = {\n//     [Property in keyof Type]-?: NonNullable<Type[Property]>;\n// };\ntype Concrete<T extends Record<string, any>> = {\n    [P in keyof T]: T[P] extends z.ZodType<any, any, infer U extends ZodTypeAny> ? ZodDefault<U> : never;\n};\n\nclass NodeDefinition<T extends string, StateDefinition extends ZodObject<any>, StateDefaults extends ZodObject<any> = ZodObject<{}>> {\n    nodeType: T;\n    stateDefinition: StateDefinition;\n    stateDefaults: StateDefaults;\n\n    constructor(nodeType: T, stateDefinition: StateDefinition, stateDefaults?: StateDefaults) {\n        this.nodeType = nodeType;\n        this.stateDefinition = stateDefinition;\n        this.stateDefaults = stateDefaults ?? z.object({}) as StateDefaults;\n    }\n\n    defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(\n        defaults: Defaults\n    ): NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>> {\n        const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({\n            ...acc,\n            [key]: (value as any).default(defaults[key])\n        }), {});\n        const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<InferZodSchema<Defaults>>;\n        return new NodeDefinition<T, StateDefinition, ZodObject<InferZodSchema<Defaults>>>(this.nodeType, this.stateDefinition, defaultsSchema);\n    }\n}\n\nconst defineNode = <\n    T extends Capitalize<string>,\n    StateDefinition extends ZodObject<any>,\n>(nodeType: T, stateDefinition: StateDefinition) => new NodeDefinition(nodeType, stateDefinition);\n\nconst nodeDefinition = defineNode('User' as const, z.object({\n    name: z.string(),\n    age: z.number(),\n}))\n\nconst defaultedNodeDefinition = nodeDefinition.defaults({\n    name: '',\n    age: 30\n})\n\nnodeDefinition.stateDefaults.shape\ndefaultedNodeDefinition.stateDefaults.shape\n\nconst obj = {\n    name: 'John',\n}\n\nconsole.log(defaultedNodeDefinition.stateDefaults.parse(obj))\n\n\n  "
             ],
-            "outputs": []
+            "outputs": [
+                {
+                    "items": [
+                        {
+                            "mime": "application/vnd.code.notebook.stdout",
+                            "value": [
+                                "{ name: 'John', age: 30 }",
+                                ""
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
