@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/ThinAirThings/uix/compare/v1.1.3...v1.1.4) (2024-05-06)
+
+
+### Bug Fixes
+
+* add more logs ([47b1a38](https://github.com/ThinAirThings/uix/commit/47b1a386583b260ea8125a287a6fd76e0569336a))
+
 ## [1.1.3](https://github.com/ThinAirThings/uix/compare/v1.1.2...v1.1.3) (2024-05-06)
 
 
