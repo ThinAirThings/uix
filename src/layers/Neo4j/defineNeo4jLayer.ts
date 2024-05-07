@@ -9,6 +9,9 @@ import { UixRelationship } from '@/src/types/UixRelationship';
 import { ExtendUixError } from '@/src/base/UixErr';
 import { Ok, Err } from '@/src/types/Result';
 import { createRelationshipDictionary } from '@/src/utiltities/createRelationshipDictionary';
+import { LayerDefinition } from '@/src/types/LayerDefinition';
+import { testGraph } from '@/tests/testGraph';
+import { defineBaseGraph } from '@/src/base/defineBaseGraph';
 
 
 type Entries<T> = {
@@ -16,35 +19,26 @@ type Entries<T> = {
 }[keyof T][];
 
 export const defineNeo4jLayer = <
-    N extends readonly ReturnType<typeof defineNode<any, any>>[],
-    R extends readonly {
-        relationshipType: Uppercase<string>
-        uniqueFromNode?: boolean
-        stateDefinition?: ZodObject<any>
-    }[],
-    E extends { [NT in (N[number]['nodeType'])]?: {
-        [RT in R[number]['relationshipType']]?: readonly N[number]['nodeType'][]
-    } },
-    UIdx extends {
-        [T in N[number]['nodeType']]?: readonly (keyof TypeOf<(N[number] & { nodeType: T })['stateDefinition']>)[]
-    },
-    PreviousLayers extends Capitalize<string>
->(graph: Pick<
-    GraphLayer<N, R, E, UIdx, PreviousLayers>,
-    | 'relationshipDefinitions'
-    | 'edgeDefinitions'
-    | 'nodeDefinitions'
-    | 'uniqueIndexes'
-    | 'createNode'
-    | 'getNodeDefinition'
->, config: {
+    G extends GraphLayer,
+// T extends G extends GraphLayer<infer N, infer R, infer E, infer UIdx>
+// ? readonly [N, R, E, UIdx]
+// : never,
+>(graph: G, config: {
     connection: {
-        uri: string,
-        username: string,
+        uri: string
+        username: string
         password: string
     }
-}): GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & { neo4jDriver: Driver } => {
-    const UixErr = ExtendUixError<PreviousLayers | 'Neo4j'>()
+}): G => {
+    type TypeArgs = G extends GraphLayer<infer N, infer R, infer E, infer UIdx>
+        ? {
+            nodeDefinitions: N,
+            relationshipDefinitions: R,
+            edgeDefinitions: E,
+            uniqueIndexes: UIdx
+        }
+        : never
+    const UixErr = ExtendUixError()
     const neo4jDriver = neo4j.driver(config.connection.uri, neo4j.auth.basic(
         config.connection.username,
         config.connection.password
@@ -60,9 +54,9 @@ export const defineNeo4jLayer = <
     ]
     // Create relationship dictionary
     const relationshipDictionary = createRelationshipDictionary(graph.relationshipDefinitions)
-    const thisGraphLayer: GraphLayer<N, R, E, UIdx, PreviousLayers | 'Neo4j'> & { neo4jDriver: Driver } = {
+    const thisGraphLayer: G = {
         ...graph,
-        neo4jDriver,
+        // neo4jDriver,
         createNode: async (
             nodeType,
             initialState
@@ -71,15 +65,15 @@ export const defineNeo4jLayer = <
             const newNode = await graph.createNode(nodeType, initialState) //as unknown as UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             return await neo4jDriver.executeQuery<EagerResult<{
-                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof nodeType })['stateDefinition']>>>
             }>>(`
                 CREATE (node:${nodeType} $newNode)
                 RETURN node
             `, { newNode: newNode.ok ? newNode.val : {} })
                 .then(({ records }) => Ok(records.map(record => record.get('node').properties)[0]))
                 .catch((e: Neo4jError) => e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed'
-                    ? Err(UixErr('Neo4j', 'Normal', 'UniqueIndexViolation', { message: e.message }))
-                    : Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
+                    ? Err(UixErr('Normal', 'UniqueIndexViolation', { message: e.message }))
+                    : Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
                 )
         },
         getNode: async (
@@ -89,7 +83,7 @@ export const defineNeo4jLayer = <
         ) => {
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             return await neo4jDriver.executeQuery<EagerResult<{
-                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof nodeType })['stateDefinition']>>>
             }>>(`
                 MATCH (node:${nodeType} {${nodeIndex}: $indexKey})
                 RETURN node
@@ -97,21 +91,21 @@ export const defineNeo4jLayer = <
                 .then(({ records }) => records.length ? records.map(record => record.get('node').properties)[0] : null)
                 .then(node => node
                     ? Ok(node)
-                    : Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }))
+                    : Err(UixErr('Normal', 'NodeNotFound', { message: `Node of type ${nodeType} with ${nodeIndex} ${indexKey} not found` }))
                 )
-                .catch((e: Neo4jError) => Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message })))
+                .catch((e: Neo4jError) => Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message })))
         },
         getNodeType: async (nodeType) => {
             if (!neo4jDriver) throw new Error('Neo4jNode.neo4jDriver is not configured')
             return await neo4jDriver.executeQuery<EagerResult<{
-                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                node: Node<Integer, UixNode<typeof nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof nodeType })['stateDefinition']>>>
             }>>(`
                 MATCH (node:${nodeType})
                 RETURN node
             `)
                 .then(({ records }) => records.map(record => record.get('node').properties))
-                .then(nodes => nodes.length ? Ok(nodes) : Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${nodeType} not found` })))
-                .catch((e: Neo4jError) => Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message })))
+                .then(nodes => nodes.length ? Ok(nodes) : Err(UixErr('Normal', 'NodeNotFound', { message: `Node of type ${nodeType} not found` })))
+                .catch((e: Neo4jError) => Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message })))
         },
         updateNode: async (
             { nodeType, nodeId },
@@ -130,7 +124,7 @@ export const defineNeo4jLayer = <
             try {
                 const result = await session.executeWrite(async tx => {
                     return await tx.run<{
-                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof nodeType })['stateDefinition']>>>
                     }>(`
                         MATCH (node:${nodeType} {nodeId: $nodeId})
                         SET node += $state
@@ -140,7 +134,7 @@ export const defineNeo4jLayer = <
                 return Ok(result)
             } catch (_e) {
                 const e = _e as Error
-                return Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
+                return Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
                 // // Rollback
                 // graph.updateNode(nodeType, nodeId, initialState)
                 // optimisticUpdatedNode
@@ -156,7 +150,7 @@ export const defineNeo4jLayer = <
             try {
                 const result = await session.executeWrite(async tx => {
                     return await tx.run<{
-                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>>
+                        node: Node<Integer, UixNode<typeof nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof nodeType })['stateDefinition']>>>
                     }>(`
                     MATCH (node:${nodeType} {nodeId: $nodeId})
                     OPTIONAL MATCH (node)-[r]-() 
@@ -167,7 +161,7 @@ export const defineNeo4jLayer = <
                 return Ok(null)
             } catch (_e) {
                 const e = _e as Error
-                return Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
+                return Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
@@ -190,7 +184,7 @@ export const defineNeo4jLayer = <
                 if (relationshipDictionary[relationshipType].uniqueFromNode) {
                     const result = await session.executeRead(async tx => {
                         return await tx.run<{
-                            relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(R[number] & { relationshipType: typeof relationshipType })['stateDefinition']>>>>
+                            relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(TypeArgs['relationshipDefinitions'][number] & { relationshipType: typeof relationshipType })['stateDefinition']>>>>
                         }>(`
                             MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})-[relationship:${relationshipType as string}]->(toNode:${toNode.nodeType})
                             RETURN relationship
@@ -198,7 +192,7 @@ export const defineNeo4jLayer = <
                     }).then(({ records }) => records.length ? records.map(record => record.get('relationship').properties)[0] : null)
                     // Delete the 'toNode' from the db as it shouldn't have. This may be a poor design. Come back to this later
                     if (result) {
-                        return Err(UixErr('Neo4j', 'Normal', 'LayerImplementationError', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
+                        return Err(UixErr('Normal', 'LayerImplementationError', { message: `Relationship of type ${relationshipType} from node ${fromNode.nodeType} to node ${toNode.nodeType} already exists` }))
                     }
                 }
                 // If needed create toNode
@@ -211,9 +205,9 @@ export const defineNeo4jLayer = <
                 }
                 const executeWriteResult = await session.executeWrite(async tx => {
                     const txRes = await tx.run<{
-                        fromNode: Node<Integer, UixNode<typeof fromNode.nodeType, TypeOf<(N[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>,
-                        relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(R[number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>>,
-                        toNode: Node<Integer, UixNode<typeof toNode.nodeType, TypeOf<(N[number] & { nodeType: typeof toNode.nodeType })['stateDefinition']>>>
+                        fromNode: Node<Integer, UixNode<typeof fromNode.nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>,
+                        relationship: Relationship<Integer, UixRelationship<typeof relationshipType, TypeOf<NonNullable<(TypeArgs['relationshipDefinitions'][number] & { nodeType: typeof fromNode.nodeType })['stateDefinition']>>>>,
+                        toNode: Node<Integer, UixNode<typeof toNode.nodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof toNode.nodeType })['stateDefinition']>>>
                     }>(`
                         MATCH (fromNode:${fromNode.nodeType} {nodeId: $fromNode.nodeId})
                         MATCH (toNode:${toNode.nodeType} {nodeId: $toNode.nodeId})
@@ -236,7 +230,7 @@ export const defineNeo4jLayer = <
                 })
             } catch (_e) {
                 const e = _e as Error
-                return Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
+                return Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }
@@ -252,7 +246,7 @@ export const defineNeo4jLayer = <
                 const { nodeType, nodeId } = fromNode
                 const result = await session.executeRead(async tx => {
                     return await tx.run<{
-                        toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(N[number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
+                        toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(TypeArgs['nodeDefinitions'][number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
                     }>(`
                         MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]->(toNode:${toNodeType})
                         RETURN toNode
@@ -264,11 +258,11 @@ export const defineNeo4jLayer = <
                         : records.map(record => record.get('toNode').properties)
                 })
                 console.log(`RESULT:`, result)
-                if (!result) return Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to node ${nodeType} with ${nodeId} not found` }))
+                if (!result) return Err(UixErr('Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to node ${nodeType} with ${nodeId} not found` }))
                 return Ok(result as any)   // TS is struggling to infer this. But it is correct
             } catch (_e) {
                 const e = _e as Error
-                return Err(UixErr('Neo4j', 'Fatal', 'LayerImplementationError', { message: e.message }))
+                return Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
             } finally {
                 await session.close()
             }

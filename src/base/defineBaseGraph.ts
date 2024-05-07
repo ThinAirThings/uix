@@ -1,7 +1,7 @@
 import { TypeOf, ZodObject } from "zod"
 import { v4 as uuidv4 } from 'uuid'
 import { UixNode } from "../types/UixNode"
-import { defineNode } from "./defineNode"
+import { NodeDefinition, defineNode } from "./defineNode"
 import { GraphLayer } from "../types/GraphLayer"
 import { Ok } from "../types/Result"
 
@@ -9,7 +9,7 @@ export type OmitNodeConstants<T extends UixNode<any, any>> = Omit<T, 'nodeType' 
 
 
 export const defineBaseGraph = <
-    N extends readonly ReturnType<typeof defineNode<any, any>>[],
+    N extends readonly NodeDefinition<any, any, any, any>[],
     R extends readonly {
         relationshipType: Uppercase<string>
         uniqueFromNode?: boolean
@@ -31,15 +31,7 @@ export const defineBaseGraph = <
     relationshipDefinitions: R
     edgeDefinitions: E
     uniqueIndexes: UIdx
-}): Pick<
-    GraphLayer<N, R, E, UIdx, 'Base'>,
-    | 'nodeDefinitions'
-    | 'relationshipDefinitions'
-    | 'edgeDefinitions'
-    | 'uniqueIndexes'
-    | 'createNode'
-    | 'getNodeDefinition'
-> => {
+}): GraphLayer<N, R, E, UIdx> => {
     const definitionMap = new Map<string, ReturnType<typeof defineNode<any, any>>>()
     nodeDefinitions.forEach(definition => {
         definitionMap.set(definition.nodeType, definition)
@@ -64,6 +56,5 @@ export const defineBaseGraph = <
         getNodeDefinition: (nodeType) => {
             return definitionMap.get(nodeType)!
         },
-
-    }
+    } as GraphLayer<N, R, E, UIdx>
 }

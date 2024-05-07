@@ -47,8 +47,7 @@ type ThisGraph = GraphLayer<[
     }, {
         'User': ['email'],
         'Post': ['title']
-    },
-    'Neo4j'>
+    }>
 
 type GetRelatedTo = ThisGraph['getRelatedTo']
 const getRelatedTo = null as unknown as GetRelatedTo

@@ -58,6 +58,20 @@
                     ]
                 }
             ]
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "\n\n\ntype HOFType<T> = <U extends T>(arg: U) => U;\n\nconst fn: HOFType<{\n    hello: string\n}> = (arg) => {\n    const thing: ReturnType<typeof fn<typeof arg>> = {\n        hello: 'world'\n    }\n    return thing\n};"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "type HOFType2 = (arg: { hello: string }) => { hello: string };\n\nconst fn2: HOFType2 = (arg) => {\n    const thing: ReturnType<typeof fn> = { hello: 'world' };\n    return thing;\n};"
+            ],
+            "outputs": []
         }
     ]
 }

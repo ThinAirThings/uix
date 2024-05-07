@@ -28,7 +28,6 @@ describe('Relationship Lifecycle Neo4j', () => {
                 expect(userNode.nodeType).toBe('User');
                 const deleteNodeResult = await graph.deleteNode(userNode);
                 if (!deleteNodeResult.ok) {
-                    await graph.neo4jDriver.close();
                     throw new Error(`Failed to delete User node: ${deleteNodeResult.val.message}`);
                 }
             }
@@ -40,7 +39,6 @@ describe('Relationship Lifecycle Neo4j', () => {
                 expect(companyNode.nodeType).toBe('Company');
                 const deleteNodeResult = await graph.deleteNode(companyNode);
                 if (!deleteNodeResult.ok) {
-                    await graph.neo4jDriver.close();
                     throw new Error(`Failed to delete Company node: ${deleteNodeResult.val.message}`);
                 }
             }
@@ -95,7 +93,6 @@ describe('Relationship Lifecycle Neo4j', () => {
         }
         expect(updatedNodeResult.val.nodeType).toBe('Company');
         expect(updatedNodeResult.val.name).toBe('Cheese Fries');
-        await graph.neo4jDriver.close();
     });
 
     // Add more test cases to cover other types of relationships and error cases.

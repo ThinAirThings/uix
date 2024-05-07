@@ -9,10 +9,7 @@
 
 
 // // Note, the first set of type arguments is the same thing as what you do on a generic function
-export const ExtendUixError = <
-    LayerStack extends Capitalize<string>
->() => <
-    Layer extends LayerStack,
+export const ExtendUixError = () => <
     T extends 'Fatal' | 'Normal' | 'Warning' = 'Fatal' | 'Normal' | 'Warning',
     ST extends
     | 'NodeNotFound'
@@ -26,7 +23,6 @@ export const ExtendUixError = <
     | 'LayerImplementationError',
     D extends Record<string, any> = Record<string, any>
 >(
-    layer: Layer,
     type: T,
     subtype: ST,
     opts?: {
@@ -34,7 +30,6 @@ export const ExtendUixError = <
         data?: D
     }
 ) => ({
-    layer,
     type,
     subtype,
     ...opts

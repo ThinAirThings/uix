@@ -21,8 +21,8 @@ export const defineNextjsCacheLayer = <
     },
     PreviousLayers extends Capitalize<string>
 >(
-    graph: GraphLayer<N, R, E, UIdx, PreviousLayers>,
-): GraphLayer<N, R, E, UIdx, PreviousLayers | 'NextjsCache'> => {
+    graph: GraphLayer<N, R, E, UIdx>,
+): GraphLayer<N, R, E, UIdx> => {
     // Create data structures
     const cacheMap = new Map<string, ReturnType<typeof cache>>()
     const invalidationFnKeys = ['getNode', 'getRelatedTo'] as const
