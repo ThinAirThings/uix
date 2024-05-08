@@ -1,7 +1,5 @@
-import { NodeDefinition } from "../defineNode";
+import { NodeDefinition } from "../Node/NodeDefinition";
 import { GraphDefinition } from "./GraphDefinition";
-
-
 
 
 

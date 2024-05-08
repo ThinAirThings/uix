@@ -18,49 +18,57 @@ type Concrete<T extends Record<string, any>> = {
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
 export class NodeDefinition<
-    NodeType extends Capitalize<string>,
-    StateDefinition extends ZodObject<any>,
-    StateDefaults extends ZodObject<any> = ZodObject<{}>,
-    UniqueIndexes extends (readonly (keyof TypeOf<StateDefinition> | 'nodeId')[]) | ['nodeId'] = ['nodeId']
+    NodeType extends Capitalize<string> = Capitalize<string>,
+    StateSchema extends ZodObject<any> = ZodObject<any>,
+    StateDefaultSchema extends ZodObject<any> = ZodObject<any>,
+    UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId']
 > {
-    nodeType: NodeType;
-    stateDefinition: StateDefinition;
-    _stateDefaults: StateDefaults;
-    _uniqueIndexes: UniqueIndexes;
-    constructor(nodeType: NodeType, stateDefinition: StateDefinition, options?: {
-        stateDefaults?: StateDefaults
-        uniqueIndexes?: UniqueIndexes
-    }) {
-        this.nodeType = nodeType;
-        this.stateDefinition = stateDefinition;
-        this._stateDefaults = options?.stateDefaults ?? z.object({}) as StateDefaults;
-        this._uniqueIndexes = options?.uniqueIndexes ?? ['nodeId'] as UniqueIndexes;
-    }
-
-    defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
+    //  ___ _        _   _      ___             _   _             
+    // / __| |_ __ _| |_(_)__  | __|  _ _ _  __| |_(_)___ _ _  ___
+    // \__ \  _/ _` |  _| / _| | _| || | ' \/ _|  _| / _ \ ' \(_-<
+    // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
+    static define = <
+        T extends Capitalize<string>,
+        StateDefinition extends ZodObject<any>,
+    >(nodeType: T, stateDefinition: StateDefinition) => new NodeDefinition(nodeType, stateDefinition);
+    //      ___             _               _           
+    //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
+    //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
+    //     \___\___/_||_/__/\__|_|  \_,_\__|\__\___/_|  
+    private constructor(
+        public nodeType: NodeType,
+        public stateSchema: StateSchema,
+        public stateDefaultSchema: StateDefaultSchema = z.object({}) as StateDefaultSchema,
+        public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes
+    ) { }
+    //  ___      _ _    _            
+    // | _ )_  _(_) |__| |___ _ _ ___
+    // | _ \ || | | / _` / -_) '_(_-<
+    // |___/\_,_|_|_\__,_\___|_| /__/
+    defineDefaults<Defaults extends { [K in keyof TypeOf<StateSchema>]?: TypeOf<StateSchema>[K] }>(
         defaults: Defaults
-    ): NodeDefinition<NodeType, StateDefinition, ZodObject<{
-        [K in keyof Defaults]: UnwrapZodOptional<StateDefinition['shape'][K]>
-    }>, UniqueIndexes> {
-        const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
-            ...acc,
-            [key]: (value as any).default(defaults[key])
-        }), {});
-        const defaultsSchema = z.object(defaultsDefinition as any) as ZodObject<Concrete<Defaults>>;
-        return new NodeDefinition(this.nodeType, this.stateDefinition, {
-            stateDefaults: defaultsSchema as any,
-            uniqueIndexes: this._uniqueIndexes
-        });
-    }
-    uniqueIndexes<UniqueIndexes extends readonly (keyof TypeOf<StateDefinition>)[]>(
-        indexes: UniqueIndexes
-    ): NodeDefinition<NodeType, StateDefinition, StateDefaults, (UniqueIndexes[number] | 'nodeId')[]> {
+    ) {
+        const defaultSchema = Object.keys(defaults).reduce((acc, key) => acc.extend({
+            [key]: this.stateSchema.shape[key as keyof TypeOf<StateSchema>].default(defaults[key as keyof Defaults])
+        }), z.object({})) as ZodObject<{
+            [K in keyof Defaults]: UnwrapZodOptional<StateSchema['shape'][K]>
+        }>;
         return new NodeDefinition(
             this.nodeType,
-            this.stateDefinition, {
-            stateDefaults: this._stateDefaults,
-            uniqueIndexes: [...indexes, 'nodeId']
-        }
+            this.stateSchema,
+            defaultSchema,
+            this.uniqueIndexes
+        );
+    }
+    // Note, you could change this to 'uniqueIndex' and declare these 1 by 1. This would allow you to easily constrain duplicates
+    defineUniqueIndexes<UniqueIndexes extends readonly (keyof TypeOf<StateSchema>)[]>(
+        indexes: UniqueIndexes
+    ) {
+        return new NodeDefinition(
+            this.nodeType,
+            this.stateSchema,
+            this.stateDefaultSchema,
+            [...indexes, 'nodeId']
         );
     }
 }
