@@ -1,5 +1,11 @@
-import { TypeOf, ZodDefault, ZodObject, ZodOptional, ZodTypeAny, z } from "zod";
+import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z } from "zod";
 
+
+//  _   _ _   _ _ _ _          _____                  
+// | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
+// | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
+//  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
+//                      |__/        |__/|_|           
 
 type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
 
@@ -7,17 +13,21 @@ type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };
 
+//  ___       __ _      _ _   _          
+// |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
+// | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
+// |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
 export class NodeDefinition<
-    T extends Capitalize<string>,
+    NodeType extends Capitalize<string>,
     StateDefinition extends ZodObject<any>,
     StateDefaults extends ZodObject<any> = ZodObject<{}>,
     UniqueIndexes extends (readonly (keyof TypeOf<StateDefinition> | 'nodeId')[]) | ['nodeId'] = ['nodeId']
 > {
-    nodeType: T;
+    nodeType: NodeType;
     stateDefinition: StateDefinition;
     _stateDefaults: StateDefaults;
     _uniqueIndexes: UniqueIndexes;
-    constructor(nodeType: T, stateDefinition: StateDefinition, options?: {
+    constructor(nodeType: NodeType, stateDefinition: StateDefinition, options?: {
         stateDefaults?: StateDefaults
         uniqueIndexes?: UniqueIndexes
     }) {
@@ -29,7 +39,7 @@ export class NodeDefinition<
 
     defaults<Defaults extends { [K in keyof TypeOf<StateDefinition>]?: TypeOf<StateDefinition>[K] }>(
         defaults: Defaults
-    ): NodeDefinition<T, StateDefinition, ZodObject<{
+    ): NodeDefinition<NodeType, StateDefinition, ZodObject<{
         [K in keyof Defaults]: UnwrapZodOptional<StateDefinition['shape'][K]>
     }>, UniqueIndexes> {
         const defaultsDefinition = Object.entries(this.stateDefinition.shape).reduce((acc, [key, value]) => ({
@@ -44,7 +54,7 @@ export class NodeDefinition<
     }
     uniqueIndexes<UniqueIndexes extends readonly (keyof TypeOf<StateDefinition>)[]>(
         indexes: UniqueIndexes
-    ): NodeDefinition<T, StateDefinition, StateDefaults, (UniqueIndexes[number] | 'nodeId')[]> {
+    ): NodeDefinition<NodeType, StateDefinition, StateDefaults, (UniqueIndexes[number] | 'nodeId')[]> {
         return new NodeDefinition(
             this.nodeType,
             this.stateDefinition, {
@@ -54,10 +64,3 @@ export class NodeDefinition<
         );
     }
 }
-
-export const defineNode = <
-    T extends Capitalize<string>,
-    StateDefinition extends ZodObject<any>,
->(nodeType: T, stateDefinition: StateDefinition) => new NodeDefinition(nodeType, stateDefinition);
-
-
