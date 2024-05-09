@@ -2,9 +2,9 @@ import { TypeOf, ZodTypeAny } from "zod"
 import { ExtendUixError } from "../UixErr"
 import { Err, Result } from "@/src/types/Result"
 import { UixNode } from "@/src/types/UixNode"
-import { GraphDefinition } from "../Graph/GraphDefinition"
+import { CreateNodeFunction, GraphDefinition, GraphDefinitionAny } from "../Graph/GraphDefinition"
 import { UixLayerError } from "../LayerError/UixLayerError"
-import { NodeDefinition } from "../Node/NodeDefinition"
+import { NodeDefinition, NodeDefinitionsAny } from "../Node/NodeDefinition"
 import { RelationshipDefinition } from "../Relationship/RelationshipDefinition"
 
 
@@ -32,10 +32,11 @@ import { RelationshipDefinition } from "../Relationship/RelationshipDefinition"
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|           
 type MaybeConfigurationArg<T extends ZodTypeAny | undefined> = T extends ZodTypeAny ? [TypeOf<T>] : []
-type MaybeDependenciesArg<T extends Record<string, any> | undefined> = T extends Record<string, any> ? [T] : []
+export type MaybeDependenciesArg<T extends Record<string, any> | undefined> = T extends Record<string, any> ? [T] : []
 type MaybeErrorType<
     T extends ((...args: any[]) => ReturnType<ReturnType<typeof UixLayerError>>['val']) | undefined
 > = T extends ((...args: any[]) => ReturnType<ReturnType<typeof UixLayerError>>['val']) ? ReturnType<T> : ReturnType<ReturnType<typeof UixLayerError>>['val']
+export type LayerDefinitionAny = LayerDefinition<any, any, any, any>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -57,28 +58,55 @@ export class LayerDefinition<
     >(layerType: LayerType) => new LayerDefinition(layerType)
     // This constructs the result of what you've defined while using the methods to define your layer type.
     private compose = <
-        InputGraph extends GraphDefinition<
-            readonly NodeDefinition<Capitalize<string>, any, any, any>[],
-            readonly RelationshipDefinition<any, any, any, any>[],
-            any
-        >
+        CreateNode
+    >(
+        _createNode: CreateNode
+    ) => <
+        InputGraph extends GraphDefinitionAny,
     >(
         graph: InputGraph,
         ...[config]: MaybeConfigurationArg<ConfigurationDefinition>
-    ): InputGraph => {
-        const dependencies = this.initializer(graph, ...config)
-        return {
-            ...graph,
-            createNode: async (
-                nodeType,
-                initialState,
-            ) => {
-                return this.createNode
-                    ? this.createNode(graph, nodeType, initialState, UixLayerError(this.layerType), dependencies)
-                    : await graph.createNode(nodeType, initialState)
-            }
+    ) => {
+            type TypeArgs = InputGraph extends GraphDefinition<
+                infer NodeDefinitions,
+                infer RelationshipDefinitions,
+                infer CreateNode
+            > ? {
+                NodeDefinitions: NodeDefinitions,
+                RelationshipDefinitions: RelationshipDefinitions,
+                CreateNode: CreateNode
+            } : never
+            // 
+            const dependencies = this.initializer(graph, ...config)
+            return new GraphDefinition<
+                TypeArgs['NodeDefinitions'],
+                TypeArgs['RelationshipDefinitions'],
+                CreateNodeFunction<
+                    TypeArgs['NodeDefinitions'],
+                    CreateNode extends ((...args: any[]) => infer R)
+                    ? R extends Promise<Result<UixNode, infer ErrorType>>
+                    ? (ErrorType | (TypeArgs['CreateNode'] extends ((...args: any[]) => infer R)
+                        ? R extends Promise<Result<UixNode, infer ErrorType>>
+                        ? ErrorType : never : never))
+                    : never
+                    : TypeArgs['CreateNode'] extends ((...args: any[]) => infer R)
+                    ? R extends Promise<Result<UixNode, infer ErrorType>>
+                    ? ErrorType : never
+                    : never
+                >
+            >(
+                graph.nodeDefinitions,
+                graph.relationshipDefinitions,
+                async (
+                    nodeType,
+                    initialState
+                ) => {
+                    return this.createNode
+                        ? this.createNode(graph, nodeType, initialState, UixLayerError(this.layerType), dependencies)
+                        : await graph.createNode(nodeType, initialState)
+                }
+            )
         }
-    }
 
 
     //      ___             _               _           
@@ -103,18 +131,25 @@ export class LayerDefinition<
         ConfigurationDefinition extends ZodTypeAny
     >(
         configurationDefinition: ConfigurationDefinition
-    ) => this.wrap(new LayerDefinition(
-        this.layerType,
-        configurationDefinition
-    ))
+    ) =>
+        // this.wrap(
+        new LayerDefinition(
+            this.layerType,
+            configurationDefinition
+        )
+    // )
     defineInitializer = <
         Dependencies extends Record<string, any>
     >(
         initializer: (graph: GraphDefinition, ...[config]: MaybeConfigurationArg<ConfigurationDefinition>) => Dependencies
-    ) => this.wrap(new LayerDefinition(this.layerType,
-        this.configurationDefinition,
-        initializer
-    ))
+    ) =>
+        // this.wrap(
+        new LayerDefinition(
+            this.layerType,
+            this.configurationDefinition,
+            initializer
+            // )
+        )
     defineCreateNode = <
         ErrorType extends ReturnType<ReturnType<typeof UixLayerError>>['val']
     >(createNode: (
@@ -126,22 +161,26 @@ export class LayerDefinition<
     ) => Promise<Result<
         UixNode,
         ErrorType
-    >>) => this.wrap(new LayerDefinition(
-        this.layerType,
-        this.configurationDefinition,
-        this.initializer,
-        createNode
-    ))
+    >>) =>
+        // this.wrap(
+        new LayerDefinition(
+            this.layerType,
+            this.configurationDefinition,
+            this.initializer,
+            createNode
+        )
+    // )
 
-    // ___     _          _         _   _ _   _ _ _ _   _        
+    //  ___     _          _         _   _ _   _ _ _ _   _        
     // | _ \_ _(_)_ ____ _| |_ ___  | | | | |_(_) (_) |_(_)___ ___
     // |  _/ '_| \ V / _` |  _/ -_) | |_| |  _| | | |  _| / -_|_-<
     // |_| |_| |_|\_/\__,_|\__\___|  \___/ \__|_|_|_|\__|_\___/__/
     private wrap = <
         LayerType extends Capitalize<string>,
         ConfigurationDefinition extends ZodTypeAny | undefined = undefined,
-        Dependencies extends Record<string, any> | undefined = undefined
-    >(definition: LayerDefinition<LayerType, ConfigurationDefinition, Dependencies>) => Object.assign(this.compose, {
+        Dependencies extends Record<string, any> | undefined = undefined,
+        CreateNode extends ((...args: any[]) => Promise<Result<UixNode, any>>) | undefined = undefined,
+    >(definition: LayerDefinition<LayerType, ConfigurationDefinition, Dependencies, CreateNode>) => Object.assign(this.compose(definition.createNode), {
         ...definition
     })
 }

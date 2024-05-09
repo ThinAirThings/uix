@@ -1,11 +1,12 @@
-import { TypeOf, z } from "zod"
-import neo4j, { EagerResult, Integer, Neo4jError, Node } from 'neo4j-driver'
+import { TypeOf, ZodTypeAny, z } from "zod"
+import neo4j, { EagerResult, Integer, Neo4jError, Node, graph } from 'neo4j-driver'
 import { createUniqueIndex } from "@/src/layers/Neo4j/createUniqueIndex"
 import { Err, GraphLayer, Ok, UixNode } from "@/src"
 import { NodeDefinition } from "@/src/base/Node/NodeDefinition"
 import { LayerDefinition } from "@/src/base/Layer/LayerDefinition"
 import { RelationshipDefinition } from "@/src/base/Relationship/RelationshipDefinition"
 import { GraphDefinition } from "@/src/base/Graph/GraphDefinition"
+import { CreateNodeDefinition } from "@/src/base/BaseFunctions/CreateNode/CreateNodeDefinition"
 
 
 
@@ -68,7 +69,7 @@ const Neo4jLayer = LayerDefinition
         const uniqueIndexesCreated = graph.nodeDefinitions.map(
             ({ nodeType, uniqueIndexes }) => uniqueIndexes.map(uniqueIndex => createUniqueIndex(neo4jDriver, nodeType, uniqueIndex))
         ).flat()
-        
+
         return {
             uniqueIndexesCreated,
             driver: neo4j.driver(config.url, neo4j.auth.basic(config.username, config.password))
@@ -80,7 +81,9 @@ const Neo4jLayer = LayerDefinition
         if (nodeType === 'cheese') {
             return Ok(null as unknown as UixNode<'Cheese', { name: string }>)
         }
-        return UixError('NoNode', 'fdsa')
+        return UixError('NoNode', 'fdsa', {
+            nodeType: nodeType,
+        })
         // await Promise.all(uniqueIndexesCreated)
         // const newNode = await graph.createNode(nodeType, initialState) //as unknown as UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>
         // if (!driver) throw new Error('Neo4jNode.neo4jDriver is not configured')
@@ -97,14 +100,34 @@ const Neo4jLayer = LayerDefinition
         //     )
     })
 
-const res = Neo4jLayer(graphDefinition, {
+
+const createNodeTest = CreateNodeDefinition
+    .constrain(Neo4jLayer)
+    .define(async (graph, nodeType, initialState, val, val2) => {
+        return Ok(null as unknown as UixNode<'Cheese', { name: string }>)
+    })
+
+
+const neo4jLayer = Neo4jLayer(graphDefinition, {
     username: 'neo4j',
     password: 'password',
     url: 'bolt://localhost:7687'
 })
-
-const createNodeResult = await res.createNode('User', {})
-
-if (!createNodeResult.ok) {
-    const error = createNodeResult.val
+type CreateNode = typeof graphDefinition['createNode']
+const baseCreateNodeResult = await graphDefinition.createNode('User', {})
+if (!baseCreateNodeResult.ok) {
+    const error = baseCreateNodeResult.val
+    // error.
+} else {
+    const node = baseCreateNodeResult.val
+}
+type CreateNodeNeo = typeof neo4jLayer['createNode']
+const neoCreateNodeResult = await neo4jLayer.createNode('User', {})
+if (!neoCreateNodeResult.ok) {
+    const error = neoCreateNodeResult.val
+    if (error.type === 'NoNode') {
+        error.data.nodeType
+    }
+} else {
+    const node = neoCreateNodeResult.val
 }

@@ -13,6 +13,8 @@ type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };
 
+
+export type NodeDefinitionsAny = readonly NodeDefinition<any, any, any, any>[]
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -28,9 +30,9 @@ export class NodeDefinition<
     // \__ \  _/ _` |  _| / _| | _| || | ' \/ _|  _| / _ \ ' \(_-<
     // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
     static define = <
-        T extends Capitalize<string>,
-        StateDefinition extends ZodObject<any>,
-    >(nodeType: T, stateDefinition: StateDefinition) => new NodeDefinition(nodeType, stateDefinition);
+        NodeType extends Capitalize<string>,
+        StateSchema extends ZodObject<any>,
+    >(nodeType: NodeType, stateSchema: StateSchema) => new NodeDefinition(nodeType, stateSchema);
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|

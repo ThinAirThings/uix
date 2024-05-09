@@ -17,5 +17,5 @@ export const UixLayerError = <
     layer: layerType,
     type,
     message,
-    data
+    data: data as Data extends Record<string, any> ? Data : undefined
 })
