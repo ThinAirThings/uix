@@ -2,6 +2,13 @@ import { ZodObject } from "zod"
 import { NodeDefinition } from "../Node/NodeDefinition";
 
 
+//  _   _ _   _ _ _ _          _____                  
+// | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
+// | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
+//  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
+//                      |__/        |__/|_|    
+export type RelationshipDefinitionsAny = readonly RelationshipDefinition<any, any, any, any>[]
+
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 

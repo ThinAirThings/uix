@@ -7,6 +7,8 @@ import { LayerDefinition } from "@/src/base/Layer/LayerDefinition"
 import { RelationshipDefinition } from "@/src/base/Relationship/RelationshipDefinition"
 import { GraphDefinition } from "@/src/base/Graph/GraphDefinition"
 import { CreateNodeDefinition } from "@/src/base/BaseFunctions/CreateNode/CreateNodeDefinition"
+import { LayerConfiguration } from "@/src/base/Layer/LayerConfiguration"
+import { LayerComposition } from "@/src/base/Layer/LayerComposition"
 
 
 
@@ -53,7 +55,7 @@ const graphDefinition = GraphDefinition
 
 const thing = null as unknown as TypeOf<typeof userNodeDefinition['stateDefaultSchema']>
 const indexes = null as unknown as typeof userNodeDefinition['uniqueIndexes'][number]
-const Neo4jLayer = LayerDefinition
+const neo4jLayerConfiguration = LayerConfiguration
     .define('Neo4j')
     .defineConfiguration(z.object({
         url: z.string(),
@@ -75,7 +77,11 @@ const Neo4jLayer = LayerDefinition
             driver: neo4j.driver(config.url, neo4j.auth.basic(config.username, config.password))
         }
     })
-    .defineCreateNode(async (graph, nodeType, intialState, UixError, deps) => {
+
+
+const createNodeDefinition = CreateNodeDefinition
+    .constrain(neo4jLayerConfiguration)
+    .define(async (graph, nodeType, initialState, UixError, deps) => {
         // Wait for index creation to complete
         await Promise.all(deps.uniqueIndexesCreated)
         if (nodeType === 'cheese') {
@@ -101,18 +107,20 @@ const Neo4jLayer = LayerDefinition
     })
 
 
-const createNodeTest = CreateNodeDefinition
-    .constrain(Neo4jLayer)
-    .define(async (graph, nodeType, initialState, val, val2) => {
-        return Ok(null as unknown as UixNode<'Cheese', { name: string }>)
-    })
+graphDefinition.extend(graphDefinition)
+// const Neo4jLayer = LayerComposition
+//     .compose(graphDefinition)
 
 
-const neo4jLayer = Neo4jLayer(graphDefinition, {
-    username: 'neo4j',
-    password: 'password',
-    url: 'bolt://localhost:7687'
-})
+
+
+
+
+// const neo4jLayer = Neo4jLayer(graphDefinition, {
+//     username: 'neo4j',
+//     password: 'password',
+//     url: 'bolt://localhost:7687'
+// })
 type CreateNode = typeof graphDefinition['createNode']
 const baseCreateNodeResult = await graphDefinition.createNode('User', {})
 if (!baseCreateNodeResult.ok) {

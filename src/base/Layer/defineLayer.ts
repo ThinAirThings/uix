@@ -1,5 +1,5 @@
 import { ZodTypeAny } from "zod";
-import { LayerDefinition } from "./LayerDefinition";
+import { LayerDefinition } from "./LayerComposition";
 
 
 

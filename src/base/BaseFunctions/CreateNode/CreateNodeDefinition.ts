@@ -2,13 +2,12 @@ import { Result } from "@/src/types/Result";
 import { UixNode } from "@/src/types/UixNode";
 import { UixLayerError } from "../../LayerError/UixLayerError";
 import { GraphDefinitionAny } from "../../Graph/GraphDefinition";
-import { LayerDefinition, LayerDefinitionAny, MaybeDependenciesArg } from "../../Layer/LayerDefinition";
+import { InitializerArg, LayerConfiguration, LayerConfigurationAny, MaybeDependenciesArg } from "../../Layer/LayerConfiguration";
+import { ZodTypeAny } from "zod";
 
 
 export class CreateNodeDefinition<
-    // LayerType extends Capitalize<string>,
     ErrorType,
-// Dependencies extends Record<string, any> | undefined = undefined,
 > {
     //  ___ _        _   _      ___             _   _             
     // / __| |_ __ _| |_(_)__  | __|  _ _ _  __| |_(_)___ _ _  ___
@@ -16,15 +15,14 @@ export class CreateNodeDefinition<
     // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
     static constrain = <
         LayerType extends Capitalize<string>,
-        Dependencies extends Record<string, any> | undefined = undefined,
+        ConfigurationDefinition extends ZodTypeAny | undefined = undefined,
+        Initializer extends InitializerArg<ConfigurationDefinition> | undefined = undefined,
     >(
-        _layerDefinition: LayerDefinition<LayerType, any, Dependencies>
+        _layerDefinition: LayerConfiguration<LayerType, ConfigurationDefinition, Initializer>
     ) => class ConstrainedCreateNodeDefinition<
         ErrorType
     > extends CreateNodeDefinition<
-        // LayerType,
         ErrorType
-    // Dependencies
     > {
             static define = <
                 ErrorType extends ReturnType<ReturnType<typeof UixLayerError>>['val']
@@ -34,7 +32,7 @@ export class CreateNodeDefinition<
                     nodeType: Capitalize<string>,
                     initialState: Record<string, any>,
                     UixError: ReturnType<typeof UixLayerError<LayerType>>,
-                    ...[dependencyInjection]: MaybeDependenciesArg<Dependencies>
+                    ...[dependencyInjection]: MaybeDependenciesArg<Initializer>
                 ) => Promise<Result<
                     UixNode,
                     ErrorType
@@ -50,7 +48,7 @@ export class CreateNodeDefinition<
             graph: GraphDefinitionAny,
             nodeType: Capitalize<string>,
             initialState: Record<string, any>,
-            UixError: ReturnType<typeof UixLayerError<LayerType>>,
+            UixError: ReturnType<typeof UixLayerError<any>>,
             ...args: any[]
         ) => Promise<Result<
             UixNode,
