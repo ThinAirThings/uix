@@ -3,12 +3,12 @@ import neo4j, { EagerResult, Integer, Neo4jError, Node, graph } from 'neo4j-driv
 import { createUniqueIndex } from "@/src/layers/Neo4j/createUniqueIndex"
 import { Err, GraphLayer, Ok, UixNode } from "@/src"
 import { NodeDefinition } from "@/src/base/Node/NodeDefinition"
-import { LayerDefinition } from "@/src/base/Layer/LayerDefinition"
 import { RelationshipDefinition } from "@/src/base/Relationship/RelationshipDefinition"
 import { GraphDefinition } from "@/src/base/Graph/GraphDefinition"
 import { CreateNodeDefinition } from "@/src/base/BaseFunctions/CreateNode/CreateNodeDefinition"
 import { LayerConfiguration } from "@/src/base/Layer/LayerConfiguration"
 import { LayerComposition } from "@/src/base/Layer/LayerComposition"
+import { DependenciesDefinition } from "@/src/base/Dependencies/DependenciesDefinition"
 
 
 
@@ -44,7 +44,7 @@ const likesRelationshipDefinition = RelationshipDefinition
     .define(['User'], 'LIKES', ['Post'])
 
 const graphDefinition = GraphDefinition
-    .define([
+    .define('Base', [
         userNodeDefinition,
         postNodeDefinition,
     ], [
@@ -53,9 +53,8 @@ const graphDefinition = GraphDefinition
     ])
 
 
-const thing = null as unknown as TypeOf<typeof userNodeDefinition['stateDefaultSchema']>
-const indexes = null as unknown as typeof userNodeDefinition['uniqueIndexes'][number]
-const neo4jLayerConfiguration = LayerConfiguration
+
+const neo4jDependencies = DependenciesDefinition
     .define('Neo4j')
     .defineConfiguration(z.object({
         url: z.string(),
@@ -107,7 +106,9 @@ const createNodeDefinition = CreateNodeDefinition
     })
 
 
-graphDefinition.extend(graphDefinition)
+graphDefinition.extend(
+    graphDefinition,
+)
 // const Neo4jLayer = LayerComposition
 //     .compose(graphDefinition)
 

@@ -13,7 +13,7 @@ type Concrete<T extends Record<string, any>> = {
     [P in keyof T]: NonNullable<T[P]>;
 };
 
-export type NodeDefinitionsAny = readonly NodeDefinition<any, any, any, any>[]
+export type NodeDefinitionAny = NodeDefinition<any, any, any, any>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
