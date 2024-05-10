@@ -18,7 +18,7 @@ export type DependenciesDefinitionAny = DependenciesDefinition<any, any, any>
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_|                              
 export class DependenciesDefinition<
-    DependenciesType extends Capitalize<string>,
+    DependenciesType extends Capitalize<string> = Capitalize<string>,
     ConfigurationDefinition extends ZodTypeAny | undefined = undefined,
     Initializer extends GenericInitializer<ConfigurationDefinition> | undefined = undefined,
 > {

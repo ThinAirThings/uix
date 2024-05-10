@@ -5,10 +5,11 @@ import { Err, GraphLayer, Ok, UixNode } from "@/src"
 import { NodeDefinition } from "@/src/base/Node/NodeDefinition"
 import { RelationshipDefinition } from "@/src/base/Relationship/RelationshipDefinition"
 import { GraphDefinition } from "@/src/base/Graph/GraphDefinition"
-import { CreateNodeDefinition } from "@/src/base/BaseFunctions/CreateNode/CreateNodeDefinition"
 import { LayerConfiguration } from "@/src/base/Layer/LayerConfiguration"
 import { LayerComposition } from "@/src/base/Layer/LayerComposition"
 import { DependenciesDefinition } from "@/src/base/Dependencies/DependenciesDefinition"
+import { uixNodeSchema } from "@/src/base/Node/UixNodeSchema"
+import { CreateNodeInterface } from "@/src/base/FunctionInterfaces/CreateNodeInterface/CreateNodeInterface"
 
 
 
@@ -78,32 +79,40 @@ const neo4jDependencies = DependenciesDefinition
     })
 
 
-const createNodeDefinition = CreateNodeDefinition
-    .constrain(neo4jLayerConfiguration)
-    .define(async (graph, nodeType, initialState, UixError, deps) => {
-        // Wait for index creation to complete
-        await Promise.all(deps.uniqueIndexesCreated)
-        if (nodeType === 'cheese') {
-            return Ok(null as unknown as UixNode<'Cheese', { name: string }>)
-        }
-        return UixError('NoNode', 'fdsa', {
-            nodeType: nodeType,
-        })
-        // await Promise.all(uniqueIndexesCreated)
-        // const newNode = await graph.createNode(nodeType, initialState) //as unknown as UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>
-        // if (!driver) throw new Error('Neo4jNode.neo4jDriver is not configured')
-        // return await driver.executeQuery<EagerResult<{
-        //     node: Node<Integer, UixNode<typeof nodeType, any>>
-        // }>>(`
-        //         CREATE (node:${nodeType} $newNode)
-        //         RETURN node
-        //     `, { newNode: newNode.ok ? newNode.val : {} })
-        //     .then(({ records }) => Ok(records.map(record => record.get('node').properties)[0]))
-        //     .catch((e: Neo4jError) => e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed'
-        //         ? Err(UixErr('Normal', 'UniqueIndexViolation', { message: e.message }))
-        //         : Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
-        //     )
+
+const createNodeImplementation = CreateNodeInterface
+    .defineDependencies(neo4jDependencies)
+    .defineImplementation((graph, nodeType, initialState, deps) => {
+        return null as any
     })
+    // .implementation?.()
+
+// const createNodeDefinition = CreateNodeDefinition
+//     .constrain(neo4jLayerConfiguration)
+//     .define(async (graph, nodeType, initialState, UixError, deps) => {
+//         // Wait for index creation to complete
+//         await Promise.all(deps.uniqueIndexesCreated)
+//         if (nodeType === 'cheese') {
+//             return Ok(null as unknown as UixNode<'Cheese', { name: string }>)
+//         }
+//         return UixError('NoNode', 'fdsa', {
+//             nodeType: nodeType,
+//         })
+//         // await Promise.all(uniqueIndexesCreated)
+//         // const newNode = await graph.createNode(nodeType, initialState) //as unknown as UixNode<typeof nodeType, TypeOf<(N[number] & { nodeType: typeof nodeType })['stateDefinition']>>
+//         // if (!driver) throw new Error('Neo4jNode.neo4jDriver is not configured')
+//         // return await driver.executeQuery<EagerResult<{
+//         //     node: Node<Integer, UixNode<typeof nodeType, any>>
+//         // }>>(`
+//         //         CREATE (node:${nodeType} $newNode)
+//         //         RETURN node
+//         //     `, { newNode: newNode.ok ? newNode.val : {} })
+//         //     .then(({ records }) => Ok(records.map(record => record.get('node').properties)[0]))
+//         //     .catch((e: Neo4jError) => e.message === 'Neo.ClientError.Schema.ConstraintValidationFailed'
+//         //         ? Err(UixErr('Normal', 'UniqueIndexViolation', { message: e.message }))
+//         //         : Err(UixErr('Fatal', 'LayerImplementationError', { message: e.message }))
+//         //     )
+//     })
 
 
 graphDefinition.extend(
