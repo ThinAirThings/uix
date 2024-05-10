@@ -1,6 +1,6 @@
 
 import { TypeOf, ZodTypeAny } from "zod"
-import { GraphDefinition, GraphDefinitionAny } from "../Graph/GraphDefinition"
+import { GraphDefinition } from "../Graph/GraphDefinition"
 
 
 //  _   _ _   _ _ _ _          _____                  
@@ -8,11 +8,12 @@ import { GraphDefinition, GraphDefinitionAny } from "../Graph/GraphDefinition"
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|           
-type MaybeConfigurationArg<T> = T extends ZodTypeAny ? [TypeOf<T>] : []
-export type GenericInitializer<ConfigurationDefinition> = ((graph: GraphDefinition, ...[config]: MaybeConfigurationArg<ConfigurationDefinition>) => Record<string, any> | undefined)
-export type MaybeDependenciesArg<T> = T extends (...args: any[]) => infer R
-    ? R extends Record<string, any> ? [R] : [] : []
+export type PossibleConfiguration<T> = T extends ZodTypeAny ? [TypeOf<T>] : []
+export type GenericInitializer<ConfigurationDefinition> = ((graph: GraphDefinition, ...[config]: PossibleConfiguration<ConfigurationDefinition>) => Record<string, any> | undefined)
 export type DependenciesDefinitionAny = DependenciesDefinition<any, any, any>
+export type PossibleDependencies<T> = T extends DependenciesDefinitionAny
+    ? T['initializer'] extends (...args: any[]) => infer R
+    ? R extends Record<string, any> ? [R] : [] : [] : []
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 

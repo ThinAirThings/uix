@@ -1,7 +1,8 @@
 import { TypeOf, ZodObject, ZodTuple } from "zod";
-import { DependenciesDefinition as DefaultDependenciesDefinition, DependenciesDefinitionAny } from "../Dependencies/DependenciesDefinition";
+import { DependenciesDefinitionAny, PossibleDependencies } from "../Dependencies/DependenciesDefinition";
 import { GraphDefinitionAny } from "../Graph/GraphDefinition";
 import { Result } from "@/src/types/Result";
+import { SystemAny } from "../System/System";
 
 
 //  _   _ _   _ _ _ _          _____                  
@@ -9,19 +10,33 @@ import { Result } from "@/src/types/Result";
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|  
-type PossibleDependencies<T> = T extends Record<string, any>
-    ? [T]
-    : []
 
+
+export type GenericFunctionImplementation<
+    InputSchema extends ZodTuple,
+    SuccessSchema extends ZodObject<any>,
+    ErrorSchema extends ZodObject<any>,
+    DependenciesDefinition extends DependenciesDefinitionAny | undefined
+> = (
+    graphDefinition: GraphDefinitionAny,
+    subsystem: SystemAny,
+    ...input: [...TypeOf<InputSchema>, ...PossibleDependencies<DependenciesDefinition>]
+) => Promise<Result<
+    TypeOf<SuccessSchema>,
+    TypeOf<ErrorSchema>
+>>
+export type FunctionInterfaceAny = FunctionInterface<any, any, any, any>
+export type DefinedFunctionInterface = ReturnType<typeof FunctionInterface['define']>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
 export class FunctionInterface<
-    FunctionType extends Capitalize<string>,
-    InputSchema extends ZodTuple,
-    SuccessSchema extends ZodObject<any>,
-    ErrorSchema extends ZodObject<any>,
+    FunctionType extends Capitalize<string> = Capitalize<string>,
+    InputSchema extends ZodTuple = ZodTuple,
+    SuccessSchema extends ZodObject<any> = ZodObject<any>,
+    ErrorSchema extends ZodObject<any> = ZodObject<any>,
+    DependenciesDefinition extends DependenciesDefinitionAny | undefined = undefined,
 > {
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
@@ -32,68 +47,57 @@ export class FunctionInterface<
         public inputSchema: InputSchema,
         public successSchema: SuccessSchema,
         public errorSchema: ErrorSchema,
+        public dependenciesDefinition: DependenciesDefinition = undefined as DependenciesDefinition,
+        public implementation: GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition> | undefined = undefined
     ) { }
     //  ___ _        _   _      ___             _   _             
     // / __| |_ __ _| |_(_)__  | __|  _ _ _  __| |_(_)___ _ _  ___
     // \__ \  _/ _` |  _| / _| | _| || | ' \/ _|  _| / _ \ ' \(_-<
     // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
     static define = <
-        FunctionType extends Capitalize<string>,
-        InputSchema extends ZodTuple,
-        SuccessSchema extends ZodObject<any>,
-        ErrorSchema extends ZodObject<any>,
+        FunctionType extends Capitalize<string> = Capitalize<string>,
+        InputSchema extends ZodTuple = ZodTuple,
+        SuccessSchema extends ZodObject<any> = ZodObject<any>,
+        ErrorSchema extends ZodObject<any> = ZodObject<any>,
     >(
         functionType: FunctionType, schema: {
             input: InputSchema,
             success: SuccessSchema,
             error: ErrorSchema
         }
-    ) => class DefinedFunctionInterface<
-        GenericInterface extends (...args: TypeOf<InputSchema>) => any = (...args: TypeOf<InputSchema>) => any,
-        DependenciesDefinition extends DependenciesDefinitionAny = DefaultDependenciesDefinition,
-    > extends FunctionInterface<
-        FunctionType,
-        InputSchema,
-        SuccessSchema,
-        ErrorSchema
-    > {
-            private constructor(
-                public dependenciesDefinition: DependenciesDefinition,
-                public implementation: ((
-                    graphDefinition: GraphDefinitionAny,
-                    ...input: [...TypeOf<InputSchema>, ...PossibleDependencies<ReturnType<DependenciesDefinition['initializer']>>]
-                ) => Promise<Result<
-                    TypeOf<SuccessSchema>,
-                    TypeOf<ErrorSchema>
-                >>) | undefined = undefined
-            ) {
-                super(
-                    functionType,
-                    schema.input,
-                    schema.success,
-                    schema.error
-                )
-            }
-            //  ___      _ _    _            
-            // | _ )_  _(_) |__| |___ _ _ ___
-            // | _ \ || | | / _` / -_) '_(_-<
-            // |___/\_,_|_|_\__,_\___|_| /__/
-            static defineDependencies = <
-                DependenciesDefinition extends DependenciesDefinitionAny
-            >(
-                dependenciesDefinition: DependenciesDefinition
-            ) => new DefinedFunctionInterface(
-                dependenciesDefinition
-            )
-            defineImplementation<
-                GenericInterface extends (...args: TypeOf<InputSchema>) => any
-            >(
-                implementation: typeof this.implementation
-            ) {
-                return new DefinedFunctionInterface<GenericInterface, any>(
-                    this.dependenciesDefinition,
-                    implementation as unknown as typeof this.implementation
-                )
-            }
-        }
+    ) => new FunctionInterface(
+        functionType,
+        schema.input,
+        schema.success,
+        schema.error
+    )
+
+    //  ___      _ _    _            
+    // | _ )_  _(_) |__| |___ _ _ ___
+    // | _ \ || | | / _` / -_) '_(_-<
+    // |___/\_,_|_|_\__,_\___|_| /__/
+    defineDependencies = <
+        DependenciesDefinition extends DependenciesDefinitionAny
+    >(
+        dependenciesDefinition: DependenciesDefinition
+    ) => new FunctionInterface(
+        this.functionType,
+        this.inputSchema,
+        this.successSchema,
+        this.errorSchema,
+        dependenciesDefinition
+    )
+    defineImplementation(
+        implementation: GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition>
+    ) {
+        return new FunctionInterface(
+            this.functionType,
+            this.inputSchema,
+            this.successSchema,
+            this.errorSchema,
+            this.dependenciesDefinition,
+            implementation
+        )
+    }
+
 }
