@@ -36,6 +36,14 @@ export class FunctionInterface<
     InputSchema extends ZodTuple = ZodTuple,
     SuccessSchema extends ZodObject<any> = ZodObject<any>,
     ErrorSchema extends ZodObject<any> = ZodObject<any>,
+    GenericInterfaceFactory extends ((
+        graphDefinition: GraphDefinitionAny,
+        subsystem: SystemAny,
+        implementation: GenericFunctionImplementation<any, any, any, any>
+    ) => (...input: TypeOf<InputSchema>) => Promise<Result<
+        TypeOf<SuccessSchema>,
+        TypeOf<ErrorSchema>
+    >>) | undefined = undefined,
     DependenciesDefinition extends DependenciesDefinitionAny | undefined = undefined,
 > {
     //      ___             _               _           
@@ -47,6 +55,7 @@ export class FunctionInterface<
         public inputSchema: InputSchema,
         public successSchema: SuccessSchema,
         public errorSchema: ErrorSchema,
+        public genericInterfaceFactory: GenericInterfaceFactory = undefined as GenericInterfaceFactory,
         public dependenciesDefinition: DependenciesDefinition = undefined as DependenciesDefinition,
         public implementation: GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition> | undefined = undefined
     ) { }
@@ -76,6 +85,24 @@ export class FunctionInterface<
     // | _ )_  _(_) |__| |___ _ _ ___
     // | _ \ || | | / _` / -_) '_(_-<
     // |___/\_,_|_|_\__,_\___|_| /__/
+    defineGenericInterfaceFactory = <
+        GenericInterfaceFactory extends ((
+            graphDefinition: GraphDefinitionAny,
+            subsystem: SystemAny,
+            implementation: GenericFunctionImplementation<any, any, any, any>
+        ) => (...input: TypeOf<InputSchema>) => Promise<Result<
+            TypeOf<SuccessSchema>,
+            TypeOf<ErrorSchema>
+        >>)
+    >(
+        genericInterfaceFactory: GenericInterfaceFactory
+    ) => new FunctionInterface(
+        this.functionType,
+        this.inputSchema,
+        this.successSchema,
+        this.errorSchema,
+        genericInterfaceFactory
+    )
     defineDependencies = <
         DependenciesDefinition extends DependenciesDefinitionAny
     >(
@@ -85,6 +112,7 @@ export class FunctionInterface<
         this.inputSchema,
         this.successSchema,
         this.errorSchema,
+        this.genericInterfaceFactory,
         dependenciesDefinition
     )
     defineImplementation(
@@ -95,6 +123,7 @@ export class FunctionInterface<
             this.inputSchema,
             this.successSchema,
             this.errorSchema,
+            this.genericInterfaceFactory,
             this.dependenciesDefinition,
             implementation
         )
