@@ -1,5 +1,5 @@
 import { TypeOf, z } from "zod"
-import { FunctionInterface, GenericFunctionImplementation } from "../FunctionInterface"
+import { FunctionInterfaceDefinition, GenericFunctionImplementation, GenericFunctionImplementationAny } from "../FunctionInterfaceDefinition"
 import { uixNodeSchema } from "../../Node/UixNodeSchema"
 import { GraphDefinitionAny } from "../../Graph/GraphDefinition"
 import { Ok, Result } from "@/src/types/Result"
@@ -9,20 +9,19 @@ import { SystemAny } from "../../System/System"
 
 
 
-export const CreateNodeInterface = FunctionInterface
+export const CreateNodeInterfaceDefinition = FunctionInterfaceDefinition
     .define('CreateNode', {
         input: z.tuple([z.string(), z.object({ cheese: z.string() })]),
         success: uixNodeSchema,
         error: z.object({ err: z.string() })
     })
-    // You might want to make this generic
     .defineGenericInterfaceFactory(<
         GraphDefinition extends GraphDefinitionAny,
         System extends SystemAny,
-        Implementation extends GenericFunctionImplementation<any, any, any, any>
+        Implementation extends GenericFunctionImplementationAny
     >(graph: GraphDefinition, subsystem: System, implementation: Implementation) => async<
         NodeType extends GraphDefinition['nodeDefinitions'][number]['nodeType'],
-        InitialState extends TypeOf<(GraphDefinition['nodeDefinitions'][number])['stateSchema']>
+        InitialState extends TypeOf<(GraphDefinition['nodeDefinitions'] & { nodeType: NodeType })['stateSchema']>
     >(nodeType: NodeType, initialState: InitialState) => {
             return subsystem ?
                 implementation(graph, subsystem, nodeType, initialState)

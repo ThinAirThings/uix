@@ -9,11 +9,10 @@ import { LayerConfiguration } from "@/src/base/Layer/LayerConfiguration"
 import { LayerComposition } from "@/src/base/Layer/LayerComposition"
 import { DependenciesDefinition } from "@/src/base/Dependencies/DependenciesDefinition"
 import { uixNodeSchema } from "@/src/base/Node/UixNodeSchema"
-import { CreateNodeInterface } from "@/src/base/FunctionInterfaces/CreateNodeInterface/CreateNodeInterface"
-import { BaseInterface, System } from "@/src/base/Interface/BaseInterface"
+import { CreateNodeInterfaceDefinition } from "@/src/base/FunctionInterfaces/CreateNodeInterface/CreateNodeInterface"
 import { SystemDefinition } from "@/src/base/System/SystemDefinition"
-
-
+import { v4 as uuidv4 } from 'uuid'
+import { uix } from "@/src/uix"
 
 const userNodeDefinition = NodeDefinition
     .define('User', z.object({
@@ -81,15 +80,35 @@ const neo4jDependencies = DependenciesDefinition
     })
 
 
+const baseSystemDefinition = SystemDefinition
+    .define('Base', [
+        CreateNodeInterfaceDefinition
+    ])
+    .defineDependencies(neo4jDependencies)
+    .defineImplementations([
+        CreateNodeInterfaceDefinition
+            .defineDependencies(neo4jDependencies)
+            .defineImplementation(async (graph, subsystem, nodeType, initialState, deps) => {
+                return Ok({
+                    nodeType,
+                    nodeId: uuidv4(),
+                    createdAt: new Date().toISOString(),
+                    ...initialState,
+                })
+            })
+    ])
 
-const createNodeImplementation = CreateNodeInterface
+
+
+
+
+const createNodeImplementation = CreateNodeInterfaceDefinition
     .defineDependencies(neo4jDependencies)
     .defineImplementation((graph, nodeType, initialState, deps) => {
         return null as any
     })
 
-const baseSystem = SystemDefinition
-    .define('Base')
+
 
 // .implementation?.()
 const result = await baseSystem.createNode('User', {

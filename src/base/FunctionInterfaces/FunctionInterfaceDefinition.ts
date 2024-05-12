@@ -16,34 +16,43 @@ export type GenericFunctionImplementation<
     InputSchema extends ZodTuple,
     SuccessSchema extends ZodObject<any>,
     ErrorSchema extends ZodObject<any>,
-    DependenciesDefinition extends DependenciesDefinitionAny | undefined
+    DependenciesDefinition extends DependenciesDefinitionAny | undefined,
+    ErrorType extends TypeOf<ErrorSchema>,
 > = (
     graphDefinition: GraphDefinitionAny,
     subsystem: SystemAny,
     ...input: [...TypeOf<InputSchema>, ...PossibleDependencies<DependenciesDefinition>]
 ) => Promise<Result<
     TypeOf<SuccessSchema>,
-    TypeOf<ErrorSchema>
+    ErrorType
 >>
-export type FunctionInterfaceAny = FunctionInterface<any, any, any, any>
-export type DefinedFunctionInterface = ReturnType<typeof FunctionInterface['define']>
+export type GenericInterfaceFactory<
+    InputSchema extends ZodTuple,
+    SuccessSchema extends ZodObject<any>,
+    ErrorSchema extends ZodObject<any>,
+> = ((
+    graphDefinition: GraphDefinitionAny,
+    subsystem: SystemAny,
+    implementation: GenericFunctionImplementationAny
+) => (...input: TypeOf<InputSchema>) => Promise<Result<
+    TypeOf<SuccessSchema>,
+    TypeOf<ErrorSchema>
+>>)
+
+export type GenericFunctionImplementationAny = GenericFunctionImplementation<any, any, any, any, any>
+export type UnimplementedFunctionInterfaceDefinitionAny = FunctionInterfaceDefinition<any, any, any, any, any, undefined, undefined>
+export type FunctionInterfaceDefinitionAny = FunctionInterfaceDefinition<any, any, any, any, any, any, any>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
-export class FunctionInterface<
+export class FunctionInterfaceDefinition<
     FunctionType extends Capitalize<string> = Capitalize<string>,
     InputSchema extends ZodTuple = ZodTuple,
     SuccessSchema extends ZodObject<any> = ZodObject<any>,
     ErrorSchema extends ZodObject<any> = ZodObject<any>,
-    GenericInterfaceFactory extends ((
-        graphDefinition: GraphDefinitionAny,
-        subsystem: SystemAny,
-        implementation: GenericFunctionImplementation<any, any, any, any>
-    ) => (...input: TypeOf<InputSchema>) => Promise<Result<
-        TypeOf<SuccessSchema>,
-        TypeOf<ErrorSchema>
-    >>) | undefined = undefined,
+    InterfaceFactory extends GenericInterfaceFactory<InputSchema, SuccessSchema, ErrorSchema> | undefined = undefined,
+    Implementation extends GenericFunctionImplementationAny | undefined = undefined,
     DependenciesDefinition extends DependenciesDefinitionAny | undefined = undefined,
 > {
     //      ___             _               _           
@@ -55,9 +64,9 @@ export class FunctionInterface<
         public inputSchema: InputSchema,
         public successSchema: SuccessSchema,
         public errorSchema: ErrorSchema,
-        public genericInterfaceFactory: GenericInterfaceFactory = undefined as GenericInterfaceFactory,
+        public interfaceFactory: InterfaceFactory = undefined as InterfaceFactory,
         public dependenciesDefinition: DependenciesDefinition = undefined as DependenciesDefinition,
-        public implementation: GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition> | undefined = undefined
+        public implementation: Implementation | undefined = undefined
     ) { }
     //  ___ _        _   _      ___             _   _             
     // / __| |_ __ _| |_(_)__  | __|  _ _ _  __| |_(_)___ _ _  ___
@@ -74,7 +83,7 @@ export class FunctionInterface<
             success: SuccessSchema,
             error: ErrorSchema
         }
-    ) => new FunctionInterface(
+    ) => new FunctionInterfaceDefinition(
         functionType,
         schema.input,
         schema.success,
@@ -89,14 +98,14 @@ export class FunctionInterface<
         GenericInterfaceFactory extends ((
             graphDefinition: GraphDefinitionAny,
             subsystem: SystemAny,
-            implementation: GenericFunctionImplementation<any, any, any, any>
+            implementation: GenericFunctionImplementationAny
         ) => (...input: TypeOf<InputSchema>) => Promise<Result<
             TypeOf<SuccessSchema>,
             TypeOf<ErrorSchema>
         >>)
     >(
         genericInterfaceFactory: GenericInterfaceFactory
-    ) => new FunctionInterface(
+    ) => new FunctionInterfaceDefinition(
         this.functionType,
         this.inputSchema,
         this.successSchema,
@@ -107,26 +116,27 @@ export class FunctionInterface<
         DependenciesDefinition extends DependenciesDefinitionAny
     >(
         dependenciesDefinition: DependenciesDefinition
-    ) => new FunctionInterface(
+    ) => new FunctionInterfaceDefinition(
         this.functionType,
         this.inputSchema,
         this.successSchema,
         this.errorSchema,
-        this.genericInterfaceFactory,
+        this.interfaceFactory,
         dependenciesDefinition
     )
-    defineImplementation(
-        implementation: GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition>
+    defineImplementation<
+        Implementation extends GenericFunctionImplementation<InputSchema, SuccessSchema, ErrorSchema, DependenciesDefinition, any>
+    >(
+        implementation: Implementation
     ) {
-        return new FunctionInterface(
+        return new FunctionInterfaceDefinition(
             this.functionType,
             this.inputSchema,
             this.successSchema,
             this.errorSchema,
-            this.genericInterfaceFactory,
+            this.interfaceFactory,
             this.dependenciesDefinition,
             implementation
         )
     }
-
 }

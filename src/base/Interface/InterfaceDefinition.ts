@@ -1,6 +1,6 @@
 import { ZodTypeAny } from "zod";
 import { DependenciesDefinition, DependenciesDefinitionAny, GenericInitializer } from "../Dependencies/DependenciesDefinition";
-import { FunctionInterface, FunctionInterfaceAny, GenericFunctionImplementation } from "../FunctionInterfaces/FunctionInterface";
+import { FunctionInterface, FunctionInterfaceAny, GenericFunctionImplementation } from "../FunctionInterfaces/FunctionInterfaceDefinition";
 
 
 //  _   _ _   _ _ _ _          _____                  
