@@ -1,6 +1,6 @@
 import { DependenciesDefinition } from "./base/Dependencies/DependenciesDefinition";
 import { FunctionInterfaceDefinition } from "./base/FunctionInterfaces/FunctionInterfaceDefinition";
-import { RelationshipDefinition } from "./base/Relationship/RelationshipDefinition";
+import { RelationshipDefinition } from "./base/Relationship/RelationshipType";
 import { SystemDefinition } from "./base/System/SystemDefinition";
 import { NodeDefinition } from "./base/defineNode";
 

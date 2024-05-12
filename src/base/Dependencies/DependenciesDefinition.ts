@@ -1,6 +1,6 @@
 
 import { TypeOf, ZodTypeAny } from "zod"
-import { GraphDefinition } from "../Graph/GraphDefinition"
+import { GraphDefinition } from "../Graph/GraphType"
 
 
 //  _   _ _   _ _ _ _          _____                  

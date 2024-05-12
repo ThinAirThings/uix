@@ -1,6 +1,6 @@
 import { Ok } from "@/src/types/Result";
 import { GenericCreateNodeInterface } from "../FunctionInterfaces/CreateNodeInterface/CreateNodeInterface";
-import { GraphDefinitionAny } from "../Graph/GraphDefinition";
+import { GraphDefinitionAny } from "../Graph/GraphType";
 import { v4 as uuidv4 } from 'uuid'
 import { SystemDefinition as SystemDefinitionDefault, SystemDefinitionAny } from "./SystemDefinition";
 

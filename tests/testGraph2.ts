@@ -2,9 +2,7 @@ import { TypeOf, ZodTypeAny, z } from "zod"
 import neo4j, { EagerResult, Integer, Neo4jError, Node, graph } from 'neo4j-driver'
 import { createUniqueIndex } from "@/src/layers/Neo4j/createUniqueIndex"
 import { Err, GraphLayer, Ok, Result, UixNode } from "@/src"
-import { NodeDefinition } from "@/src/base/Node/NodeDefinition"
-import { RelationshipDefinition } from "@/src/base/Relationship/RelationshipDefinition"
-import { GraphDefinition } from "@/src/base/Graph/GraphDefinition"
+
 import { LayerConfiguration } from "@/src/base/Layer/LayerConfiguration"
 import { LayerComposition } from "@/src/base/Layer/LayerComposition"
 import { DependenciesDefinition } from "@/src/base/Dependencies/DependenciesDefinition"
@@ -13,8 +11,11 @@ import { CreateNodeInterfaceDefinition } from "@/src/base/FunctionInterfaces/Cre
 import { SystemDefinition } from "@/src/base/System/SystemDefinition"
 import { v4 as uuidv4 } from 'uuid'
 import { uix } from "@/src/uix"
+import { NodeType } from "@/src/base/Node/NodeType"
+import { RelationshipType } from "@/src/base/Relationship/RelationshipType"
+import { GraphType } from "@/src/base/Graph/GraphType"
 
-const userNodeDefinition = NodeDefinition
+const userNodeDefinition = NodeType
     .define('User', z.object({
         name: z.string(),
         email: z.string().email(),
@@ -26,7 +27,7 @@ const userNodeDefinition = NodeDefinition
         'email': ''
     })
 
-const postNodeDefinition = NodeDefinition
+const postNodeDefinition = NodeType
     .define('Post', z.object({
         title: z.string(),
         content: z.string(),
@@ -34,19 +35,19 @@ const postNodeDefinition = NodeDefinition
     }))
     .defineUniqueIndexes(['title'])
 
-const friendsWithRelationshipDefinition = RelationshipDefinition
+const friendsWithRelationshipDefinition = RelationshipType
     .constrain([userNodeDefinition])
     .define(['User'], 'FRIENDS_WITH', ['User'])
     .defineStateSchema(z.object({
         since: z.number()
     }))
 
-const likesRelationshipDefinition = RelationshipDefinition
+const likesRelationshipDefinition = RelationshipType
     .constrain([userNodeDefinition, postNodeDefinition])
     .define(['User'], 'LIKES', ['Post'])
 
-const graphDefinition = GraphDefinition
-    .define('Base', [
+const graphDefinition = GraphType
+    .define('HirebirdApplication', [
         userNodeDefinition,
         postNodeDefinition,
     ], [

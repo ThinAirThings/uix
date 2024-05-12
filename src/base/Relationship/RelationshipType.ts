@@ -1,6 +1,5 @@
 import { ZodObject } from "zod"
-import { NodeDefinition } from "../Node/NodeDefinition";
-import { NodeDefinitionsAny } from "../Graph/GraphDefinition";
+import { AnyNodeTypeSet, GenericNodeTypeSet } from "../Graph/GraphType";
 
 
 //  _   _ _   _ _ _ _          _____                  
@@ -8,16 +7,21 @@ import { NodeDefinitionsAny } from "../Graph/GraphDefinition";
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|    
-export type RelationshipDefinitionAny = RelationshipDefinition<any, any, any, any>
-
+export type AnyRelationshipType = RelationshipType<any, any, any, any>
+export type GenericRelationshipType = RelationshipType<
+    GenericNodeTypeSet[number]['type'],
+    Uppercase<string>,
+    GenericNodeTypeSet[number]['type'],
+    ZodObject<any> | undefined
+>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
-export class RelationshipDefinition<
-    FromNodeType extends Capitalize<string> = Capitalize<string>,
+export class RelationshipType<
+    FromNodeTypeSet extends AnyNodeTypeSet[number]['type'] = GenericNodeTypeSet[number]['type'],
     RelationshipType extends Uppercase<string> = Uppercase<string>,
-    ToNodeType extends Capitalize<string> = Capitalize<string>,
+    ToNodeTypeSet extends AnyNodeTypeSet[number]['type'] = GenericNodeTypeSet[number]['type'],
     StateSchema extends ZodObject<any> | undefined = undefined,
 > {
     //  ___ _        _   _      ___             _   _             
@@ -25,29 +29,29 @@ export class RelationshipDefinition<
     // \__ \  _/ _` |  _| / _| | _| || | ' \/ _|  _| / _ \ ' \(_-<
     // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
     static constrain = <
-        NodeDefinitions extends NodeDefinitionsAny,
+        NodeTypeSet extends AnyNodeTypeSet,
     >(
         // Note: You could do interesting things here like create a set of similarity scores between different types
         // of nodes and use the node state schemas to create embedding scores
-        _nodeDefinitions: NodeDefinitions
-    ) => class ConstrainedRelationshipDefinition<
-        FromNodeType extends NodeDefinitions[number]['nodeType'],
-        RelationshipType extends Uppercase<string>,
-        ToNodeType extends NodeDefinitions[number]['nodeType'],
+        _nodeDefinitions: NodeTypeSet
+    ) => class ConstrainedRelationshipType<
+        FromNodeTypeSet extends NodeTypeSet[number]['type'][],
+        Type extends Uppercase<string>,
+        ToNodeTypeSet extends NodeTypeSet[number]['type'][],
         StateSchema extends ZodObject<any> | undefined = undefined
-    > extends RelationshipDefinition<FromNodeType, RelationshipType, ToNodeType, StateSchema> {
+    > extends RelationshipType<FromNodeTypeSet, Type, ToNodeTypeSet, StateSchema> {
             static define = <
-                FromNodeType extends NodeDefinitions[number]['nodeType'],
+                FromNodeTypeSet extends NodeTypeSet[number]['type'][],
                 RelationshipType extends Uppercase<string>,
-                ToNodeType extends NodeDefinitions[number]['nodeType'],
+                ToNodeTypeSet extends NodeTypeSet[number]['type'][],
             >(
-                fromNodeType: FromNodeType[],
+                fromNodeTypeSet: FromNodeTypeSet,
                 relationshipType: RelationshipType,
-                toNodeType: ToNodeType[]
-            ) => new ConstrainedRelationshipDefinition(
-                fromNodeType,
+                toNodeTypeSet: ToNodeTypeSet
+            ) => new ConstrainedRelationshipType(
+                fromNodeTypeSet,
                 relationshipType,
-                toNodeType
+                toNodeTypeSet
             )
         }
     //      ___             _               _           
@@ -55,9 +59,9 @@ export class RelationshipDefinition<
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
     //     \___\___/_||_/__/\__|_|  \_,_\__|\__\___/_|  
     private constructor(
-        public fromNodeType: FromNodeType[],
+        public fromNodeTypeSet: FromNodeTypeSet,
         public relationshipType: RelationshipType,
-        public toNodeType: ToNodeType[],
+        public toNodeTypeSet: ToNodeTypeSet,
         public stateSchema: StateSchema = undefined as StateSchema
     ) { }
 
@@ -69,10 +73,10 @@ export class RelationshipDefinition<
     defineStateSchema<StateSchema extends ZodObject<any>>(
         stateSchema: StateSchema
     ) {
-        return new RelationshipDefinition(
-            this.fromNodeType,
+        return new RelationshipType(
+            this.fromNodeTypeSet,
             this.relationshipType,
-            this.toNodeType,
+            this.toNodeTypeSet,
             stateSchema
         )
     }

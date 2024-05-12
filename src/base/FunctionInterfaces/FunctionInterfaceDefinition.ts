@@ -1,6 +1,6 @@
 import { TypeOf, ZodObject, ZodTuple } from "zod";
 import { DependenciesDefinitionAny, PossibleDependencies } from "../Dependencies/DependenciesDefinition";
-import { GraphDefinitionAny } from "../Graph/GraphDefinition";
+import { GraphDefinitionAny } from "../Graph/GraphType";
 import { Result } from "@/src/types/Result";
 import { SystemAny } from "../System/System";
 

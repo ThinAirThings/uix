@@ -2,10 +2,10 @@ import { TypeOf, ZodTypeAny } from "zod"
 import { ExtendUixError } from "../UixErr"
 import { Err, Result } from "@/src/types/Result"
 import { UixNode } from "@/src/types/UixNode"
-import { CreateNodeFunction, GraphDefinition, GraphDefinitionAny } from "../Graph/GraphDefinition"
+import { CreateNodeFunction, GraphDefinition, GraphDefinitionAny } from "../Graph/GraphType"
 import { UixLayerError } from "../LayerError/UixLayerError"
-import { NodeDefinition, NodeDefinitionsAny } from "../Node/NodeDefinition"
-import { RelationshipDefinition, RelationshipDefinitionsAny } from "../Relationship/RelationshipDefinition"
+import { NodeDefinition, NodeDefinitionsAny } from "../Node/NodeType"
+import { RelationshipDefinition, RelationshipDefinitionsAny } from "../Relationship/RelationshipType"
 
 
 //  _  _     _          

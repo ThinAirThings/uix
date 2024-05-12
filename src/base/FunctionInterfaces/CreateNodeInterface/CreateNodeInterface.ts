@@ -1,7 +1,7 @@
 import { TypeOf, z } from "zod"
 import { FunctionInterfaceDefinition, GenericFunctionImplementation, GenericFunctionImplementationAny } from "../FunctionInterfaceDefinition"
 import { uixNodeSchema } from "../../Node/UixNodeSchema"
-import { GraphDefinitionAny } from "../../Graph/GraphDefinition"
+import { GraphDefinitionAny } from "../../Graph/GraphType"
 import { Ok, Result } from "@/src/types/Result"
 import { UixNode } from "@/src/types/UixNode"
 import { v4 as uuidv4 } from 'uuid'
