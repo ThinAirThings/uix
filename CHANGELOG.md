@@ -1,3 +1,10 @@
+## [1.1.11](https://github.com/ThinAirThings/uix/compare/v1.1.10...v1.1.11) (2024-05-14)
+
+
+### Bug Fixes
+
+* nextjs export name ([e21ff18](https://github.com/ThinAirThings/uix/commit/e21ff18de612faf11563b744ecf366e3cdf46b06))
+
 ## [1.1.10](https://github.com/ThinAirThings/uix/compare/v1.1.9...v1.1.10) (2024-05-14)
 
 
