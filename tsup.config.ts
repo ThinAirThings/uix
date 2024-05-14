@@ -10,7 +10,9 @@ const baseOptions = {
 } as Partial<Parameters<typeof defineConfig>[0]>;
 
 export default defineConfig([{
-    entry: { index: "src/index.ts" },
+    entry: {
+        index: "src/index.ts",
+    },
     ...baseOptions
 }, {
     entry: { "neo4j/index": "src/index.neo4j.ts" },
