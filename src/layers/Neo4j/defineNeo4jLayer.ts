@@ -277,7 +277,7 @@ export const defineNeo4jLayer = <
                     return await tx.run<{
                         toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(N[number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
                     }>(`
-                        MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]->(toNode:${toNodeType})
+                        MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]-(toNode:${toNodeType})
                         RETURN toNode
                     `, { fromNodeId: nodeId })
                 }).then(({ records }) => {
