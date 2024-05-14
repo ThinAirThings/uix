@@ -1,3 +1,10 @@
+## [1.1.12](https://github.com/ThinAirThings/uix/compare/v1.1.11...v1.1.12) (2024-05-14)
+
+
+### Bug Fixes
+
+* remove carret for dual-sided relationships ([aed1e28](https://github.com/ThinAirThings/uix/commit/aed1e28f5573886abba68cf42a471ab6d250552d))
+
 ## [1.1.11](https://github.com/ThinAirThings/uix/compare/v1.1.10...v1.1.11) (2024-05-14)
 
 
