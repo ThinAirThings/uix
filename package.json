@@ -25,9 +25,9 @@
       "require": "./dist/neo4j/index.cjs"
     },
     "./next": {
-      "types": "./dist/next/index.d.ts",
-      "import": "./dist/next/index.js",
-      "require": "./dist/next/index.cjs"
+      "types": "./dist/nextjs/index.d.ts",
+      "import": "./dist/nextjs/index.js",
+      "require": "./dist/nextjs/index.cjs"
     },
     "./react": {
       "types": "./dist/react/index.d.ts",
