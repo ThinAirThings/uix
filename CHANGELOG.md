@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/ThinAirThings/uix/compare/v1.1.8...v1.1.9) (2024-05-14)
+
+
+### Bug Fixes
+
+* implement code splitting ([3a38b54](https://github.com/ThinAirThings/uix/commit/3a38b54e63e93d58855901ec40e62ae49e1eaf9f))
+
 ## [1.1.8](https://github.com/ThinAirThings/uix/compare/v1.1.7...v1.1.8) (2024-05-14)
 
 
