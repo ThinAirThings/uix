@@ -1,3 +1,10 @@
+## [1.1.8](https://github.com/ThinAirThings/uix/compare/v1.1.7...v1.1.8) (2024-05-14)
+
+
+### Bug Fixes
+
+* code splitting ([48edc13](https://github.com/ThinAirThings/uix/commit/48edc13634233721fc622f4ed1e2f809158e19da))
+
 ## [1.1.7](https://github.com/ThinAirThings/uix/compare/v1.1.6...v1.1.7) (2024-05-14)
 
 
