@@ -1,3 +1,10 @@
+## [1.1.13](https://github.com/ThinAirThings/uix/compare/v1.1.12...v1.1.13) (2024-05-15)
+
+
+### Bug Fixes
+
+* remove console logs ([84935ab](https://github.com/ThinAirThings/uix/commit/84935ab7f9393eddb57e8f8770df80842e77786f))
+
 ## [1.1.12](https://github.com/ThinAirThings/uix/compare/v1.1.11...v1.1.12) (2024-05-14)
 
 
