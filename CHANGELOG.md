@@ -1,3 +1,10 @@
+## [1.1.14](https://github.com/ThinAirThings/uix/compare/v1.1.13...v1.1.14) (2024-05-17)
+
+
+### Bug Fixes
+
+* Error handling for unique constraints ([b27b79b](https://github.com/ThinAirThings/uix/commit/b27b79b2dc1793f1115d65d84004011ff60e5a9a))
+
 ## [1.1.13](https://github.com/ThinAirThings/uix/compare/v1.1.12...v1.1.13) (2024-05-15)
 
 
