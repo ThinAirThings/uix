@@ -14,7 +14,7 @@ export const createUniqueIndex = async (
             REQUIRE node.${propertyName} IS UNIQUE
         `))
     } catch (error) {
-        throw error
+        return
     } finally {
         await neo4jSession.close()
     }
