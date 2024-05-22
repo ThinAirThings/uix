@@ -1,3 +1,10 @@
+## [1.1.15](https://github.com/ThinAirThings/uix/compare/v1.1.14...v1.1.15) (2024-05-22)
+
+
+### Bug Fixes
+
+* update dependency list ([51a7fdb](https://github.com/ThinAirThings/uix/commit/51a7fdb9d75343f71fb623796846e12c622228e1))
+
 ## [1.1.14](https://github.com/ThinAirThings/uix/compare/v1.1.13...v1.1.14) (2024-05-17)
 
 
