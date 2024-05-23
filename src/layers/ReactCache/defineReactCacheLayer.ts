@@ -8,6 +8,7 @@ import { enableMapSet, Draft, produce } from 'immer'
 import { immer } from "zustand/middleware/immer";
 import { useImmer } from "@thinairthings/use-immer";
 import { OmitNodeConstants } from "@/src/base/defineBaseGraph";
+import { useEffect } from "react";
 
 
 
@@ -35,7 +36,8 @@ export const defineReactCacheLayer = <
         Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>> | undefined = undefined
     >(
         nodeType: T,
-        node?: Node
+        node?: Node,
+        updateAction?: (...args: any[]) => Promise<any>
     ) => ReturnType<typeof useImmer<Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
         ? (Omit<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>, keyof TypeOf<(N[number] & { nodeType: T })['stateDefaults']>>
             & TypeOf<(N[number] & { nodeType: T })['stateDefaults']>)
@@ -76,8 +78,15 @@ export const defineReactCacheLayer = <
     // )
     return {
         ...graph,
-        useNodeState: (nodeType, node) => {
+        useNodeState: (nodeType, node, updater) => {
             const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
+            useEffect(() => {
+                return () => {
+                    (async () => {
+                        await updater?.(nodeState)
+                    })()
+                }
+            }, [nodeState])
             return [nodeState, updateNodeState] as any
         },
     }
