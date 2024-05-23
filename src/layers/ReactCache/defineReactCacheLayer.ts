@@ -2,12 +2,13 @@ import { NodeDefinition, defineNode } from "@/src/base/defineNode";
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { Ok } from "@/src/types/Result";
-import { createStore, useStore } from "zustand";
+import { create, createStore, useStore } from "zustand";
 import { UixNode } from "@/src/types/UixNode";
 import { enableMapSet, Draft, produce } from 'immer'
 import { immer } from "zustand/middleware/immer";
 import { useImmer } from "@thinairthings/use-immer";
 import { OmitNodeConstants } from "@/src/base/defineBaseGraph";
+import { useEffect } from "react";
 
 
 
@@ -35,7 +36,8 @@ export const defineReactCacheLayer = <
         Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>> | undefined = undefined
     >(
         nodeType: T,
-        node?: Node
+        node?: Node,
+        updateAction?: (...args: any[]) => Promise<any>
     ) => ReturnType<typeof useImmer<Node extends UixNode<T, TypeOf<(N[number] & { nodeType: T })['stateDefinition']>>
         ? (Omit<TypeOf<(N[number] & { nodeType: T })['stateDefinition']>, keyof TypeOf<(N[number] & { nodeType: T })['stateDefaults']>>
             & TypeOf<(N[number] & { nodeType: T })['stateDefaults']>)
@@ -49,35 +51,19 @@ export const defineReactCacheLayer = <
         GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>,
         'createNode' | 'updateNode'
     >
-    // const nodeStore = createStore<ReactCache>()(
-    //     immer(
-    //         (set) => ({
-    //             nodeMap: new Map(),
-    //             createNode: async (nodeType, initialState) => {
-    //                 const createNodeResult = await graph.createNode(nodeType, initialState)
-    //                 if (!createNodeResult.ok) return createNodeResult
-    //                 const node = createNodeResult.val
-    //                 set((state) => {
-    //                     state.nodeMap.set(node.nodeId, node)
-    //                 })
-    //                 return Ok(node)
-    //             },
-    //             updateNode: async (nodeKey, state) => {
-    //                 set((state) => {
-    //                     state.nodeMap.set(nodeKey.nodeId, {
-    //                         ...state.nodeMap.get(nodeKey.nodeId)!,
-    //                         ...state
-    //                     })
-    //                 })
-    //                 return await graph.updateNode(nodeKey, state)
-    //             },
-    //         })
-    //     )
-    // )
+    // const useNodeStore = create()()
     return {
         ...graph,
-        useNodeState: (nodeType, node) => {
+        useNodeState: (nodeType, node, updater) => {
             const [nodeState, updateNodeState] = useImmer(graph.getNodeDefinition(nodeType).stateDefaults.parse(node ?? {}))
+            useEffect(() => {
+                return () => {
+                    (async () => {
+                        console.log("RUNNYYYY444444")
+                        await updater?.(node, nodeState)
+                    })()
+                }
+            }, [nodeState, updater])
             return [nodeState, updateNodeState] as any
         },
     }

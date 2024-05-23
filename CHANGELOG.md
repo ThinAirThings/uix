@@ -1,3 +1,89 @@
+## [1.2.2](https://github.com/ThinAirThings/uix/compare/v1.2.1...v1.2.2) (2024-05-23)
+
+
+### Bug Fixes
+
+* updater syntax ([696ee1f](https://github.com/ThinAirThings/uix/commit/696ee1fdd3bf214b346c594c61a030d32ecc7f3a))
+
+## [1.2.1](https://github.com/ThinAirThings/uix/compare/v1.2.0...v1.2.1) (2024-05-23)
+
+
+### Bug Fixes
+
+* updater ([d6994fe](https://github.com/ThinAirThings/uix/commit/d6994fe8a2482595ef7fb6c983c5ea1c18d2db21))
+
+# [1.2.0](https://github.com/ThinAirThings/uix/compare/v1.1.15...v1.2.0) (2024-05-23)
+
+
+### Features
+
+* shoehorn in an updater function on useNodeState ([44f7ccc](https://github.com/ThinAirThings/uix/commit/44f7ccc196107f55501dc9fdbbc9e0a6214d3ec2))
+
+## [1.1.15](https://github.com/ThinAirThings/uix/compare/v1.1.14...v1.1.15) (2024-05-22)
+
+
+### Bug Fixes
+
+* update dependency list ([51a7fdb](https://github.com/ThinAirThings/uix/commit/51a7fdb9d75343f71fb623796846e12c622228e1))
+
+## [1.1.14](https://github.com/ThinAirThings/uix/compare/v1.1.13...v1.1.14) (2024-05-17)
+
+
+### Bug Fixes
+
+* Error handling for unique constraints ([b27b79b](https://github.com/ThinAirThings/uix/commit/b27b79b2dc1793f1115d65d84004011ff60e5a9a))
+
+## [1.1.13](https://github.com/ThinAirThings/uix/compare/v1.1.12...v1.1.13) (2024-05-15)
+
+
+### Bug Fixes
+
+* remove console logs ([84935ab](https://github.com/ThinAirThings/uix/commit/84935ab7f9393eddb57e8f8770df80842e77786f))
+
+## [1.1.12](https://github.com/ThinAirThings/uix/compare/v1.1.11...v1.1.12) (2024-05-14)
+
+
+### Bug Fixes
+
+* remove carret for dual-sided relationships ([aed1e28](https://github.com/ThinAirThings/uix/commit/aed1e28f5573886abba68cf42a471ab6d250552d))
+
+## [1.1.11](https://github.com/ThinAirThings/uix/compare/v1.1.10...v1.1.11) (2024-05-14)
+
+
+### Bug Fixes
+
+* nextjs export name ([e21ff18](https://github.com/ThinAirThings/uix/commit/e21ff18de612faf11563b744ecf366e3cdf46b06))
+
+## [1.1.10](https://github.com/ThinAirThings/uix/compare/v1.1.9...v1.1.10) (2024-05-14)
+
+
+### Bug Fixes
+
+* nextjs export name ([c0e3aa2](https://github.com/ThinAirThings/uix/commit/c0e3aa22e6b2f84a8d8b82d1cafa4c3e0d92598c))
+
+## [1.1.9](https://github.com/ThinAirThings/uix/compare/v1.1.8...v1.1.9) (2024-05-14)
+
+
+### Bug Fixes
+
+* implement code splitting ([3a38b54](https://github.com/ThinAirThings/uix/commit/3a38b54e63e93d58855901ec40e62ae49e1eaf9f))
+
+## [1.1.8](https://github.com/ThinAirThings/uix/compare/v1.1.7...v1.1.8) (2024-05-14)
+
+
+### Bug Fixes
+
+* code splitting ([48edc13](https://github.com/ThinAirThings/uix/commit/48edc13634233721fc622f4ed1e2f809158e19da))
+
+## [1.1.7](https://github.com/ThinAirThings/uix/compare/v1.1.6...v1.1.7) (2024-05-14)
+
+
+### Bug Fixes
+
+* dependency conflict ([36512df](https://github.com/ThinAirThings/uix/commit/36512dff5326dd597fd0384854aba8055e38ec1d))
+
+## [1.1.6](https://github.com/ThinAirThings/uix/compare/v1.1.5...v1.1.6) (2024-05-14)
+
 ## [1.1.5](https://github.com/ThinAirThings/uix/compare/v1.1.4...v1.1.5) (2024-05-06)
 
 

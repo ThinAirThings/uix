@@ -254,16 +254,14 @@ export const defineNeo4jLayer = <
                     return await tx.run<{
                         toNode: Node<Integer, UixNode<typeof toNodeType, TypeOf<(N[number] & { nodeType: typeof toNodeType })['stateDefinition']>>>
                     }>(`
-                        MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]->(toNode:${toNodeType})
+                        MATCH (fromNode:${nodeType} {nodeId: $fromNodeId})-[:${relationshipType as string}]-(toNode:${toNodeType})
                         RETURN toNode
                     `, { fromNodeId: nodeId })
                 }).then(({ records }) => {
-                    console.log(`RECORDS: `, records.map(record => record.get('toNode').properties))
                     return relationshipDictionary[relationshipType].uniqueFromNode
                         ? records.length ? records.map(record => record.get('toNode').properties)[0] : null
                         : records.map(record => record.get('toNode').properties)
                 })
-                console.log(`RESULT:`, result)
                 if (!result) return Err(UixErr('Neo4j', 'Normal', 'NodeNotFound', { message: `Node of type ${toNodeType} related to node ${nodeType} with ${nodeId} not found` }))
                 return Ok(result as any)   // TS is struggling to infer this. But it is correct
             } catch (_e) {

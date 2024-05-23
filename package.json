@@ -1,7 +1,7 @@
 {
   "name": "@thinairthings/uix",
   "author": "Dan Lannan",
-  "version": "1.1.5",
+  "version": "1.2.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -11,12 +11,28 @@
     "format": "npx prettier --write .",
     "test": "npm run build && jest",
     "verdaccio": "pm2 start $(which verdaccio) --name verdaccio",
-    "localpublish": "npm run build && git add . && git commit --amend --no-edit && npm unpublish --registry http://localhost:4873 && npm publish --registry http://localhost:4873"
+    "localpublish": "pnpm run build && git add . && git commit --amend --no-edit && pnpm unpublish --registry http://localhost:4873 && pnpm version patch && pnpm publish --registry http://localhost:4873"
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./neo4j": {
+      "types": "./dist/neo4j/index.d.ts",
+      "import": "./dist/neo4j/index.js",
+      "require": "./dist/neo4j/index.cjs"
+    },
+    "./nextjs": {
+      "types": "./dist/nextjs/index.d.ts",
+      "import": "./dist/nextjs/index.js",
+      "require": "./dist/nextjs/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs"
     }
   },
   "files": [
@@ -31,13 +47,14 @@
     "@tanstack/react-query": "^5.32.0",
     "@thinairthings/use-immer": "^0.9.1",
     "openai": "^4.38.3",
-    "uuid": "^9.0.1"
-  },
-  "peerDependencies": {
+    "uuid": "^9.0.1",
     "neo4j-driver": "^5.19.0",
-    "next": "14.2.0-canary.62",
+    "next": "^14.2.0-canary.62",
     "zod": "^3.22.5",
     "zustand": "^4.5.2"
+  },
+  "peerDependencies": {
+    "react": "^18"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.24.4",
