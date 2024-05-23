@@ -1,7 +1,7 @@
 {
   "name": "@thinairthings/uix",
   "author": "Dan Lannan",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -11,7 +11,7 @@
     "format": "npx prettier --write .",
     "test": "npm run build && jest",
     "verdaccio": "pm2 start $(which verdaccio) --name verdaccio",
-    "localpublish": "pnpm run build && git add . && git commit --amend --no-edit && pnpm unpublish --registry http://localhost:4873 && pnpm version patch && pnpm publish --registry http://localhost:4873"
+    "localpublish": "pnpm run build && git add . && git commit --amend --no-edit && pnpm version patch && pnpm publish --registry http://localhost:4873"
   },
   "exports": {
     ".": {
