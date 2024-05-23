@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/ThinAirThings/uix/compare/v1.1.15...v1.2.0) (2024-05-23)
+
+
+### Features
+
+* shoehorn in an updater function on useNodeState ([44f7ccc](https://github.com/ThinAirThings/uix/commit/44f7ccc196107f55501dc9fdbbc9e0a6214d3ec2))
+
 ## [1.1.15](https://github.com/ThinAirThings/uix/compare/v1.1.14...v1.1.15) (2024-05-22)
 
 
