@@ -86,7 +86,7 @@ export const defineReactCacheLayer = <
                         await updater?.(nodeState)
                     })()
                 }
-            }, [nodeState])
+            }, [nodeState, updater])
             return [nodeState, updateNodeState] as any
         },
     }
