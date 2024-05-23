@@ -59,7 +59,7 @@ export const defineReactCacheLayer = <
             useEffect(() => {
                 return () => {
                     (async () => {
-                        console.log("RUNNING")
+                        console.log("RUNNNING")
                         await updater?.(node, nodeState)
                     })()
                 }
