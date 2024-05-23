@@ -2,7 +2,7 @@ import { NodeDefinition, defineNode } from "@/src/base/defineNode";
 import { TypeOf, ZodObject } from "zod";
 import { GraphLayer } from "@/src/types/GraphLayer";
 import { Ok } from "@/src/types/Result";
-import { createStore, useStore } from "zustand";
+import { create, createStore, useStore } from "zustand";
 import { UixNode } from "@/src/types/UixNode";
 import { enableMapSet, Draft, produce } from 'immer'
 import { immer } from "zustand/middleware/immer";
@@ -51,31 +51,7 @@ export const defineReactCacheLayer = <
         GraphLayer<N, R, E, UIdx, PreviousLayers | 'ReactCache'>,
         'createNode' | 'updateNode'
     >
-    // const nodeStore = createStore<ReactCache>()(
-    //     immer(
-    //         (set) => ({
-    //             nodeMap: new Map(),
-    //             createNode: async (nodeType, initialState) => {
-    //                 const createNodeResult = await graph.createNode(nodeType, initialState)
-    //                 if (!createNodeResult.ok) return createNodeResult
-    //                 const node = createNodeResult.val
-    //                 set((state) => {
-    //                     state.nodeMap.set(node.nodeId, node)
-    //                 })
-    //                 return Ok(node)
-    //             },
-    //             updateNode: async (nodeKey, state) => {
-    //                 set((state) => {
-    //                     state.nodeMap.set(nodeKey.nodeId, {
-    //                         ...state.nodeMap.get(nodeKey.nodeId)!,
-    //                         ...state
-    //                     })
-    //                 })
-    //                 return await graph.updateNode(nodeKey, state)
-    //             },
-    //         })
-    //     )
-    // )
+    // const useNodeStore = create()()
     return {
         ...graph,
         useNodeState: (nodeType, node, updater) => {
@@ -83,6 +59,7 @@ export const defineReactCacheLayer = <
             useEffect(() => {
                 return () => {
                     (async () => {
+                        console.log("RUNNING")
                         await updater?.(node, nodeState)
                     })()
                 }
