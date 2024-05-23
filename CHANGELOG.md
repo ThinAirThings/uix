@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/ThinAirThings/uix/compare/v1.2.1...v1.2.2) (2024-05-23)
+
+
+### Bug Fixes
+
+* updater syntax ([696ee1f](https://github.com/ThinAirThings/uix/commit/696ee1fdd3bf214b346c594c61a030d32ecc7f3a))
+
 ## [1.2.1](https://github.com/ThinAirThings/uix/compare/v1.2.0...v1.2.1) (2024-05-23)
 
 
