@@ -1,6 +1,0 @@
-
-
-
-
-
-type Neo4jLayerFunctionFactory<> = 
