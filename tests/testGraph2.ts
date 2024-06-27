@@ -14,6 +14,8 @@ import { uix } from "@/src/uix"
 import { NodeType } from "@/src/base/Node/NodeType"
 import { RelationshipType } from "@/src/base/Relationship/RelationshipType"
 import { GraphType } from "@/src/base/Graph/GraphType"
+import { defineDependencies } from "@/src/base/Dependencies/defineDependencies"
+
 
 const userNodeDefinition = NodeType
     .define('User', z.object({
@@ -57,8 +59,7 @@ const graphDefinition = GraphType
 
 
 
-const neo4jDependencies = DependenciesDefinition
-    .define('Neo4j')
+const neo4jDependencies = defineDependencies('Neo4j')
     .defineConfiguration(z.object({
         url: z.string(),
         username: z.string(),

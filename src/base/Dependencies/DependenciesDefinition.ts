@@ -1,6 +1,5 @@
 
 import { TypeOf, ZodTypeAny } from "zod"
-import { GraphDefinition } from "../Graph/GraphType"
 
 
 //  _   _ _   _ _ _ _          _____                  
@@ -23,19 +22,12 @@ export class DependenciesDefinition<
     ConfigurationDefinition extends ZodTypeAny | undefined = undefined,
     Initializer extends GenericInitializer<ConfigurationDefinition> | undefined = undefined,
 > {
-    //  ___ _        _   _      ___             _   _             
-    // / __| |_ __ _| |_(_)__  | __|  _ _ _  __| |_(_)___ _ _  ___
-    // \__ \  _/ _` |  _| / _| | _| || | ' \/ _|  _| / _ \ ' \(_-<
-    // |___/\__\__,_|\__|_\__| |_| \_,_|_||_\__|\__|_\___/_||_/__/
-    static define = <
-        DependenciesType extends Capitalize<string>
-    >(dependenciesType: DependenciesType) => new DependenciesDefinition(dependenciesType)
 
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
     //     \___\___/_||_/__/\__|_|  \_,_\__|\__\___/_|  
-    private constructor(
+    constructor(
         public dependenciesType: DependenciesType,
         public configurationDefinition: ConfigurationDefinition = undefined as ConfigurationDefinition,
         public initializer: Initializer = undefined as Initializer,
