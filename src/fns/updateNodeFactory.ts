@@ -58,6 +58,5 @@ export const updateNodeFactory = <
     // Run Triggers
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
     await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[nodeKey.nodeType]!);
-    // const triggers = nodeTypeMap[nodeKey.nodeType]!.triggerMap.get('onUpdate').forEach(trigger => trigger(nodeKey, node))
     return Ok(convertIntegersToNumbers(node))
 }))

@@ -1,8 +1,9 @@
 
-import { FC, useEffect } from 'react'
+import React, { FC, useEffect } from 'react'
 import { ErrType, Result, tryCatch } from '../../types/Result'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { applicationStore } from '../(stores)/applicationStore'
+import { Box } from 'ink'
 
 type Strictify<T extends readonly any[]> = { [K in keyof T]-?: T[K] & {} }
 
@@ -52,9 +53,15 @@ export const useOperation = <
         if (!result) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Pending({
-                        dependencies: dependencies as Strictify<Dependencies>
-                    }),
+                    Component: () => {
+                        return (
+                            <Box>
+                                <render.Pending
+                                    dependencies={dependencies as Strictify<Dependencies>}
+                                />
+                            </Box>
+                        )
+                    },
                     operationState: 'pending'
                 })
             })
@@ -64,10 +71,16 @@ export const useOperation = <
         if (error) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Error({
-                        error,
-                        dependencies: dependencies as Strictify<Dependencies>
-                    }),
+                    Component: () => {
+                        return (
+                            <Box>
+                                <render.Error
+                                    error={error}
+                                    dependencies={dependencies as Strictify<Dependencies>}
+                                />
+                            </Box>
+                        )
+                    },
                     operationState: 'error'
                 })
             })
@@ -76,10 +89,16 @@ export const useOperation = <
         if (data) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Success({
-                        data,
-                        dependencies: dependencies as Strictify<Dependencies>
-                    }),
+                    Component: () => {
+                        return (
+                            <Box>
+                                <render.Success
+                                    data={data}
+                                    dependencies={dependencies as Strictify<Dependencies>}
+                                />
+                            </Box>
+                        )
+                    },
                     operationState: 'success'
                 })
             })

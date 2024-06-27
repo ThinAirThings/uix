@@ -23,10 +23,6 @@ test('Integration test', async () => {
         userType: 'Unspecified',
         completedOnboardingV2: false,
     })
-    const data = useUniqueChild({
-        parentNodeKey: { nodeType: 'User', nodeId: '1' },
-        childNodeType: 'Profile'
-    })
     if (createUserNodeError) {
         console.error(createUserNodeError.data)
         if (createUserNodeError.subtype === UixErrSubtype.CREATE_NODE_FAILED) {

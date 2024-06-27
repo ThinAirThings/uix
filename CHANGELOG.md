@@ -1,5 +1,125 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 2.0.18
+
+### Patch Changes
+
+- fix delete node recursive delete
+
+## 2.0.17
+
+### Patch Changes
+
+- fix deleteNode
+
+## 2.0.16
+
+### Patch Changes
+
+- wip
+
+## 2.0.15
+
+### Patch Changes
+
+- WIP
+
+## 2.0.14
+
+### Patch Changes
+
+- WIP
+
+## 2.0.13
+
+### Patch Changes
+
+- wip
+
+## 2.0.12
+
+### Patch Changes
+
+- fix required envPath
+
+## 2.0.11
+
+### Patch Changes
+
+- modify envPath
+
+## 2.0.10
+
+### Patch Changes
+
+- add dotenv
+
+## 2.0.9
+
+### Patch Changes
+
+- update package.json
+
+## 2.0.8
+
+### Patch Changes
+
+- update package.json
+
+## 2.0.7
+
+### Patch Changes
+
+- test
+
+## 2.0.6
+
+### Patch Changes
+
+- update
+
+## 2.0.5
+
+### Patch Changes
+
+- update dependencies
+
+## 2.0.6
+
+### Patch Changes
+
+- pin deps
+
+## 2.0.5
+
+### Patch Changes
+
+- update dep versions
+
+## 2.0.4
+
+### Patch Changes
+
+- update dependencies
+
+## 2.0.3
+
+### Patch Changes
+
+- modify dependencies
+
+## 2.0.2
+
+### Patch Changes
+
+- pin react version
+
+## 2.0.1
+
+### Patch Changes
+
+- 76f0d6b: added bin section to package.json
+
 ## 2.0.0
 
 ### Major Changes

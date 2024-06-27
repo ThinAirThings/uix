@@ -1,11 +1,11 @@
 
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Text, Box, Newline, useStdin } from 'ink';
 import { z, TypeOf } from 'zod';
 import { Loading } from '../(components)/Loading';
 import { CommandEnvironment } from '../(components)/CommandEnvironment';
 import { GenericUixConfig } from '../../config/defineConfig';
-import { require } from 'tsx/cjs/api'
+import { require as tsxRequire } from 'tsx/cjs/api'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
@@ -26,6 +26,7 @@ export const options = z.object({
         if (relativePath.slice(0, 1) === '/') return relativePath
         return path.join(process.cwd(), relativePath)
     }).default(path.join(process.cwd(), 'uix', 'uix.config.ts')).describe('Path to uix.config.ts file'),
+    envPath: z.string().default(path.join(process.cwd(), '.env')).describe('Path to .env file'),
 });
 
 export type CodegenOptions = TypeOf<typeof options>;
@@ -36,6 +37,7 @@ const Codegen: FC<{
 }> = ({
     options
 }) => CommandEnvironment({
+    envPath: options.envPath,
     Command: () => {
         // Get config
         useOperation({
@@ -45,7 +47,7 @@ const Codegen: FC<{
                 await new Promise(resolve => setTimeout(resolve, 500))
                 const {
                     default: config
-                } = require(options.pathToConfig, import.meta.url) as {
+                } = tsxRequire(options.pathToConfig, import.meta.url) as {
                     default: GenericUixConfig
                 }
                 applicationStore.setState(({ uixConfig: config }))
@@ -117,22 +119,24 @@ const Codegen: FC<{
         })
         const outputMap = useApplicationStore(store => store.outputMap)
 
-        return (<>
+        return (<Box flexDirection='column'>
             <Box flexDirection='column'>
                 <Box flexDirection='column' paddingBottom={1}>
                     <Newline />
                     <Text>🕳️  🐰 Thin Air Codegen 🐰 🕳️</Text>
                 </Box>
             </Box>
-            {/* Outputs */}
-            {[...outputMap].map(([key, { Component }]) => <Component key={key} />)}
-            {[...outputMap].every(([_, { operationState }]) => operationState === 'success') && <>
-                <Text>🚀 Uix System Generation Complete!</Text>
-                <Newline />
-            </>}
-            {/* Seed Database */}
-            <SeedNeo4j />
-        </>)
+            <Box flexDirection='column'>
+                {/* Outputs */}
+                {[...outputMap].map(([key, { Component }]) => <Component key={key} />)}
+                {[...outputMap].every(([_, { operationState }]) => operationState === 'success') && <>
+                    <Text>🚀 Uix System Generation Complete!</Text>
+                    <Newline />
+                </>}
+                {/* Seed Database */}
+                <SeedNeo4j />
+            </Box>
+        </Box>)
     }
 })
 

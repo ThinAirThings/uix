@@ -1,6 +1,6 @@
 
 // Start of File
-import uixConfig from '/home/aircraft/create/Hirebird/hirebird.v.2/hb.monorepo/packages/uix/tests/uix/uix.config'
+import uixConfig from '/home/aircraft/create/ThinAir/libs/uix/tests/uix/uix.config'
 import { NodeShape} from '@thinairthings/uix'
 export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
 

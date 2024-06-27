@@ -30,8 +30,9 @@ applicationStore.subscribe(
 applicationStore.subscribe(
     state => state.outputMap,
     async outputMap => {
-        if (![...outputMap].every(([_, { operationState }]) => operationState === 'success')) return
+        if (![...outputMap].every(([_, { operationState }]) => operationState === 'success' || operationState === 'error')) return
         await applicationStore.getState().neo4jDriver?.close()
+
     }
 )
 

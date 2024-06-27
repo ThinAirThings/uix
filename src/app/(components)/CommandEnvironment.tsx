@@ -1,27 +1,27 @@
 
-import React, { FC } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { ReactQueryProvider } from './ReactQueryProvider';
+import dotenv from 'dotenv'
+import { Box } from 'ink';
 
-// const nullStream = new Writable({
-//     write(chunk, encoding, callback) {
-//         // Do nothing with the chunk
-//         // You can reroute this to logs if you want
-//         callback();
-//     }
-// });
-// const { stderr } = useStderr()
-// useEffect(() => {
-//     stderr.write = nullStream.write.bind(nullStream)
-// }, [stderr])
 export const CommandEnvironment: FC<{
+    envPath: string
     Command: FC<any>
 }> = ({
+    envPath,
     Command
 }) => {
-
+        const [envLoaded, setEnvLoaded] = useState(false)
+        useEffect(() => {
+            dotenv.config({ path: envPath })
+            setEnvLoaded(true)
+        }, [])
+        if (!envLoaded) return
         return (
-            <ReactQueryProvider>
-                <Command />
-            </ReactQueryProvider>
+            <Box>
+                <ReactQueryProvider>
+                    <Command />
+                </ReactQueryProvider>
+            </Box>
         )
     }

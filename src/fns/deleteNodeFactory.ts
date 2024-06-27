@@ -22,19 +22,31 @@ export const deleteNodeFactory = <
     nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
 ) => {
     console.log("Deleting", nodeKey)
+    // First, retrieve parent node information
     const parentNodeKeys = await neo4jDriver.executeQuery<EagerResult<{
-        parentNodeKey: {
-            parentNodeId: string,
-            parentNodeType: string
-        }
+        parentNodeId: string,
+        parentNodeType: string
     }>>(/*cypher*/ `
-        MATCH (parentNode)<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(childNode:${nodeKey.nodeType as string} {nodeId: $nodeId})
-        WITH parentNode, childNode
-        DETACH DELETE childNode
+        MATCH (parentNode)<-[:CHILD_TO|UNIQUE_TO]-(childNode:Node {nodeId: $nodeId})
         RETURN parentNode.nodeId as parentNodeId, parentNode.nodeType as parentNodeType
     `, {
         ...nodeKey
-    }).then(result => result.records.map(record => record.get('parentNodeKey')))
+    }).then(result => result.records.map(record => ({
+        parentNodeId: record.get('parentNodeId'),
+        parentNodeType: record.get('parentNodeType')
+    })));
+
+    // Step 2: If parentNodeKeys retrieved successfully, then delete childNode
+    if (parentNodeKeys.length > 0) {
+        await neo4jDriver.executeQuery(/*cypher*/`
+            MATCH (childNode:Node {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(recursiveChildNode)
+            DETACH DELETE childNode
+            DETACH DELETE recursiveChildNode
+        `, {
+            ...nodeKey
+        });
+    }
+    console.log("Deleted", parentNodeKeys)
     if (!parentNodeKeys.length) return UixErr({
         subtype: UixErrSubtype.DELETE_NODE_FAILED,
         message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,

@@ -8,11 +8,14 @@ export const createNeo4jClient = (config: {
     uri: string
     username: string
     password: string,
-}, options?: Parameters<typeof neo4j.driver>[2]) => neo4j.driver(
-    config.uri,
-    neo4j.auth.basic(config.username, config.password),
-    options
-)
+}, options?: Parameters<typeof neo4j.driver>[2]) => {
+    console.log(config)
+    return neo4j.driver(
+        config.uri,
+        neo4j.auth.basic(config.username, config.password),
+        options
+    )
+}
 
 
 export const Neo4jErr = (
