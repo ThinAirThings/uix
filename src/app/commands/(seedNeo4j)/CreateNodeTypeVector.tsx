@@ -20,7 +20,7 @@ export const CreateNodeTypeVector: FC<{
                 await neo4jDriver.executeQuery(/*cypher*/`
                     CREATE VECTOR INDEX ${nodeType}_vector IF NOT EXISTS
                     FOR (vectorNode:${nodeType}Vector)
-                    ON (vectorNode.${nodeType})
+                    ON (vectorNode.nodeTypeEmbedding)
                     OPTIONS {indexConfig: {
                         \`vector.dimensions\`: 3072,
                         \`vector.similarity_function\`: "cosine"

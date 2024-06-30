@@ -2,13 +2,13 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
 import { TypeOf, z } from "zod"
 import { neo4jAction } from "../clients/neo4j"
-import { AnyNodeTypeMap, GenericNodeType, GenericNodeTypeMap, Neo4jNodeShape, NodeShape } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeType, GenericNodeTypeMap, Neo4jNodeShape, NodeSetChildNodeTypes, NodeSetParentTypes, NodeShape } from "../types/NodeType"
 import { ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
 import { UixErr, Ok, UixErrSubtype, AnyErrType } from "../types/Result"
 import { Action } from "../types/Action"
 import OpenAI from "openai"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
-import { upsertVectorNode } from "../triggers/upsertVectorNode"
+import { upsertVectorNode } from "../vectors/upsertVectorNode"
 import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
@@ -52,20 +52,22 @@ export const createNodeFactory = <
     const node = await neo4jDriver.executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
     }>>(/* cypher */ `
-        MERGE (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
-        ON CREATE 
-            SET childNode += $childNode,
+        merge (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
+        on create
+            set childNode += $childNode,
+                childNode:Node,
                 childNode.createdAt = timestamp(),
                 childNode.updatedAt = timestamp()
 
-        ON MATCH 
-            SET childNode += $childNode,
+        on match 
+            set childNode += $childNode,
+                childNode:Node,
                 childNode.updatedAt = timestamp()
-        WITH childNode
-        UNWIND $parentNodeKeys AS parentNodeKey
-        MATCH (parentNode:Node {nodeId: parentNodeKey.nodeId})
-        MERGE (childNode)-[:CHILD_TO]->(parentNode)
-        RETURN childNode
+        with childNode
+        unwind $parentNodeKeys as parentNodeKey
+        match (parentNode:Node {nodeId: parentNodeKey.nodeId})
+        merge (childNode)-[:CHILD_TO]->(parentNode)
+        return childNode
     `, {
         parentNodeKeys,
         childNode: newNodeStructure
@@ -76,6 +78,6 @@ export const createNodeFactory = <
         data: { parentNodeKeys, childNodeType, initialState }
     });
     // Triggers
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!);
+    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
     return Ok(convertIntegersToNumbers(node))
 })

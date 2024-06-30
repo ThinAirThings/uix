@@ -1,10 +1,12 @@
 import { execSync } from 'child_process'
 import { v4 as uuid } from 'uuid'
 import { expect, test } from 'vitest'
-import { Err, tryCatch, UixErr, UixErrSubtype } from '../src/types/Result'
-import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule'
-import { useUniqueChild } from './uix/generated/useUniqueChild'
-
+import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
+import { createNode, deleteNode, driver, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule'
+import { EagerResult, Integer } from 'neo4j-driver'
+import { getTotalNodeCount } from './utils/getTotalNodeCount'
+import { writeFileSync } from 'fs'
+import path from 'path'
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
         try: () => execSync('pnpm uix'),
@@ -15,8 +17,9 @@ test('Integration test', async () => {
             data: { e }
         })
     })
+    const initialnodeCount = await getTotalNodeCount()
     // Create Node
-    const { data: userNode, error: createUserNodeError } = await createNode([{ nodeType: 'Null', nodeId: '0' }], 'User', {
+    const { data: userNode, error: createUserNodeError } = await createNode([{ nodeType: 'Root', nodeId: '0' }], 'User', {
         email: `${uuid()}@localTest.com`,
         firstName: 'Local',
         lastName: 'Test',
@@ -32,20 +35,23 @@ test('Integration test', async () => {
         return
     }
     expect(userNode).toBeTruthy()
+    writeFileSync(path.join(process.cwd(), 'tests', 'userNode.json'), JSON.stringify(userNode, null, 2))
     const { data: createdEducationNode, error: createEducationNodeError } = await createNode(
         [userNode],
         'Education', {
         school: 'RPI',
         graduationYear: 2022,
         description: 'I studied math',
-        degree: 'Masters',
+        degree: 'Master of Arts (M.A.)',
         fieldOfStudy: 'Electrical Engineering',
     })
-    const educationNodeSet = Array.from({ length: 5 }).map(async (_, i) => await createNode([userNode], 'Education', {
+    const educationNodeSet = Array.from({ length: 5 }).map(async (_, i) => await createNode(
+        [userNode],
+        'Education', {
         school: 'RPI',
         graduationYear: 2022,
         description: 'I studied math',
-        degree: 'Masters',
+        degree: 'Master of Arts (M.A.)',
         fieldOfStudy: 'Electrical Engineering',
     }))
     await Promise.all(educationNodeSet)
@@ -69,7 +75,7 @@ test('Integration test', async () => {
     const { data: updatedEducationNode, error: updateEducationNodeError } = await updateNode(createdEducationNode, {
         school: 'RPI',
         description: 'I studied Basket weaving',
-        degree: 'Masters',
+        degree: 'Master of Arts (M.A.)',
         fieldOfStudy: 'Electrical Engineering',
     })
     if (updateEducationNodeError) {
@@ -129,6 +135,7 @@ test('Integration test', async () => {
         return
     }
     expect(userNodeByIndex).toBeTruthy()
+    await new Promise(res => setTimeout(res, 1000 * 20))
     // Check deleteNode
     const { data: deleted, error: deleteError } = await deleteNode(userNodeByIndex)
     if (deleteError) {
@@ -137,4 +144,7 @@ test('Integration test', async () => {
         return
     }
     expect(deleted).toBeTruthy()
+
+    const finalNodeCount = await getTotalNodeCount()
+    expect(finalNodeCount).toBe(initialnodeCount)
 })

@@ -7,7 +7,7 @@ import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import OpenAI from "openai"
 import { openAIAction } from "../clients/openai"
 import { NodeKey } from "../types/NodeKey"
-import { upsertVectorNode } from "../triggers/upsertVectorNode"
+import { upsertVectorNode } from "../vectors/upsertVectorNode"
 import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
@@ -37,10 +37,11 @@ export const updateNodeFactory = <
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
-        MATCH (node:${nodeKey.nodeType} {nodeId: $nodeId})
-        SET node += $state,
-            node.updatedAt = timestamp()
-        RETURN node
+        match (node:${nodeKey.nodeType} {nodeId: $nodeId})
+        set node += $state,
+            node.updatedAt = timestamp(),
+            node:Node
+        return node
     `, {
         nodeId: nodeKey.nodeId,
         state: {
@@ -56,7 +57,9 @@ export const updateNodeFactory = <
         }
     });
     // Run Triggers
+    // Note: This should really be broken out into an SQS event to prevent blocking the main thread
+    // Arguably, optimistic updates with react-query also solves this.
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[nodeKey.nodeType]!);
+    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
     return Ok(convertIntegersToNumbers(node))
 }))

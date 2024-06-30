@@ -14,7 +14,7 @@ export type GenericNodeType = NodeType<
     ['nodeId'],
     [],
     GenericRelationshipTypeSet,
-    { type: string, description: string } | undefined
+    GenericMatchToRelationshipTypeSet
 >
 export type GenericNodeTypeSet = readonly GenericNodeType[]
 export type AnyNodeTypeSet = readonly AnyNodeType[]
@@ -54,7 +54,7 @@ export type VectorNodeShape<T extends AnyNodeType> = ({
     nodeType: T['type']
     createdAt: string
     updatedAt: string
-}) & (T['nodeTypeVectorDescription'] extends { type: string, description: string }
+}) & (T['matchToRelationshipTypeSet'] extends AnyMatchToRelationshipTypeSet
     ? {
         nodeTypeSummary: string
         nodeTypeEmbedding: number[]
@@ -92,6 +92,37 @@ type StringProperties<T extends AnyZodObject> = {
 type TriggerMap<NodeShape extends AnyNodeShape> = Map<'onCreate' | 'onUpdate' | 'onDelete',
     Map<string, (node: NodeShape) => void>
 >
+// WeightedNodeType
+export type AnyWeightedNodeType = WeightedNodeType<any>
+export type GenericWeightedNodeType = WeightedNodeType<GenericNodeType>
+export type GenericWeightedNodeTypeSet = readonly GenericWeightedNodeType[]
+export type WeightedNodeType<
+    NodeType extends AnyNodeType,
+> = {
+    weight: number
+    NodeType: NodeType
+}
+export type AnyWeightedNodeTypeSet = readonly AnyWeightedNodeType[]
+// MatchToRelationshipType
+export type AnyMatchToRelationshipType = MatchToRelationshipType<any, any, any>
+export type AnyMatchToRelationshipTypeSet = readonly AnyMatchToRelationshipType[]
+export type GenericMatchToRelationshipTypeSet = readonly GenericMatchToRelationshipType[]
+export type GenericMatchToRelationshipType = MatchToRelationshipType<
+    Capitalize<string>,
+    GenericNodeType,
+    GenericWeightedNodeTypeSet
+>
+export type MatchToRelationshipType<
+    Type extends Capitalize<string>,
+    MatchToNodeType extends AnyNodeType,
+    WeightedNodeTypeSet extends AnyWeightedNodeTypeSet
+> = {
+    type: Type
+    description: string
+    matchToNodeType: MatchToNodeType
+    weightedNodeTypeSet: WeightedNodeTypeSet
+}
+
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -102,9 +133,8 @@ export class NodeType<
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
     PropertyVectors extends (readonly (StringProperties<StateSchema>)[]) | [] = [],
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = [],
-    NodeTypeVectorDescription extends { type: string, description: string } | undefined = undefined,
+    MatchToRelationshipTypeSet extends AnyMatchToRelationshipTypeSet | [] = [],
 > {
-
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
@@ -115,8 +145,7 @@ export class NodeType<
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
         public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
-        public nodeTypeVectorDescription: NodeTypeVectorDescription = undefined as NodeTypeVectorDescription,
-        public triggerMap: TriggerMap<NodeShape<NodeType<Type, StateSchema, UniqueIndexes, PropertyVectors, RelationshipTypeSet, NodeTypeVectorDescription>>> = new Map(),
+        public matchToRelationshipTypeSet: MatchToRelationshipTypeSet = [] as MatchToRelationshipTypeSet,
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
             nodeType: z.literal(type),
@@ -138,15 +167,18 @@ export class NodeType<
             [...indexes, 'nodeId'],
             this.propertyVectors,
             this.relationshipTypeSet,
-            this.nodeTypeVectorDescription
+            this.matchToRelationshipTypeSet
         );
     }
-    defineNodeTypeVectorDescription({
-        type,
-        description
-    }: {
-        type: string,
+    defineMatchToRelationshipType<
+        RelType extends Capitalize<string>,
+        MatchToNodeType extends AnyNodeType,
+        WeightedNodeTypeSet extends AnyWeightedNodeTypeSet
+    >(matchToRelationshipType: {
+        type: RelType,
         description: string,
+        matchToNodeType: MatchToNodeType,
+        weightedNodeTypeSet: WeightedNodeTypeSet
     }) {
         return new NodeType(
             this.type,
@@ -154,7 +186,7 @@ export class NodeType<
             this.uniqueIndexes,
             this.propertyVectors,
             this.relationshipTypeSet,
-            { type, description }
+            [...this.matchToRelationshipTypeSet, matchToRelationshipType]
         );
     }
     // You might want to embed the property keys too
@@ -167,7 +199,7 @@ export class NodeType<
             this.uniqueIndexes,
             [...this.propertyVectors, ...propertyKeys],
             this.relationshipTypeSet,
-            this.nodeTypeVectorDescription
+            this.matchToRelationshipTypeSet
         );
     }
     //  ___     _      _   _             _    _        ___      _ _    _            
@@ -194,7 +226,7 @@ export class NodeType<
                     toNodeType,
                 )
             ],
-            this.nodeTypeVectorDescription
+            this.matchToRelationshipTypeSet
         );
     }
     defineNodeSetRelationship<
@@ -216,7 +248,7 @@ export class NodeType<
                     toNodeType,
                 )
             ],
-            this.nodeTypeVectorDescription
+            this.matchToRelationshipTypeSet
         );
     }
     defineEdgeRelationship<
@@ -240,7 +272,7 @@ export class NodeType<
                     toNodeType,
                 )
             ],
-            this.nodeTypeVectorDescription
+            this.matchToRelationshipTypeSet
         );
     }
 

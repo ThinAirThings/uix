@@ -25,7 +25,7 @@ export const options = z.object({
     pathToConfig: z.string().transform(relativePath => {
         if (relativePath.slice(0, 1) === '/') return relativePath
         return path.join(process.cwd(), relativePath)
-    }).default(path.join(process.cwd(), 'uix', 'uix.config.ts')).describe('Path to uix.config.ts file'),
+    }).default(path.join(process.cwd(), 'uix.config.ts')).describe('Path to uix.config.ts file'),
     envPath: z.string().default(path.join(process.cwd(), '.env')).describe('Path to .env file'),
 });
 

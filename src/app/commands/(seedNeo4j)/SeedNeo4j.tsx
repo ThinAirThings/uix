@@ -20,12 +20,12 @@ export const SeedNeo4j = () => {
             uixConfig.graph.nodeTypeMap['Null']
                 || uixConfig.graph.nodeTypeMap['Root']
                 && await neo4jDriver.executeQuery(/*cypher*/`
-                    MERGE (nullNode:Node:Null {nodeId: '0'})
-                    ON CREATE SET nullNode.createdAt = datetime()
-                    WITH nullNode
-                    WHERE NOT 'Root' IN labels(nullNode)
-                    SET nullNode:Root
-                    RETURN nullNode
+                    merge (nullNode:Node:Null {nodeId: '0'})
+                    on create set nullNode.createdAt = datetime()
+                    with nullNode
+                    where not 'Root' IN labels(nullNode)
+                    set nullNode:Root
+                    return nullNode
             `)
             // Add timestamp indexes for sorting
             await neo4jDriver.executeQuery(/*cypher*/`
@@ -33,6 +33,12 @@ export const SeedNeo4j = () => {
             `)
             await neo4jDriver.executeQuery(/*cypher*/`
                 CREATE INDEX node_updated_at IF NOT EXISTS FOR (node:Node) ON (node.updatedAt);
+            `)
+            // Add MATCH_TO unique type contraint
+            await neo4jDriver.executeQuery(/*cypher*/`
+                CREATE CONSTRAINT match_to_unique IF NOT EXISTS 
+                FOR ()-[match_to:MATCH_TO]-() 
+                REQUIRE (match_to.fromNodeId, match_to.type, match_to.toNodeId) IS UNIQUE;
             `)
             console.log("DONE")
             return true
@@ -51,7 +57,7 @@ export const SeedNeo4j = () => {
     if (!uixConfig) return <></>
     return (<>
         {uixConfig.graph.nodeTypeSet.map(NodeType =>
-            NodeType.nodeTypeVectorDescription
+            NodeType.matchToRelationshipTypeSet
             && <CreateNodeTypeVector
                 key={NodeType.type}
                 nodeType={NodeType.type}

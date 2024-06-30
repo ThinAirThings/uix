@@ -16,5 +16,5 @@ export const convertIntegersToNumbers = <
             acc[key] = value
         }
         return acc
-    }, {} as I) as I
+    }, {} as Record<string, number>) as I
 }

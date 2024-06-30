@@ -22,8 +22,8 @@ export const getVectorNodeByKeyFactory = <
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, VectorNodeShape<NodeTypeMap[TypeFromVectorType<NodeTypeMap, NodeType>]>>
     }>>(/*cypher*/`
-        MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
-        RETURN node   
+        match (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
+        return node   
     `, { nodeId: nodeKey.nodeId }).then(res => res.records[0]?.get('node')?.properties)
     if (!node) return UixErr({
         subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,

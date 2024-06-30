@@ -36,11 +36,11 @@ export const getAllOfNodeTypeFactory = <
     const nodes = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
-        MATCH (node:${nodeType as string}) 
-        RETURN node   
-        ORDER BY node.${orderBy} ${orderDirection}
-        SKIP $skip
-        LIMIT $limit
+        match (node:${nodeType as string}) 
+        return node   
+        order by node.${orderBy} ${orderDirection}
+        skip $skip
+        limit $limit
     `, {
         skip: neo4j.int(skip),
         limit: neo4j.int(limit)

@@ -1,24 +1,25 @@
 import OpenAI from "openai"
-import { AnyNodeShape, GenericNodeShape, GenericNodeType } from "../types/NodeType"
+import { AnyNodeShape, GenericMatchToRelationshipType, GenericNodeShape, GenericNodeType } from "../types/NodeType"
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
-import { Ok } from "../types/Result"
+import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 import { openAIAction } from "../clients/openai"
 import { neo4jAction } from "../clients/neo4j"
 
 
 
-export const upsertNodeTypeSummary = async (
+export const upsertMatchToRelationship = async (
     neo4jDriver: Driver,
     openaiClient: OpenAI,
     nodeShape: AnyNodeShape,
-    nodeDefinition: GenericNodeType
+    matchToRelationshipType: GenericMatchToRelationshipType,
+    matchToNodeType: GenericNodeType
 ) => {
     // Try/catch this because you're not going to handle it with application logic.
     // You'll just log it.
     const result = await neo4jAction(openAIAction(async () => {
         // Create Node Type Summary
         console.log("Creating Node Type Summary", nodeShape)
-        const { type, description } = nodeDefinition.nodeTypeVectorDescription!
+        const { type, description } = matchToRelationshipType
         const nodeTypeSummary = await openaiClient.chat.completions.create({
             model: 'gpt-4o',
             messages: [
@@ -43,26 +44,36 @@ export const upsertNodeTypeSummary = async (
         }).then(res => res.data[0].embedding)
         // Update Node
         const nodeResult = await neo4jDriver.executeQuery<EagerResult<{
-            vectorNode: Node<Integer, GenericNodeShape>
+            toNode: Node<Integer, GenericNodeShape>
         }>>(/*cypher*/`
-            MATCH (node:${nodeShape.nodeType} {nodeId: $nodeId})
-            MERGE (vectorNode:${nodeShape.nodeType}Vector {nodeId: $nodeId})-[:VECTOR_TO]->(node)
-            ON CREATE 
-                SET vectorNode += $vectorNodeStructure
-            ON MATCH 
-                SET vectorNode += $vectorNodeStructure
-            RETURN vectorNode
+            match (node:${nodeShape.nodeType} {nodeId: $nodeId})
+            merge (vectorNode:${nodeShape.nodeType}Vector:${matchToRelationshipType.type} {nodeId: $nodeId})-[:VECTOR_TO]->(node)
+            on create
+                set vectorNode += $vectorNodeStructure
+            on match 
+                set vectorNode += $vectorNodeStructure
+            with node
+            match(toNode: ${matchToNodeType.type})<-[:CHILD_TO|UNIQUE_TO*]-(node)
+            return toNode
         `, {
             nodeId: nodeShape.nodeId,
             vectorNodeStructure: {
                 nodeTypeSummary,
                 nodeTypeEmbedding
             }
-        }).then(res => res.records[0].get('vectorNode').properties)
-        return Ok(true as true)
+        }).then(res => res.records[0].get('toNode').properties)
+        if (!nodeResult) return UixErr({
+            subtype: UixErrSubtype.UPDATE_NODE_FAILED,
+            message: `Upsert match relationship error`,
+            data: {
+                nodeShape,
+                matchToRelationshipType
+            }
+        });
+        return Ok(nodeResult)
     }))()
     const { data, error } = result
-    if (data) return
+    if (data) return data
     if (error.type === 'Neo4jErr') {
         // Note! You could do some logging here
         console.error("Neo4j Error", error)

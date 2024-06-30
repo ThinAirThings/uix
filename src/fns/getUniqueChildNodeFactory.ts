@@ -23,11 +23,11 @@ export const getUniqueChildNodeFactory = <
     const node = await neo4jDriver.executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
     }>>(/*cypher*/`
-        MERGE (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})
-        MERGE (parentNode)<-[:UNIQUE_TO]-(childNode:${childNodeType as string})
-        ON CREATE 
-            SET childNode = $defaultChildParams
-        RETURN childNode
+        merge (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})
+        merge (parentNode)<-[:UNIQUE_TO]-(childNode:Node:${childNodeType as string})
+        on create 
+            set childNode = $defaultChildParams
+        return childNode
     `, {
         parentNodeId: parentNodeKey.nodeId,
         defaultChildParams: {

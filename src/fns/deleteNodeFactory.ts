@@ -39,9 +39,9 @@ export const deleteNodeFactory = <
     // Step 2: If parentNodeKeys retrieved successfully, then delete childNode
     if (parentNodeKeys.length > 0) {
         await neo4jDriver.executeQuery(/*cypher*/`
-            MATCH (childNode:Node {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(recursiveChildNode)
-            DETACH DELETE childNode
-            DETACH DELETE recursiveChildNode
+            match (childNode:Node {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(recursiveChildNode)
+            detach delete childNode
+            detach delete recursiveChildNode
         `, {
             ...nodeKey
         });

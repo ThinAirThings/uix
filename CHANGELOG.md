@@ -1,5 +1,35 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 2.1.1
+
+### Patch Changes
+
+- fix: update the vectorTypeEmbedding
+
+## 2.1.0
+
+### Minor Changes
+
+- add matchToRelationshipType
+
+## 2.0.21
+
+### Patch Changes
+
+- fix nodetype vector name
+
+## 2.0.20
+
+### Patch Changes
+
+- fix: update the name of the nodeType vector index
+
+## 2.0.19
+
+### Patch Changes
+
+- update default config path
+
 ## 2.0.18
 
 ### Patch Changes

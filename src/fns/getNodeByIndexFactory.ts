@@ -24,9 +24,9 @@ export const getNodeByIndexFactory = <
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
-        MATCH (node:${nodeType as string}) 
-        WHERE node.${indexKey} = $indexValue
-        RETURN node
+        match (node:${nodeType as string}) 
+        where node.${indexKey} = $indexValue
+        return node
         `, { indexValue }
     ).then(res => res.records[0]?.get('node').properties)
     if (!node) return UixErr({
