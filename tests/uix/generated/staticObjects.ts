@@ -1,7 +1,7 @@
 
 // Start of File
 import uixConfig from '/home/aircraft/create/ThinAir/libs/uix/tests/uix/uix.config'
-import { NodeShape } from '@thinairthings/uix'
+import { NodeShape, NodeState } from '@thinairthings/uix'
 import neo4j from 'neo4j-driver'
 export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
 
@@ -17,6 +17,15 @@ export type EducationNode = NodeShape<ConfiguredNodeTypeMap['Education']>
 export type ProfileNode = NodeShape<ConfiguredNodeTypeMap['Profile']> 
 export type WorkExperienceNode = NodeShape<ConfiguredNodeTypeMap['WorkExperience']> 
 export type WorkPreferenceNode = NodeShape<ConfiguredNodeTypeMap['WorkPreference']> 
+export type JobNode = NodeShape<ConfiguredNodeTypeMap['Job']> 
+
+export type RootNodeState = NodeState<ConfiguredNodeTypeMap['Root']> 
+export type UserNodeState = NodeState<ConfiguredNodeTypeMap['User']> 
+export type EducationNodeState = NodeState<ConfiguredNodeTypeMap['Education']> 
+export type ProfileNodeState = NodeState<ConfiguredNodeTypeMap['Profile']> 
+export type WorkExperienceNodeState = NodeState<ConfiguredNodeTypeMap['WorkExperience']> 
+export type WorkPreferenceNodeState = NodeState<ConfiguredNodeTypeMap['WorkPreference']> 
+export type JobNodeState = NodeState<ConfiguredNodeTypeMap['Job']> 
 
 
 export const driver = neo4j.driver(

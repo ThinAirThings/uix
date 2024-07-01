@@ -1,5 +1,12 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 2.4.0
+
+### Minor Changes
+
+- Added correct path resolution for config
+  Fixed type issue with setting MatchToRelationshipType
+
 ## 2.3.4
 
 ### Patch Changes

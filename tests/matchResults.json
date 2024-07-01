@@ -1,0 +1,1425 @@
+{
+  "femaleCollegeElementaryTeacherNode": {
+    "userNode": {
+      "createdAt": {
+        "low": 1883658529,
+        "high": 400
+      },
+      "lastName": "Smith",
+      "firstName": "Jane",
+      "phoneNumber": "6035559012",
+      "completedOnboardingV2": true,
+      "userType": "Candidate",
+      "nodeType": "User",
+      "profileImageUrl": "http://example.com/profileImage3.jpg",
+      "nodeId": "548639e2-05d2-4259-ad58-a30ba6c44c02",
+      "email": "jane.smith@example.com",
+      "updatedAt": {
+        "low": 1883658529,
+        "high": 400
+      }
+    },
+    "jobNode": [
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "Vision Insurance",
+          "PTO",
+          "401k"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Foster student growth in academics and character",
+          "Implement curriculum aligned with standards",
+          "Utilize assessment data for targeted interventions",
+          "Develop strong student-family connections",
+          "Engage in professional development"
+        ],
+        "latitude": 40.81307,
+        "companyName": "Brilla Public Charter Schools",
+        "description": "The primary responsibility of an elementary classroom teacher is to cultivate and lead a learning environment where every child feels safe and confident to strive for and meet Brilla's ambitious targets. The elementary classroom teacher understands, plans, and executes key elements of innovative pedagogy and data-based decision-making through a deep love of learning, and commitment to internalizing and teaching Classically-inspired content. This position requires a positive, flexible, solutions-oriented, organized, and innovative educator who aims to challenge the status quo of the current educational landscape in urban areas. Brilla teachers must have a deep passion for student-engaged learning, a desire to accept, implement, and seek feedback, and a proven ability to manage multiple concurrent tasks and responsibilities while inspiring outstanding achievement in children in a fun and collaborative work environment.",
+        "workLocationType": "On-Site",
+        "title": "Elementary School Classroom Teacher (2024-25)",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Innovative Teaching",
+          "Data-Driven",
+          "Critical Thinking",
+          "Relationship Building",
+          "Curriculum Development"
+        ],
+        "createdAt": "2024-06-25T18:34:37.505Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Brilla Public Charter Schools provide students with a rigorous curriculum based on the Common Core Standards and best practices learned from charter schools across the country. Through our classical approach, students are exposed to a wide range of rich, authentic texts, allowing them to build upon the core knowledge developed in their primary years.",
+        "salaryLow": 69759,
+        "longitude": -73.91904,
+        "updatedAt": {
+          "low": 1632603022,
+          "high": 400
+        },
+        "address": "420 East 145th Street, Bronx, NY 10454",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": 99529,
+        "linkToJob": "https://boards.greenhouse.io/brillapubliccharterschools/jobs/4173474007#app",
+        "location": "420 East 145th Street, Bronx, NY 10454",
+        "hourlyRate": "Unspecified",
+        "nodeId": "daf35919-73bd-4236-8c38-f15702583516"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403b",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Facilitate math classes using differentiated instruction",
+          "Curriculum and lesson design",
+          "Administer pre-tests and post-tests using TABE",
+          "Maintain attendance records",
+          "Attend professional development training",
+          "Student retention and outcomes"
+        ],
+        "latitude": 40.656704,
+        "companyName": "Brooklyn Community Services",
+        "description": "The Math Teacher, Adult Basic Education teaches math to adult students who are preparing for the GED exam.",
+        "workLocationType": "On-Site",
+        "title": "Math Teacher",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Teaching",
+          "Time Management",
+          "Problem Solving",
+          "Language Skills",
+          "Collaboration",
+          "Computer Skills"
+        ],
+        "createdAt": "2024-06-25T17:27:39.647Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "BCS works in neighborhoods impacted by systemic poverty. We believe all Brooklynites should have the resources, education, opportunities, and safety they need to thrive.",
+        "salaryLow": 40,
+        "longitude": -74.00265,
+        "updatedAt": {
+          "low": 1632601088,
+          "high": 400
+        },
+        "address": "132 32nd St Suite #123, Brooklyn, NY 11232, USA",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 42,
+        "linkToJob": "https://wearebcs.hrmdirect.com/employment/job-opening.php?req=3073185&req_loc=175853&&#job",
+        "location": "132 32nd St Suite #123, Brooklyn, NY 11232, USA",
+        "hourlyRate": "Unspecified",
+        "nodeId": "e11f1c19-de2a-491e-92d4-ea6e3e565e1f"
+      },
+      {
+        "benefits": [
+          "Medical Insurance",
+          "Dental Insurance",
+          "Vision Insurance",
+          "403B Matching",
+          "Parental Leave",
+          "Tuition Reimbursement",
+          "Smartphone",
+          "Laptop"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Ensure high expectations and support for scholars",
+          "Plan and prepare a coherent curriculum",
+          "Use assessment data to refine instruction",
+          "Maintain relationships with scholars and families",
+          "Engage in professional development"
+        ],
+        "latitude": 40.80324,
+        "companyName": "Democracy Prep Public Schools",
+        "description": "Work to ensure scholars enjoy a culture of high expectations and support, plan research-based curriculum, use assessment data, maintain relationships, and engage in professional development.",
+        "workLocationType": "On-Site",
+        "title": "High School Math Teacher (2024-2025 School Year)",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-24T16:16:23.667",
+        "skills": [
+          "Curriculum Planning",
+          "Data Analysis",
+          "Classroom Management"
+        ],
+        "createdAt": "2024-06-25T18:49:22.250Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Democracy Prep is a tuition-free high performing public charter network operating in NY, TX, NV educating over 5,500 students, preK-12th grade, on 17 campuses.",
+        "salaryLow": 63480,
+        "longitude": -73.93989,
+        "updatedAt": {
+          "low": 1632601967,
+          "high": 400
+        },
+        "address": "1767 Park Ave, New York, NY 10035",
+        "isValid": false,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 135090,
+        "linkToJob": "https://boards.greenhouse.io/democracypreppublicschools/jobs/5732440#app",
+        "location": "1767 Park Ave, New York, NY 10035",
+        "hourlyRate": "Unspecified",
+        "nodeId": "ba687ccc-fc50-4a57-a040-fe55b5742844"
+      },
+      {
+        "benefits": [
+          "Career Advancement",
+          "Paid sick leave",
+          "Employee referral bonus",
+          "Physical wellness discounts",
+          "Commuter benefits"
+        ],
+        "positionType": "Part-Time",
+        "jobSpecificTasks": [
+          "Develop curriculum and activities",
+          "Enforce classroom rules",
+          "Communicate with students, parents, and colleagues",
+          "Provide a nurturing environment",
+          "Support other education staff"
+        ],
+        "latitude": 40.806187,
+        "companyName": "Harlem Children Zone",
+        "description": "Job Overview and Responsibilities Harlem Children's Zone (HCZ) — a world-renowned education and poverty-fighting organization based in New York — seeks an enthusiastic, dedicated, and mission-aligned Lead Teacher for our Three-year-Old Journey Department. The Lead Teacher will bring a passion for the mission of Harlem Children's Zone: break the cycle of intergenerational poverty with comprehensive, on-the-ground programming that builds up opportunities for children and families to thrive in school, work, and life. Three Year Old Journey is a twelve-week Saturday program that continues parenting skills training derived from Harlem Children's Zone Baby College and Baby College GRADS programs. The primary goal of the Three-Year-Old Journey is to provide parents and guardians with a range of information and the support necessary to ensure that their three-year-olds obtain the cognitive and social-emotional skills needed to enter school. Parents participate in workshops discussing topics such as language, literacy, and teachable moments. Other parenting subjects include discipline, effective communication, managing stress, and more. Meanwhile, the three-year-old participants are placed in small and large groups learning to develop their intellectual and social skills. We are seeking a part-time Lead Pre-Kindergarten Teacher to incorporate direct instruction, discussion, projects and cooperative work that keep classes focused where three-year-old students are engaged and infused with a lasting desire to learn.",
+        "workLocationType": "On-Site",
+        "title": "Lead Pre-K Teacher (Part-Time)",
+        "educationRequired": "Master's Degree",
+        "posted": "2024-06-22T17:26:01.358",
+        "skills": [
+          "Curriculum Development",
+          "Classroom Management",
+          "Communication"
+        ],
+        "createdAt": "2024-06-25T17:21:41.910Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Harlem Children's Zone (HCZ) breaks the cycle of intergenerational poverty with comprehensive, on the ground programming that builds opportunities for children and families to thrive in school, work, and life. From early childhood, education, and career pursuits, Harlem Children's Zone has developed a holistic network to empower positive change.",
+        "salaryLow": 33,
+        "longitude": -73.94108,
+        "updatedAt": {
+          "low": 1632601090,
+          "high": 400
+        },
+        "address": "35 E 125th St, New York, NY 10035",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://recruiting.ultipro.com/HAR1020HCZ/JobBoard/8eb02aa2-4566-4aa4-b962-710324bfd09e/OpportunityDetail?opportunityId=54d67e03-c85c-41be-9626-0d10efe763aa",
+        "location": "35 E 125th St, New York, NY 10035",
+        "hourlyRate": "Unspecified",
+        "nodeId": "ee23544c-0a64-4901-9ea0-a38268bd6587"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "Vision Insurance",
+          "PTO",
+          "403(b)",
+          "Commuter Benefits"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Conducts intake and assessments, makes necessary referrals for services",
+          "Provides case management services and assists clients",
+          "Inputs all client information and updates in the CARES system",
+          "Works collaboratively with clients and other staff",
+          "Maintains accurate and up to date written client documentation",
+          "Provides guidance for clients through individualized sessions",
+          "Maintains liaison with community organizations",
+          "Provides escort services to client appointments",
+          "Attends and participates in program meetings",
+          "Performs duties as assigned by Team Leader or Directors"
+        ],
+        "latitude": 40.752323,
+        "companyName": "Project Renewal",
+        "description": "Job Overview and ResponsibilitiesThe essential duties of the Case Manager include but are not limited to the following activities:• Conducts intake and assessments, makes necessary referrals for services and completes/updates psycho-social assessments of clients.• Provides case management services and assists clients in the creation of and adherence to their Independent Living Plans by identifying short and long-term objectives of which can be achieved.• Inputs all client information and updates in a timely fashion into the CARES system as well as the client's physical chart.• Works collaboratively with clients and other staff to identify and obtain financial entitlements, housing and other concrete services• Maintains accurate and up to date written client documentation as required and in accordance with City/State oversight agency guidelines• Provides guidance for clients through individualized session on issues such as achieving personal goals, finding permanent or alternative housing, maintaining sobriety, complying with medication protocols and pursuing employment opportunities.• Maintains liaison with representatives from community organizations.• Provides escort services to clients' appointments as needed.• Attends and participates in the program meetings.• Performs other duties as assigned by the Team Leader, Clinical Director or Program Director. Physical ActivitiesWhile performing the duties of this position, the Case Manager must stand to talk to clients and staff, sit for extended periods of time at the computer, and reach or squat to get records from the files. The Case Manager must be able to use the New York City Transit system to escort clients to scheduled appointments, interviews, or meetings in any of the five boroughs.",
+        "workLocationType": "On-Site",
+        "title": "Case Manager",
+        "posted": "2024-06-22",
+        "educationRequired": "High School",
+        "skills": [
+          "Teamwork",
+          "Organizational",
+          "Interpersonal",
+          "Communication",
+          "Computer",
+          "Bilingual"
+        ],
+        "createdAt": "2024-06-25T18:34:57.130Z",
+        "jobFunction": "Health and Medical",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Since 1967, we have pioneered social innovations that provide a lifeline to the most vulnerable New Yorkers, and are now replicated around the nation.Throughout our history, Project Renewal has developed an unmatched array of integrated programs and services.We meet homeless New Yorkers WHERE they are, with what they NEED, and WE NEVER GIVE UP on a single one.",
+        "salaryLow": 42000,
+        "longitude": -73.97192,
+        "updatedAt": {
+          "low": 1632602921,
+          "high": 400
+        },
+        "address": "225 E 45th St, New York, NY 10017",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 45150,
+        "linkToJob": "https://us232.dayforcehcm.com/CandidatePortal/en-US/projectrenewal/Posting/View/4712",
+        "location": "225 E 45th St, New York, NY 10017",
+        "hourlyRate": "Unspecified",
+        "nodeId": "c595d9c2-a956-4789-8d23-bc5086c53f0a"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "401k",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Part-Time",
+        "jobSpecificTasks": [
+          "Lead academic and recreational activities",
+          "Create a safe learning environment",
+          "Maintain attendance reports",
+          "Attend staff meetings",
+          "Supervise students on trips"
+        ],
+        "latitude": 40.82034,
+        "companyName": "Graham Windham",
+        "description": "Team leaders work in Graham Windham's after school programs and summer camp, supervising children during a variety of activities and creating a safe environment.",
+        "workLocationType": "On-Site",
+        "title": "Team Leader, Beacon Harlem",
+        "educationRequired": "High School",
+        "posted": "Recently",
+        "skills": [
+          "Team Management",
+          "Child Supervision",
+          "Lesson Planning"
+        ],
+        "createdAt": "2024-06-25T18:35:36.502Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "For over 200 years Graham Windham has been a leading innovator in providing support for children and families in New York City.",
+        "salaryLow": -1,
+        "longitude": -73.94434,
+        "updatedAt": {
+          "low": 1632602957,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://www.paycomonline.net/v4/ats/web.php/jobs/ViewJobDetails?job=108107&clientkey=20E4DDDAA3297FE796E9E3ED296334C4",
+        "location": "301 W 140th St, New York, NY 10030",
+        "hourlyRate": "$21.00",
+        "nodeId": "fb55b378-e622-4c98-867a-7cd953f6169b"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403b Retirement Plan",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Implement multi-sensory/project-based lessons and activities",
+          "Submit lesson plans for approval",
+          "Plan lessons for field trips",
+          "Participate in professional development trainings",
+          "Use creative teaching strategies",
+          "Work with director to plan event presentations",
+          "Engage and communicate with parents",
+          "Provide supervision to 20 students",
+          "Monitor authorized parent/guardian pick up",
+          "Direct and work with assistant teacher"
+        ],
+        "latitude": 40.661034,
+        "companyName": "Brooklyn Community Services",
+        "description": "Compass programs provide after-school learning opportunities to elementary and middle school children. During the school year, we offer homework help, enrichment programs and STEAM/SEL activities from 2:00 pm - 6:00 pm. We are open and run holiday camps from 9am - 2pm for 13 days per school year when DOE is closed, and 11am - 6pm throughout the summer. These are positions that are based at a central school but expected to float across various schools as needed for coverage.",
+        "workLocationType": "On-Site",
+        "title": "Teacher",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "Recently",
+        "skills": [
+          "Teaching",
+          "STEAM",
+          "SEL",
+          "Lesson Planning",
+          "Supervision"
+        ],
+        "createdAt": "2024-06-25T17:31:08.601Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "BCS works in neighborhoods impacted by systemic poverty. We believe all Brooklynites should have the resources, education, opportunities, and safety they need to thrive.",
+        "salaryLow": -1,
+        "longitude": -73.886345,
+        "updatedAt": {
+          "low": 1632601083,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://wearebcs.hrmdirect.com/employment/job-opening.php?req=2899618&req_loc=33490&&#job",
+        "location": "760 Van Siclen Avenue, Brooklyn, NY 11207, USA",
+        "hourlyRate": "$25.00",
+        "nodeId": "e1fa7be3-9e67-48d1-b657-aad005594c9a"
+      },
+      {
+        "benefits": [
+          "Medical Insurance",
+          "Dental Insurance",
+          "Vision Insurance",
+          "403B Matching",
+          "Parental Leave",
+          "Tuition Reimbursement",
+          "Smartphone",
+          "Laptop"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Ensure high classroom culture",
+          "Create inclusive community",
+          "Implement research-based curriculum",
+          "Refine curricula using data",
+          "Build strong relationships",
+          "Improve practice with coaching",
+          "Promote social-emotional well-being",
+          "Foster active citizenship",
+          "Engage in school events and tasks"
+        ],
+        "latitude": 40.80324,
+        "companyName": "Democracy Prep Public Schools",
+        "description": "Job Overview and Responsibilities • Work to ensure that scholars enjoy a classroom culture characterized by high expectations and high support. • Create an inclusive classroom and school community by engaging in training, reflection, and dialogue around issues of race, identity, diversity, equity, and inclusion for our staff and scholars. • Plan and prepare for effective implementation of a coherent, research-based curriculum. • Develop and use a variety of assessment data to refine curricula and instructional practice. • Maintain strong relationships with scholars, families, and colleagues through effective and frequent communication. • Continuously improve your professional practice through weekly coaching sessions, professional development, and collaborative, data-driven reflection with department and grade-level teams. • Cultivate the social-emotional well-being of all scholars by building a positive classroom culture that leverages strong partnerships with scholars, their families, and the school's scholar support team. • Foster a life of active citizenship for all scholars through the implementation of age-appropriate conversations and activities centered on current events, participation in community service and outreach opportunities, and active celebration of scholars' culture, heritage, and identity. • Engage in whole-school events and tasks, including transitions, family conferences, tutoring, and other activities/duties as needed and assigned by school leadership.",
+        "workLocationType": "On-Site",
+        "title": "High School History Teacher (2024-2025 School Year)",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Classroom Management",
+          "Curriculum Development",
+          "Assessment Analysis"
+        ],
+        "createdAt": "2024-06-25T17:24:14.224Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Democracy Prep Public Schools is a tuition-free high performing public charter school network operating in New York, NY, San Antonio, TX and Las Vegas, NV educating over 5,500 students, preK-12th grade, on 17 campuses. The mission of our schools is to educate responsible citizen scholars for success in a college of their choice and a life of active citizenship. DPPS created a Strategic Plan to govern its growth, quality assurance, staffing, and sustainability over a five-year period. DPPS plans to build on past success and ensure strong academic outcomes at each of our schools as well as grow responsibly in existing regions. Our scholars are current advocates, future voters, and blossoming leaders in their communities.",
+        "salaryLow": 63480,
+        "longitude": -73.93989,
+        "updatedAt": {
+          "low": 1632601068,
+          "high": 400
+        },
+        "address": "1767 Park Ave, New York, NY 10035",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 135090,
+        "linkToJob": "https://boards.greenhouse.io/democracypreppublicschools/jobs/5732659#app",
+        "location": "New York, NY",
+        "hourlyRate": "Unspecified",
+        "nodeId": "bb589a6e-7274-492f-b094-9e2a8d1597fe"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "Paid Time Off",
+          "403b Retirement Plan",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Sharpen communication skills",
+          "Develop strong relationships",
+          "Analyze student data",
+          "Engage in professional development",
+          "Grow as a leader"
+        ],
+        "latitude": 40.81366,
+        "companyName": "Success Academy Charter Schools",
+        "description": "Job Overview and ResponsibilitiesSuccess Academy gives you unparalleled opportunities to gain valuable professional skills and advance rapidly with leadership opportunities available both in the classroom and outside. As a teacher at Success you will:• Sharpen your communication skills and develop strong, meaningful relationships with students, their families, and your peers and mentors. This is inclusive of writing letters of recommendation at the middle school and high school level.• Become a highly skilled problem solver able to tackle challenges in and out of the classroom.• Learn to assess and analyze data to chart your students' growth and achievement, and tailor your own teaching methods accordingly.• Engage in professional development opportunities with school leaders to benefit from targeted, in-the-moment feedback and coaching to improve your performance.• Have the opportunity to grow as a leader and ultimately a leader of the entire grade team. There are also opportunities to enter our school leadership track as an assistant principal as well as to transition to our network office.",
+        "workLocationType": "On-Site",
+        "title": "Entry-Level to Experienced Teachers",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Communication",
+          "Problem Solving",
+          "Data Analysis",
+          "Organization",
+          "Leadership"
+        ],
+        "createdAt": "2024-06-25T18:53:51.290Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Success Academy redefines what's possible in education. Every day, our students prove that children from all demographics can achieve in school and life when presented with the right opportunities.",
+        "salaryLow": 65000,
+        "longitude": -73.926,
+        "updatedAt": {
+          "low": 1632601632,
+          "high": 400
+        },
+        "address": "339 Morris Avenue, Floor 2, Bronx, NY 10451",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": 65000,
+        "linkToJob": "https://jobs.successacademies.org/us/en/apply?jobSeqNo=SUACUSR0014391EXTERNALENUS",
+        "location": "339 Morris Avenue, Floor 2, Bronx, NY 10451",
+        "hourlyRate": "Unspecified",
+        "nodeId": "f7d5b498-a815-472e-9bc3-b2c4d923bfeb"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "Paid Time Off",
+          "403b",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Share passion for subjects; build relationships; inspire learning; analyze student data; solve challenges"
+        ],
+        "latitude": 40.7051,
+        "companyName": "Success Academy Charter Schools",
+        "description": "Share passion for subjects; build relationships; inspire learning; analyze student data; solve challenges.",
+        "workLocationType": "On-Site",
+        "title": "Entry Level Teachers",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-23T20:35:21.293",
+        "skills": [
+          "Leadership",
+          "Detail Oriented",
+          "Goal-Oriented"
+        ],
+        "createdAt": "2024-06-25T18:37:50.173Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "We're redefining what's possible in education. Every day our students prove that children from all demographics can achieve in school and life when presented with the right opportunities.",
+        "salaryLow": 60000,
+        "longitude": -74.00617,
+        "updatedAt": {
+          "low": 1632602769,
+          "high": 400
+        },
+        "address": "95 Pine Street, Floor 6, New York, NY 10005",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://jobs.successacademies.org/us/en/apply?jobSeqNo=SUACUSR0015444EXTERNALENUS",
+        "location": "95 Pine St Floor 6, New York, NY 10005",
+        "hourlyRate": "Unspecified",
+        "nodeId": "a7f5df6f-463f-4cd4-97ad-bf6122f6fbea"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "Paid Time Off",
+          "403b Plan",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Implement hands-on lessons and activities",
+          "Submit lesson plans for approval",
+          "Plan lessons for field trips",
+          "Supervise students during field trips",
+          "Participate in professional development",
+          "Use innovative teaching strategies",
+          "Develop event presentations",
+          "Engage with parents and families",
+          "Provide supervision during activities",
+          "Monitor parent pick up process"
+        ],
+        "latitude": 40.666935,
+        "companyName": "Brooklyn Community Services",
+        "description": "Job Overview and ResponsibilitiesBrooklyn Community Services is one of Brooklyn's first and largest non-sectarian social services agencies. BCS, which presently serves more than 10,000 individuals annually, is committed to a broad and diverse range of services including education and child care; services to strengthen families; and services to foster self-sufficiency for adults.Education and Youth Development programs provide after-school learning opportunities to elementary school children. During the school year, we offer homework help, enrichment programs and activities from 2:45 pm - 6:00 pm. Teachers for the enrichment program are expected to lead a class of 20 students Monday through Friday for 3 hours daily. We open and run holiday camp from 8am-6pm for 13 days per school year when DOE is closed.",
+        "workLocationType": "On-Site",
+        "title": "Teacher",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "Recently",
+        "skills": [
+          "Teaching",
+          "Communication",
+          "Flexibility",
+          "Computers"
+        ],
+        "createdAt": "2024-06-25T17:39:02.473Z",
+        "jobFunction": "Education and Training",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "BCS works in neighborhoods impacted by systemic poverty. We believe all Brooklynites should have the resources, education, opportunities, and safety they need to thrive.",
+        "salaryLow": -1,
+        "longitude": -73.907555,
+        "updatedAt": {
+          "low": 1632605067,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://wearebcs.hrmdirect.com/employment/job-opening.php?req=2823935&req_loc=29419#job",
+        "location": "Brooklyn, NY",
+        "hourlyRate": "$25/hour",
+        "nodeId": "e23fa457-1701-4a3a-9799-acde668b1233"
+      }
+    ]
+  },
+  "femaleHighSchoolGraduateServiceNode": {
+    "userNode": {
+      "createdAt": {
+        "low": 1883658532,
+        "high": 400
+      },
+      "lastName": "Doe",
+      "firstName": "Jane",
+      "phoneNumber": "6035551234",
+      "completedOnboardingV2": true,
+      "userType": "Candidate",
+      "nodeType": "User",
+      "nodeId": "f2060cfa-1c47-4012-afee-da865ffd5afd",
+      "email": "jane.doe@example.com",
+      "updatedAt": {
+        "low": 1883658532,
+        "high": 400
+      }
+    },
+    "jobNode": [
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "Store Discount"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Guide sales team for store performance",
+          "Oversee operational processes",
+          "Assist in managing team tasks",
+          "Execute initiatives for customer satisfaction",
+          "Perform physical retail tasks"
+        ],
+        "latitude": 40.726032,
+        "companyName": "Kith",
+        "description": "As the Sales Supervisor, you are responsible for supporting the management team in performing functional tasks as assigned. You will provide guidance to the sales team while supporting a positive store environment. Supervisors act as role models for the sales associates by exemplifying support service behaviors and completing of tasks in their specified areas of responsibilities. The Sales Supervisor contributes to a high performing team and consistently delivers a best-in-class customer experience. This role will be primarily focused on connecting with customers and employees, to assist in achieving store performance goals. As an important member of the management team, the Sales Supervisor reinforces performance expectations by consistently displaying and exceeding the Brand vision and surpassing individual and store goals.",
+        "workLocationType": "On-Site",
+        "title": "Sales Supervisor",
+        "educationRequired": "Less Than High School",
+        "posted": "Recently",
+        "skills": [
+          "Communication",
+          "Leadership",
+          "Multitasking",
+          "Retail Experience"
+        ],
+        "createdAt": "2024-06-25T18:40:25.439Z",
+        "jobFunction": "Sales and Marketing",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Established in 2011, Kith operates on two planes - a multifunctional lifestyle brand for men, women, and kids, as well as a progressive retail establishment. Our seven brick-and-mortar flagship stores were designed in partnership with Snarkitecture, as we push the boundaries to deliver customers a completely unique experience. We offer an array of premium products, ranging from our own in-house label to a curated selection of multi-brand apparel and footwear. In 2015, Kith Treats was conceived from a childhood love for cereal and dreams of one day opening up a cereal bar - now operating in eight locations, Treats has become a staple within Kith. Our brand has also extended to three shop-in-shops at Bergdorf Goodman, Hirshleifers, and at Selfridges. Embarking on our journey overseas we knew it was only right to bring a taste of New York with us; together with Major Food Group, we introduced our first restaurant - Sadelle's at Kith Paris. Kith was founded by Ronnie Fieg, a prominent figure in the footwear industry, who has over twenty years of hands-on experience. Born and raised in Queens, Fieg has been involved in the footwear industry since becoming a stock boy at New York-based franchise David Z. at age 12. With steadfast perseverance, he methodically rose through the ranks from floor salesman to assistant manager to eventually becoming head buyer. Collaborating with brands that have stood the test of time, Kith aligns itself with brands and ideations from Fieg's childhood that cohesively formalized the roots of his upbringing. Conceptualizing Kith as an extension of himself, Fieg seeks to shift the current landscape of fashion, while operating under a personal philosophy of giving the consumer more than what they pay for.",
+        "salaryLow": -1,
+        "longitude": -73.99432,
+        "updatedAt": {
+          "low": 1632602527,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://www.linkedin.com/jobs/view/sales-supervisor-at-kith-3890867175?position=5&pageNum=0&refId=KQG%2B%2Bjbn57lPj6E%2FV6bZpQ%3D%3D&trackingId=65DkFSroq2IeG8vlk935pw%3D%3D&trk=public_jobs_jserp-result_search-card",
+        "location": "337 Lafayette St, New York, NY 10012",
+        "hourlyRate": "$21/hr + Commission",
+        "nodeId": "cf0a9f06-b684-4943-a6b6-dbd3e5160e24"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403(b)"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Portioning and serving food",
+          "Maintaining cleanliness of food line and kitchen",
+          "Monitoring temperature logs",
+          "Replenishing food",
+          "Adhering to food codes"
+        ],
+        "latitude": 40.817745,
+        "companyName": "The Fortune Society",
+        "description": "Under supervision of the Chef Manager, responsible for receiving and distributing food, maintaining cleanliness, organizing products, and providing customer service. Administrative tasks: tracking meals, handling invoices, and organizing logs.",
+        "workLocationType": "On-Site",
+        "title": "Food Service Worker- Administrative Assistant",
+        "posted": "Recently",
+        "educationRequired": "High School",
+        "skills": [
+          "Customer Service",
+          "Time Management",
+          "Microsoft Office",
+          "Food Handling"
+        ],
+        "createdAt": "2024-06-25T17:18:05.826Z",
+        "jobFunction": "General Services",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "The Fortune Society's mission is to support successful reentry from incarceration and promote alternatives to incarceration, thus strengthening the fabric of our communities.",
+        "salaryLow": -1,
+        "longitude": -73.942375,
+        "updatedAt": {
+          "low": 1632601172,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://www.paycomonline.net/v4/ats/web.php/jobs/ViewJobDetails?job=86156&clientkey=33B4B23E84A9B3F4CD16B8BC7604391F",
+        "location": "2370 Adam Clayton Powell Jr Blvd, New York, NY 10030",
+        "hourlyRate": "$20.00",
+        "nodeId": "e6c4e976-8b15-42fd-9a82-a60bc7fc0a87"
+      },
+      {
+        "benefits": [
+          "Health insurance",
+          "Dental insurance",
+          "Vision insurance",
+          "PTO",
+          "401K",
+          "Dining discount"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Lead each shift and delegate duties",
+          "Train and develop team members",
+          "Recognize and reinforce accomplishments",
+          "Follow operational policies",
+          "Maintain cleanliness and organization"
+        ],
+        "latitude": 40.76137,
+        "companyName": "Applebee's Grill + Bar",
+        "description": "Job Overview and ResponsibilitiesAs a Supervisor you will be engaged in all aspects of the day-to-day operations at the restaurant. You are responsible for getting guests and staff excited about their experience. You will need to be team leader, great problem solver, and have the ability to handle stress and rise above. You will work hard, but have a great time doing it!",
+        "workLocationType": "On-Site",
+        "title": "Supervisor",
+        "educationRequired": "Less Than High School",
+        "posted": "Recently",
+        "skills": [
+          "Guest service",
+          "Leadership",
+          "Problem solving",
+          "Teamwork",
+          "Communication"
+        ],
+        "createdAt": "2024-06-25T18:20:31.689Z",
+        "jobFunction": "Hospitality and Tourism",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Applebee's Neighborhood Grill + Bar is the place to be in the neighborhood. Our guests know they can always count on us for a delicious and affordable meal, refreshing and fun drinks, and a come-as-you-are welcoming environment. As one of the world's largest casual dining brands, Applebee's is a go-to dining destination in neighborhoods throughout the United States and abroad. From our very first restaurant in Decatur, Georgia to more than 1,500 locations and 11 countries and territories today, Applebee's guests can count on Eatin' Good in the Neighborhood™.",
+        "salaryLow": -1,
+        "longitude": -73.98358,
+        "updatedAt": {
+          "low": 1632603703,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://careers-dohertyinc.icims.com/jobs/3169/job",
+        "location": "205 W 50th St, New York, NY, 10019",
+        "hourlyRate": "$17.00 - $22.00",
+        "nodeId": "c155cc30-6f31-4b71-9b89-5b96eb9963ad"
+      },
+      {
+        "benefits": [
+          "Generous PTO",
+          "Health insurance",
+          "Dental insurance",
+          "Vision insurance",
+          "401k"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Process member orders and manage payments",
+          "Deliver unparalleled service",
+          "Maintain store appearance ensuring cleanliness",
+          "Engage with the local community"
+        ],
+        "latitude": 40.65576,
+        "companyName": "Costco",
+        "description": "Costco is looking to hire cashiers at its vibrant Brooklyn location, 976 3rd Ave, NY 11232, offering a unique opportunity to engage with the local community through a role that goes beyond traditional cashier duties. This position requires a commitment to excellence in processing member orders, managing payments, and delivering unparalleled service. Moreover, cashiers are entrusted with maintaining the store's appearance through clean-up and set-up tasks, ensuring an inviting atmosphere for members. The role is crucial in facilitating a positive shopping experience, with each transaction reflecting Costco's commitment to customer satisfaction.",
+        "workLocationType": "On-Site",
+        "title": "Cashier - Brooklyn",
+        "educationRequired": "Less Than High School",
+        "posted": "Recently",
+        "skills": [
+          "Customer Service",
+          "Transaction Handling",
+          "Store Maintenance"
+        ],
+        "createdAt": "2024-06-25T17:35:22.010Z",
+        "jobFunction": "Customer Service",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Costco Wholesale Corporation, commonly known as Costco, is a multinational retail corporation headquartered in Issaquah, Washington, USA. Founded in 1983 by James Sinegal and Jeffrey Brotman, Costco has grown to become one of the world's largest and most successful warehouse club retailers. Costco operates a membership-based model, where customers pay an annual fee to become members and gain access to the company's warehouse-style stores. The company's primary focus is on offering high-quality products at competitive prices, catering to both individual consumers and businesses. Costco is known for its wide range of products, including groceries, electronics, clothing, home goods, appliances, and more.",
+        "salaryLow": -1,
+        "longitude": -74.00926,
+        "updatedAt": {
+          "low": 1632605274,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://cta.cadienttalent.com/index.jsp?POSTING_ID=9129795831&LOCATION_ID=9129659415&locale=en_US&SEQ=postingLocationDetails&applicationName=CostcoNonReqExt",
+        "location": "976 3rd Ave, Brooklyn, NY 11232, USA",
+        "hourlyRate": "19.5",
+        "nodeId": "f3962851-fedd-4e3c-a5cf-e68d5aba7cc7"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "PTO",
+          "403b"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Enhance social responsibility, independence, dignity and growth",
+          "Implement independence goals",
+          "Complete and perform AMAP, SCIP, CPR and First Aid",
+          "Administer medication and document",
+          "Monitor and record progress on daily checklists"
+        ],
+        "latitude": 40.65449,
+        "companyName": "Well Life Network",
+        "description": "Provide all aspects of care to program participants to enable them to become independent and productive. Some knowledge of computers is needed.",
+        "workLocationType": "On-Site",
+        "title": "Direct Support Professional - PDM034 - On-Call",
+        "posted": "Recently",
+        "educationRequired": "High School",
+        "skills": [
+          "Caregiving",
+          "Crisis Intervention",
+          "Computer Skills"
+        ],
+        "createdAt": "2024-06-25T18:11:51.820Z",
+        "jobFunction": "Health and Medical",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "We help people to achieve their life's goals of health, recovery, wellness and independence in the community",
+        "salaryLow": -1,
+        "longitude": -73.745094,
+        "updatedAt": {
+          "low": 1632604156,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://www.paycomonline.net/v4/ats/web.php/jobs/ViewJobDetails?job=156246&clientkey=941C6F6A9A3F5F2046BB9CF739062DA6",
+        "location": "239-08 148th Ave, Rosedale, NY 11422",
+        "hourlyRate": "$17.91",
+        "nodeId": "de584a85-4a32-45b3-8c47-42382b6fcff3"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403b",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Provides guidance and direction to Residential Aides",
+          "Oversees facility operation, including emergencies",
+          "Provides orientation for new arrivals",
+          "Participates in daily meetings and shares observations",
+          "Assists in cafeteria with meals",
+          "Responds to client issues"
+        ],
+        "latitude": 40.752323,
+        "companyName": "Project Renewal",
+        "description": "Job Overview and ResponsibilitiesUnder the general direction of the Assistant Shelter Director, with some latitude for independent action, the Residential Aide Supervisor directs a staff of Residential Aides in providing direct assistance to the clients in adhering to the rules and regulations of the shelter; performs related work.",
+        "workLocationType": "On-Site",
+        "title": "Shift Supervisor",
+        "educationRequired": "Associate's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Leadership",
+          "Crisis Management",
+          "Training"
+        ],
+        "createdAt": "2024-06-25T18:52:24.286Z",
+        "jobFunction": "General Services",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Since 1967, we have pioneered social innovations that provide a lifeline to the most vulnerable New Yorkers, and are now replicated around the nation. Throughout our history, Project Renewal has developed an unmatched array of integrated programs and services. We meet homeless New Yorkers WHERE they are, with what they NEED, and WE NEVER GIVE UP on a single one.",
+        "salaryLow": 41000,
+        "longitude": -73.97192,
+        "updatedAt": {
+          "low": 1632601697,
+          "high": 400
+        },
+        "address": "225 E 45th St, New York, NY 10017",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 45150,
+        "linkToJob": "https://us241.dayforcehcm.com/CandidatePortal/en-US/projectrenewal/Posting/View/4849",
+        "location": "225 E 45th St, New York, NY 10017",
+        "hourlyRate": "Unspecified",
+        "nodeId": "c16b4274-cdcb-4b21-8731-8120edd02c27"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "401(k)",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Achieving volume sales and product distribution goals",
+          "Seeking new accounts and distribution opportunities",
+          "Maintaining call frequency and customer service",
+          "Initiating relationships for merchandising opportunities",
+          "Analyzing selling trends and preparing presentations",
+          "Implementing brand development programs",
+          "Maintaining displays and marketing materials",
+          "Submitting key sales metrics reports",
+          "Ensuring proper product rotation and cooler resets"
+        ],
+        "latitude": 40.69181,
+        "companyName": "Manhattan Beer Distr Inc",
+        "description": "Job Overview and ResponsibilitiesAre you a driven sales professional that relishes the thrill of hitting your goals? Are you a strong team player with a work ethic second to none? If so, Manhattan Beer Distributors is looking for Sales Representatives to cover our Brooklyn markets.For a motivated individual, the Sales Representative position is a first step to a challenging and rewarding career in the beverage industry and in our sales organization. Your Main Focus Will Be:• Achieving route goals and objectives for volume sales and product distribution. • Seeking out new accounts and distribution opportunities.• Maintaining call frequency to all accounts, ensuring maximum sales and distribution of assigned brands, as well as phenomenal customer service.• Initiating relationships with account personnel and managers to recommend merchandising opportunities.• Analyzing selling trends and preparing fact based presentations for accounts, increasing distribution and volume goals.  • Implementing brand development programs to increase exposure for identified brands.• Maintaining all account displays, point of sale materials and marketing materials in accordance with brand program and company guidelines.• Preparing and submitting reports on key sales metrics.• Ensuring products on shelf and in coolers are properly rotated to avoid expiration.• Execute cooler resets and rearrangement of product as requested.• Serving as the primary contact with all supplier personnel, coordinating efforts to execute sales and marketing plans.• Attending and completing all necessary training requirements for the role. Qualifications and Requirements• Degree preferred.• Valid Driver's License/Car.• Must be able to work flexible hours, including some evenings and weekends.• Capacity to bend and lift heavy objects on a regular basis.• Minimum of 1-2 years of retail sales experience.• Experience in merchandising.• Intermediate to advanced skill in Microsoft Office (Word, Excel, Powerpoint).• Strong written and verbal communication skills.• Strong time management, analytical and problem-solving skills.• Ability to work independently and within a team.",
+        "workLocationType": "On-Site",
+        "title": "Sales Representative",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Sales",
+          "Merchandising",
+          "Microsoft Office",
+          "Communication",
+          "Time Management"
+        ],
+        "createdAt": "2024-06-25T18:23:04.099Z",
+        "jobFunction": "Sales and Marketing",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Our vision is to be the leading distribution company in the market At Manhattan Beer Distributors, we are intently focused on delivering the best customer service, making MBD a great place to work, and growing our business each and every day.",
+        "salaryLow": 55000,
+        "longitude": -74.00061,
+        "updatedAt": {
+          "low": 1632603527,
+          "high": 400
+        },
+        "address": "2 Atlantic Ave Pier 7, Brooklyn, NY 11201",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 65000,
+        "linkToJob": "https://www.manhattanbeer.com/careers/listings?gh_jid=6833471002#app",
+        "location": "2 Atlantic Ave Pier 7, Brooklyn, NY 11201",
+        "hourlyRate": "Unspecified",
+        "nodeId": "c47bf24a-2b44-44bb-b8ea-dae6200c3f20"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "401k",
+          "Vision Insurance"
+        ],
+        "positionType": "Contract",
+        "jobSpecificTasks": [
+          "Prepare and portion food items",
+          "Follow food handling procedures",
+          "Manage leftover food",
+          "Maintain clean work areas",
+          "Comply with safety regulations"
+        ],
+        "latitude": 40.75739,
+        "companyName": "Aramark",
+        "description": "Aramark is hiring for the role of Food Prep Worker (Seasonal) at 41 Seaver Wy, New York, NY 11368. **What You'll Do:** SEASONAL position focusing on food preparation and portioning. Follow proper food handling procedures and maintain Aramark sanitation standards. Manage leftover food, maintain clean work areas, and comply with safety regulations. **Qualifications \\\\u0026 Skills Summary:** Minimum one-year experience in prep work or related food service role preferred. Knowledgeable in food prep, knife handling, temperature control, and sanitation. Must possess basic math and counting skills; ability to read and write is required.",
+        "workLocationType": "On-Site",
+        "title": "Food Prep Worker (Seasonal)",
+        "educationRequired": "Less Than High School",
+        "posted": "Recently",
+        "skills": [
+          "Food Prep",
+          "Knife Handling",
+          "Sanitation"
+        ],
+        "createdAt": "2024-06-25T18:58:27.154Z",
+        "jobFunction": "Hospitality and Tourism",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "We empower our people to create experiences that matter. Our services speak for themselves — but our real asset? Our people. We share a passion for hospitality, and we do great things for our people, our partners, our communities, and our planet.",
+        "salaryLow": -1,
+        "longitude": -73.8441,
+        "updatedAt": {
+          "low": 1632601291,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": -1,
+        "linkToJob": "https://careers.aramark.com/job/?req_id=489308",
+        "location": "41 Seaver Wy, New York, NY 11368",
+        "hourlyRate": "19.75",
+        "nodeId": "fdb0d956-8cd1-4796-8554-691cce42a340"
+      }
+    ]
+  },
+  "maleCollegeGraduateMarketingNode": {
+    "userNode": {
+      "createdAt": {
+        "low": 1883658532,
+        "high": 400
+      },
+      "lastName": "Doe",
+      "firstName": "John",
+      "phoneNumber": "6035555678",
+      "completedOnboardingV2": true,
+      "userType": "Candidate",
+      "nodeType": "User",
+      "profileImageUrl": "http://example.com/profileImage2.jpg",
+      "nodeId": "9b925249-9024-4dd5-83e5-b316b928f96f",
+      "email": "john.doe@example.com",
+      "updatedAt": {
+        "low": 1883658532,
+        "high": 400
+      }
+    },
+    "jobNode": [
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "401(k)",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Achieving volume sales and product distribution goals",
+          "Seeking new accounts and distribution opportunities",
+          "Maintaining call frequency and customer service",
+          "Initiating relationships for merchandising opportunities",
+          "Analyzing selling trends and preparing presentations",
+          "Implementing brand development programs",
+          "Maintaining displays and marketing materials",
+          "Submitting key sales metrics reports",
+          "Ensuring proper product rotation and cooler resets"
+        ],
+        "latitude": 40.69181,
+        "companyName": "Manhattan Beer Distr Inc",
+        "description": "Job Overview and ResponsibilitiesAre you a driven sales professional that relishes the thrill of hitting your goals? Are you a strong team player with a work ethic second to none? If so, Manhattan Beer Distributors is looking for Sales Representatives to cover our Brooklyn markets.For a motivated individual, the Sales Representative position is a first step to a challenging and rewarding career in the beverage industry and in our sales organization. Your Main Focus Will Be:• Achieving route goals and objectives for volume sales and product distribution. • Seeking out new accounts and distribution opportunities.• Maintaining call frequency to all accounts, ensuring maximum sales and distribution of assigned brands, as well as phenomenal customer service.• Initiating relationships with account personnel and managers to recommend merchandising opportunities.• Analyzing selling trends and preparing fact based presentations for accounts, increasing distribution and volume goals.  • Implementing brand development programs to increase exposure for identified brands.• Maintaining all account displays, point of sale materials and marketing materials in accordance with brand program and company guidelines.• Preparing and submitting reports on key sales metrics.• Ensuring products on shelf and in coolers are properly rotated to avoid expiration.• Execute cooler resets and rearrangement of product as requested.• Serving as the primary contact with all supplier personnel, coordinating efforts to execute sales and marketing plans.• Attending and completing all necessary training requirements for the role. Qualifications and Requirements• Degree preferred.• Valid Driver's License/Car.• Must be able to work flexible hours, including some evenings and weekends.• Capacity to bend and lift heavy objects on a regular basis.• Minimum of 1-2 years of retail sales experience.• Experience in merchandising.• Intermediate to advanced skill in Microsoft Office (Word, Excel, Powerpoint).• Strong written and verbal communication skills.• Strong time management, analytical and problem-solving skills.• Ability to work independently and within a team.",
+        "workLocationType": "On-Site",
+        "title": "Sales Representative",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Sales",
+          "Merchandising",
+          "Microsoft Office",
+          "Communication",
+          "Time Management"
+        ],
+        "createdAt": "2024-06-25T18:23:04.099Z",
+        "jobFunction": "Sales and Marketing",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Our vision is to be the leading distribution company in the market At Manhattan Beer Distributors, we are intently focused on delivering the best customer service, making MBD a great place to work, and growing our business each and every day.",
+        "salaryLow": 55000,
+        "longitude": -74.00061,
+        "updatedAt": {
+          "low": 1632603527,
+          "high": 400
+        },
+        "address": "2 Atlantic Ave Pier 7, Brooklyn, NY 11201",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 65000,
+        "linkToJob": "https://www.manhattanbeer.com/careers/listings?gh_jid=6833471002#app",
+        "location": "2 Atlantic Ave Pier 7, Brooklyn, NY 11201",
+        "hourlyRate": "Unspecified",
+        "nodeId": "c47bf24a-2b44-44bb-b8ea-dae6200c3f20"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403b",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Build/manage digital campaigns",
+          "Collaborate with team members",
+          "Optimize SEO",
+          "Analyze data",
+          "Manage online interactions"
+        ],
+        "latitude": 40.735268,
+        "companyName": "Spence-Chapin",
+        "description": "Spence Chapin is a non profit organization that has been providing adoption and adoption support services for over a century.",
+        "workLocationType": "Hybrid",
+        "title": "Specialist, Digital Marketing",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-23T20:25:41.152",
+        "skills": [
+          "Digital Marketing",
+          "Social Media",
+          "SEO",
+          "HTML/CSS",
+          "Graphic Design"
+        ],
+        "createdAt": "2024-06-25T18:53:00.251Z",
+        "jobFunction": "Sales and Marketing",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Spence Chapin was founded over 100 years ago as a non profit adoption organization and in the past century of service we've grown significantly.",
+        "salaryLow": 60000,
+        "longitude": -73.98821,
+        "updatedAt": {
+          "low": 1632601643,
+          "high": 400
+        },
+        "address": "120 E 16th St 11th Floor, New York, NY 10003",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 75000,
+        "linkToJob": "https://spence-chapin.org/wp-content/uploads/2024/02/Specialist-Digital-Marketing.pdf",
+        "location": "New York, NY",
+        "hourlyRate": "Unspecified",
+        "nodeId": "9f7aad26-0a37-43d2-84d0-7ba5543ce53c"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "Dental Insurance",
+          "PTO",
+          "403b",
+          "Commuter Benefits",
+          "Vision Insurance"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Provides guidance and direction to Residential Aides",
+          "Oversees facility operation, including emergencies",
+          "Provides orientation for new arrivals",
+          "Participates in daily meetings and shares observations",
+          "Assists in cafeteria with meals",
+          "Responds to client issues"
+        ],
+        "latitude": 40.752323,
+        "companyName": "Project Renewal",
+        "description": "Job Overview and ResponsibilitiesUnder the general direction of the Assistant Shelter Director, with some latitude for independent action, the Residential Aide Supervisor directs a staff of Residential Aides in providing direct assistance to the clients in adhering to the rules and regulations of the shelter; performs related work.",
+        "workLocationType": "On-Site",
+        "title": "Shift Supervisor",
+        "educationRequired": "Associate's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Leadership",
+          "Crisis Management",
+          "Training"
+        ],
+        "createdAt": "2024-06-25T18:52:24.286Z",
+        "jobFunction": "General Services",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Since 1967, we have pioneered social innovations that provide a lifeline to the most vulnerable New Yorkers, and are now replicated around the nation. Throughout our history, Project Renewal has developed an unmatched array of integrated programs and services. We meet homeless New Yorkers WHERE they are, with what they NEED, and WE NEVER GIVE UP on a single one.",
+        "salaryLow": 41000,
+        "longitude": -73.97192,
+        "updatedAt": {
+          "low": 1632601697,
+          "high": 400
+        },
+        "address": "225 E 45th St, New York, NY 10017",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 45150,
+        "linkToJob": "https://us241.dayforcehcm.com/CandidatePortal/en-US/projectrenewal/Posting/View/4849",
+        "location": "225 E 45th St, New York, NY 10017",
+        "hourlyRate": "Unspecified",
+        "nodeId": "c16b4274-cdcb-4b21-8731-8120edd02c27"
+      },
+      {
+        "benefits": [
+          "Generous Benefit Plans for Medical, Vision & Dental Coverage",
+          "401(K) Plan With Match",
+          "Paid Time Off (Vacation, Personal Days & Sick Days)",
+          "Summer Fridays - Early Office Closure",
+          "Paid Holidays",
+          "Health Savings Account",
+          "Flexible Spending Accounts for Dependent Care & Medical Expenses",
+          "Parental Leave",
+          "Career Development Learning & Training Opportunities",
+          "Educational Assistance",
+          "Employee Referral Bonus",
+          "Employee Recognition Awards",
+          "Short-term & Long-term Disability Coverage",
+          "Flexible Work Schedules"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Develop and adhere to event marketing plans for all conferences, award programs, and webinars",
+          "Accurate budget management for assigned events",
+          "Coordinate internal and external resources including email deployment, designers, digital marketers",
+          "Coordinate website edits for assigned events",
+          "Develop and maintain proper registration forms for events",
+          "Registrant communication deployment as needed",
+          "Assist in onsite execution, including working registration, crowd management",
+          "Experience with customer data platforms",
+          "Experience with marketing automation tools like Hubspot, Marketo",
+          "Travel to events as needed"
+        ],
+        "latitude": 40.75106,
+        "companyName": "Alm Media",
+        "description": "The Digital & Event Marketing Manager will interact with both internal and external clients and must have strong written and verbal communication skills, as well as strong organizational skills. Additionally, this position will work towards established deadlines for each event, and could be working on multiple events simultaneously, so they must be a good multitasker.",
+        "workLocationType": "On-Site",
+        "title": "Digital & Event Marketing Manager",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "new",
+        "skills": [
+          "Marketing",
+          "Multitasking",
+          "Communication",
+          "Organizational Skills",
+          "Customer Service"
+        ],
+        "createdAt": "2024-06-25T17:34:12.272Z",
+        "jobFunction": "Sales and Marketing",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "ALM Media is a global leader in specialized business news and information serving the legal, real estate, consulting, insurance, and investment advisory industries. They provide deep insights, expert analysis, and world-class events to empower their audiences.",
+        "salaryLow": 26.44,
+        "longitude": -73.975525,
+        "updatedAt": {
+          "low": 1632605370,
+          "high": 400
+        },
+        "address": "150 E 42nd St, New York, NY 10017, USA",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 28.85,
+        "linkToJob": "https://jobs.dayforcehcm.com/en-US/alm/CANDIDATEPORTAL/jobs/1097",
+        "location": "150 E 42nd St, New York, NY 10017, USA",
+        "hourlyRate": "Unspecified",
+        "nodeId": "b3bbb9d7-4f8d-4a26-b03b-09ce9b912312"
+      },
+      {
+        "benefits": [
+          "Generous Paid Time Off (PTO)",
+          "Medical, dental, and life insurance",
+          "Retirement savings plan with generous employer contribution",
+          "Flexible spending medical and commuter benefits plan",
+          "Flexible work from home policy",
+          "Fun hybrid office environment"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Provide administrative support to Marketing/Communications units",
+          "Manage projects, conduct research, track metrics",
+          "Handle invoicing, maintain databases and correspondence",
+          "Support marketing efforts, manage social media content",
+          "Coordinate events and communication through various platforms"
+        ],
+        "latitude": 40.710197,
+        "companyName": "Fund for Public Health in New York City (FPHNYC)",
+        "description": "Reporting to the Chief Development Officer, the Administrative Assistant is responsible for providing seamless day-to-day administrative support for FPHNYC's Development Marketing and Communication units. Responsibilities include but are not limited to, project management, prospect research, metrics and outcomes tracking, invoicing, data entry, correspondence preparation, agendas, scheduling, meeting minutes, reports, and general administrative support.",
+        "workLocationType": "Hybrid",
+        "title": "Administrative Assistant",
+        "educationRequired": "Bachelor's Degree",
+        "posted": "2024-06-22",
+        "skills": [
+          "Project Management",
+          "Organizational",
+          "Time Management",
+          "Communication",
+          "Microsoft Office",
+          "Salesforce",
+          "Social Media"
+        ],
+        "createdAt": "2024-06-25T18:37:13.894Z",
+        "jobFunction": "Administration and Coordination",
+        "payPeriod": "Yearly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Fund for Public Health in New York, Inc. facilitates innovative projects to improve health for all New Yorkers. FPHNYC is a 501(c)(3).",
+        "salaryLow": 55000,
+        "longitude": -74.01056,
+        "updatedAt": {
+          "low": 1632602788,
+          "high": 400
+        },
+        "address": "22 Cortlandt St, New York, NY 10007",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "1 - 5 Years",
+        "salaryHigh": 60000,
+        "linkToJob": "https://globalus232.dayforcehcm.com/CandidatePortal/en-US/fphny/Posting/View/1654",
+        "location": "22 Cortlandt St, New York, NY 10007",
+        "hourlyRate": "Unspecified",
+        "nodeId": "f66c0cea-0c73-4f5e-b09a-f7b6917ae04b"
+      },
+      {
+        "benefits": [
+          "Health Insurance",
+          "PTO",
+          "403b"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Enhance social responsibility, independence, dignity and growth",
+          "Implement independence goals",
+          "Complete and perform AMAP, SCIP, CPR and First Aid",
+          "Administer medication and document",
+          "Monitor and record progress on daily checklists"
+        ],
+        "latitude": 40.65449,
+        "companyName": "Well Life Network",
+        "description": "Provide all aspects of care to program participants to enable them to become independent and productive. Some knowledge of computers is needed.",
+        "workLocationType": "On-Site",
+        "title": "Direct Support Professional - PDM034 - On-Call",
+        "posted": "Recently",
+        "educationRequired": "High School",
+        "skills": [
+          "Caregiving",
+          "Crisis Intervention",
+          "Computer Skills"
+        ],
+        "createdAt": "2024-06-25T18:11:51.820Z",
+        "jobFunction": "Health and Medical",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "We help people to achieve their life's goals of health, recovery, wellness and independence in the community",
+        "salaryLow": -1,
+        "longitude": -73.745094,
+        "updatedAt": {
+          "low": 1632604156,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://www.paycomonline.net/v4/ats/web.php/jobs/ViewJobDetails?job=156246&clientkey=941C6F6A9A3F5F2046BB9CF739062DA6",
+        "location": "239-08 148th Ave, Rosedale, NY 11422",
+        "hourlyRate": "$17.91",
+        "nodeId": "de584a85-4a32-45b3-8c47-42382b6fcff3"
+      },
+      {
+        "benefits": [
+          "Generous PTO",
+          "Health insurance",
+          "Dental insurance",
+          "Vision insurance",
+          "401k"
+        ],
+        "positionType": "Full-Time",
+        "jobSpecificTasks": [
+          "Process member orders and manage payments",
+          "Deliver unparalleled service",
+          "Maintain store appearance ensuring cleanliness",
+          "Engage with the local community"
+        ],
+        "latitude": 40.65576,
+        "companyName": "Costco",
+        "description": "Costco is looking to hire cashiers at its vibrant Brooklyn location, 976 3rd Ave, NY 11232, offering a unique opportunity to engage with the local community through a role that goes beyond traditional cashier duties. This position requires a commitment to excellence in processing member orders, managing payments, and delivering unparalleled service. Moreover, cashiers are entrusted with maintaining the store's appearance through clean-up and set-up tasks, ensuring an inviting atmosphere for members. The role is crucial in facilitating a positive shopping experience, with each transaction reflecting Costco's commitment to customer satisfaction.",
+        "workLocationType": "On-Site",
+        "title": "Cashier - Brooklyn",
+        "educationRequired": "Less Than High School",
+        "posted": "Recently",
+        "skills": [
+          "Customer Service",
+          "Transaction Handling",
+          "Store Maintenance"
+        ],
+        "createdAt": "2024-06-25T17:35:22.010Z",
+        "jobFunction": "Customer Service",
+        "payPeriod": "Hourly",
+        "estimatedTaxes": -1,
+        "companyOverview": "Costco Wholesale Corporation, commonly known as Costco, is a multinational retail corporation headquartered in Issaquah, Washington, USA. Founded in 1983 by James Sinegal and Jeffrey Brotman, Costco has grown to become one of the world's largest and most successful warehouse club retailers. Costco operates a membership-based model, where customers pay an annual fee to become members and gain access to the company's warehouse-style stores. The company's primary focus is on offering high-quality products at competitive prices, catering to both individual consumers and businesses. Costco is known for its wide range of products, including groceries, electronics, clothing, home goods, appliances, and more.",
+        "salaryLow": -1,
+        "longitude": -74.00926,
+        "updatedAt": {
+          "low": 1632605274,
+          "high": 400
+        },
+        "address": "New York, NY",
+        "isValid": true,
+        "nodeType": "Job",
+        "jobLevel": "No Experience",
+        "salaryHigh": -1,
+        "linkToJob": "https://cta.cadienttalent.com/index.jsp?POSTING_ID=9129795831&LOCATION_ID=9129659415&locale=en_US&SEQ=postingLocationDetails&applicationName=CostcoNonReqExt",
+        "location": "976 3rd Ave, Brooklyn, NY 11232, USA",
+        "hourlyRate": "19.5",
+        "nodeId": "f3962851-fedd-4e3c-a5cf-e68d5aba7cc7"
+      }
+    ]
+  }
+}

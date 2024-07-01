@@ -45,18 +45,7 @@ test('Integration test', async () => {
         degree: 'Master of Arts (M.A.)',
         fieldOfStudy: 'Electrical Engineering',
     })
-    const educationNodeSet = Array.from({ length: 5 }).map(async (_, i) => await createNode(
-        [userNode],
-        'Education', {
-        school: 'RPI',
-        graduationYear: 2022,
-        description: 'I studied math',
-        degree: 'Master of Arts (M.A.)',
-        fieldOfStudy: 'Electrical Engineering',
-    }))
-    await Promise.all(educationNodeSet)
     expect(createdEducationNode).toBeTruthy()
-
     if (createEducationNodeError) {
         console.error(createEducationNodeError)
         expect(createEducationNodeError).toBeFalsy()
@@ -93,7 +82,6 @@ test('Integration test', async () => {
     }
     expect(updatedEducationVectorNode).toBeTruthy()
     expect(createdEducationVectorNode.description![0]).not.toEqual(updatedEducationVectorNode.description![0])
-
 
     // Check getAllNodeType
     const { data: allEducationNodes, error: getAllEducationNodesError } = await getAllOfNodeType('Education', {
@@ -135,7 +123,8 @@ test('Integration test', async () => {
         return
     }
     expect(userNodeByIndex).toBeTruthy()
-    await new Promise(res => setTimeout(res, 1000 * 20))
+    writeFileSync(path.resolve('tests', 'userNode.json'), JSON.stringify(userNodeByIndex, null, 2))
+    await new Promise(res => setTimeout(res, 1000 * 40))
     // Check deleteNode
     const { data: deleted, error: deleteError } = await deleteNode(userNodeByIndex)
     if (deleteError) {

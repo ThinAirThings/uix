@@ -5,6 +5,7 @@ import { ProfileNodeType } from './nodeTypes/ProfileNodeType'
 import { WorkExperienceNodeType } from './nodeTypes/WorkExperienceNodeType'
 import { WorkPreferenceNodeType } from './nodeTypes/WorkPreferenceNodeType'
 import { RootNodeType } from './nodeTypes/RootNodeType'
+import { JobNodeType } from './nodeTypes/JobNodeType'
 
 export default defineConfig({
     type: 'Base',
@@ -14,7 +15,8 @@ export default defineConfig({
         EducationNodeType,
         ProfileNodeType,
         WorkExperienceNodeType,
-        WorkPreferenceNodeType
+        WorkPreferenceNodeType,
+        JobNodeType
     ],
     outdir: 'tests/uix/generated',
     envPath: '.env.test',

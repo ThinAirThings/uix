@@ -1,24 +1,47 @@
 import OpenAI from "openai"
-import { AnyNodeShape, GenericMatchToRelationshipType, GenericNodeShape, GenericNodeType } from "../types/NodeType"
+import { GenericNodeShape, GenericNodeType } from "../types/NodeType"
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 import { openAIAction } from "../clients/openai"
 import { neo4jAction } from "../clients/neo4j"
+import dedent from "dedent"
+import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType"
 
 
 
-export const upsertMatchToRelationship = async (
+export const upsertMatchTypeEmbedding = async (
     neo4jDriver: Driver,
     openaiClient: OpenAI,
-    nodeShape: AnyNodeShape,
-    matchToRelationshipType: GenericMatchToRelationshipType,
-    matchToNodeType: GenericNodeType
+    triggerNode: GenericNodeShape,
+    fromNodeType: GenericNodeType,
+    matchToRelationshipType: GenericMatchToRelationshipType
 ) => {
     // Try/catch this because you're not going to handle it with application logic.
     // You'll just log it.
     const result = await neo4jAction(openAIAction(async () => {
         // Create Node Type Summary
-        console.log("Creating Node Type Summary", nodeShape)
+        console.log("Creating Match Type Summary (nodeTypeEmbedding)", fromNodeType.type)
+        // Collect all nodes in weightedNodeTypeSet
+        const {
+            targetNode,
+            weightedNodeSet
+        } = await neo4jDriver.executeQuery<EagerResult<{
+            weightedNode: Node<Integer, GenericNodeShape>,
+            targetNode: Node<Integer, GenericNodeShape>
+        }>>(dedent/*cypher*/`
+            // Get the node that initiated the change as a reference point 
+            match (triggerNode:${triggerNode.nodeType} {nodeId: $triggerNode.nodeId})
+            // Get the parent node that is the target of this update
+            match (targetNode: ${fromNodeType.type})<-[:CHILD_TO|UNIQUE_TO*]-(triggerNode)
+            // Get all nodes in the weightedNodeTypeSet
+            match (targetNode)<-[:CHILD_TO|UNIQUE_TO*]-(weightedNode: ${matchToRelationshipType.weightedNodeTypeSet.map(({ NodeType }) => NodeType.type).join('|')})
+            return weightedNode, targetNode
+        `, {
+            triggerNode
+        }).then(res => ({
+            targetNode: res.records[0].get('targetNode').properties,
+            weightedNodeSet: res.records.map(record => record.get('weightedNode').properties)
+        }))
         const { type, description } = matchToRelationshipType
         const nodeTypeSummary = await openaiClient.chat.completions.create({
             model: 'gpt-4o',
@@ -34,43 +57,45 @@ export const upsertMatchToRelationship = async (
                         + `You should ignore information that is not relevant to the '${type.toUpperCase()}Type' paragraph as it was defined.\n`
                 }, {
                     role: 'user',
-                    content: `The JSON data to use is: ${JSON.stringify(nodeShape)}`
+                    content: `The JSON data to use is: ${JSON.stringify(Object.fromEntries(weightedNodeSet.map(node => ([node.nodeType, node]))))}`
                 }
             ]
         }).then(res => res.choices[0].message.content ?? '')
+        console.log("Target Node", targetNode)
+        console.log("Weighted Node Set", weightedNodeSet)
+        console.log("Node Type Summary", nodeTypeSummary)
         const nodeTypeEmbedding = await openaiClient.embeddings.create({
             model: 'text-embedding-3-large',
             input: nodeTypeSummary
         }).then(res => res.data[0].embedding)
         // Update Node
-        const nodeResult = await neo4jDriver.executeQuery<EagerResult<{
-            toNode: Node<Integer, GenericNodeShape>
+        const vectorNode = await neo4jDriver.executeQuery<EagerResult<{
+            vectorNode: Node<Integer, GenericNodeShape>
         }>>(/*cypher*/`
-            match (node:${nodeShape.nodeType} {nodeId: $nodeId})
-            merge (vectorNode:${nodeShape.nodeType}Vector:${matchToRelationshipType.type} {nodeId: $nodeId})-[:VECTOR_TO]->(node)
+            match (targetNode:${targetNode.nodeType} {nodeId: $targetNode.nodeId})
+            merge (vectorNode:${targetNode.nodeType}Vector:${matchToRelationshipType.type} {nodeId: $targetNode.nodeId})-[:VECTOR_TO]->(targetNode)
             on create
                 set vectorNode += $vectorNodeStructure
             on match 
                 set vectorNode += $vectorNodeStructure
-            with node
-            match(toNode: ${matchToNodeType.type})<-[:CHILD_TO|UNIQUE_TO*]-(node)
-            return toNode
+            return vectorNode
         `, {
-            nodeId: nodeShape.nodeId,
+            targetNode,
             vectorNodeStructure: {
                 nodeTypeSummary,
                 nodeTypeEmbedding
             }
-        }).then(res => res.records[0].get('toNode').properties)
-        if (!nodeResult) return UixErr({
+        }).then(res => res.records[0].get('vectorNode').properties)
+        console.log("Upserted Match Type Embedding", vectorNode)
+        if (!vectorNode) return UixErr({
             subtype: UixErrSubtype.UPDATE_NODE_FAILED,
             message: `Upsert match relationship error`,
             data: {
-                nodeShape,
+                targetNode,
                 matchToRelationshipType
             }
         });
-        return Ok(nodeResult)
+        return Ok(targetNode)
     }))()
     const { data, error } = result
     if (data) return data

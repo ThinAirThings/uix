@@ -1,6 +1,7 @@
 import { Driver } from "neo4j-driver";
-import { GenericMatchToRelationshipType, GenericNodeShape } from "../types/NodeType";
+import { GenericNodeShape } from "../types/NodeType";
 import dedent from 'dedent'
+import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType";
 
 
 

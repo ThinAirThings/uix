@@ -6,7 +6,7 @@ export const staticObjectsTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 // Start of File
 import uixConfig from '${config.pathToConfig.replace('uix.config.ts', 'uix.config')}'
-import { NodeShape } from '@thinairthings/uix'
+import { NodeShape, NodeState } from '@thinairthings/uix'
 import neo4j from 'neo4j-driver'
 export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
 
@@ -22,6 +22,10 @@ ${config.graph.nodeTypeMap['Root']
 ${Object.keys(config.graph.nodeTypeMap).map(nodeType =>
     /*ts*/`export type ${nodeType}Node = NodeShape<ConfiguredNodeTypeMap['${nodeType}']> \n`
         ).join('')}
+${Object.keys(config.graph.nodeTypeMap).map(nodeType =>
+    /*ts*/`export type ${nodeType}NodeState = NodeState<ConfiguredNodeTypeMap['${nodeType}']> \n`
+        ).join('')
+        }
 
 export const driver = neo4j.driver(
     process.env.NEO4J_URI!, 

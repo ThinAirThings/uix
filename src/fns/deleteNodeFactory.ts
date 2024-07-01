@@ -46,7 +46,7 @@ export const deleteNodeFactory = <
             ...nodeKey
         });
     }
-    console.log("Deleted", parentNodeKeys)
+    console.log("Deleted", nodeKey)
     if (!parentNodeKeys.length) return UixErr({
         subtype: UixErrSubtype.DELETE_NODE_FAILED,
         message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
