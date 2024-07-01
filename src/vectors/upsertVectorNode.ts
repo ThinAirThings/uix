@@ -45,8 +45,6 @@ export const upsertVectorNode = async (
                 ))).flat()
             : [],
     ])
-    console.log("TO NODES!!!")
-    console.log(toNodes)
     // // Note: You need to figure out how to get a hold of the fromNode
     if (!toNodes.length) return
     await Promise.all(toNodes.map(async toNode => await upsertMatches(

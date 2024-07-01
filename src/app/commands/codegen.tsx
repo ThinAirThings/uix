@@ -1,11 +1,9 @@
 
-import React, { FC, useEffect, useState } from 'react';
-import { Text, Box, Newline, useStdin } from 'ink';
+import React, { FC, } from 'react';
+import { Text, Box, Static } from 'ink';
 import { z, TypeOf } from 'zod';
 import { Loading } from '../(components)/Loading';
 import { CommandEnvironment } from '../(components)/CommandEnvironment';
-import { GenericUixConfig } from '../../config/defineConfig';
-import { require as tsxRequire } from 'tsx/cjs/api'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
@@ -20,13 +18,15 @@ import { useNodeKeyTemplate } from '../../templates/hooks/useNodeKeyTemplate';
 import { useNodeSetTemplate } from '../../templates/hooks/useNodeSetTemplate';
 import { useNodeIndexTemplate } from '../../templates/hooks/useNodeIndexTemplate';
 import { useNodeTypeTemplate } from '../../templates/hooks/useNodeTypeTemplate';
+import { option } from 'pastel';
 
 export const options = z.object({
-    pathToConfig: z.string().transform(relativePath => {
-        if (relativePath.slice(0, 1) === '/') return relativePath
-        return path.join(process.cwd(), relativePath)
-    }).default(path.join(process.cwd(), 'uix.config.ts')).describe('Path to uix.config.ts file'),
-    envPath: z.string().default(path.join(process.cwd(), '.env')).describe('Path to .env file'),
+    config: z.string().optional().describe(
+        option({
+            description: 'Path to uix.config file',
+            alias: 'c',
+        })
+    ),
 });
 
 export type CodegenOptions = TypeOf<typeof options>;
@@ -37,71 +37,46 @@ const Codegen: FC<{
 }> = ({
     options
 }) => CommandEnvironment({
-    envPath: options.envPath,
+    relativePathToConfig: options.config,
     Command: () => {
-        // Get config
-        useOperation({
-            dependencies: [],
-            operationKey: 'uixConfig',
-            tryOp: async () => {
-                await new Promise(resolve => setTimeout(resolve, 500))
-                const {
-                    default: config
-                } = tsxRequire(options.pathToConfig, import.meta.url) as {
-                    default: GenericUixConfig
-                }
-                applicationStore.setState(({ uixConfig: config }))
-                return config
-            },
-            catchOp: (error: Error) => UixErr({
-                subtype: UixErrSubtype.UIX_CONFIG_NOT_FOUND,
-                message: `Uix config not found: ${error.message}`,
-                data: { pathToConfig: options.pathToConfig }
-            }),
-            render: {
-                Success: ({ data }) => <Text>✅ Uix config found @ {data.pathToConfig}</Text>,
-                Pending: () => <Loading text="Finding config..." />,
-                Error: ({ error }) => <Text color="red">Error finding config file: {error.message}</Text>
-            }
-        })
         // Generate Code
         useOperation({
             dependencies: [useApplicationStore(store => store.uixConfig)],
             operationKey: 'codeGeneration',
             tryOp: async ([uixConfig]) => {
                 await new Promise(resolve => setTimeout(resolve, 500))
-                const pathToFiles = path.join(process.cwd(), uixConfig.outdir)
-                await mkdir(pathToFiles, { recursive: true })
+                const outDir = uixConfig.outdir
+                await mkdir(outDir, { recursive: true })
                 await writeFile(
-                    path.join(pathToFiles, 'functionModule.ts'),
+                    path.join(outDir, 'functionModule.ts'),
                     functionModuleTemplate(uixConfig)
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'queryOptions.ts'),
+                    path.join(outDir, 'queryOptions.ts'),
                     queryOptionsTemplate()
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'staticObjects.ts'),
+                    path.join(outDir, 'staticObjects.ts'),
                     staticObjectsTemplate(uixConfig)
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'useUniqueChild.ts'),
+                    path.join(outDir, 'useUniqueChild.ts'),
                     useUniqueChildTemplate()
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'useNodeKey.ts'),
+                    path.join(outDir, 'useNodeKey.ts'),
                     useNodeKeyTemplate()
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'useNodeSet.ts'),
+                    path.join(outDir, 'useNodeSet.ts'),
                     useNodeSetTemplate()
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'useNodeIndex.ts'),
+                    path.join(outDir, 'useNodeIndex.ts'),
                     useNodeIndexTemplate()
                 )
                 await writeFile(
-                    path.join(pathToFiles, 'useNodeType.ts'),
+                    path.join(outDir, 'useNodeType.ts'),
                     useNodeTypeTemplate()
                 )
                 return true
@@ -118,25 +93,17 @@ const Codegen: FC<{
             }
         })
         const outputMap = useApplicationStore(store => store.outputMap)
-
-        return (<Box flexDirection='column'>
+        const pendingSet = useApplicationStore(store => store.pendingSet)
+        return (<>
+            <Static items={[...outputMap]}>
+                {([key, { Component }]) => <Box key={key}><Component /></Box>}
+            </Static>
             <Box flexDirection='column'>
-                <Box flexDirection='column' paddingBottom={1}>
-                    <Newline />
-                    <Text>🕳️  🐰 Thin Air Codegen 🐰 🕳️</Text>
-                </Box>
+                {pendingSet.size > 0 && <Loading text="Generating code..." />}
             </Box>
-            <Box flexDirection='column'>
-                {/* Outputs */}
-                {[...outputMap].map(([key, { Component }]) => <Component key={key} />)}
-                {[...outputMap].every(([_, { operationState }]) => operationState === 'success') && <>
-                    <Text>🚀 Uix System Generation Complete!</Text>
-                    <Newline />
-                </>}
-                {/* Seed Database */}
-                <SeedNeo4j />
-            </Box>
-        </Box>)
+            <SeedNeo4j />
+        </>
+        )
     }
 })
 

@@ -13,9 +13,9 @@ export const SeedNeo4j = () => {
     const uixConfig = useApplicationStore(state => state.uixConfig)
     const neo4jDriver = useApplicationStore(state => state.neo4jDriver)
     useOperation({
-        dependencies: [neo4jDriver, uixConfig] as const,
+        dependencies: [uixConfig, neo4jDriver] as const,
         operationKey: 'createNullNode',
-        tryOp: async ([neo4jDriver, uixConfig]) => {
+        tryOp: async ([uixConfig, neo4jDriver]) => {
             // Create Null Node
             uixConfig.graph.nodeTypeMap['Null']
                 || uixConfig.graph.nodeTypeMap['Root']
@@ -40,7 +40,6 @@ export const SeedNeo4j = () => {
                 FOR ()-[match_to:MATCH_TO]-() 
                 REQUIRE (match_to.fromNodeId, match_to.type, match_to.toNodeId) IS UNIQUE;
             `)
-            console.log("DONE")
             return true
         },
         catchOp: (error: Neo4jError) => UixErr({

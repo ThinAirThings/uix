@@ -134,12 +134,14 @@ export class QueryError<
     ErrType extends AnyErrType
 > extends Error {
     type: ErrType['type']
+    subtype: ErrType['subtype']
     data: ErrType['data']
     constructor(
         err: ErrType
     ) {
         super(err.message)
         this.type = err.type
+        this.subtype = err.subtype
         this.data = err.data
     }
 }

@@ -9,7 +9,6 @@ export const createNeo4jClient = (config: {
     username: string
     password: string,
 }, options?: Parameters<typeof neo4j.driver>[2]) => {
-    console.log(config)
     return neo4j.driver(
         config.uri,
         neo4j.auth.basic(config.username, config.password),

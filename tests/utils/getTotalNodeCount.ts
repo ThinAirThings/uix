@@ -1,5 +1,5 @@
 import { EagerResult, Integer } from "neo4j-driver";
-import { driver } from "../uix/generated/functionModule";
+import { driver } from "../uix/generated/staticObjects"
 
 
 

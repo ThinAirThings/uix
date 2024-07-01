@@ -4,13 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient()
 export const ReactQueryProvider: FC<{
-    children: ReactNode
+    CommandEnvironment: FC
 }> = ({
-    children
+    CommandEnvironment
 }) => {
         return (
             <QueryClientProvider client={queryClient}>
-                {children}
+                <CommandEnvironment />
             </QueryClientProvider>
         )
     }

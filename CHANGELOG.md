@@ -1,5 +1,77 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 2.3.4
+
+### Patch Changes
+
+- swap tsx for bundle-n-require
+
+## 2.3.3
+
+### Patch Changes
+
+- fixing tsImport
+
+## 2.3.2
+
+### Patch Changes
+
+- tsup-node
+
+## 2.3.1
+
+### Patch Changes
+
+- remove circular dep:
+
+## 2.3.0
+
+### Minor Changes
+
+- bring cli back
+
+## 2.2.3
+
+### Patch Changes
+
+- update deps
+
+## 2.2.2
+
+### Patch Changes
+
+- remove unneeded deps
+
+## 2.2.1
+
+### Patch Changes
+
+- update exports in package.json
+
+## 2.2.0
+
+### Minor Changes
+
+- remove cli
+
+## 2.1.4
+
+### Patch Changes
+
+- pin react version
+
+## 2.1.3
+
+### Patch Changes
+
+- update react deps
+
+## 2.1.2
+
+### Patch Changes
+
+- new cli
+
 ## 2.1.1
 
 ### Patch Changes

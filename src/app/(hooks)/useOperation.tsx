@@ -51,25 +51,15 @@ export const useOperation = <
     })
     useEffect(() => {
         if (!result) {
-            applicationStore.setState(({ outputMap }) => {
-                outputMap.set(operationKey, {
-                    Component: () => {
-                        return (
-                            <Box>
-                                <render.Pending
-                                    dependencies={dependencies as Strictify<Dependencies>}
-                                />
-                            </Box>
-                        )
-                    },
-                    operationState: 'pending'
-                })
+            applicationStore.setState(({ pendingSet }) => {
+                pendingSet.add(operationKey)
             })
             return
         }
         const { error, data } = result
         if (error) {
-            applicationStore.setState(({ outputMap }) => {
+            applicationStore.setState(({ outputMap, pendingSet }) => {
+                pendingSet.delete(operationKey)
                 outputMap.set(operationKey, {
                     Component: () => {
                         return (
@@ -81,13 +71,13 @@ export const useOperation = <
                             </Box>
                         )
                     },
-                    operationState: 'error'
                 })
             })
             return
         }
         if (data) {
-            applicationStore.setState(({ outputMap }) => {
+            applicationStore.setState(({ outputMap, pendingSet }) => {
+                pendingSet.delete(operationKey)
                 outputMap.set(operationKey, {
                     Component: () => {
                         return (
@@ -99,7 +89,6 @@ export const useOperation = <
                             </Box>
                         )
                     },
-                    operationState: 'success'
                 })
             })
         }

@@ -12,7 +12,7 @@ export const CreateNodeTypeVector: FC<{
 }> = ({
     nodeType,
 }) => {
-        const neo4jDriver = useApplicationStore(state => state.neo4jDriver)
+        const neo4jDriver = useApplicationStore(store => store.neo4jDriver)
         const createNodeTypeVectorResult = useOperation({
             dependencies: [neo4jDriver],
             operationKey: `createNodeTypeVector-${nodeType}`,

@@ -1,12 +1,12 @@
 import { GenericUixConfig } from "../config/defineConfig";
-
+import path from 'path'
 
 
 export const functionModuleTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 'use server'
 // Start of File
-import uixConfig from '${config.pathToConfig.replace('uix.config.ts', 'uix.config')}'
+import uixConfig from '${path.relative(config.outdir, config.pathToConfig).split(path.sep).join('/')}'
 import {
     createNodeFactory, 
     updateNodeFactory, 
@@ -17,17 +17,12 @@ import {
     getChildNodeSetFactory,
     getUniqueChildNodeFactory,
     getNodeByIndexFactory,
-    NodeKey
 } from '@thinairthings/uix'
-import neo4j from 'neo4j-driver'
 import OpenAI from 'openai'
+import {driver} from './staticObjects.ts'
 
-export const driver = neo4j.driver(
-    uixConfig.neo4jConfig.uri, 
-    neo4j.auth.basic(uixConfig.neo4jConfig.username, uixConfig.neo4jConfig.password)
-)
 const openaiClient = new OpenAI({
-    apiKey: uixConfig.openaiConfig.apiKey
+    apiKey: process.env.OPENAI_API_KEY!
 })
 
 export const createNode = createNodeFactory(driver, openaiClient, uixConfig.graph.nodeTypeMap)

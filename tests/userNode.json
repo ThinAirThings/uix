@@ -1,11 +1,11 @@
 {
-  "createdAt": 1719729144602,
   "firstName": "Local",
   "lastName": "Test",
+  "createdAt": 1719779509840,
   "completedOnboardingV2": false,
   "userType": "Unspecified",
   "nodeType": "User",
-  "nodeId": "b01bc1bc-98c7-4fc3-b36d-723aacf3c7c1",
-  "email": "c4b21d78-7913-4c69-ad19-052c69bd6c7c@localTest.com",
-  "updatedAt": 1719729144602
+  "nodeId": "ca63e277-709d-4379-aa0c-922a2de6a1c8",
+  "email": "ae96be0f-913a-421a-9f40-1e5f5c5bb575@localTest.com",
+  "updatedAt": 1719779509840
 }

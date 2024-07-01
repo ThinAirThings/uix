@@ -14,7 +14,7 @@ export const CreatePropertyVector: FC<{
     nodeType,
     propertyName
 }) => {
-        const neo4jDriver = useApplicationStore(state => state.neo4jDriver)
+        const neo4jDriver = useApplicationStore(store => store.neo4jDriver)
         useOperation({
             dependencies: [neo4jDriver],
             operationKey: `createPropertyVector-${nodeType}-${propertyName}`,

@@ -15,15 +15,29 @@ export type UixConfig<
     outdir: string;
     graph: GraphType<Type, NodeTypeSet>;
     pathToConfig: string;
-    neo4jConfig: {
-        uri: string;
-        username: string;
-        password: string;
-    };
-    openaiConfig: {
-        apiKey: string;
-    };
+    envPath: string;
 };
+
+export type UixConfigWithoutPath<
+    Type extends Capitalize<string>,
+    NodeTypeSet extends AnyNodeTypeSet,
+> = Omit<UixConfig<Type, NodeTypeSet>, 'pathToConfig'>;
+export type GenericUixConfigWithoutPath = UixConfigWithoutPath<Capitalize<string>, GenericNodeTypeSet>
+
+export type UixConfigDefinition<
+    Type extends Capitalize<string>,
+    NodeTypeSet extends AnyNodeTypeSet,
+> = {
+    type: Type;
+    nodeTypeSet: NodeTypeSet;
+    envPath?: string;
+    outdir?: string;
+}
+
+export type GenericUixConfigDefinition = UixConfigDefinition<
+    Capitalize<string>,
+    GenericNodeTypeSet
+>
 
 /**
  * Represents the generic configuration for the Uix library.
@@ -35,34 +49,37 @@ export type GenericUixConfig = UixConfig<
 
 /**
  * Defines the Uix configuration based on the provided options.
- * @template Type - The type of the graph.
- * @template NodeTypeSet - The type of the node set.
  * @param options - The configuration options.
- * @returns The Uix configuration.
+ * @param options.type - The type of the graph. (ie. 'Base')
+ * @param options.nodeTypeSet - An array of NodeTypes as defined by {@link defineNodeType}.
+ * @param options.envPath - The optional environment path. If unspecified, defaults to '.env'.
+ * @param options.outdir - The optional output directory. If unspecified, defaults to 'uix'.
+ * @returns {UixConfig<Type, NodeTypeSet>} - The Uix configuration.
  */
 export const defineConfig = <
     Type extends Capitalize<string>,
     NodeTypeSet extends AnyNodeTypeSet,
 >(
-    options: Omit<
-        UixConfig<Type, NodeTypeSet>,
-        'graph' | 'pathToConfig'
-    > & {
+    options: {
         type: Type;
         nodeTypeSet: NodeTypeSet;
+        envPath?: string;
+        outdir?: string;
     }
-): UixConfig<
-    Type,
-    NodeTypeSet
-> => {
-    return {
-        outdir: options.outdir ?? path.join('uix', 'output'),
-        graph: new GraphType(
-            options.type,
-            options.nodeTypeSet,
-        ),
-        openaiConfig: options.openaiConfig,
-        pathToConfig: getCallerFile(),
-        neo4jConfig: options.neo4jConfig
-    };
-};
+): UixConfigWithoutPath<Type, NodeTypeSet> => ({
+    outdir: path.resolve(options.outdir ?? path.join('uix', 'generated')),
+    graph: new GraphType(options.type, options.nodeTypeSet),
+    envPath: path.resolve(options.envPath ?? '.env')
+})
+
+
+//     {
+//     return {
+//         outdir: options.outdir ?? path.join('uix', 'output'),
+//         graph: new GraphType(
+//             options.type,
+//             options.nodeTypeSet,
+//         ),
+//         envPath: options.envPath ?? '.env',
+//     };
+// };

@@ -12,3 +12,4 @@ export const EducationNodeType = defineNodeType('Education', z.object({
     description: z.string().optional(),
 }))
     .definePropertyVector(['school', 'degree', 'fieldOfStudy', 'description'])
+
