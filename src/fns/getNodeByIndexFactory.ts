@@ -2,7 +2,6 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 
@@ -15,11 +14,15 @@ export const getNodeByIndexFactory = <
 ) => neo4jAction(async <
     NodeType extends keyof NodeTypeMap,
     UniqueIndex extends NodeTypeMap[NodeType]['uniqueIndexes'][number],
->(
+>({
+    nodeType,
+    indexKey,
+    indexValue
+}: {
     nodeType: NodeType,
     indexKey: UniqueIndex,
     indexValue: string
-) => {
+}) => {
     console.log(`Getting node of type ${nodeType as string} with index ${indexKey} = ${indexValue}`);
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
@@ -38,5 +41,5 @@ export const getNodeByIndexFactory = <
             indexValue
         }
     })
-    return Ok(convertIntegersToNumbers(node))
+    return Ok(node)
 })

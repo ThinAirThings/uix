@@ -8,7 +8,6 @@ import OpenAI from "openai"
 import { openAIAction } from "../clients/openai"
 import { NodeKey } from "../types/NodeKey"
 import { upsertVectorNode } from "../vectors/upsertVectorNode"
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 /**
@@ -25,10 +24,13 @@ export const updateNodeFactory = <
     nodeTypeMap: NodeTypeMap
 ) => neo4jAction(openAIAction(async <
     NodeType extends NodeTypeMap[keyof NodeTypeMap]['type']
->(
+>({
+    nodeKey,
+    inputState
+}: {
     nodeKey: NodeKey<NodeTypeMap, NodeType>,
     inputState: Partial<NodeState<NodeTypeMap[NodeType]>>
-) => {
+}) => {
     console.log("Updating", nodeKey, inputState)
     const nodeDefinition = nodeTypeMap[nodeKey.nodeType] as GenericNodeType
     // Strip out any properties that are not in the schema
@@ -61,5 +63,5 @@ export const updateNodeFactory = <
     // Arguably, optimistic updates with react-query also solves this.
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
     await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
-    return Ok(convertIntegersToNumbers(node))
+    return Ok(node)
 }))

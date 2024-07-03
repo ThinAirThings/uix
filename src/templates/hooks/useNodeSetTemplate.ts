@@ -1,6 +1,7 @@
 
 
 export const useNodeSetTemplate = () => /*ts*/`
+'use client'
 import {
     NodeKey,
     NodeSetParentTypes,
@@ -32,7 +33,11 @@ export const useNodeSet = <
     const { data, error } = useQuery(queryOptions)
     const createNodeMutation = useMutation({
         mutationFn: async (initialState: NodeState<ConfiguredNodeTypeMap[ChildNodeType]>) => {
-            return await createNode([parentNodeKey], childNodeType, initialState)
+            return await createNode({
+                parentNodeKeys: [parentNodeKey], 
+                childNodeType, 
+                initialState
+            })
         },
         onSuccess: () => queryClient.invalidateQueries({
             queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType]

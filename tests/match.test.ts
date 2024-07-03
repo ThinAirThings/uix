@@ -16,6 +16,15 @@ import path from 'path'
 
 
 let emails: string[] = []
+function pick(obj, keys) {
+    return keys.reduce((result, key) => {
+        if (obj.hasOwnProperty(key)) {
+            result[key] = obj[key];
+        }
+        return result;
+    }, {});
+}
+
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
         try: () => execSync('pnpm uix'),
@@ -43,47 +52,99 @@ test('Integration test', async () => {
     expect(maleCollegeGraduateMarketingNode).toBeTruthy()
     const matchResults = await driver.executeQuery<EagerResult<{
         femaleCollegeElementaryTeacherNode: Node<Integer, UserNode>,
-        femaleCollegeElementaryTeacherJobNodeSet: Node<Integer, JobNode>[]
-        femaleHighSchoolGraduateServiceNode: Node<Integer, UserNode>,
-        femaleHighSchoolGraduateServiceJobNodeSet: Node<Integer, JobNode>[]
-        maleCollegeGraduateMarketingNode: Node<Integer, UserNode>,
-        maleCollegeGraduateMarketingJobNodeSet: Node<Integer, JobNode>[]
+        femaleCollegeElementaryTeacherJobNodeSet: { job: Node<Integer, JobNode>, score: number }[]
     }>>(dedent/*cypher*/`
-        match (femaleCollegeElementaryTeacherNode: User {nodeId: $femaleCollegeElementaryTeacherNodeId})-[:MATCH_TO]->(femaleCollegeElementaryTeacherJobNode: Job)
-        match (femaleHighSchoolGraduateServiceNode: User {nodeId: $femaleHighSchoolGraduateServiceNodeId})-[:MATCH_TO]->(femaleHighSchoolGraduateServiceJobNode: Job)
-        match (maleCollegeGraduateMarketingNode: User {nodeId: $maleCollegeGraduateMarketingNodeId})-[:MATCH_TO]->(maleCollegeGraduateMarketingJobNode: Job)
+        match (femaleCollegeElementaryTeacherNode: User {nodeId: $femaleCollegeElementaryTeacherNodeId})-[female_college_match_to:MATCH_TO]->(femaleCollegeElementaryTeacherJobNode: Job)
         return 
             femaleCollegeElementaryTeacherNode, 
-            collect(distinct femaleCollegeElementaryTeacherJobNode) as femaleCollegeElementaryTeacherJobNodeSet,
-            femaleHighSchoolGraduateServiceNode,
-            collect(distinct femaleHighSchoolGraduateServiceJobNode) as femaleHighSchoolGraduateServiceJobNodeSet,
-            maleCollegeGraduateMarketingNode,
-            collect(distinct maleCollegeGraduateMarketingJobNode) as maleCollegeGraduateMarketingJobNodeSet 
+            COLLECT({job: femaleCollegeElementaryTeacherJobNode, score: female_college_match_to.score}) AS femaleCollegeElementaryTeacherJobNodeSet
     `, {
         femaleCollegeElementaryTeacherNodeId: femaleCollegeElementaryTeacherNode.nodeId,
-        femaleHighSchoolGraduateServiceNodeId: femaleHighSchoolGraduateServiceNode.nodeId,
-        maleCollegeGraduateMarketingNodeId: maleCollegeGraduateMarketingNode.nodeId
     }).then(res => {
-        console.log(res.records)
+        const selectedProperties = [
+            'title',
+            'companyName',
+            'description',
+            'skills',
+            'educationRequired',
+            'workLocationType',
+            'companyOverview'
+        ];
+
+        function pick(obj, keys) {
+            return keys.reduce((result, key) => {
+                if (obj.hasOwnProperty(key)) {
+                    result[key] = obj[key];
+                }
+                return result;
+            }, {});
+        }
+
+        function extractAndSortJobs(record, jobNodeSetKey) {
+            return record.get(jobNodeSetKey)
+                .map(({ job, score }) => ({
+                    ...pick(job.properties, selectedProperties),
+                    score
+                }))
+                .sort((a, b) => b.score - a.score);
+        }
         return {
             femaleCollegeElementaryTeacherNode: {
                 userNode: res.records[0].get('femaleCollegeElementaryTeacherNode').properties,
-                jobNode: res.records[0].get('femaleCollegeElementaryTeacherJobNodeSet').map(record => record.properties)
+                jobNode: extractAndSortJobs(res.records[0], 'femaleCollegeElementaryTeacherJobNodeSet')
             },
-            femaleHighSchoolGraduateServiceNode: {
-                userNode: res.records[0].get('femaleHighSchoolGraduateServiceNode').properties,
-                jobNode: res.records[0].get('femaleHighSchoolGraduateServiceJobNodeSet').map(record => record.properties)
-            },
-            maleCollegeGraduateMarketingNode: {
-                userNode: res.records[0].get('maleCollegeGraduateMarketingNode').properties,
-                jobNode: res.records[0].get('maleCollegeGraduateMarketingJobNodeSet').map(record => record.properties)
-            }
+        };
+    })
+    const matchResultsMarketing = await driver.executeQuery<EagerResult<{
+        femaleCollegeElementaryTeacherNode: Node<Integer, UserNode>,
+        femaleCollegeElementaryTeacherJobNodeSet: { job: Node<Integer, JobNode>, score: number }[]
+    }>>(dedent/*cypher*/`
+        match (femaleCollegeElementaryTeacherNode: User {nodeId: $femaleCollegeElementaryTeacherNodeId})-[female_college_match_to:MATCH_TO]->(femaleCollegeElementaryTeacherJobNode: Job)
+        return 
+            femaleCollegeElementaryTeacherNode, 
+            COLLECT({job: femaleCollegeElementaryTeacherJobNode, score: female_college_match_to.score}) AS femaleCollegeElementaryTeacherJobNodeSet
+    `, {
+        femaleCollegeElementaryTeacherNodeId: maleCollegeGraduateMarketingNode.nodeId,
+    }).then(res => {
+        const selectedProperties = [
+            'title',
+            'companyName',
+            'description',
+            'skills',
+            'educationRequired',
+            'workLocationType',
+            'companyOverview'
+        ];
+
+        function pick(obj, keys) {
+            return keys.reduce((result, key) => {
+                if (obj.hasOwnProperty(key)) {
+                    result[key] = obj[key];
+                }
+                return result;
+            }, {});
         }
+
+        function extractAndSortJobs(record, jobNodeSetKey) {
+            return record.get(jobNodeSetKey)
+                .map(({ job, score }) => ({
+                    ...pick(job.properties, selectedProperties),
+                    score
+                }))
+                .sort((a, b) => b.score - a.score);
+        }
+        return {
+            femaleCollegeElementaryTeacherNode: {
+                userNode: res.records[0].get('femaleCollegeElementaryTeacherNode').properties,
+                jobNode: extractAndSortJobs(res.records[0], 'femaleCollegeElementaryTeacherJobNodeSet')
+            },
+        };
     })
     await writeFile(path.resolve('tests', 'matchResults.json'), JSON.stringify(matchResults, null, 2))
+    await writeFile(path.resolve('tests', 'matchResultsMarketing.json'), JSON.stringify(matchResultsMarketing, null, 2))
     // Cleanup
     Object.values(matchResults).forEach(async ({ userNode }) => {
-        await deleteNode(userNode)
+        await deleteNode({ nodeKey: userNode })
     })
     const finalNodeCount = await getTotalNodeCount()
     expect(finalNodeCount).toBe(initialnodeCount)
@@ -91,9 +152,15 @@ test('Integration test', async () => {
 
 afterAll(async () => {
     await Promise.all(emails.map(async email => {
-        const { data } = await getNodeByIndex('User', 'email', email)
+        const { data } = await getNodeByIndex({
+            nodeType: 'User',
+            indexKey: 'email',
+            indexValue: email
+        })
         if (data) {
-            await deleteNode(data)
+            await deleteNode({
+                nodeKey: data
+            })
         }
     }))
 })

@@ -12,7 +12,7 @@ export const createNeo4jClient = (config: {
     return neo4j.driver(
         config.uri,
         neo4j.auth.basic(config.username, config.password),
-        options
+        { ...options, disableLosslessIntegers: true }
     )
 }
 
@@ -37,7 +37,6 @@ export const neo4jAction = <
     T,
     PrevErrType extends AnyErrType,
 >(
-    // fnName: string,
     fn: Action<Input, T, PrevErrType>
 ) => async (
     ...args: Input
@@ -47,13 +46,11 @@ export const neo4jAction = <
         | ErrType<'Neo4jErr', Neo4jErrorSubtype.UNKNOWN, Neo4jError>
     >
 > => {
-        // console.log("Running", fnName, "with args", args)
         try {
             return await fn(...args)
         } catch (e) {
             if (!(e instanceof Neo4jError)) throw e
             return Neo4jErr(
-                // fnName,
                 e
             )
         }

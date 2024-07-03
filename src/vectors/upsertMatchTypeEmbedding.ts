@@ -61,9 +61,6 @@ export const upsertMatchTypeEmbedding = async (
                 }
             ]
         }).then(res => res.choices[0].message.content ?? '')
-        console.log("Target Node", targetNode)
-        console.log("Weighted Node Set", weightedNodeSet)
-        console.log("Node Type Summary", nodeTypeSummary)
         const nodeTypeEmbedding = await openaiClient.embeddings.create({
             model: 'text-embedding-3-large',
             input: nodeTypeSummary
@@ -86,7 +83,6 @@ export const upsertMatchTypeEmbedding = async (
                 nodeTypeEmbedding
             }
         }).then(res => res.records[0].get('vectorNode').properties)
-        console.log("Upserted Match Type Embedding", vectorNode)
         if (!vectorNode) return UixErr({
             subtype: UixErrSubtype.UPDATE_NODE_FAILED,
             message: `Upsert match relationship error`,

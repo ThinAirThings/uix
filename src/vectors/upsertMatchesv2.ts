@@ -17,7 +17,7 @@ export const upsertMatchesv2 = async (
         matchToNode: Node<Integer, GenericNodeShape>
     }>>(dedent/*cypher*/`
         match (fromNode: ${fromNode.nodeType} {nodeId: $fromNode.nodeId})<-[:VECTOR_TO]-(fromNodeVectorNode:${fromNode.nodeType}Vector:${matchToRelationshipType.type})
-        call db.index.vector.queryNodes('${matchToRelationshipType.matchToNodeType.type}_vector', 5, fromNodeVectorNode.nodeTypeEmbedding)
+        call db.index.vector.queryNodes('${matchToRelationshipType.matchToNodeType.type}_vector', 100, fromNodeVectorNode.nodeTypeEmbedding)
         yield node as matchToVectorNode, score
         match (matchToNode: ${matchToRelationshipType.matchToNodeType.type} {nodeId: matchToVectorNode.nodeId})
         merge (fromNode)-[match_to:MATCH_TO { type: $matchToType }]->(matchToNode)
@@ -40,7 +40,5 @@ export const upsertMatchesv2 = async (
         score: record.get('score'),
         matchToNode: record.get('matchToNode').properties
     })))
-
-    console.log(matches)
     return matches
 }

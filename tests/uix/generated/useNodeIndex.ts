@@ -1,4 +1,5 @@
 
+'use client'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NodeIndexQueryOptions } from "./queryOptions";
 import { ConfiguredNodeTypeMap } from "./staticObjects";
@@ -43,11 +44,14 @@ export const useNodeIndex = <
         }
     }
     const updateMutation = useMutation({
-        mutationFn: async (inputData: Partial<NodeState<ConfiguredNodeTypeMap[NodeType]>>) => {
+        mutationFn: async (inputState: Partial<NodeState<ConfiguredNodeTypeMap[NodeType]>>) => {
             const currentNodeData = queryClient.getQueryData(queryOptions.queryKey)
             if (!currentNodeData) return
-            console.log("Running Mutation: ", 'updateNode({ nodeType: ' + currentNodeData.nodeType + 'nodeId: ' + currentNodeData.nodeId + inputData)
-            return await updateNode({ nodeType: currentNodeData.nodeType, nodeId: currentNodeData.nodeId }, inputData)
+            console.log("Running Mutation: ", 'updateNode({ nodeType: ' + currentNodeData.nodeType + 'nodeId: ' + currentNodeData.nodeId + inputState)
+            return await updateNode({
+                nodeKey: { nodeType: currentNodeData.nodeType, nodeId: currentNodeData.nodeId }, 
+                inputState
+            })
         },
         onMutate: async (data) => {
             await queryClient.cancelQueries({ queryKey: queryOptions.queryKey })

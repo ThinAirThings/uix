@@ -2,6 +2,7 @@ import { singleNodeTemplate } from "../singleNodeTemplate";
 
 
 export const useNodeKeyTemplate = () => /*ts*/`
+'use client'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NodeKeyQueryOptions } from "./queryOptions";
 import { ConfiguredNodeTypeMap } from "./staticObjects";

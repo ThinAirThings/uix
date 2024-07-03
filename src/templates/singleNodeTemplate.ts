@@ -21,11 +21,14 @@ export const singleNodeTemplate = (
         }
     }
     const updateMutation = useMutation({
-        mutationFn: async (inputData: Partial<NodeState<ConfiguredNodeTypeMap[NodeType]>>) => {
+        mutationFn: async (inputState: Partial<NodeState<ConfiguredNodeTypeMap[NodeType]>>) => {
             const currentNodeData = queryClient.getQueryData(queryOptions.queryKey)
             if (!currentNodeData) return
-            console.log("Running Mutation: ", 'updateNode({ nodeType: ' + currentNodeData.nodeType + 'nodeId: ' + currentNodeData.nodeId + inputData)
-            return await updateNode({ nodeType: currentNodeData.nodeType, nodeId: currentNodeData.nodeId }, inputData)
+            console.log("Running Mutation: ", 'updateNode({ nodeType: ' + currentNodeData.nodeType + 'nodeId: ' + currentNodeData.nodeId + inputState)
+            return await updateNode({
+                nodeKey: { nodeType: currentNodeData.nodeType, nodeId: currentNodeData.nodeId }, 
+                inputState
+            })
         },
         onMutate: async (data) => {
             await queryClient.cancelQueries({ queryKey: queryOptions.queryKey })
@@ -47,10 +50,10 @@ export const singleNodeTemplate = (
             })
         }
     })
-    ${includeDeleteMutation ? `const deleteMutation = useMutation({
+    ${includeDeleteMutation ? /*ts*/`const deleteMutation = useMutation({
         mutationFn: async () => {
             console.log("Running Mutation: ", 'deleteNode({ nodeType: ' + nodeKey.nodeType + 'nodeId: ' + nodeKey.nodeId)
-            const { data: parentNodeKey } = await deleteNode({ nodeType: nodeKey.nodeType, nodeId: nodeKey.nodeId })
+            const { data: parentNodeKey } = await deleteNode({nodeKey: { nodeType: nodeKey.nodeType, nodeId: nodeKey.nodeId }})
             if (!parentNodeKey) throw new Error("Failed to delete node")
             return parentNodeKey
         },
@@ -65,7 +68,9 @@ export const singleNodeTemplate = (
                 queryKey: [nodeKey.nodeType]
             })
         }
-    })` : ''}
+    })
+    ` : ``
+    }
     const useMutateOnDismount = () => {
         const initialDataRef = useRef(queryClient.getQueryData(queryOptions.queryKey))
         useEffect(() => {

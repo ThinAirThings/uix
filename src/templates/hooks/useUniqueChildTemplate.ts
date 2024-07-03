@@ -3,6 +3,7 @@ import { singleNodeTemplate } from "../singleNodeTemplate";
 
 
 export const useUniqueChildTemplate = () => /*ts*/`
+'use client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
     UniqueChildNodeTypes,

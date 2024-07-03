@@ -6,6 +6,8 @@ import { createNeo4jClient } from "../../clients/neo4j";
 import { Box, Newline, Text } from "ink";
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
+import { Error } from "../(components)/Error";
+import { UixErr, UixErrSubtype } from "../../types/Result";
 
 export const applicationStore = createImmerState({
     outputMap: new Map<string, {
@@ -25,6 +27,20 @@ export const applicationStore = createImmerState({
     uixConfig: null as GenericUixConfig | null,
     complete: false as boolean,
     neo4jDriver: null as Driver | null,
+    timeout: (() => {
+        setTimeout(async () => {
+            applicationStore.setState(state => {
+                state.pendingSet.clear()
+                state.outputMap.set('timeout', {
+                    Component: () => <Error message="Operation timed out" error={UixErr({
+                        subtype: UixErrSubtype.CODE_GENERATION_FAILED,
+                        message: 'System timeout. Check your database connection!',
+                    }).error!} />
+                })
+            })
+            await applicationStore.getState().neo4jDriver?.close()
+        }, 15 * 1000)
+    })(),
 })
 
 applicationStore.subscribe(
@@ -50,6 +66,7 @@ applicationStore.subscribe(
         if (pendingSet.size > 0) return
         await new Promise(resolve => setTimeout(resolve, 1000))
         await applicationStore.getState().neo4jDriver?.close()
+        process.exit(0)
     }
 )
 

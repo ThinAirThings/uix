@@ -19,12 +19,16 @@ test('Integration test', async () => {
     })
     const initialnodeCount = await getTotalNodeCount()
     // Create Node
-    const { data: userNode, error: createUserNodeError } = await createNode([{ nodeType: 'Root', nodeId: '0' }], 'User', {
-        email: `${uuid()}@localTest.com`,
-        firstName: 'Local',
-        lastName: 'Test',
-        userType: 'Unspecified',
-        completedOnboardingV2: false,
+    const { data: userNode, error: createUserNodeError } = await createNode({
+        parentNodeKeys: [{ nodeType: 'Root', nodeId: '0' }],
+        childNodeType: 'User',
+        initialState: {
+            email: `${uuid()}@localTest.com`,
+            firstName: 'Local',
+            lastName: 'Test',
+            userType: 'Unspecified',
+            completedOnboardingV2: false,
+        }
     })
     if (createUserNodeError) {
         console.error(createUserNodeError.data)
@@ -36,14 +40,15 @@ test('Integration test', async () => {
     }
     expect(userNode).toBeTruthy()
     writeFileSync(path.join(process.cwd(), 'tests', 'userNode.json'), JSON.stringify(userNode, null, 2))
-    const { data: createdEducationNode, error: createEducationNodeError } = await createNode(
-        [userNode],
-        'Education', {
-        school: 'RPI',
-        graduationYear: 2022,
-        description: 'I studied math',
-        degree: 'Master of Arts (M.A.)',
-        fieldOfStudy: 'Electrical Engineering',
+    const { data: createdEducationNode, error: createEducationNodeError } = await createNode({
+        parentNodeKeys: [userNode],
+        childNodeType: 'Education',
+        initialState: {
+            school: 'RPI',
+            description: 'I studied math',
+            degree: 'Master of Arts (M.A.)',
+            fieldOfStudy: 'Electrical Engineering',
+        }
     })
     expect(createdEducationNode).toBeTruthy()
     if (createEducationNodeError) {
@@ -52,7 +57,9 @@ test('Integration test', async () => {
         return
     }
     expect(createdEducationNode).toBeTruthy()
-    const { data: createdEducationVectorNode, error: createEducationVectorNodeError } = await getVectorNodeByKey({ nodeType: `${createdEducationNode.nodeType}Vector`, nodeId: createdEducationNode.nodeId })
+    const { data: createdEducationVectorNode, error: createEducationVectorNodeError } = await getVectorNodeByKey({
+        nodeKey: { nodeType: `${createdEducationNode.nodeType}Vector`, nodeId: createdEducationNode.nodeId }
+    })
     if (createEducationVectorNodeError) {
         console.error(createEducationVectorNodeError)
         expect(createEducationVectorNodeError).toBeFalsy()
@@ -61,11 +68,14 @@ test('Integration test', async () => {
     expect(createdEducationVectorNode).toBeTruthy()
 
     // Check updates
-    const { data: updatedEducationNode, error: updateEducationNodeError } = await updateNode(createdEducationNode, {
-        school: 'RPI',
-        description: 'I studied Basket weaving',
-        degree: 'Master of Arts (M.A.)',
-        fieldOfStudy: 'Electrical Engineering',
+    const { data: updatedEducationNode, error: updateEducationNodeError } = await updateNode({
+        nodeKey: createdEducationNode,
+        inputState: {
+            school: 'RPI',
+            description: 'I studied Basket weaving',
+            degree: 'Master of Arts (M.A.)',
+            fieldOfStudy: 'Electrical Engineering',
+        }
     })
     if (updateEducationNodeError) {
         console.error(updateEducationNodeError)
@@ -74,18 +84,24 @@ test('Integration test', async () => {
     }
     expect(updatedEducationNode).toBeTruthy()
 
-    const { data: updatedEducationVectorNode, error: updateEducationVectorNodeError } = await getVectorNodeByKey({ nodeType: `${updatedEducationNode.nodeType}Vector`, nodeId: updatedEducationNode.nodeId })
+    const { data: updatedEducationVectorNode, error: updateEducationVectorNodeError } = await getVectorNodeByKey({
+        nodeKey: { nodeType: `${updatedEducationNode.nodeType}Vector`, nodeId: updatedEducationNode.nodeId }
+    })
     if (updateEducationVectorNodeError) {
         console.error(updateEducationVectorNodeError)
         expect(updateEducationVectorNodeError).toBeFalsy()
         return
     }
+    createEducationVectorNodeError
     expect(updatedEducationVectorNode).toBeTruthy()
     expect(createdEducationVectorNode.description![0]).not.toEqual(updatedEducationVectorNode.description![0])
 
     // Check getAllNodeType
-    const { data: allEducationNodes, error: getAllEducationNodesError } = await getAllOfNodeType('Education', {
-        limit: 4
+    const { data: allEducationNodes, error: getAllEducationNodesError } = await getAllOfNodeType({
+        nodeType: 'Education',
+        options: {
+            limit: 4
+        }
     })
     if (getAllEducationNodesError) {
         console.error(getAllEducationNodesError)
@@ -97,7 +113,10 @@ test('Integration test', async () => {
     expect(allEducationNodes.length).toBe(4)
 
     // Check getChildNodeSEt
-    const { data: childEducationNodes, error: getChildEducationNodesError } = await getChildNodeSet(userNode, 'Education')
+    const { data: childEducationNodes, error: getChildEducationNodesError } = await getChildNodeSet({
+        parentNodeKey: userNode,
+        childNodeType: 'Education'
+    })
     if (getChildEducationNodesError) {
         console.error(getChildEducationNodesError)
         expect(getChildEducationNodesError).toBeFalsy()
@@ -107,7 +126,10 @@ test('Integration test', async () => {
     expect(childEducationNodes.length).toBeGreaterThan(0)
     // childEducationNodes[0] // Type test
     // Check getUniqueChildNode
-    const { data: workPreferenceNode, error: getUniqueProfileNodeError } = await getUniqueChildNode(userNode, 'Profile')
+    const { data: workPreferenceNode, error: getUniqueProfileNodeError } = await getUniqueChildNode({
+        parentNodeKey: userNode,
+        childNodeType: 'Profile'
+    })
     if (getUniqueProfileNodeError) {
         console.error(getUniqueProfileNodeError)
         expect(getUniqueProfileNodeError).toBeFalsy()
@@ -116,7 +138,11 @@ test('Integration test', async () => {
     expect(workPreferenceNode).toBeTruthy()
 
     // Check getNodeByIndex
-    const { data: userNodeByIndex, error: getUserNodeByIndexError } = await getNodeByIndex('User', 'email', userNode.email)
+    const { data: userNodeByIndex, error: getUserNodeByIndexError } = await getNodeByIndex({
+        nodeType: 'User',
+        indexKey: 'email',
+        indexValue: userNode.email
+    })
     if (getUserNodeByIndexError) {
         console.error(getUserNodeByIndexError)
         expect(getUserNodeByIndexError).toBeFalsy()
@@ -124,9 +150,10 @@ test('Integration test', async () => {
     }
     expect(userNodeByIndex).toBeTruthy()
     writeFileSync(path.resolve('tests', 'userNode.json'), JSON.stringify(userNodeByIndex, null, 2))
-    await new Promise(res => setTimeout(res, 1000 * 40))
     // Check deleteNode
-    const { data: deleted, error: deleteError } = await deleteNode(userNodeByIndex)
+    const { data: deleted, error: deleteError } = await deleteNode({
+        nodeKey: userNodeByIndex
+    })
     if (deleteError) {
         console.error(deleteError)
         expect(deleteError).toBeFalsy()

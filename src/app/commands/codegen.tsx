@@ -19,6 +19,8 @@ import { useNodeSetTemplate } from '../../templates/hooks/useNodeSetTemplate';
 import { useNodeIndexTemplate } from '../../templates/hooks/useNodeIndexTemplate';
 import { useNodeTypeTemplate } from '../../templates/hooks/useNodeTypeTemplate';
 import { option } from 'pastel';
+import { UixProviderTemplate } from '../../templates/UixProviderTemplate';
+import { clientsTemplate } from '../../templates/clientsTemplate';
 
 export const options = z.object({
     config: z.string().optional().describe(
@@ -78,6 +80,14 @@ const Codegen: FC<{
                 await writeFile(
                     path.join(outDir, 'useNodeType.ts'),
                     useNodeTypeTemplate()
+                )
+                await writeFile(
+                    path.join(outDir, 'UixProvider.tsx'),
+                    UixProviderTemplate()
+                )
+                await writeFile(
+                    path.join(outDir, 'clients.ts'),
+                    clientsTemplate()
                 )
                 return true
             },

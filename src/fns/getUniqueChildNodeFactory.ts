@@ -4,7 +4,6 @@ import { neo4jAction } from "../clients/neo4j";
 import { Ok, UixErr, UixErrSubtype } from "../types/Result";
 import { v4 as uuid } from 'uuid'
 import { NodeKey } from "../types/NodeKey";
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers";
 
 
 export const getUniqueChildNodeFactory = <
@@ -15,10 +14,13 @@ export const getUniqueChildNodeFactory = <
 ) => neo4jAction(async <
     ParentNodeType extends UniqueParentTypes<NodeTypeMap>,
     ChildNodeType extends UniqueChildNodeTypes<NodeTypeMap, ParentNodeType>,
->(
+>({
+    parentNodeKey,
+    childNodeType
+}: {
     parentNodeKey: NodeKey<NodeTypeMap, ParentNodeType>,
     childNodeType: ChildNodeType
-) => {
+}) => {
     console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
     const node = await neo4jDriver.executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
@@ -43,5 +45,5 @@ export const getUniqueChildNodeFactory = <
         message: `Failed to get unique child node of type ${childNodeType as string} for parent node of type ${parentNodeKey.nodeType as string} with id ${parentNodeKey.nodeId}`,
         data: { parentNodeKey, childNodeType }
     })
-    return Ok(convertIntegersToNumbers(node))
+    return Ok(node)
 })

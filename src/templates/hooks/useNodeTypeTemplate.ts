@@ -3,6 +3,7 @@
 
 
 export const useNodeTypeTemplate = () => /*ts*/`
+'use client'
 import {
     NodeShape,
 } from '@thinairthings/uix'

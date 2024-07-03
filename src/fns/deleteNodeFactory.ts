@@ -18,9 +18,11 @@ export const deleteNodeFactory = <
 >(
     neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap
-) => neo4jAction(async (
+) => neo4jAction(async ({
+    nodeKey
+}: {
     nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
-) => {
+}) => {
     console.log("Deleting", nodeKey)
     // First, retrieve parent node information
     const parentNodeKeys = await neo4jDriver.executeQuery<EagerResult<{

@@ -66,10 +66,8 @@ export const defineConfig = <
         envPath?: string;
         outdir?: string;
     }
-): UixConfigWithoutPath<Type, NodeTypeSet> => ({
-    outdir: path.resolve(options.outdir ?? path.join('uix', 'generated')),
-    graph: new GraphType(options.type, options.nodeTypeSet),
-    envPath: path.resolve(options.envPath ?? '.env')
+): UixConfigDefinition<Type, NodeTypeSet> => ({
+    ...options
 })
 
 

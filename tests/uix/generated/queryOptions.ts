@@ -1,4 +1,5 @@
 
+'use client'
 import { queryOptions } from '@tanstack/react-query'
 import {
     getUniqueChildNode,
@@ -42,7 +43,10 @@ export const UniqueChildQueryOptions = <
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
     queryFn: async ({ queryKey: [parentNodeType, parentNodeId, childNodeType] }) => {
-        const result = await getUniqueChildNode({ nodeType: parentNodeType, nodeId: parentNodeId }, childNodeType)
+        const result = await getUniqueChildNode({
+            parentNodeKey: { nodeType: parentNodeType, nodeId: parentNodeId }, 
+            childNodeType: childNodeType
+        })
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
@@ -64,7 +68,10 @@ export const NodeSetQueryOptions = <
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
     queryFn: async ({ queryKey: [parentNodeType, parentNodeId, childNodeType] }) => {
-        const result = await getChildNodeSet({ nodeType: parentNodeType, nodeId: parentNodeId }, childNodeType)
+        const result = await getChildNodeSet({
+            parentNodeKey: { nodeType: parentNodeType, nodeId: parentNodeId }, 
+            childNodeType: childNodeType
+        })
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
@@ -90,7 +97,7 @@ export const NodeTypeQueryOptions = <
 }) => queryOptions({
     queryKey: [nodeType] as const,
     queryFn: async ({ queryKey: [nodeType] }) => {
-        const result = await getAllOfNodeType(nodeType, options)
+        const result = await getAllOfNodeType({nodeType, options})
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
@@ -109,7 +116,7 @@ export const NodeKeyQueryOptions = <
 }) => queryOptions({
     queryKey: [nodeKey.nodeType, nodeKey.nodeId] as const,
     queryFn: async ({ queryKey: [nodeType, nodeId] }) => {
-        const result = await getNodeByKey({ nodeType, nodeId })
+        const result = await getNodeByKey({nodeKey: { nodeType, nodeId }})
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
@@ -128,7 +135,7 @@ export const VectorNodeKeyQueryOptions = <
 }) => queryOptions({
     queryKey: [nodeKey.nodeType, nodeKey.nodeId] as const,
     queryFn: async ({ queryKey: [nodeType, nodeId] }) => {
-        const result = await getVectorNodeByKey({ nodeType, nodeId })
+        const result = await getVectorNodeByKey({nodeKey: { nodeType, nodeId }})
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
@@ -152,7 +159,7 @@ export const NodeIndexQueryOptions = <
 }) => queryOptions({
     queryKey: [nodeType, indexKey, indexValue] as const,
     queryFn: async ({ queryKey: [nodeType, indexKey, indexValue] }) => {
-        const result = await getNodeByIndex(nodeType, indexKey, indexValue)
+        const result = await getNodeByIndex({nodeType, indexKey, indexValue})
         if (result.error) throw new QueryError(result.error)
         return result.data
     },

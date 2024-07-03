@@ -30,7 +30,6 @@ export const upsertVectorNode = async (
             matchToRelationshipType.weightedNodeTypeSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
         )
     }))
-    console.log(fromNodeTypesAndRelationshipTypesToDirectlyUpdate)
     const fromNodeTypesToUpdateMatches = Object.values(nodeTypeMap).map(fromNodeType => ({
         fromNodeType,
         matchToRelationshipTypeSet: fromNodeType.matchToRelationshipTypeSet.filter(matchToRelationshipType =>
@@ -50,7 +49,6 @@ export const upsertVectorNode = async (
             )))
         )
     ]).then(res => res.flat().filter(node => node !== undefined))
-    console.log("Updated Target Nodes", updatedTargetNodes)
     // Add matches to targetNode
     await Promise.all(updatedTargetNodes.map(async (targetNode) =>
         await Promise.all(nodeTypeMap[targetNode.nodeType].matchToRelationshipTypeSet.map(async matchToRelationshipType => await upsertMatchesv2(

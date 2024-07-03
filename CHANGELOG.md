@@ -1,5 +1,23 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 2.4.3
+
+### Patch Changes
+
+- fix uixconfig imports
+
+## 2.4.2
+
+### Patch Changes
+
+- fix: neo4j integers
+
+## 2.4.1
+
+### Patch Changes
+
+- add tests
+
 ## 2.4.0
 
 ### Minor Changes

@@ -2,7 +2,6 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok } from "../types/Result"
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 import neo4j from 'neo4j-driver'
 
 
@@ -16,7 +15,10 @@ export const getAllOfNodeTypeFactory = <
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     NodeType extends keyof NodeTypeMap,
->(
+>({
+    nodeType,
+    options
+}: {
     nodeType: NodeType,
     options?: {
         limit?: number
@@ -24,7 +26,7 @@ export const getAllOfNodeTypeFactory = <
         orderBy?: 'updatedAt' | 'createdAt';
         orderDirection?: 'ASC' | 'DESC';
     }
-) => {
+}) => {
     console.log("Getting all nodes of type", nodeType)
     // Setup filter
     const limit = options?.limit ?? 10;
@@ -44,6 +46,6 @@ export const getAllOfNodeTypeFactory = <
     `, {
         skip: neo4j.int(skip),
         limit: neo4j.int(limit)
-    }).then(res => res.records.map(record => convertIntegersToNumbers(record.get('node').properties)))
+    }).then(res => res.records.map(record => record.get('node').properties))
     return Ok(nodes)
 })

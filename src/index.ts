@@ -21,5 +21,5 @@ export * from './fns/getChildNodeSetFactory'
 export * from './fns/getUniqueChildNodeFactory'
 export * from './fns/getNodeByIndexFactory'
 
-// Components
-export * from './components/UixProvider'
+// Clients
+export * from './clients/neo4j'

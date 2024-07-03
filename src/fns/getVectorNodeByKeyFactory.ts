@@ -3,7 +3,6 @@ import { AnyNodeTypeMap, VectorNodeShape } from "../types/NodeType";
 import { neo4jAction } from "../clients/neo4j";
 import { Ok, UixErr, UixErrSubtype } from "../types/Result";
 import { NodeKey, TypeFromVectorType, VectorKeys } from "../types/NodeKey";
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers";
 
 
 
@@ -16,9 +15,11 @@ export const getVectorNodeByKeyFactory = <
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     NodeType extends VectorKeys<NodeTypeMap>,
->(
+>({
+    nodeKey
+}: {
     nodeKey: NodeKey<NodeTypeMap, NodeType>
-) => {
+}) => {
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, VectorNodeShape<NodeTypeMap[TypeFromVectorType<NodeTypeMap, NodeType>]>>
     }>>(/*cypher*/`
@@ -31,5 +32,5 @@ export const getVectorNodeByKeyFactory = <
         data: { nodeKey }
     })
 
-    return Ok(convertIntegersToNumbers(node))
+    return Ok(node)
 })

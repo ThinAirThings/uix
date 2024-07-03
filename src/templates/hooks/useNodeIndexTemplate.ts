@@ -3,6 +3,7 @@ import { singleNodeTemplate } from "../singleNodeTemplate";
 
 
 export const useNodeIndexTemplate = () => /*ts*/`
+'use client'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NodeIndexQueryOptions } from "./queryOptions";
 import { ConfiguredNodeTypeMap } from "./staticObjects";

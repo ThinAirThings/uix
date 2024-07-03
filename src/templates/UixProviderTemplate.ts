@@ -1,3 +1,5 @@
+
+export const UixProviderTemplate = () => /*tsx*/`
 'use client'
 
 import {
@@ -29,3 +31,4 @@ export const UixProvider = ({ children }: { children: React.ReactNode }) => (
         {children}
     </QueryClientProvider>
 )
+`

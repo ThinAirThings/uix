@@ -1,16 +1,18 @@
 
 
+import path from "path";
 import { GenericUixConfig } from "../config/defineConfig";
 
 export const staticObjectsTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 // Start of File
-import uixConfig from '${config.pathToConfig.replace('uix.config.ts', 'uix.config')}'
-import { NodeShape, NodeState } from '@thinairthings/uix'
-import neo4j from 'neo4j-driver'
-export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
+import uixConfig from '${path.relative(config.outdir, config.pathToConfig).split(path.sep).join('/').replace(/\.[^/.]+$/, '')}'
+import {GraphType} from '@thinairthings/uix'
+import { NodeShape, NodeState, createNeo4jClient } from '@thinairthings/uix'
 
-export const nodeTypeMap = uixConfig.graph.nodeTypeMap
+export const uixGraph = new GraphType(uixConfig.type, uixConfig.nodeTypeSet)
+export const nodeTypeMap = uixGraph.nodeTypeMap
+export type ConfiguredNodeTypeMap = typeof nodeTypeMap
 export type NodeKey<T extends keyof ConfiguredNodeTypeMap> = {
     nodeType: T
     nodeId: string
@@ -26,10 +28,5 @@ ${Object.keys(config.graph.nodeTypeMap).map(nodeType =>
     /*ts*/`export type ${nodeType}NodeState = NodeState<ConfiguredNodeTypeMap['${nodeType}']> \n`
         ).join('')
         }
-
-export const driver = neo4j.driver(
-    process.env.NEO4J_URI!, 
-    neo4j.auth.basic(process.env.NEO4J_USERNAME!, process.env.NEO4J_PASSWORD!)
-)
 `}
 

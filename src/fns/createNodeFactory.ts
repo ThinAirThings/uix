@@ -9,7 +9,6 @@ import { Action } from "../types/Action"
 import OpenAI from "openai"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
 import { upsertVectorNode } from "../vectors/upsertVectorNode"
-import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 export type GenericCreateNodeAction = Action<
@@ -33,19 +32,24 @@ export const createNodeFactory = <
     ParentOfNodeSetType extends ParentOfNodeSetTypes<NodeTypeMap>,
     SetNodeType extends SetNodeTypes<NodeTypeMap, ParentOfNodeSetType>,
     InitialState extends TypeOf<NodeTypeMap[SetNodeType]['stateSchema']>
->(
+>({
+    parentNodeKeys,
+    childNodeType,
+    initialState,
+    providedNodeId
+}: {
     parentNodeKeys: NodeKey<NodeTypeMap, ParentOfNodeSetType>[],
     childNodeType: SetNodeType,
     initialState: InitialState,
-    nodeId?: string
-) => {
+    providedNodeId?: string
+}) => {
     // Check Schema
     const newNodeStructure = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema'].extend({
         nodeId: z.string(),
         nodeType: z.string()
     }).parse({
         ...initialState,
-        nodeId: nodeId ?? uuid(),
+        nodeId: providedNodeId ?? uuid(),
         nodeType: childNodeType
     })
     console.log("Creating", parentNodeKeys, childNodeType, newNodeStructure)
@@ -79,5 +83,5 @@ export const createNodeFactory = <
     });
     // Triggers
     await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
-    return Ok(convertIntegersToNumbers(node))
+    return Ok(node)
 })

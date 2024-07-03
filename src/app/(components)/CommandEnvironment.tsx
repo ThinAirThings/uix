@@ -11,6 +11,7 @@ import { Loading } from './Loading';
 import { bundleNRequire } from 'bundle-n-require'
 import { findConfig } from '../../utilities/findConfig';
 import { GraphType } from '../../types/GraphType';
+import path from 'path';
 export const CommandEnvironment: FC<{
     relativePathToConfig?: string
     Command: FC<any>
@@ -31,18 +32,19 @@ export const CommandEnvironment: FC<{
                                 const { mod } = await bundleNRequire(pathToConfig, {
                                     interopDefault: true
                                 })
+                                const uixConfigDefinition = mod?.default ?? mod as GenericUixConfigDefinition
                                 const uixConfig = ({
-                                    ...mod?.default ?? mod,
+                                    outdir: path.resolve(uixConfigDefinition.outdir ?? path.join('uix', 'generated')),
+                                    graph: new GraphType(uixConfigDefinition.type, uixConfigDefinition.nodeTypeSet),
+                                    envPath: path.resolve(uixConfigDefinition.envPath ?? '.env'),
                                     pathToConfig
                                 }) as GenericUixConfig
                                 await new Promise(resolve => setTimeout(resolve, 500))
                                 dotenv.config({ path: uixConfig.envPath ?? '.env' })
                                 applicationStore.setState({ uixConfig })
-                                console.log(uixConfig)
                                 return uixConfig
                             },
                             catchOp: (error: Error) => {
-                                console.log(error)
                                 return UixErr({
                                     subtype: UixErrSubtype.UIX_CONFIG_NOT_FOUND,
                                     message: `${error.message}`,

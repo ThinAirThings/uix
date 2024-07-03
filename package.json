@@ -1,7 +1,7 @@
 {
     "name": "@thinairthings/uix",
     "author": "Dan Lannan",
-    "version": "2.4.0",
+    "version": "2.4.3",
     "type": "module",
     "types": "./dist/lib/index.d.ts",
     "bin": {
@@ -14,7 +14,7 @@
         "dev": "nodemon",
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
-        "test": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run basic --test-timeout=100000",
+        "test:basic": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run basic --test-timeout=100000",
         "test:match": "pnpm build && dotenvx run -f .env.test -- vitest run match --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
         "wipset": "changeset && changeset version && changeset publish"
@@ -48,7 +48,7 @@
         "vitest": "^1.6.0"
     },
     "dependencies": {
-        "@tanstack/react-query": "^5.32.0",
+        "@tanstack/react-query": "^5.49.2",
         "@thinairthings/utilities": "^0.2.2",
         "bundle-n-require": "^1.1.1",
         "dedent": "^1.5.3",
