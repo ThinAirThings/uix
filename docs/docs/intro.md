@@ -2,46 +2,16 @@
 sidebar_position: 1
 ---
 
-# UIX Docs
+# Introduction
 
-Let's discover **Docusaurus in less than 5 minutes**.
+## What is Thin Air?
 
-## Getting Started
+Thin Air replaces the idea of tabs and folders with an infinite canvas-like interface similar to apps like Figma and Adobe Illustrator.
 
-Get started by **creating a new site**.
+## What is Uix?
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+Uix is a library designed to generate functions to interact with your neo4j database, while maintaining the type safety we have learned to know and love thanks to TypeScript. Simply define your nodes using Zod schemas, add them to your Uix config, run the CLI, and out of thin air comes your typed functions to make database calls. 
 
-### What you'll need
+Functions can be generated and regenerated with ease as you make changes to or add new Nodes to your schema.
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Gone are the days of writing functions and api routes for every type of node and every type of change, without type safety. **Hello Uix.**
