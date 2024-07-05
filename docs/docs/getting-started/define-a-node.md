@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Define a Node
+# Define a Node Type
 
 Nodes in a graph database are fragments of data that are connected via edges (relationships). In this section we will define our first node to be used with Uix.
 
 ## Create a Node Definition Folder
 
-Create a folder for your node definitions wherever you please. In order to use node definition with Uix, they are imported into the config, so where you place them is personal preference.
+Create a folder for your node definitions wherever you please. In order to use node definition with Uix, they are imported as variables into the config, so where you place them is personal preference.
 
 For example, I created my node definition folder in `src/libs/nodes`
 
