@@ -9,7 +9,7 @@ Defining unique relationships can be extremely useful for maintaining data. For 
 ## The defineUniqueRelationship method
 
 defineUniqueRelationships takes the following arguments:
-- **`uniqueNode`**: the node type definition (as defined in its own definition file)
+- **`toNodeType`**: the node type definition (as defined in its own definition file)
 
 ## How to Define a Unique Relationship
 
