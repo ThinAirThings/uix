@@ -10,7 +10,7 @@ Parameters:
 - **`parentNodeKey`**: the nodeKey (```{nodeType, nodeId}```) that specifies the parent node you wish to fetch its vector node
 
 Output:
-- **`data`**: the data from the vector node consistent with your [property vector definitions](/docs/defining-nodes/definePropertyVectors), null if error
+- **`data`**: the data from the vector node consistent with your [property vector definitions](/docs/defining-nodes/definePropertyVector), null if error
 - **`error`**: the error that occurred, null if operation successful
 
 ## Example
