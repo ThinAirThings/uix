@@ -8,6 +8,8 @@ import OpenAI from "openai"
 import { openAIAction } from "../clients/openai"
 import { NodeKey } from "../types/NodeKey"
 import { upsertVectorNode } from "../vectors/upsertVectorNode"
+import { z, ZodDiscriminatedUnion, ZodObject } from "zod"
+import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 
 
 /**
@@ -32,9 +34,11 @@ export const updateNodeFactory = <
     inputState: Partial<NodeState<NodeTypeMap[NodeType]>>
 }) => {
     console.log("Updating", nodeKey, inputState)
-    const nodeDefinition = nodeTypeMap[nodeKey.nodeType] as GenericNodeType
+    const stateSchema = (<GenericNodeType>nodeTypeMap[nodeKey.nodeType]!)['stateSchema']
     // Strip out any properties that are not in the schema
-    const strippedNodeState = nodeDefinition.stateSchema.partial().parse(inputState)
+    const strippedNodeState = isZodDiscriminatedUnion(stateSchema)
+        ? z.union(stateSchema.options.map((option: ZodObject<any>) => option.partial())).parse(inputState)
+        : stateSchema.partial().parse(inputState)
 
     const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
@@ -62,6 +66,6 @@ export const updateNodeFactory = <
     // Note: This should really be broken out into an SQS event to prevent blocking the main thread
     // Arguably, optimistic updates with react-query also solves this.
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
+    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap)
     return Ok(node)
 }))

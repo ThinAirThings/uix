@@ -3,10 +3,9 @@
  * @module NodeType
  */
 
-import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType } from "zod";
+import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion } from "zod";
 import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType";
 import { Integer } from "neo4j-driver";
-import { HasHead } from "@thinairthings/utilities";
 import { AnyMatchToRelationshipTypeSet, AnyWeightedNodeTypeSet, GenericMatchToRelationshipTypeSet, MatchToRelationshipType } from "./MatchToRelationshipType";
 
 /**
@@ -19,11 +18,12 @@ export type AnyNodeType = NodeType<any, any, any, any, any, any>;
  */
 export type GenericNodeType = NodeType<
     Capitalize<string>,
-    AnyZodObject,
+    AnyZodObject | AnyZodDiscriminatedUnion,
     ['nodeId'],
     [],
     GenericRelationshipTypeSet,
     GenericMatchToRelationshipTypeSet
+// ((node: NodeShape<GenericNodeType>) => JSX.Element) | undefined
 >;
 
 /**
@@ -144,6 +144,7 @@ export type NodeSetChildNodeTypes<
 > = NodeTypeMap[ParentNodeType] extends NodeType<any, any, any, any, infer RelationshipTypeSet, any>
     ? (RelationshipTypeSet[number] & { relationshipClass: 'Set' })['toNodeType']['type']
     : never
+
 /**
  * Represents the unique child node types of a node set.
  */
@@ -151,13 +152,14 @@ export type UniqueChildNodeTypes<
     NodeTypeMap extends AnyNodeTypeMap,
     ParentNodeType extends keyof NodeTypeMap
 > = NodeTypeMap[ParentNodeType] extends NodeType<any, any, any, any, infer RelationshipTypeSet, any>
-    ? (RelationshipTypeSet[number] & { relationshipClass: 'Unique' })['toNodeType']['type']
+    ? (RelationshipTypeSet[number] & { relationshipClass: 'Unique' }) extends RelationshipType<'Unique', any, any, infer ToNodeType, any>
+    ? ToNodeType['type']
     : never
-
+    : never
 /**
  * Represents the string properties of a Zod object.
  */
-type StringProperties<T extends AnyZodObject> = {
+type StringProperties<T extends ZodTypeAny> = {
     [K in keyof TypeOf<T>]: NonNullable<TypeOf<T>[K]> extends string ? K : never;
 }[keyof TypeOf<T>];
 
@@ -168,16 +170,18 @@ type TriggerMap<NodeShape extends AnyNodeShape> = Map<'onCreate' | 'onUpdate' | 
     Map<string, (node: NodeShape) => void>
 >;
 
+export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
 /**
  * Represents a node type in a graph database.
  */
 export class NodeType<
     Type extends Capitalize<string> = Capitalize<string>,
-    StateSchema extends AnyZodObject = AnyZodObject,
+    StateSchema extends ZodTypeAny = AnyZodObject,
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
     PropertyVectors extends (readonly (StringProperties<StateSchema>)[]) | [] = [],
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = [],
     MatchToRelationshipTypeSet extends AnyMatchToRelationshipTypeSet | [] = [],
+// ComponentFunction extends ((node: NodeShape<NodeType<Type, StateSchema>>) => JSX.Element) | undefined = undefined
 > {
     /**
      * Creates an instance of NodeType.
@@ -196,12 +200,13 @@ export class NodeType<
         public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
         public matchToRelationshipTypeSet: MatchToRelationshipTypeSet = [] as MatchToRelationshipTypeSet,
-        public shapeSchema = stateSchema.extend({
+        // public Component: ComponentFunction = undefined as ComponentFunction,
+        public shapeSchema = z.object({
             nodeId: z.string(),
             nodeType: z.literal(type),
             createdAt: z.string(),
             updatedAt: z.string()
-        })
+        }).merge(stateSchema instanceof ZodDiscriminatedUnion ? stateSchema.options : stateSchema),
     ) { }
 
     /**
@@ -354,10 +359,17 @@ export class NodeType<
             this.matchToRelationshipTypeSet
         );
     }
-
-
-
-
+    // defineComponent(Component: (node: NodeShape<this>) => JSX.Element) {
+    //     return new NodeType(
+    //         this.type,
+    //         this.stateSchema,
+    //         this.uniqueIndexes,
+    //         this.propertyVectors,
+    //         this.relationshipTypeSet,
+    //         this.matchToRelationshipTypeSet,
+    //         Component
+    //     );
+    // }
 }
 
 
@@ -368,7 +380,7 @@ export class NodeType<
 
 export const defineNodeType = <
     Type extends Capitalize<string>,
-    StateSchema extends ZodObject<any>,
+    StateSchema extends ZodTypeAny,
 >(
     type: Type,
     stateSchema: StateSchema
@@ -378,7 +390,7 @@ export const defineNodeType = <
 export const defineRootNodeType = () => defineNodeType('Root', z.object({}));
 
 export const defineUserNodeType = <
-    StateSchema extends ZodObject<any>
+    StateSchema extends AnyZodObject | AnyZodDiscriminatedUnion
 >(
     stateSchema: StateSchema
 ) => defineNodeType('User', stateSchema);

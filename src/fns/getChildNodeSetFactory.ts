@@ -20,11 +20,11 @@ export const getChildNodeSetFactory = <
     childNodeType
 }: {
     parentNodeKey: NodeKey<NodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType
+    childNodeType: `${ChildNodeType}`
 }) => {
     console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
     const result = await neo4jDriver.executeQuery<EagerResult<{
-        childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
+        childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType extends keyof NodeTypeMap ? ChildNodeType : never]>>
     }>>(/*cypher*/`
         match (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})<-[:CHILD_TO]-(childNode:${childNodeType as string}) 
         return childNode

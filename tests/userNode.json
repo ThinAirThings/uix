@@ -1,11 +1,11 @@
 {
+  "createdAt": 1720550169763,
   "lastName": "Test",
-  "createdAt": 1719980348257,
   "firstName": "Local",
   "completedOnboardingV2": false,
   "userType": "Unspecified",
   "nodeType": "User",
-  "nodeId": "11609e3d-3107-4c73-a60b-fd5470a7176e",
-  "email": "d11da424-4f1f-48f6-9f3d-b4cc530dd0d9@localTest.com",
-  "updatedAt": 1719980348257
+  "nodeId": "4b81c92c-3826-47d4-a9ca-10052d6d0980",
+  "email": "5eb657d5-f5ba-4455-97af-fa5327d00fde@localTest.com",
+  "updatedAt": 1720550169763
 }

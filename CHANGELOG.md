@@ -1,5 +1,45 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 3.0.5
+
+### Patch Changes
+
+- update templates
+
+## 3.0.4
+
+### Patch Changes
+
+- wip
+
+## 3.0.3
+
+### Patch Changes
+
+- wip
+
+## 3.0.2
+
+### Patch Changes
+
+- fix string literal types
+
+## 3.0.1
+
+### Patch Changes
+
+- fix hook types with string literal syntax
+
+## 3.0.0
+
+### Major Changes
+
+- d45a9a9: Changed all the get apis to use object style inputs instead of argument lists. This is a breaking change
+
+### Patch Changes
+
+- fixed type bug where getUniqueChild and getNodeSet were resolving to unions due to input type not resolving to the string literal
+
 ## 2.4.3
 
 ### Patch Changes

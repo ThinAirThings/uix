@@ -18,12 +18,7 @@ import {
     getUniqueChildNodeFactory,
     getNodeByIndexFactory,
 } from '@thinairthings/uix'
-import OpenAI from 'openai'
-import {driver} from './clients'
-
-const openaiClient = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY!
-})
+import {driver, openaiClient} from './clients'
 
 export const createNode = createNodeFactory(driver, openaiClient, nodeTypeMap)
 export const updateNode = updateNodeFactory(driver, openaiClient, nodeTypeMap)

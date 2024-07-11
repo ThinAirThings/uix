@@ -1,3 +1,4 @@
+import { stringLiteralType } from "../../utilities/stringLiteralType";
 import { singleNodeTemplate } from "../singleNodeTemplate";
 
 
@@ -32,7 +33,7 @@ export const useUniqueChild = <
     select
 }: {    
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: NodeType,
+    childNodeType: ${stringLiteralType('NodeType')},
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
 }) => {
     const queryOptions = UniqueChildQueryOptions({parentNodeKey, childNodeType, select})

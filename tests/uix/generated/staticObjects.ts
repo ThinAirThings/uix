@@ -1,8 +1,7 @@
 
 // Start of File
 import uixConfig from '../uix.config'
-import {GraphType} from '@thinairthings/uix'
-import { NodeShape, NodeState, createNeo4jClient } from '@thinairthings/uix'
+import { NodeShape, NodeState, createNeo4jClient, GraphType } from '@thinairthings/uix'
 
 export const uixGraph = new GraphType(uixConfig.type, uixConfig.nodeTypeSet)
 export const nodeTypeMap = uixGraph.nodeTypeMap

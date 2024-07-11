@@ -56,7 +56,7 @@ export const SeedNeo4j = () => {
     if (!uixConfig) return <></>
     return (<>
         {uixConfig.graph.nodeTypeSet.map(NodeType =>
-            NodeType.matchToRelationshipTypeSet
+            !!NodeType.matchToRelationshipTypeSet.length
             && <CreateNodeTypeVector
                 key={NodeType.type}
                 nodeType={NodeType.type}

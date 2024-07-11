@@ -45,6 +45,7 @@ export const CommandEnvironment: FC<{
                                 return uixConfig
                             },
                             catchOp: (error: Error) => {
+                                console.log(error)
                                 return UixErr({
                                     subtype: UixErrSubtype.UIX_CONFIG_NOT_FOUND,
                                     message: `${error.message}`,

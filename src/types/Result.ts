@@ -79,7 +79,7 @@ export const Err = <
     message: string,
     data?: Data
 }): Result<never, ErrType<Type, Subtype, Data>> => {
-    console.error({ type, ...data })
+    console.error({ type, subtype, message, ...data })
 
     return {
         data: null,

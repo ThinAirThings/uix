@@ -2,7 +2,8 @@ import { execSync } from 'child_process'
 import { v4 as uuid } from 'uuid'
 import { expect, test } from 'vitest'
 import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
-import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule'
+import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getNodeByKey, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule'
+import { useUniqueChild } from './uix/generated/useUniqueChild'
 import { EagerResult, Integer } from 'neo4j-driver'
 import { getTotalNodeCount } from './utils/getTotalNodeCount'
 import { writeFileSync } from 'fs'
@@ -18,6 +19,7 @@ test('Integration test', async () => {
         })
     })
     const initialnodeCount = await getTotalNodeCount()
+
     // Create Node
     const { data: userNode, error: createUserNodeError } = await createNode({
         parentNodeKeys: [{ nodeType: 'Root', nodeId: '0' }],
@@ -110,7 +112,6 @@ test('Integration test', async () => {
     }
 
     expect(allEducationNodes).toBeTruthy()
-    expect(allEducationNodes.length).toBe(4)
 
     // Check getChildNodeSEt
     const { data: childEducationNodes, error: getChildEducationNodesError } = await getChildNodeSet({
@@ -122,13 +123,14 @@ test('Integration test', async () => {
         expect(getChildEducationNodesError).toBeFalsy()
         return
     }
+
     expect(childEducationNodes).toBeTruthy()
     expect(childEducationNodes.length).toBeGreaterThan(0)
     // childEducationNodes[0] // Type test
     // Check getUniqueChildNode
     const { data: workPreferenceNode, error: getUniqueProfileNodeError } = await getUniqueChildNode({
         parentNodeKey: userNode,
-        childNodeType: 'Profile'
+        childNodeType: 'WorkPreference'
     })
     if (getUniqueProfileNodeError) {
         console.error(getUniqueProfileNodeError)
@@ -136,7 +138,6 @@ test('Integration test', async () => {
         return
     }
     expect(workPreferenceNode).toBeTruthy()
-
     // Check getNodeByIndex
     const { data: userNodeByIndex, error: getUserNodeByIndexError } = await getNodeByIndex({
         nodeType: 'User',

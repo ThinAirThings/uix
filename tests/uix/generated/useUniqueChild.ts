@@ -28,7 +28,7 @@ export const useUniqueChild = <
     select
 }: {    
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: NodeType,
+    childNodeType: `${NodeType}`,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
 }) => {
     const queryOptions = UniqueChildQueryOptions({parentNodeKey, childNodeType, select})

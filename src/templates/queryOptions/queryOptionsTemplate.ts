@@ -1,3 +1,4 @@
+import { stringLiteralType } from "../../utilities/stringLiteralType";
 
 
 
@@ -41,7 +42,7 @@ export const UniqueChildQueryOptions = <
     select
 }:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: ${stringLiteralType('ChildNodeType')},
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>) => Data
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
@@ -66,7 +67,7 @@ export const NodeSetQueryOptions = <
     select
 }:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: ${stringLiteralType('ChildNodeType')},
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[]) => Data
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,

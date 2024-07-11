@@ -38,7 +38,7 @@ export const UniqueChildQueryOptions = <
     select
 }:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: `${ChildNodeType}`,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>) => Data
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
@@ -63,7 +63,7 @@ export const NodeSetQueryOptions = <
     select
 }:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: `${ChildNodeType}`,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[]) => Data
 }) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,

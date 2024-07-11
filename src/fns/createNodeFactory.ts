@@ -1,6 +1,6 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
-import { TypeOf, z } from "zod"
+import { TypeOf, z, ZodDiscriminatedUnion, ZodObject } from "zod"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, GenericNodeType, GenericNodeTypeMap, Neo4jNodeShape, NodeSetChildNodeTypes, NodeSetParentTypes, NodeShape } from "../types/NodeType"
 import { ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
@@ -9,6 +9,7 @@ import { Action } from "../types/Action"
 import OpenAI from "openai"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
 import { upsertVectorNode } from "../vectors/upsertVectorNode"
+import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 
 
 export type GenericCreateNodeAction = Action<
@@ -44,14 +45,24 @@ export const createNodeFactory = <
     providedNodeId?: string
 }) => {
     // Check Schema
-    const newNodeStructure = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema'].extend({
-        nodeId: z.string(),
-        nodeType: z.string()
-    }).parse({
-        ...initialState,
-        nodeId: providedNodeId ?? uuid(),
-        nodeType: childNodeType
-    })
+    const stateSchema = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema']
+    const newNodeStructure = isZodDiscriminatedUnion(stateSchema)
+        ? z.union(stateSchema.options.map((option: ZodObject<any>) => option.extend({
+            nodeId: z.string(),
+            nodeType: z.string()
+        }))).parse({
+            ...initialState,
+            nodeId: providedNodeId ?? uuid(),
+            nodeType: childNodeType
+        })
+        : stateSchema.extend({
+            nodeId: z.string(),
+            nodeType: z.string()
+        }).parse({
+            ...initialState,
+            nodeId: providedNodeId ?? uuid(),
+            nodeType: childNodeType
+        })
     console.log("Creating", parentNodeKeys, childNodeType, newNodeStructure)
     const node = await neo4jDriver.executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>

@@ -6,6 +6,9 @@ import { WorkExperienceNodeType } from './nodeTypes/WorkExperienceNodeType'
 import { WorkPreferenceNodeType } from './nodeTypes/WorkPreferenceNodeType'
 import { RootNodeType } from './nodeTypes/RootNodeType'
 import { JobNodeType } from './nodeTypes/JobNodeType'
+import { MessageNodeType } from './nodeTypes/MessageNodeType'
+
+
 
 export default defineConfig({
     type: 'Base',
@@ -16,7 +19,8 @@ export default defineConfig({
         ProfileNodeType,
         WorkExperienceNodeType,
         WorkPreferenceNodeType,
-        JobNodeType
+        JobNodeType,
+        // MessageNodeType
     ],
     outdir: 'tests/uix/generated',
     envPath: '.env.test',

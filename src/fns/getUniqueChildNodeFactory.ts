@@ -1,7 +1,7 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { AnyNodeTypeMap, NodeShape, NodeState, UniqueChildNodeTypes, UniqueParentTypes } from "../types/NodeType";
 import { neo4jAction } from "../clients/neo4j";
-import { Ok, UixErr, UixErrSubtype } from "../types/Result";
+import { Ok, Result, UixErr, UixErrSubtype } from "../types/Result";
 import { v4 as uuid } from 'uuid'
 import { NodeKey } from "../types/NodeKey";
 
@@ -19,7 +19,7 @@ export const getUniqueChildNodeFactory = <
     childNodeType
 }: {
     parentNodeKey: NodeKey<NodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType
+    childNodeType: `${ChildNodeType}`
 }) => {
     console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
     const node = await neo4jDriver.executeQuery<EagerResult<{
@@ -37,7 +37,7 @@ export const getUniqueChildNodeFactory = <
             nodeType: childNodeType,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            ...nodeTypeMap[childNodeType]!.stateSchema.parse({})
+            ...nodeTypeMap[childNodeType].stateSchema.parse({})
         }
     }).then(res => res.records[0]?.get('childNode').properties)
     if (!node) return UixErr({
@@ -45,5 +45,5 @@ export const getUniqueChildNodeFactory = <
         message: `Failed to get unique child node of type ${childNodeType as string} for parent node of type ${parentNodeKey.nodeType as string} with id ${parentNodeKey.nodeId}`,
         data: { parentNodeKey, childNodeType }
     })
-    return Ok(node)
+    return Ok(node as NodeShape<NodeTypeMap[ChildNodeType]>)
 })

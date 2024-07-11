@@ -1,3 +1,4 @@
+import { stringLiteralType } from "../../utilities/stringLiteralType";
 
 
 export const useNodeSetTemplate = () => /*ts*/`
@@ -25,7 +26,7 @@ export const useNodeSet = <
     select
 }:{    
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: ${stringLiteralType('ChildNodeType')},
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[]) => Data
 }) => {
     const queryOptions = NodeSetQueryOptions({parentNodeKey, childNodeType, select})

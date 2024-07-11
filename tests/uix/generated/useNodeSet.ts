@@ -23,7 +23,7 @@ export const useNodeSet = <
     select
 }:{    
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
-    childNodeType: ChildNodeType,
+    childNodeType: `${ChildNodeType}`,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[]) => Data
 }) => {
     const queryOptions = NodeSetQueryOptions({parentNodeKey, childNodeType, select})

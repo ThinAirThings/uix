@@ -87,7 +87,7 @@ const Codegen: FC<{
                 )
                 await writeFile(
                     path.join(outDir, 'clients.ts'),
-                    clientsTemplate()
+                    clientsTemplate(uixConfig)
                 )
                 return true
             },
