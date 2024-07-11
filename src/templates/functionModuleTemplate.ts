@@ -18,16 +18,15 @@ import {
     getUniqueChildNodeFactory,
     getNodeByIndexFactory,
 } from '@thinairthings/uix'
-import {driver, openaiClient} from './clients'
 
-export const createNode = createNodeFactory(driver, openaiClient, nodeTypeMap)
-export const updateNode = updateNodeFactory(driver, openaiClient, nodeTypeMap)
-export const deleteNode = deleteNodeFactory(driver, nodeTypeMap)
-export const getNodeByKey = getNodeByKeyFactory(driver, nodeTypeMap)
-export const getVectorNodeByKey = getVectorNodeByKeyFactory(driver, nodeTypeMap)
-export const getAllOfNodeType = getAllOfNodeTypeFactory(driver, nodeTypeMap)
-export const getChildNodeSet = getChildNodeSetFactory(driver, nodeTypeMap)
-export const getUniqueChildNode = getUniqueChildNodeFactory(driver, nodeTypeMap)
-export const getNodeByIndex = getNodeByIndexFactory(driver, nodeTypeMap)
+export const createNode = createNodeFactory(nodeTypeMap)
+export const updateNode = updateNodeFactory(nodeTypeMap)
+export const deleteNode = deleteNodeFactory(nodeTypeMap)
+export const getNodeByKey = getNodeByKeyFactory(nodeTypeMap)
+export const getVectorNodeByKey = getVectorNodeByKeyFactory(nodeTypeMap)
+export const getAllOfNodeType = getAllOfNodeTypeFactory(nodeTypeMap)
+export const getChildNodeSet = getChildNodeSetFactory(nodeTypeMap)
+export const getUniqueChildNode = getUniqueChildNodeFactory(nodeTypeMap)
+export const getNodeByIndex = getNodeByIndexFactory(nodeTypeMap)
 
 `}

@@ -1,6 +1,6 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { AnyNodeTypeMap, NodeShape, NodeState, UniqueChildNodeTypes, UniqueParentTypes } from "../types/NodeType";
-import { neo4jAction } from "../clients/neo4j";
+import { neo4jAction, neo4jDriver } from "../clients/neo4j";
 import { Ok, Result, UixErr, UixErrSubtype } from "../types/Result";
 import { v4 as uuid } from 'uuid'
 import { NodeKey } from "../types/NodeKey";
@@ -9,7 +9,6 @@ import { NodeKey } from "../types/NodeKey";
 export const getUniqueChildNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
-    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     ParentNodeType extends UniqueParentTypes<NodeTypeMap>,
@@ -22,7 +21,7 @@ export const getUniqueChildNodeFactory = <
     childNodeType: `${ChildNodeType}`
 }) => {
     console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
-    const node = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver().executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
     }>>(/*cypher*/`
         merge (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})

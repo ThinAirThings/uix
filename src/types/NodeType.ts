@@ -3,10 +3,11 @@
  * @module NodeType
  */
 
-import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion } from "zod";
+import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption } from "zod";
 import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType";
 import { Integer } from "neo4j-driver";
 import { AnyMatchToRelationshipTypeSet, AnyWeightedNodeTypeSet, GenericMatchToRelationshipTypeSet, MatchToRelationshipType } from "./MatchToRelationshipType";
+import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion";
 
 /**
  * Represents any node type.
@@ -170,7 +171,7 @@ type TriggerMap<NodeShape extends AnyNodeShape> = Map<'onCreate' | 'onUpdate' | 
     Map<string, (node: NodeShape) => void>
 >;
 
-export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
+export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, [AnyZodObject, AnyZodObject, ...AnyZodObject[]]>;
 /**
  * Represents a node type in a graph database.
  */
@@ -201,12 +202,16 @@ export class NodeType<
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
         public matchToRelationshipTypeSet: MatchToRelationshipTypeSet = [] as MatchToRelationshipTypeSet,
         // public Component: ComponentFunction = undefined as ComponentFunction,
-        public shapeSchema = z.object({
+        public shapeSchema = isZodDiscriminatedUnion(stateSchema) ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
             nodeId: z.string(),
-            nodeType: z.literal(type),
-            createdAt: z.string(),
-            updatedAt: z.string()
-        }).merge(stateSchema instanceof ZodDiscriminatedUnion ? stateSchema.options : stateSchema),
+            nodeType: z.string()
+        }))) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]])
+            : (stateSchema as unknown as AnyZodObject).merge(z.object({
+                nodeId: z.string(),
+                nodeType: z.literal(type),
+                createdAt: z.string(),
+                updatedAt: z.string()
+            })),
     ) { }
 
     /**
@@ -389,8 +394,4 @@ export const defineNodeType = <
 
 export const defineRootNodeType = () => defineNodeType('Root', z.object({}));
 
-export const defineUserNodeType = <
-    StateSchema extends AnyZodObject | AnyZodDiscriminatedUnion
->(
-    stateSchema: StateSchema
-) => defineNodeType('User', stateSchema);
+

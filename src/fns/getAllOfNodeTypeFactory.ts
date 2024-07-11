@@ -1,5 +1,5 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
-import { neo4jAction } from "../clients/neo4j"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok } from "../types/Result"
 import neo4j from 'neo4j-driver'
@@ -11,7 +11,6 @@ import neo4j from 'neo4j-driver'
 export const getAllOfNodeTypeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
-    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     NodeType extends keyof NodeTypeMap,
@@ -35,7 +34,7 @@ export const getAllOfNodeTypeFactory = <
     const orderBy = options?.orderBy ?? 'updatedAt';
     const orderDirection = options?.orderDirection ?? 'ASC';
 
-    const nodes = await neo4jDriver.executeQuery<EagerResult<{
+    const nodes = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
         match (node:${nodeType as string}) 

@@ -1,5 +1,5 @@
 import { Driver, EagerResult } from "neo4j-driver"
-import { neo4jAction } from "../clients/neo4j"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeTypeMap } from "../types/NodeType"
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import { NodeKey } from "../types/NodeKey"
@@ -16,7 +16,6 @@ import { NodeKey } from "../types/NodeKey"
 export const deleteNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
-    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap
 ) => neo4jAction(async ({
     nodeKey
@@ -25,7 +24,7 @@ export const deleteNodeFactory = <
 }) => {
     console.log("Deleting", nodeKey)
     // First, retrieve parent node information
-    const parentNodeKeys = await neo4jDriver.executeQuery<EagerResult<{
+    const parentNodeKeys = await neo4jDriver().executeQuery<EagerResult<{
         parentNodeId: string,
         parentNodeType: string
     }>>(/*cypher*/ `
@@ -40,7 +39,7 @@ export const deleteNodeFactory = <
 
     // Step 2: If parentNodeKeys retrieved successfully, then delete childNode
     if (parentNodeKeys.length > 0) {
-        await neo4jDriver.executeQuery(/*cypher*/`
+        await neo4jDriver().executeQuery(/*cypher*/`
             match (childNode:Node {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(recursiveChildNode)
             detach delete childNode
             detach delete recursiveChildNode

@@ -1,5 +1,5 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
-import { neo4jAction } from "../clients/neo4j"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 
@@ -9,7 +9,6 @@ import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 export const getNodeByIndexFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
-    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     NodeType extends keyof NodeTypeMap,
@@ -24,7 +23,7 @@ export const getNodeByIndexFactory = <
     indexValue: string
 }) => {
     console.log(`Getting node of type ${nodeType as string} with index ${indexKey} = ${indexValue}`);
-    const node = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
         match (node:${nodeType as string}) 

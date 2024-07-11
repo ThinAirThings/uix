@@ -1,4 +1,4 @@
-import neo4j from 'neo4j-driver';
+import neo4j, { Driver } from 'neo4j-driver';
 import { Neo4jError } from "neo4j-driver"
 import { AnyErrType, Err, ErrType, Result } from '../types/Result';
 import { Action } from '../types/Action';
@@ -30,6 +30,17 @@ export const Neo4jErr = (
 
 export enum Neo4jErrorSubtype {
     UNKNOWN = 'UNKNOWN',
+}
+
+let _neo4jDriver: Driver | null = null
+export const neo4jDriver = () => {
+    if (_neo4jDriver) return _neo4jDriver
+    _neo4jDriver = createNeo4jClient({
+        uri: process.env.NEO4J_URI!,
+        username: process.env.NEO4J_USERNAME!,
+        password: process.env.NEO4J_PASSWORD!
+    }, { disableLosslessIntegers: true })
+    return _neo4jDriver
 }
 
 export const neo4jAction = <

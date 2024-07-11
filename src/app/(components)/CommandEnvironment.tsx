@@ -8,7 +8,7 @@ import { GenericUixConfig, GenericUixConfigDefinition, GenericUixConfigWithoutPa
 import { applicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrSubtype } from '../../types/Result';
 import { Loading } from './Loading';
-import { bundleNRequire } from 'bundle-n-require'
+import { bundleRequire } from 'bundle-require'
 import { findConfig } from '../../utilities/findConfig';
 import { GraphType } from '../../types/GraphType';
 import path from 'path';
@@ -29,8 +29,8 @@ export const CommandEnvironment: FC<{
                             operationKey: 'uixConfig',
                             tryOp: async () => {
                                 const pathToConfig = findConfig({ relativePathToConfig })
-                                const { mod } = await bundleNRequire(pathToConfig, {
-                                    interopDefault: true
+                                const { mod } = await bundleRequire({
+                                    filepath: pathToConfig,
                                 })
                                 const uixConfigDefinition = mod?.default ?? mod as GenericUixConfigDefinition
                                 const uixConfig = ({

@@ -23,7 +23,14 @@ export const OpenAIErr = (
 export enum OpenAIErrorSubtype {
     UNKNOWN = 'UNKNOWN',
 }
-
+let _openaiClient: OpenAI | null = null
+export const openaiClient = () => {
+    if (_openaiClient) return _openaiClient
+    _openaiClient = createOpenAIClient({
+        apiKey: process.env.OPENAI_API_KEY!
+    })
+    return _openaiClient
+}
 
 export const openAIAction = <
     Input extends any[],

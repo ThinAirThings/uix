@@ -1,4 +1,5 @@
 import { ZodDiscriminatedUnion, ZodTypeAny } from "zod";
+import { AnyZodDiscriminatedUnion } from "../types/NodeType";
 
 
 /**
@@ -10,7 +11,7 @@ import { ZodDiscriminatedUnion, ZodTypeAny } from "zod";
  * @returns 
  */
 
-export const isZodDiscriminatedUnion = (schema: ZodTypeAny): schema is ZodDiscriminatedUnion<any, any> => {
+export const isZodDiscriminatedUnion = (schema: ZodTypeAny): schema is AnyZodDiscriminatedUnion => {
     if (schema._def.typeName === 'ZodDiscriminatedUnion') {
         return true
     }

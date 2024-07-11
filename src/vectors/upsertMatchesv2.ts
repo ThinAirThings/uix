@@ -2,17 +2,17 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { GenericNodeShape } from "../types/NodeType";
 import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType";
 import dedent from "dedent";
+import { neo4jDriver } from "../clients/neo4j";
 
 
 
 
 export const upsertMatchesv2 = async (
-    neo4jDriver: Driver,
     fromNode: GenericNodeShape,
     matchToRelationshipType: GenericMatchToRelationshipType
 ) => {
     // Run Query
-    const matches = await neo4jDriver.executeQuery<EagerResult<{
+    const matches = await neo4jDriver().executeQuery<EagerResult<{
         score: number,
         matchToNode: Node<Integer, GenericNodeShape>
     }>>(dedent/*cypher*/`

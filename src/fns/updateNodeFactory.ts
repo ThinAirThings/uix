@@ -2,13 +2,13 @@
 
 import { Driver, EagerResult, error, Integer, Node } from "neo4j-driver"
 import { AnyNodeTypeMap, GenericNodeType, NodeShape, NodeState } from "../types/NodeType"
-import { neo4jAction } from "../clients/neo4j"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import OpenAI from "openai"
 import { openAIAction } from "../clients/openai"
 import { NodeKey } from "../types/NodeKey"
 import { upsertVectorNode } from "../vectors/upsertVectorNode"
-import { z, ZodDiscriminatedUnion, ZodObject } from "zod"
+import { AnyZodObject, z, ZodDiscriminatedUnion, ZodObject } from "zod"
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 
 
@@ -21,8 +21,6 @@ import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 export const updateNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap
 >(
-    neo4jDriver: Driver,
-    openaiClient: OpenAI,
     nodeTypeMap: NodeTypeMap
 ) => neo4jAction(openAIAction(async <
     NodeType extends NodeTypeMap[keyof NodeTypeMap]['type']
@@ -37,10 +35,10 @@ export const updateNodeFactory = <
     const stateSchema = (<GenericNodeType>nodeTypeMap[nodeKey.nodeType]!)['stateSchema']
     // Strip out any properties that are not in the schema
     const strippedNodeState = isZodDiscriminatedUnion(stateSchema)
-        ? z.union(stateSchema.options.map((option: ZodObject<any>) => option.partial())).parse(inputState)
+        ? z.union(stateSchema.options.map((option: AnyZodObject) => option.partial()) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse(inputState)
         : stateSchema.partial().parse(inputState)
 
-    const node = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
         match (node:${nodeKey.nodeType} {nodeId: $nodeId})
@@ -66,6 +64,6 @@ export const updateNodeFactory = <
     // Note: This should really be broken out into an SQS event to prevent blocking the main thread
     // Arguably, optimistic updates with react-query also solves this.
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap)
+    await upsertVectorNode(node, nodeTypeMap)
     return Ok(node)
 }))

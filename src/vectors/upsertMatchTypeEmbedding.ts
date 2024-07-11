@@ -2,16 +2,14 @@ import OpenAI from "openai"
 import { GenericNodeShape, GenericNodeType } from "../types/NodeType"
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
-import { openAIAction } from "../clients/openai"
-import { neo4jAction } from "../clients/neo4j"
+import { openAIAction, openaiClient } from "../clients/openai"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import dedent from "dedent"
 import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType"
 
 
 
 export const upsertMatchTypeEmbedding = async (
-    neo4jDriver: Driver,
-    openaiClient: OpenAI,
     triggerNode: GenericNodeShape,
     fromNodeType: GenericNodeType,
     matchToRelationshipType: GenericMatchToRelationshipType
@@ -25,7 +23,7 @@ export const upsertMatchTypeEmbedding = async (
         const {
             targetNode,
             weightedNodeSet
-        } = await neo4jDriver.executeQuery<EagerResult<{
+        } = await neo4jDriver().executeQuery<EagerResult<{
             weightedNode: Node<Integer, GenericNodeShape>,
             targetNode: Node<Integer, GenericNodeShape>
         }>>(dedent/*cypher*/`
@@ -43,7 +41,7 @@ export const upsertMatchTypeEmbedding = async (
             weightedNodeSet: res.records.map(record => record.get('weightedNode').properties)
         }))
         const { type, description } = matchToRelationshipType
-        const nodeTypeSummary = await openaiClient.chat.completions.create({
+        const nodeTypeSummary = await openaiClient().chat.completions.create({
             model: 'gpt-4o',
             messages: [
                 {
@@ -61,12 +59,12 @@ export const upsertMatchTypeEmbedding = async (
                 }
             ]
         }).then(res => res.choices[0].message.content ?? '')
-        const nodeTypeEmbedding = await openaiClient.embeddings.create({
+        const nodeTypeEmbedding = await openaiClient().embeddings.create({
             model: 'text-embedding-3-large',
             input: nodeTypeSummary
         }).then(res => res.data[0].embedding)
         // Update Node
-        const vectorNode = await neo4jDriver.executeQuery<EagerResult<{
+        const vectorNode = await neo4jDriver().executeQuery<EagerResult<{
             vectorNode: Node<Integer, GenericNodeShape>
         }>>(/*cypher*/`
             match (targetNode:${targetNode.nodeType} {nodeId: $targetNode.nodeId})
@@ -95,11 +93,4 @@ export const upsertMatchTypeEmbedding = async (
     }))()
     const { data, error } = result
     if (data) return data
-    if (error.type === 'Neo4jErr') {
-        // Note! You could do some logging here
-        console.error("Neo4j Error", error)
-    }
-    if (error.type === 'OpenAIError') {
-        console.error("OpenAI Error", error)
-    }
 }

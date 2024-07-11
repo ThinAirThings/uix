@@ -1,6 +1,6 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { AnyNodeTypeMap, VectorNodeShape } from "../types/NodeType";
-import { neo4jAction } from "../clients/neo4j";
+import { neo4jAction, neo4jDriver } from "../clients/neo4j";
 import { Ok, UixErr, UixErrSubtype } from "../types/Result";
 import { NodeKey, TypeFromVectorType, VectorKeys } from "../types/NodeKey";
 
@@ -11,7 +11,6 @@ import { NodeKey, TypeFromVectorType, VectorKeys } from "../types/NodeKey";
 export const getVectorNodeByKeyFactory = <
     NodeTypeMap extends AnyNodeTypeMap
 >(
-    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     NodeType extends VectorKeys<NodeTypeMap>,
@@ -20,7 +19,7 @@ export const getVectorNodeByKeyFactory = <
 }: {
     nodeKey: NodeKey<NodeTypeMap, NodeType>
 }) => {
-    const node = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, VectorNodeShape<NodeTypeMap[TypeFromVectorType<NodeTypeMap, NodeType>]>>
     }>>(/*cypher*/`
         match (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 

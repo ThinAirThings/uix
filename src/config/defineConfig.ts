@@ -1,7 +1,5 @@
 import { AnyNodeTypeSet, GenericNodeTypeSet } from "../types/NodeType";
 import { GraphType } from "../types/GraphType";
-import path from 'path';
-import { getCallerFile } from "../app/(utilities)/getCallerFile";
 
 /**
  * Represents the configuration for the Uix library.
@@ -69,15 +67,3 @@ export const defineConfig = <
 ): UixConfigDefinition<Type, NodeTypeSet> => ({
     ...options
 })
-
-
-//     {
-//     return {
-//         outdir: options.outdir ?? path.join('uix', 'output'),
-//         graph: new GraphType(
-//             options.type,
-//             options.nodeTypeSet,
-//         ),
-//         envPath: options.envPath ?? '.env',
-//     };
-// };

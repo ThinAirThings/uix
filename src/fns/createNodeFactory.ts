@@ -1,7 +1,7 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
-import { TypeOf, z, ZodDiscriminatedUnion, ZodObject } from "zod"
-import { neo4jAction } from "../clients/neo4j"
+import { AnyZodObject, TypeOf, z, ZodDiscriminatedUnion, ZodObject } from "zod"
+import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeTypeMap, GenericNodeType, GenericNodeTypeMap, Neo4jNodeShape, NodeSetChildNodeTypes, NodeSetParentTypes, NodeShape } from "../types/NodeType"
 import { ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
 import { UixErr, Ok, UixErrSubtype, AnyErrType } from "../types/Result"
@@ -26,9 +26,7 @@ export type GenericCreateNodeAction = Action<
 export const createNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
-    neo4jDriver: Driver,
-    openaiClient: OpenAI,
-    nodeTypeMap: NodeTypeMap,
+    nodeTypeMap: NodeTypeMap
 ) => neo4jAction(async <
     ParentOfNodeSetType extends ParentOfNodeSetTypes<NodeTypeMap>,
     SetNodeType extends SetNodeTypes<NodeTypeMap, ParentOfNodeSetType>,
@@ -47,10 +45,10 @@ export const createNodeFactory = <
     // Check Schema
     const stateSchema = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema']
     const newNodeStructure = isZodDiscriminatedUnion(stateSchema)
-        ? z.union(stateSchema.options.map((option: ZodObject<any>) => option.extend({
+        ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
             nodeId: z.string(),
             nodeType: z.string()
-        }))).parse({
+        }))) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse({
             ...initialState,
             nodeId: providedNodeId ?? uuid(),
             nodeType: childNodeType
@@ -64,7 +62,7 @@ export const createNodeFactory = <
             nodeType: childNodeType
         })
     console.log("Creating", parentNodeKeys, childNodeType, newNodeStructure)
-    const node = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver().executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
     }>>(/* cypher */ `
         merge (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
@@ -93,6 +91,6 @@ export const createNodeFactory = <
         data: { parentNodeKeys, childNodeType, initialState }
     });
     // Triggers
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap);
+    await upsertVectorNode(node, nodeTypeMap as GenericNodeTypeMap);
     return Ok(node)
 })

@@ -1,7 +1,7 @@
 
 // Start of File
 import {createNeo4jClient} from '@thinairthings/uix'
-import OpenAI from 'openai'
+
 
 export const driver = createNeo4jClient({
     uri: process.env.NEO4J_URI!,
@@ -9,6 +9,7 @@ export const driver = createNeo4jClient({
     password: process.env.NEO4J_PASSWORD!
 }, { disableLosslessIntegers: true })
 
+import OpenAI from 'openai'
 export const openaiClient = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY!
 })

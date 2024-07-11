@@ -1,13 +1,12 @@
-import OpenAI from "openai";
 import { GenericNodeShape } from "../types/NodeType";
 import { Ok } from "../types/Result";
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
+import { openaiClient } from "../clients/openai";
+import { neo4jDriver } from "../clients/neo4j";
 
 
 
 export const upsertPropertyVector = async (
-    neo4jDriver: Driver,
-    openaiClient: OpenAI,
     propertyVectorKey: string,
     nodeShape: GenericNodeShape
 ) => {
@@ -15,13 +14,13 @@ export const upsertPropertyVector = async (
     const propertyKey = Object.keys(nodeShape).find(key => key === propertyVectorKey)
     if (!propertyKey) return Ok(null)
 
-    const embedding = await openaiClient.embeddings.create({
+    const embedding = await openaiClient().embeddings.create({
         model: 'text-embedding-3-large',
         input: nodeShape[propertyKey as string]
     }).then(res => res.data[0].embedding)
     // Update Node
     console.log("Updating", propertyVectorKey, propertyKey)
-    const vectorNode = await neo4jDriver.executeQuery<EagerResult<{
+    const vectorNode = await neo4jDriver().executeQuery<EagerResult<{
         vectorNode: Node<Integer, GenericNodeShape>
     }>>(/*cypher*/`
         MATCH (node:${nodeShape.nodeType} {nodeId: $nodeId})
@@ -33,7 +32,7 @@ export const upsertPropertyVector = async (
         RETURN vectorNode
     `, {
         nodeId: nodeShape.nodeId,
-        embedding
+        // embedding
     }).then(res => res.records[0].get('vectorNode').properties)
     return Ok(true)
 }
