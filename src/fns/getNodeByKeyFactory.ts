@@ -30,7 +30,6 @@ export const getNodeByKeyFactory = <
         match (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
         return node   
     `, { nodeId: nodeKey.nodeId }).then(res => res.records[0]?.get('node').properties)
-    console.log(node)
     if (!node) return UixErr({
         subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,
         message: `Failed to find node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,

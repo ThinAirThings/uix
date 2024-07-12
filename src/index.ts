@@ -20,3 +20,6 @@ export * from './fns/getAllOfNodeTypeFactory'
 export * from './fns/getChildNodeSetFactory'
 export * from './fns/getUniqueChildNodeFactory'
 export * from './fns/getNodeByIndexFactory'
+
+// Clients
+export { createNeo4jClient } from './clients/neo4j'

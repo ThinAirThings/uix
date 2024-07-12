@@ -171,7 +171,7 @@ type TriggerMap<NodeShape extends AnyNodeShape> = Map<'onCreate' | 'onUpdate' | 
     Map<string, (node: NodeShape) => void>
 >;
 
-export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, [AnyZodObject, AnyZodObject, ...AnyZodObject[]]>;
+export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
 /**
  * Represents a node type in a graph database.
  */

@@ -11,7 +11,7 @@ import { ConfiguredNodeTypeMap } from './staticObjects'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { NodeSetQueryOptions } from './queryOptions'
 import { createNode } from './functionModule'
-
+import { v4 as uuid } from 'uuid'
 
 export const useNodeSet = <
     ParentNodeType extends NodeSetParentTypes<ConfiguredNodeTypeMap>,
@@ -30,12 +30,27 @@ export const useNodeSet = <
     const queryClient = useQueryClient()
     const { data, error } = useQuery(queryOptions)
     const createNodeMutation = useMutation({
-        mutationFn: async (initialState: NodeState<ConfiguredNodeTypeMap[ChildNodeType]>) => {
+        mutationFn: async ({
+            nodeId = uuid(),
+            createdAt = new Date().getTime(),
+            updatedAt = new Date().getTime(),
+            ...initialState
+        }: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>) => {
             return await createNode({
                 parentNodeKeys: [parentNodeKey], 
                 childNodeType, 
-                initialState
+                initialState,
+                providedNodeId: nodeId,
             })
+        },
+        onMutate: async (newNode) => {
+            await queryClient.cancelQueries({queryKey: queryOptions.queryKey})
+            const previousData = queryClient.getQueryData(queryOptions.queryKey)
+            queryClient.setQueryData(queryOptions.queryKey, oldData => {
+                if (!oldData) return [newNode]
+                return [...oldData, newNode]
+            })
+            return { previousData }
         },
         onSuccess: () => queryClient.invalidateQueries({
             queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType]

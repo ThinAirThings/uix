@@ -7,7 +7,7 @@ export const staticObjectsTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 // Start of File
 import uixConfig from '${path.relative(config.outdir, config.pathToConfig).split(path.sep).join('/').replace(/\.[^/.]+$/, '')}'
-import { NodeShape, NodeState, createNeo4jClient, GraphType } from '@thinairthings/uix'
+import { NodeShape, NodeState, GraphType } from '@thinairthings/uix'
 
 export const uixGraph = new GraphType(uixConfig.type, uixConfig.nodeTypeSet)
 export const nodeTypeMap = uixGraph.nodeTypeMap
