@@ -1,7 +1,7 @@
 {
     "name": "@thinairthings/uix",
     "author": "Dan Lannan",
-    "version": "3.0.5",
+    "version": "3.0.13",
     "type": "module",
     "types": "./dist/lib/index.d.ts",
     "bin": {
@@ -17,7 +17,7 @@
         "test:basic": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run basic --test-timeout=100000",
         "test:match": "pnpm build && dotenvx run -f .env.test -- vitest run match --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
-        "wipset": "changeset && changeset version && changeset publish"
+        "wipset": "changeset && changeset version && changeset publish && git add . && git commit -m 'wipset' && git push"
     },
     "exports": {
         ".": {

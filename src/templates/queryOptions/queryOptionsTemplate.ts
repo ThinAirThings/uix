@@ -4,7 +4,7 @@ import { stringLiteralType } from "../../utilities/stringLiteralType";
 
 export const queryOptionsTemplate = () => /*ts*/`
 'use client'
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, skipToken } from '@tanstack/react-query'
 import {
     getUniqueChildNode,
     getChildNodeSet,
@@ -115,15 +115,15 @@ export const NodeKeyQueryOptions = <
     nodeKey,
     select
 }:{
-    nodeKey: NodeKey<ConfiguredNodeTypeMap, NodeType>,
+    nodeKey?: NodeKey<ConfiguredNodeTypeMap, NodeType>,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
 }) => queryOptions({
-    queryKey: [nodeKey.nodeType, nodeKey.nodeId] as const,
-    queryFn: async ({ queryKey: [nodeType, nodeId] }) => {
-        const result = await getNodeByKey({nodeKey: { nodeType, nodeId }})
+    queryKey: [nodeKey?.nodeType, nodeKey?.nodeId] as const,
+    queryFn: nodeKey ? async () => {
+        const result = await getNodeByKey({ nodeKey })
         if (result.error) throw new QueryError(result.error)
         return result.data
-    },
+    } : skipToken,
     select
 })
 

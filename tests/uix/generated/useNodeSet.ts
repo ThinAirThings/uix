@@ -31,15 +31,16 @@ export const useNodeSet = <
     const { data, error } = useQuery(queryOptions)
     const createNodeMutation = useMutation({
         mutationFn: async ({
-            nodeId = uuid(),
-            createdAt = new Date().getTime(),
-            updatedAt = new Date().getTime(),
+            nodeId,
+            createdAt,
+            updatedAt,
+            nodeType,
             ...initialState
         }: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>) => {
             return await createNode({
                 parentNodeKeys: [parentNodeKey], 
                 childNodeType, 
-                initialState,
+                initialState: initialState as NodeState<ConfiguredNodeTypeMap[ChildNodeType]>,
                 providedNodeId: nodeId,
             })
         },
@@ -52,9 +53,23 @@ export const useNodeSet = <
             })
             return { previousData }
         },
+        onError: (err, newData, context) => {
+            queryClient.setQueryData(queryOptions.queryKey, context?.previousData)
+        },
         onSuccess: () => queryClient.invalidateQueries({
             queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType]
         })
     })
-    return { data, error, createNodeMutation }
+    return {
+        data, error, createNode: (...[initialState, handlers]: [
+            NodeState<ConfiguredNodeTypeMap[ChildNodeType]>,
+            Parameters<typeof createNodeMutation['mutate']>[1]?
+        ]) => createNodeMutation.mutateAsync({
+            nodeId: uuid(),
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+            nodeType: childNodeType,
+            ...initialState
+        }, handlers)
+    }
 }

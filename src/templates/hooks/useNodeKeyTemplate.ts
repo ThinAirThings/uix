@@ -22,7 +22,7 @@ export const useNodeKey = <
     nodeKey,
     select
 }:{    
-    nodeKey: NodeKey<ConfiguredNodeTypeMap, NodeType>,
+    nodeKey?: NodeKey<ConfiguredNodeTypeMap, NodeType>,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
 }) => {
     const queryOptions = NodeKeyQueryOptions({nodeKey, select})

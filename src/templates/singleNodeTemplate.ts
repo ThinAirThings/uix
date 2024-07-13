@@ -51,21 +51,25 @@ export const singleNodeTemplate = (
         }
     })
     ${includeDeleteMutation ? /*ts*/`const deleteMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async ({
+            nodeKey
+        }: {
+            nodeKey: NodeKey<ConfiguredNodeTypeMap, NodeType>
+        }) => {
             console.log("Running Mutation: ", 'deleteNode({ nodeType: ' + nodeKey.nodeType + 'nodeId: ' + nodeKey.nodeId)
-            const { data: parentNodeKey } = await deleteNode({nodeKey: { nodeType: nodeKey.nodeType, nodeId: nodeKey.nodeId }})
-            if (!parentNodeKey) throw new Error("Failed to delete node")
-            return parentNodeKey
+            const { data: parentNodeKeys } = await deleteNode({nodeKey: { nodeType: nodeKey.nodeType, nodeId: nodeKey.nodeId }})
+            if (!parentNodeKeys) throw new Error("Failed to delete node")
+            return {deletedNodeKey: nodeKey, parentNodeKeys}
         },
-        onSuccess: (parentNodeKeys) => {
-            queryClient.setQueryData([nodeKey.nodeType, nodeKey.nodeId], null)
+        onSuccess: ({parentNodeKeys, deletedNodeKey}) => {
+            queryClient.setQueryData([deletedNodeKey.nodeType, deletedNodeKey.nodeId], null)
             parentNodeKeys.forEach(({ parentNodeId, parentNodeType }) => {
                 queryClient.invalidateQueries({
-                    queryKey: [parentNodeType, parentNodeId, nodeKey.nodeType]
+                    queryKey: [parentNodeType, parentNodeId, deletedNodeKey.nodeType]
                 })
             })
             queryClient.invalidateQueries({
-                queryKey: [nodeKey.nodeType]
+                queryKey: [deletedNodeKey.nodeType]
             })
         }
     })

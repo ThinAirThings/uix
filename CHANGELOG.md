@@ -1,5 +1,53 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 3.0.13
+
+### Patch Changes
+
+- testing
+
+## 3.0.12
+
+### Patch Changes
+
+- update useNodeKey
+
+## 3.0.11
+
+### Patch Changes
+
+- made nodeKey optional to support things like mapped over skeleton loading
+
+## 3.0.10
+
+### Patch Changes
+
+- update before pushing to prod
+
+## 3.0.9
+
+### Patch Changes
+
+- try new driver creation
+
+## 3.0.8
+
+### Patch Changes
+
+- add logs to neo4j driver creation
+
+## 3.0.7
+
+### Patch Changes
+
+- add logs
+
+## 3.0.6
+
+### Patch Changes
+
+- various stability changes
+
 ## 3.0.5
 
 ### Patch Changes

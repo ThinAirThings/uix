@@ -4,8 +4,6 @@ import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 
 
-
-
 export const getNodeByIndexFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
