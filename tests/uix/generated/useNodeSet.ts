@@ -28,7 +28,7 @@ export const useNodeSet = <
 }) => {
     const queryOptions = NodeSetQueryOptions({parentNodeKey, childNodeType, select})
     const queryClient = useQueryClient()
-    const { data, error } = useQuery(queryOptions)
+    const { data, error, isPending } = useQuery(queryOptions)
     const createNodeMutation = useMutation({
         mutationFn: async ({
             nodeId,
@@ -61,7 +61,7 @@ export const useNodeSet = <
         })
     })
     return {
-        data, error, createNode: (...[initialState, handlers]: [
+        data, error, isPending, createNode: (...[initialState, handlers]: [
             NodeState<ConfiguredNodeTypeMap[ChildNodeType]>,
             Parameters<typeof createNodeMutation['mutate']>[1]?
         ]) => createNodeMutation.mutateAsync({

@@ -38,7 +38,7 @@ export const useUniqueChild = <
 }) => {
     const queryOptions = UniqueChildQueryOptions({parentNodeKey, childNodeType, select})
     const queryClient = useQueryClient()
-    const { data, error } = useQuery(queryOptions)
+    const { data, error, isPending } = useQuery(queryOptions)
     ${singleNodeTemplate(false)}
 }
 `

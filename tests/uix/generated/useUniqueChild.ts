@@ -33,7 +33,7 @@ export const useUniqueChild = <
 }) => {
     const queryOptions = UniqueChildQueryOptions({parentNodeKey, childNodeType, select})
     const queryClient = useQueryClient()
-    const { data, error } = useQuery(queryOptions)
+    const { data, error, isPending } = useQuery(queryOptions)
     
     const setData = (
         newData: 
@@ -99,6 +99,7 @@ export const useUniqueChild = <
     return {
         data,
         error,
+        isPending,
         updateMutation,
         
         setData,

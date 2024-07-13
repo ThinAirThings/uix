@@ -92,6 +92,7 @@ export const singleNodeTemplate = (
     return {
         data,
         error,
+        isPending,
         updateMutation,
         ${includeDeleteMutation ? 'deleteMutation,' : ''}
         setData,

@@ -26,6 +26,6 @@ export const useNodeType = <
 }) => {
     const queryOptions = NodeTypeQueryOptions({nodeType, options, select})
     const queryClient = useQueryClient()
-    const { data, error } = useQuery(queryOptions)
-    return { data, error }
+    const { data, error, isPending } = useQuery(queryOptions)
+    return { data, error, isPending }
 }

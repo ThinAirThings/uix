@@ -25,7 +25,7 @@ export const useNodeIndex = <
 }) => {
     const queryClient = useQueryClient()
     const queryOptions = NodeIndexQueryOptions({nodeType, indexKey, indexValue, select})
-    const { data, error } = useQuery(queryOptions)
+    const { data, error, isPending } = useQuery(queryOptions)
     
     const setData = (
         newData: 
@@ -91,6 +91,7 @@ export const useNodeIndex = <
     return {
         data,
         error,
+        isPending,
         updateMutation,
         
         setData,

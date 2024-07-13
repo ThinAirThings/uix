@@ -27,7 +27,7 @@ export const useNodeKey = <
 }) => {
     const queryOptions = NodeKeyQueryOptions({nodeKey, select})
     const queryClient = useQueryClient()
-    const { data, error } = useQuery(queryOptions)
+    const { data, error, isPending } = useQuery(queryOptions)
     ${singleNodeTemplate(true)}
 }
 `
