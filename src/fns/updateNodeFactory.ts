@@ -1,7 +1,7 @@
 
 
 import { Driver, EagerResult, error, Integer, Node } from "neo4j-driver"
-import { AnyNodeTypeMap, GenericNodeType, NodeShape, NodeState } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeType, NodeShape, NodeState } from "../definitions/NodeDefinition"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import OpenAI from "openai"

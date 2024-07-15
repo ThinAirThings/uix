@@ -1,12 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Text } from 'ink';
 import { Loading } from '../../(components)/Loading';
 import { UixErr, UixErrSubtype } from '../../../types/Result';
 import { useOperation } from '../../(hooks)/useOperation';
 import { useApplicationStore } from '../../(stores)/applicationStore';
 import { CreateUniqueIndex } from './CreateUniqueIndex';
-import { CreatePropertyVector } from './CreatePropertyVector';
-import { CreateNodeTypeVector } from './CreateNodeTypeVector';
 import { Neo4jError } from 'neo4j-driver';
 
 export const SeedNeo4j = () => {
@@ -55,28 +53,12 @@ export const SeedNeo4j = () => {
     })
     if (!uixConfig) return <></>
     return (<>
-        {uixConfig.graph.nodeTypeSet.map(NodeType =>
-            !!NodeType.matchToRelationshipTypeSet.length
-            && <CreateNodeTypeVector
-                key={NodeType.type}
-                nodeType={NodeType.type}
-            />
-        )}
-        {uixConfig.graph.nodeTypeSet.map(NodeType =>
+        {uixConfig.graph.nodeDefinitionSet.map(NodeType =>
             NodeType.uniqueIndexes.map(uniqueIndex =>
                 <CreateUniqueIndex
                     key={`${NodeType.type}-${uniqueIndex}`}
                     nodeType={NodeType.type}
                     propertyName={uniqueIndex}
-                />
-            )
-        )}
-        {uixConfig.graph.nodeTypeSet.map(NodeType =>
-            NodeType.propertyVectors.map(propertyVector =>
-                <CreatePropertyVector
-                    key={`${NodeType.type}-${propertyVector}`}
-                    nodeType={NodeType.type}
-                    propertyName={propertyVector}
                 />
             )
         )}

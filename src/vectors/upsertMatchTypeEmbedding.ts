@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { GenericNodeShape, GenericNodeType } from "../types/NodeType"
+import { GenericNodeShape, GenericNodeType } from "../definitions/NodeDefinition"
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
 import { openAIAction, openaiClient } from "../clients/openai"
@@ -19,7 +19,7 @@ export const upsertMatchTypeEmbedding = async (
     const result = await neo4jAction(openAIAction(async () => {
         // Create Node Type Summary
         console.log("Creating Match Type Summary (nodeTypeEmbedding)", fromNodeType.type)
-        // Collect all nodes in weightedNodeTypeSet
+        // Collect all nodes in weightednodeDefinitionSet
         const {
             targetNode,
             weightedNodeSet
@@ -31,8 +31,8 @@ export const upsertMatchTypeEmbedding = async (
             match (triggerNode:${triggerNode.nodeType} {nodeId: $triggerNode.nodeId})
             // Get the parent node that is the target of this update
             match (targetNode: ${fromNodeType.type})<-[:CHILD_TO|UNIQUE_TO*]-(triggerNode)
-            // Get all nodes in the weightedNodeTypeSet
-            match (targetNode)<-[:CHILD_TO|UNIQUE_TO*]-(weightedNode: ${matchToRelationshipType.weightedNodeTypeSet.map(({ NodeType }) => NodeType.type).join('|')})
+            // Get all nodes in the weightednodeDefinitionSet
+            match (targetNode)<-[:CHILD_TO|UNIQUE_TO*]-(weightedNode: ${matchToRelationshipType.weightednodeDefinitionSet.map(({ NodeType }) => NodeType.type).join('|')})
             return weightedNode, targetNode
         `, {
             triggerNode

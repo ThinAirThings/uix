@@ -12,7 +12,7 @@ import { MessageNodeType } from './nodeTypes/MessageNodeType'
 
 export default defineConfig({
     type: 'Base',
-    nodeTypeSet: [
+    nodeDefinitionSet: [
         RootNodeType,
         UserNodeType,
         EducationNodeType,

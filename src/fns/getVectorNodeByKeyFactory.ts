@@ -1,5 +1,5 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
-import { AnyNodeTypeMap, VectorNodeShape } from "../types/NodeType";
+import { AnyNodeTypeMap, VectorNodeShape } from "../definitions/NodeDefinition";
 import { neo4jAction, neo4jDriver } from "../clients/neo4j";
 import { Ok, UixErr, UixErrSubtype } from "../types/Result";
 import { NodeKey, TypeFromVectorType, VectorKeys } from "../types/NodeKey";

@@ -27,7 +27,7 @@ export const UserNodeType = defineNodeType('User', z.object({
             + `A profile type node that represents a user's profile type.`
             + `This type should holistically represent the person who owns the profile such that all semantic meaning relevant to how this person would fit for a job position is captured.`,
         matchToNodeType: JobNodeType,
-        weightedNodeTypeSet: [
+        weightednodeDefinitionSet: [
             { weight: 1, NodeType: EducationNodeType },
             { weight: 3, NodeType: WorkExperienceNodeType },
             { weight: 5, NodeType: ProfileNodeType },

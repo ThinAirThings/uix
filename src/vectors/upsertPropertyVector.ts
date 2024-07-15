@@ -1,4 +1,4 @@
-import { GenericNodeShape } from "../types/NodeType";
+import { GenericNodeShape } from "../definitions/NodeDefinition";
 import { Ok } from "../types/Result";
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { openaiClient } from "../clients/openai";

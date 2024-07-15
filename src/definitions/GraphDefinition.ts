@@ -1,24 +1,24 @@
-import { GenericNodeTypeSet, NodeTypeMap } from './NodeType';
-import { AnyNodeTypeSet } from './NodeType';
+import { GenericNodeDefinitionSet, NodeDefinitionMap } from './NodeDefinition';
+import { AnyNodeDefinitionSet } from './NodeDefinition';
 
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|      
-export type AnyGraphType = GraphType<any, any>
-export type GenericGraphType = GraphType<
+export type AnyGraphDefinition = GraphDefinition<any, any>
+export type GenericGraphDefinition = GraphDefinition<
     Capitalize<string>,
-    GenericNodeTypeSet
+    GenericNodeDefinitionSet
 >
 
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
 // |___/\___|_| |_|_||_|_|\__|_\___/_||_| 
-export class GraphType<
+export class GraphDefinition<
     Type extends Capitalize<string> = Capitalize<string>,
-    NodeTypeSet extends AnyNodeTypeSet = GenericNodeTypeSet,
+    NodeDefinitionSet extends AnyNodeDefinitionSet = GenericNodeDefinitionSet,
 > {
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
@@ -26,9 +26,9 @@ export class GraphType<
     //     \___\___/_||_/__/\__|_|  \_,_\__|\__\___/_|  
     constructor(
         public type: Type,
-        public nodeTypeSet: NodeTypeSet,
-        public nodeTypeMap: NodeTypeMap<NodeTypeSet> = Object.fromEntries(
-            nodeTypeSet.map(nodeType => [nodeType.type, nodeType])
+        public nodeDefinitionSet: NodeDefinitionSet,
+        public nodeTypeMap: NodeDefinitionMap<NodeDefinitionSet> = Object.fromEntries(
+            nodeDefinitionSet.map(nodeType => [nodeType.type, nodeType])
         ),
     ) { }
 
@@ -42,16 +42,16 @@ export class GraphType<
 // |   \ ___ / _(_)_ _  ___ _ _ ___
 // | |) / -_)  _| | ' \/ -_) '_(_-<
 // |___/\___|_| |_|_||_\___|_| /__/
-export const defineGraphType = <
+export const defineGraphDefinition = <
     Type extends Capitalize<string>,
-    NodeTypeSet extends AnyNodeTypeSet,
+    NodeDefinitionSet extends AnyNodeDefinitionSet,
 >(
     type: Type,
-    nodeTypeSet: NodeTypeSet,
+    nodeDefinitionSet: NodeDefinitionSet,
 ) => {
-    return new GraphType(
+    return new GraphDefinition(
         type,
-        nodeTypeSet,
+        nodeDefinitionSet,
     )
 }
 

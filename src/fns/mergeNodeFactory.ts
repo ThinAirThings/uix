@@ -28,18 +28,18 @@ type DependencyRelationshipTypeSet<NodeDefinitionMap extends AnyNodeDefinitionMa
     (NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] & {dependency: Dependency}) extends RelationshipDefinition<infer FromNodeDefinition, infer RelationshipType, infer Cardinality, infer Dependency, infer ToNodeDefinition, infer StateSchema>
         ? RelationshipDefinition<FromNodeDefinition, RelationshipType, Cardinality, Dependency, ToNodeDefinition, StateSchema>
         : never
-export const createNodeFactory = <
+export const mergeNodeFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
     nodeTypeMap: NodeDefinitionMap
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
-    InitialState extends TypeOf<NodeDefinitionMap[NodeType]['stateSchema']>
+    State extends TypeOf<NodeDefinitionMap[NodeType]['stateSchema']>
 >({
     nodeType,
     strongRelationshipMap,
     weakRelationshipMap,
-    initialState,
+    state,
     providedNodeId
 }: {
     nodeType: NodeType,
@@ -71,7 +71,7 @@ export const createNodeFactory = <
                 : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>[]
         })
     },
-    initialState: InitialState,
+    state: State,
     providedNodeId?: string
 }) => {
     // Check Schema
@@ -81,7 +81,7 @@ export const createNodeFactory = <
             nodeId: z.string(),
             nodeType: z.string()
         }))) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse({
-            ...initialState,
+            ...state,
             nodeId: providedNodeId ?? uuid(),
             nodeType: nodeType
         })
@@ -89,11 +89,11 @@ export const createNodeFactory = <
             nodeId: z.string(),
             nodeType: z.string()
         }).parse({
-            ...initialState,
+            ...state,
             nodeId: providedNodeId ?? uuid(),
             nodeType: nodeType
         })
-    console.log("Creating", nodeType, newNodeStructure)
+    console.log("Merge", nodeType, newNodeStructure)
     const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeDefinitionMap[NodeType]>>
     }>>(/* cypher */ `
@@ -179,7 +179,7 @@ export const createNodeFactory = <
     if (!node) return UixErr({
         subtype: UixErrSubtype.CREATE_NODE_FAILED,
         message: `Failed to create node of type ${nodeType as string}`,
-        data: { nodeType, initialState, weakRelationshipMap, strongRelationshipMap }
+        data: { nodeType, state, weakRelationshipMap, strongRelationshipMap }
     });
     return Ok(node)
 })

@@ -10,7 +10,7 @@ import { UixErr, UixErrSubtype } from '../../types/Result';
 import { Loading } from './Loading';
 import { bundleRequire } from 'bundle-require'
 import { findConfig } from '../../utilities/findConfig';
-import { GraphType } from '../../types/GraphType';
+import { GraphDefinition } from '../../definitions/GraphDefinition';
 import path from 'path';
 export const CommandEnvironment: FC<{
     relativePathToConfig?: string
@@ -35,7 +35,7 @@ export const CommandEnvironment: FC<{
                                 const uixConfigDefinition = mod?.default ?? mod as GenericUixConfigDefinition
                                 const uixConfig = ({
                                     outdir: path.resolve(uixConfigDefinition.outdir ?? path.join('uix', 'generated')),
-                                    graph: new GraphType(uixConfigDefinition.type, uixConfigDefinition.nodeTypeSet),
+                                    graph: new GraphDefinition(uixConfigDefinition.type, uixConfigDefinition.nodeDefinitionSet),
                                     envPath: path.resolve(uixConfigDefinition.envPath ?? '.env'),
                                     pathToConfig
                                 }) as GenericUixConfig

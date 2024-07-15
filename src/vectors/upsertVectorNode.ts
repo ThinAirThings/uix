@@ -1,4 +1,4 @@
-import { AnyNodeShape, GenericNodeType, GenericNodeTypeMap } from "../types/NodeType";
+import { AnyNodeShape, GenericNodeType, GenericNodeTypeMap } from "../definitions/NodeDefinition";
 import { upsertPropertyVector } from "./upsertPropertyVector";
 import { upsertMatchTypeEmbedding } from "./upsertMatchTypeEmbedding";
 import { upsertMatchesv2 } from "./upsertMatchesv2";
@@ -19,13 +19,13 @@ export const upsertVectorNode = async (
     const fromNodeTypesAndRelationshipTypesToDirectlyUpdate = Object.values(nodeTypeMap).map(fromNodeType => ({
         fromNodeType,
         matchToRelationshipTypeSet: fromNodeType.matchToRelationshipTypeSet.filter(matchToRelationshipType =>
-            matchToRelationshipType.weightedNodeTypeSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
+            matchToRelationshipType.weightednodeDefinitionSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
         )
     }))
     const fromNodeTypesToUpdateMatches = Object.values(nodeTypeMap).map(fromNodeType => ({
         fromNodeType,
         matchToRelationshipTypeSet: fromNodeType.matchToRelationshipTypeSet.filter(matchToRelationshipType =>
-            matchToRelationshipType.weightedNodeTypeSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
+            matchToRelationshipType.weightednodeDefinitionSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
             || matchToRelationshipType.matchToNodeType.type === nodeShape.nodeType
         )
     }))

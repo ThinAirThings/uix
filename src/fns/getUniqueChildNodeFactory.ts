@@ -1,5 +1,5 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
-import { AnyNodeTypeMap, NodeShape, NodeState, UniqueChildNodeTypes, UniqueParentTypes } from "../types/NodeType";
+import { AnyNodeTypeMap, NodeShape, NodeState, UniqueChildNodeTypes, UniqueParentTypes } from "../definitions/NodeDefinition";
 import { neo4jAction, neo4jDriver } from "../clients/neo4j";
 import { Ok, Result, UixErr, UixErrSubtype } from "../types/Result";
 import { v4 as uuid } from 'uuid'

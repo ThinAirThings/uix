@@ -1,6 +1,6 @@
 import { Driver, EagerResult } from "neo4j-driver"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeTypeMap } from "../types/NodeType"
+import { AnyNodeTypeMap } from "../definitions/NodeDefinition"
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import { NodeKey } from "../types/NodeKey"
 

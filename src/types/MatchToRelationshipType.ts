@@ -1,10 +1,10 @@
-import { AnyNodeType, GenericNodeType } from "./NodeType";
+import { AnyNodeType, GenericNodeType } from "../definitions/NodeDefinition";
 
 
 /**
  * Represents a set of generic weighted node types.
  */
-export type GenericWeightedNodeTypeSet = readonly GenericWeightedNodeType[];
+export type GenericWeightednodeDefinitionSet = readonly GenericWeightedNodeType[];
 /**
  * Represents a generic weighted node type.
  */
@@ -12,7 +12,7 @@ export type GenericWeightedNodeType = WeightedNodeType<GenericNodeType>;
 /**
  * Represents any set of weighted node types.
  */
-export type AnyWeightedNodeTypeSet = readonly AnyWeightedNodeType[];
+export type AnyWeightednodeDefinitionSet = readonly AnyWeightedNodeType[];
 /**
  * Represents any weighted node type.
  */
@@ -36,7 +36,7 @@ export type GenericMatchToRelationshipTypeSet = readonly GenericMatchToRelations
 export type GenericMatchToRelationshipType = MatchToRelationshipType<
     Capitalize<string>,
     GenericNodeType,
-    GenericWeightedNodeTypeSet
+    GenericWeightednodeDefinitionSet
 >;
 /**
  * Represents any set of match-to relationship types.
@@ -52,12 +52,12 @@ export type AnyMatchToRelationshipType = MatchToRelationshipType<any, any, any>;
 export class MatchToRelationshipType<
     Type extends Capitalize<string> = Capitalize<string>,
     MatchToNodeType extends AnyNodeType = GenericNodeType,
-    WeightedNodeTypeSet extends AnyWeightedNodeTypeSet = GenericWeightedNodeTypeSet,
+    WeightednodeDefinitionSet extends AnyWeightednodeDefinitionSet = GenericWeightednodeDefinitionSet,
 > {
     constructor(
         public type: Type,
         public description: string,
         public matchToNodeType: MatchToNodeType,
-        public weightedNodeTypeSet: WeightedNodeTypeSet,
+        public weightednodeDefinitionSet: WeightednodeDefinitionSet,
     ) { }
 }
