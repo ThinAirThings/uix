@@ -32,7 +32,10 @@ export const updateNodeFactory = <
     inputState: Partial<NodeState<NodeTypeMap[NodeType]>>
 }) => {
     console.log("Updating", nodeKey, inputState)
+    console.log(nodeTypeMap)
+    console.log(nodeKey)
     const stateSchema = (<GenericNodeType>nodeTypeMap[nodeKey.nodeType]!)['stateSchema']
+    console.log(stateSchema)
     // Strip out any properties that are not in the schema
     const strippedNodeState = isZodDiscriminatedUnion(stateSchema)
         ? z.union(stateSchema.options.map((option: AnyZodObject) => option.partial()) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse(inputState)

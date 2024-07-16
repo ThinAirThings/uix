@@ -1,5 +1,11 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 3.1.2
+
+### Patch Changes
+
+- add logs
+
 ## 3.1.1
 
 ### Patch Changes
