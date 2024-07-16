@@ -1,5 +1,17 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 3.1.1
+
+### Patch Changes
+
+- forgot to build before pushing 3.1.0
+
+## 3.1.0
+
+### Minor Changes
+
+- 2fa947d: feat: added output parsing to getNodeByIndex. Need to add to all getters still so this is a semi-broken test
+
 ## 3.0.14
 
 ### Patch Changes
