@@ -45,7 +45,7 @@ export const getNodeByIndexFactory = <
     return Ok(
         (isZodDiscriminatedUnion(stateSchema)
             ? z.union(stateSchema.options.map((option: AnyZodObject) => option.passthrough())).parse(node)
-            : stateSchema.parse(stateSchema.passthrough().parse(node))
+            : stateSchema.passthrough().parse(node)
         ) as NodeShape<NodeTypeMap[NodeType]>
     )
 })
