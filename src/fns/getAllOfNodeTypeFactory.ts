@@ -34,6 +34,7 @@ export const getAllOfNodeTypeFactory = <
     const orderBy = options?.orderBy ?? 'updatedAt';
     const orderDirection = options?.orderDirection ?? 'ASC';
 
+
     const nodes = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`

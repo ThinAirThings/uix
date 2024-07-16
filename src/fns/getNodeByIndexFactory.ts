@@ -1,7 +1,9 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeType, NodeShape } from "../types/NodeType"
 import { Ok, UixErr, UixErrSubtype } from "../types/Result"
+import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
+import { AnyZodObject, z } from "zod"
 
 
 export const getNodeByIndexFactory = <
@@ -21,6 +23,7 @@ export const getNodeByIndexFactory = <
     indexValue: string
 }) => {
     console.log(`Getting node of type ${nodeType as string} with index ${indexKey} = ${indexValue}`);
+
     const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
@@ -38,5 +41,11 @@ export const getNodeByIndexFactory = <
             indexValue
         }
     })
-    return Ok(node)
+    const stateSchema = (<GenericNodeType>nodeTypeMap[nodeType]!)['stateSchema']
+    return Ok(
+        (isZodDiscriminatedUnion(stateSchema)
+            ? z.union(stateSchema.options.map((option: AnyZodObject) => option.passthrough())).parse(node)
+            : stateSchema.parse(stateSchema.passthrough().parse(node))
+        ) as NodeShape<NodeTypeMap[NodeType]>
+    )
 })
