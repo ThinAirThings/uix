@@ -1,26 +1,13 @@
 import { defineConfig } from '@thinairthings/uix'
-import { UserNodeType } from './nodeTypes/UserNodeType'
-import { EducationNodeType } from './nodeTypes/EducationNodeType'
-import { ProfileNodeType } from './nodeTypes/ProfileNodeType'
-import { WorkExperienceNodeType } from './nodeTypes/WorkExperienceNodeType'
-import { WorkPreferenceNodeType } from './nodeTypes/WorkPreferenceNodeType'
-import { RootNodeType } from './nodeTypes/RootNodeType'
-import { JobNodeType } from './nodeTypes/JobNodeType'
-import { MessageNodeType } from './nodeTypes/MessageNodeType'
-
+import { UserNodeDefinition } from './NodeDefinitions/UserNodeDefinition'
+import { OrganizationNodeDefinition } from './NodeDefinitions/OrganizationNodeDefinition'
 
 
 export default defineConfig({
     type: 'Base',
     nodeDefinitionSet: [
-        RootNodeType,
-        UserNodeType,
-        EducationNodeType,
-        ProfileNodeType,
-        WorkExperienceNodeType,
-        WorkPreferenceNodeType,
-        JobNodeType,
-        // MessageNodeType
+        UserNodeDefinition,
+        OrganizationNodeDefinition
     ],
     outdir: 'tests/uix/generated',
     envPath: '.env.test',

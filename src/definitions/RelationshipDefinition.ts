@@ -12,14 +12,14 @@ export type GenericRelationshipDefinition = RelationshipDefinition<
     AnyNodeDefinition,
     Uppercase<string>,
     CardinalityTypeSet,
-    DependencyTypeSet,
+    StrengthTypeSet,
     AnyNodeDefinition,
     ZodObject<any> | undefined
 >
 export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefinition[]
 export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
-export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
-export type DependencyTypeSet = 'strong' | 'weak'
+export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one'
+export type StrengthTypeSet = 'strong' | 'weak'
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -28,7 +28,7 @@ export class RelationshipDefinition<
     FromNodeDefinition extends AnyNodeDefinition = GenericNodeDefinition,
     RelationshipType extends Uppercase<string> = Uppercase<string>,
     CardinalityType extends CardinalityTypeSet = CardinalityTypeSet,
-    DependencyType extends DependencyTypeSet = DependencyTypeSet,
+    StrengthType extends StrengthTypeSet = StrengthTypeSet,
     ToNodeDefinition extends AnyNodeDefinition = GenericNodeDefinition,
     RelationshipStateSchema extends ZodObject<any> | undefined = undefined,
 > {
@@ -40,7 +40,7 @@ export class RelationshipDefinition<
         public fromNodeDefinition: FromNodeDefinition,
         public type: RelationshipType,
         public cardinality: CardinalityType,
-        public dependency: DependencyType,
+        public strength: StrengthType,
         public toNodeDefinition: ToNodeDefinition,
         public stateSchema: RelationshipStateSchema = undefined as RelationshipStateSchema
     ) { }

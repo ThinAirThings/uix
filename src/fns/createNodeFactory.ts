@@ -2,7 +2,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
 import { AnyZodObject, TypeOf, z, ZodType, ZodTypeAny } from "zod"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeDefinitionMap, GenericNodeDefinition,  NodeShape } from "../definitions/NodeDefinition"
+import { AnyNodeDefinitionMap, GenericNodeDefinition, NodeShape } from "../definitions/NodeDefinition"
 import { UixErr, Ok, UixErrSubtype, AnyErrType } from "../types/Result"
 import { Action } from "../types/Action"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
@@ -10,11 +10,11 @@ import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 import { DependencyTypeSet, RelationshipDefinition } from "../definitions/RelationshipDefinition"
 
 
-export type GenericCreateNodeAction = Action<
-    [GenericNodeKey, Capitalize<string>, Record<string, any>, string?],
-    Record<string, any>,
-    AnyErrType
->
+// export type GenericCreateNodeAction = Action<
+//     [GenericNodeKey, Capitalize<string>, Record<string, any>, string?],
+//     Record<string, any>,
+//     AnyErrType
+// >
 /**
  * Factory for creating an action to create a node in the database
  * @param neo4jDriver The neo4j driver to use
@@ -24,10 +24,10 @@ export type GenericCreateNodeAction = Action<
 
 // (NodeDefinitionMap[FromNodeTypeSet]['relationshipDefinitionSet'][number]['type']) |
 
-type DependencyRelationshipTypeSet<NodeDefinitionMap extends AnyNodeDefinitionMap, NodeType extends keyof NodeDefinitionMap, Dependency extends DependencyTypeSet> = 
-    (NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] & {dependency: Dependency}) extends RelationshipDefinition<infer FromNodeDefinition, infer RelationshipType, infer Cardinality, infer Dependency, infer ToNodeDefinition, infer StateSchema>
-        ? RelationshipDefinition<FromNodeDefinition, RelationshipType, Cardinality, Dependency, ToNodeDefinition, StateSchema>
-        : never
+type DependencyRelationshipTypeSet<NodeDefinitionMap extends AnyNodeDefinitionMap, NodeType extends keyof NodeDefinitionMap, Dependency extends DependencyTypeSet> =
+    (NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] & { dependency: Dependency }) extends RelationshipDefinition<infer FromNodeDefinition, infer RelationshipType, infer Cardinality, infer Dependency, infer ToNodeDefinition, infer StateSchema>
+    ? RelationshipDefinition<FromNodeDefinition, RelationshipType, Cardinality, Dependency, ToNodeDefinition, StateSchema>
+    : never
 export const createNodeFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
@@ -44,31 +44,31 @@ export const createNodeFactory = <
 }: {
     nodeType: NodeType,
     strongRelationshipMap: {
-        [StrongRelationshipType in DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['type']]: (DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'> & {type: StrongRelationshipType})['stateSchema'] extends ZodType<infer A, infer B, infer C> 
+        [StrongRelationshipType in DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['type']]: (DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'> & { type: StrongRelationshipType })['stateSchema'] extends ZodType<infer A, infer B, infer C>
         ? ({
             to: DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['cardinality'] extends ('one-to-one' | 'many-to-one')
-                ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>
-                : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>[]
+            ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>
+            : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>[]
             state: TypeOf<ZodType<A, B, C>>
         })
         : ({
             to: DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['cardinality'] extends ('one-to-one' | 'many-to-one')
-                ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>
-                : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>[]
+            ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>
+            : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'strong'>['toNodeDefinition']['type']>[]
         })
     },
     weakRelationshipMap?: {
-        [WeakRelationshipType in DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['type']]?: (DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'> & {type: WeakRelationshipType})['stateSchema'] extends ZodType<infer A, infer B, infer C> 
+        [WeakRelationshipType in DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['type']]?: (DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'> & { type: WeakRelationshipType })['stateSchema'] extends ZodType<infer A, infer B, infer C>
         ? ({
             to: DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['cardinality'] extends ('one-to-one' | 'many-to-one')
-                ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>
-                : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>[]
+            ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>
+            : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>[]
             state: TypeOf<ZodType<A, B, C>>
-        }) 
+        })
         : ({
             to: DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['cardinality'] extends ('one-to-one' | 'many-to-one')
-                ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>
-                : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>[]
+            ? NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>
+            : NodeKey<NodeDefinitionMap, DependencyRelationshipTypeSet<NodeDefinitionMap, NodeType, 'weak'>['toNodeDefinition']['type']>[]
         })
     },
     initialState: InitialState,
@@ -124,7 +124,7 @@ export const createNodeFactory = <
             with node, weakRelType, weakRelNodeKey, weakRelMap[weakRelType].state as state
             match (weakRelNode:Node {nodeId: weakRelNodeKey.nodeId})
             call apoc.create.relationship(node, weakRelType, apoc.map.merge(state, {strength: 'weak'}), weakRelNode) yield rel
-            ` 
+            `
             : ''
         }
         return node
@@ -173,7 +173,7 @@ export const createNodeFactory = <
         }, {} as Record<string, {
             to: NodeKey<NodeDefinitionMap, keyof NodeDefinitionMap>[]
             state: Record<string, any>
-        }>): {},
+        }>) : {},
         newNode: newNodeStructure
     }).then(res => res.records[0]?.get('node').properties)
     if (!node) return UixErr({

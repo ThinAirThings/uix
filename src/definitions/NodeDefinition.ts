@@ -6,7 +6,7 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption } from "zod";
 import { Integer } from "neo4j-driver";
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion";
-import { AnyRelationshipDefinitionSet, CardinalityTypeSet, DependencyTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition } from "./RelationshipDefinition";
+import { AnyRelationshipDefinitionSet, CardinalityTypeSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition } from "./RelationshipDefinition";
 
 export type GenericNodeDefinitionSet = readonly GenericNodeDefinition[];
 export type AnyNodeDefinitionSet = readonly AnyNodeDefinition[];
@@ -90,19 +90,19 @@ export class NodeDefinition<
     defineRelationship = <
         RelationshipType extends Uppercase<string>,
         Cardinality extends CardinalityTypeSet,
-        Dependency extends DependencyTypeSet,
+        Strength extends StrengthTypeSet,
         ToNodeDefinition extends AnyNodeDefinition,
         RelationshipStateSchema extends ZodObject<any> | undefined = undefined
     >({
         relationshipType,
         cardinality,
-        dependency,
+        strength,
         toNodeDefinition,
         relationshipStateSchema
-    }:{
+    }: {
         relationshipType: RelationshipType,
         cardinality: Cardinality,
-        dependency: Dependency,
+        strength: Strength,
         toNodeDefinition: ToNodeDefinition,
         relationshipStateSchema?: RelationshipStateSchema
     }) => {
@@ -116,7 +116,7 @@ export class NodeDefinition<
                     this,
                     relationshipType,
                     cardinality,
-                    dependency,
+                    strength,
                     toNodeDefinition,
                     relationshipStateSchema as RelationshipStateSchema
                 )

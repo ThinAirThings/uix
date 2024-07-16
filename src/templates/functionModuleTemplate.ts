@@ -1,5 +1,4 @@
 import { GenericUixConfig } from "../config/defineConfig";
-import path from 'path'
 
 
 export const functionModuleTemplate = (config: GenericUixConfig) => {
@@ -8,25 +7,8 @@ export const functionModuleTemplate = (config: GenericUixConfig) => {
 // Start of File
 import {nodeTypeMap} from './staticObjects'
 import {
-    createNodeFactory, 
-    updateNodeFactory, 
-    deleteNodeFactory, 
-    getNodeByKeyFactory, 
-    getVectorNodeByKeyFactory,
-    getAllOfNodeTypeFactory,
-    getChildNodeSetFactory,
-    getUniqueChildNodeFactory,
-    getNodeByIndexFactory,
+    mergeNodeFactory,
 } from '@thinairthings/uix'
 
-export const createNode = createNodeFactory(nodeTypeMap)
-export const updateNode = updateNodeFactory(nodeTypeMap)
-export const deleteNode = deleteNodeFactory(nodeTypeMap)
-export const getNodeByKey = getNodeByKeyFactory(nodeTypeMap)
-export const getVectorNodeByKey = getVectorNodeByKeyFactory(nodeTypeMap)
-export const getAllOfNodeType = getAllOfNodeTypeFactory(nodeTypeMap)
-export const getChildNodeSet = getChildNodeSetFactory(nodeTypeMap)
-export const getUniqueChildNode = getUniqueChildNodeFactory(nodeTypeMap)
-export const getNodeByIndex = getNodeByIndexFactory(nodeTypeMap)
-
+export const mergeNode = mergeNodeFactory(nodeTypeMap)
 `}

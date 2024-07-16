@@ -9,8 +9,10 @@ export * from './definitions/RelationshipDefinition'
 export * from './types/NodeKey'
 export * from './types/Result'
 export * from './definitions/GraphDefinition'
+export * from './types/RelationshipMap'
 // // Function
-export * from './fns/createNodeFactory'
+// export * from './fns/createNodeFactory'
+export * from './fns/mergeNodeFactory'
 // export * from './fns/updateNodeFactory'
 // export * from './fns/deleteNodeFactory'
 // export * from './fns/getNodeByKeyFactory'
@@ -22,3 +24,4 @@ export * from './fns/createNodeFactory'
 
 // // Clients
 // export { createNeo4jClient } from './clients/neo4j'
+

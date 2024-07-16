@@ -10,20 +10,10 @@ export type NodeKey<T extends keyof ConfiguredNodeTypeMap> = {
     nodeType: T
     nodeId: string
 }
-export const rootNodeKey: NodeKey<'Root'> = {nodeType: 'Root', nodeId: '0'}
-export type RootNode = NodeShape<ConfiguredNodeTypeMap['Root']> 
-export type UserNode = NodeShape<ConfiguredNodeTypeMap['User']> 
-export type EducationNode = NodeShape<ConfiguredNodeTypeMap['Education']> 
-export type ProfileNode = NodeShape<ConfiguredNodeTypeMap['Profile']> 
-export type WorkExperienceNode = NodeShape<ConfiguredNodeTypeMap['WorkExperience']> 
-export type WorkPreferenceNode = NodeShape<ConfiguredNodeTypeMap['WorkPreference']> 
-export type JobNode = NodeShape<ConfiguredNodeTypeMap['Job']> 
 
-export type RootNodeState = NodeState<ConfiguredNodeTypeMap['Root']> 
+export type UserNode = NodeShape<ConfiguredNodeTypeMap['User']> 
+export type OrganizationNode = NodeShape<ConfiguredNodeTypeMap['Organization']> 
+
 export type UserNodeState = NodeState<ConfiguredNodeTypeMap['User']> 
-export type EducationNodeState = NodeState<ConfiguredNodeTypeMap['Education']> 
-export type ProfileNodeState = NodeState<ConfiguredNodeTypeMap['Profile']> 
-export type WorkExperienceNodeState = NodeState<ConfiguredNodeTypeMap['WorkExperience']> 
-export type WorkPreferenceNodeState = NodeState<ConfiguredNodeTypeMap['WorkPreference']> 
-export type JobNodeState = NodeState<ConfiguredNodeTypeMap['Job']> 
+export type OrganizationNodeState = NodeState<ConfiguredNodeTypeMap['Organization']> 
 
