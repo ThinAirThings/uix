@@ -8,7 +8,8 @@ import { GenericNodeKey, NodeKey } from "../types/NodeKey"
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 import { AnyRelationshipDefinition, StrengthTypeSet, RelationshipDefinition } from "../definitions/RelationshipDefinition"
 import { formatRelationshipMap, GenericRelationshipMap } from "../utilities/formatRelationshipMap"
-import { RelativeRelationshipMap } from "../types/RelationshipMap"
+import { IsPartial, RelativeRelationshipMap } from "../types/RelationshipMapv2"
+// import { RelativeRelationshipMap } from "../types/RelationshipMap"
 
 
 /**
@@ -35,18 +36,22 @@ export const mergeNodeFactory = <
     nodeId
 }: {
     operation: Operation,
-} & (Operation extends 'create' ? ({
+} & (Operation extends 'create' ? (({
     nodeType: NodeType,
     state: MergeState,
     nodeId?: string
-} & RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'strong'>
-    & RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>
-) : ({
-    nodeType: NodeType,
-    nodeId: string
-    state?: Partial<MergeState>,
-    strongRelationshipMap?: undefined,
-} & RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>))) => {
+    weakRelationshipMap?: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>
+}) & (
+        IsPartial<{
+            strongRelationshipMap: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'strong'>
+        }, undefined extends RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'strong'> ? true : false>
+    )) : ({
+        nodeType: NodeType,
+        nodeId: string
+        state?: Partial<MergeState>,
+        strongRelationshipMap?: undefined,
+        weakRelationshipMap?: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>
+    }))) => {
     // Check Schema
     const stateSchema = (<GenericNodeDefinition>nodeTypeMap[nodeType]!)['stateSchema']
     const newNodeStructure = operation === 'create'

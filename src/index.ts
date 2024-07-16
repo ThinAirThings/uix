@@ -9,7 +9,8 @@ export * from './definitions/RelationshipDefinition'
 export * from './types/NodeKey'
 export * from './types/Result'
 export * from './definitions/GraphDefinition'
-export * from './types/RelationshipMap'
+export * from './types/RelationshipMapv2'
+
 // // Function
 // export * from './fns/createNodeFactory'
 export * from './fns/mergeNodeFactory'
