@@ -58,3 +58,33 @@ export const deleteNodeFactory = <
     return Ok(parentNodeKeys)
 })
 
+/* PROGRESS */
+const deleteAllStrongChildNodesWith1StrongConnection = /*cypher*/`
+    MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
+    CALL apoc.path.expandConfig(n, {
+        relationshipFilter: '<',
+        minLevel: 1,
+        uniqueness: 'NODE_GLOBAL'
+    }) YIELD path
+    WITH path
+    WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
+    UNWIND nodes(path) AS filteredNode
+    with DISTINCT filteredNode
+    MATCH (filteredNode)-[rel:strength]->(otherNode)
+    WHERE rel.strength = 'strong'
+    WITH filteredNode, count(otherNode) AS strongCount
+    WHERE strongCount = 1
+    DETACH DELETE filteredNode
+`
+const getAllStrongChildNodes = /*cypher*/`
+    MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
+    CALL apoc.path.expandConfig(n, {
+        relationshipFilter: '<',
+        minLevel: 1,
+        uniqueness: 'NODE_GLOBAL'
+    }) YIELD path
+    WITH path
+    WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
+    UNWIND nodes(path) AS filteredNode
+    RETURN DISTINCT filteredNode
+`

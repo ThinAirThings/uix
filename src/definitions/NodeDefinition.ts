@@ -3,7 +3,7 @@
  * @module NodeDefinition
  */
 
-import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption } from "zod";
+import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption, UnknownKeysParam, objectOutputType, objectInputType } from "zod";
 import { Integer } from "neo4j-driver";
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion";
 import { AnyRelationshipDefinitionSet, CardinalityTypeSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition } from "./RelationshipDefinition";
@@ -34,6 +34,7 @@ export type Neo4jNodeShape<T extends AnyNodeDefinition> = NodeState<T> & {
 };
 export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
 
+export type GenericZodUixState = ZodObject<any> | ZodDiscriminatedUnion<any, any>
 export type AnyNodeDefinition = NodeDefinition<any, any, any, any>;
 export type GenericNodeDefinition = NodeDefinition<
     Capitalize<string>,
@@ -41,6 +42,7 @@ export type GenericNodeDefinition = NodeDefinition<
     ['nodeId'],
     GenericRelationshipDefinitionSet
 >;
+
 export class NodeDefinition<
     Type extends Capitalize<string> = Capitalize<string>,
     StateSchema extends ZodTypeAny = AnyZodObject,

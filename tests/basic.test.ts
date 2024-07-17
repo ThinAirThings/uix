@@ -4,6 +4,7 @@ import { expect, test } from 'vitest'
 import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
 import { mergeNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
+import { create } from 'domain'
 
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
@@ -16,22 +17,29 @@ test('Integration test', async () => {
         })
     })
     // Create Node
-    const { data: userNode, error: createUserNodeError } = await mergeNode({
+    const { data: userNodeA, error: createUserNodeAError } = await mergeNode({
         operation: 'create',
         nodeType: 'User',
         state: {
-            email: 'test@test.com'
+            email: 'userA@test.com'
         }
     })
-    if (createUserNodeError) throwTestError(createUserNodeError)
-    console.log("User Node", userNode)
+    const { data: userNodeB, error: createUserNodeBError } = await mergeNode({
+        operation: 'create',
+        nodeType: 'User',
+        state: {
+            email: 'userB@test.com'
+        }
+    })
+    if (createUserNodeAError || createUserNodeBError) throwTestError(createUserNodeAError || createUserNodeBError!)
+    console.log("User Node", userNodeA)
     // Create Organization
     const { data: organizationNode, error: createOrganizationNodeError } = await mergeNode({
         operation: 'create',
         nodeType: 'Organization',
         weakRelationshipMap: {
             'ACCESS_TO': {
-                from: [userNode],
+                from: [userNodeA, userNodeB],
                 state: {
                     accessLevel: 'admin'
                 }
@@ -42,10 +50,74 @@ test('Integration test', async () => {
         }
     })
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)
+    const {data: chatNode, error: createChatNodeError} = await mergeNode({
+        operation: 'create',
+        nodeType: 'Chat',
+        state: {
+            chatType: 'user'
+        },
+        strongRelationshipMap: {
+            'CONVERSATION_BETWEEN': {
+                to: [userNodeA, userNodeB]
+            }
+        }
+    })
+    if (createChatNodeError) throwTestError(createChatNodeError)
+    // Create Messages
+    const { data: messageNode1, error: createMessageNode1Error } = await mergeNode({
+        operation: 'create',
+        nodeType: 'Message',
+        state: {
+            contentType: 'text',
+            text: 'Hello User B!'
+        },
+        strongRelationshipMap: {
+            'SENT_BY': {
+                to: userNodeA
+            },
+            'SENT_IN': {
+                to: chatNode
+            }
+        }
+    })
+    if (createMessageNode1Error) throwTestError(createMessageNode1Error)
+    const { data: messageNode2, error: createMessageNode2Error } = await mergeNode({
+        operation: 'create',
+        nodeType: 'Message',
+        state: {
+            contentType: 'text',
+            text: 'How are you User A!'
+        },
+        strongRelationshipMap: {
+            'SENT_BY': {
+                to: userNodeB
+            },
+            'SENT_IN': {
+                to: chatNode
+            }
+        }
+    })
+    if (createMessageNode2Error) throwTestError(createMessageNode2Error)
+    const { data: messageNode3, error: createMessageNode3Error } = await mergeNode({
+        operation: 'create',
+        nodeType: 'Message',
+        state: {
+            contentType: 'text',
+            text: 'I am doing well!'
+        },
+        strongRelationshipMap: {
+            'SENT_BY': {
+                to: userNodeA
+            },
+            'SENT_IN': {
+                to: chatNode
+            }
+        }
+    })
     // Update Permissions
     const { data: updatedUserNode } = await mergeNode({
         operation: 'update',
-        ...userNode,
+        ...userNodeA,
         weakRelationshipMap: {
             'ACCESS_TO': {
                 to: [organizationNode],

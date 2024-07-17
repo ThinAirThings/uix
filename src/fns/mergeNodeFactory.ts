@@ -1,16 +1,12 @@
-import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
+import { EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
-import { AnyZodObject, TypeOf, z, ZodType, ZodTypeAny } from "zod"
+import { AnyZodObject, TypeOf, z } from "zod"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeDefinitionMap, GenericNodeDefinition, NodeShape } from "../definitions/NodeDefinition"
-import { UixErr, Ok, UixErrSubtype, AnyErrType } from "../types/Result"
-import { GenericNodeKey, NodeKey } from "../types/NodeKey"
+import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
-import { AnyRelationshipDefinition, StrengthTypeSet, RelationshipDefinition } from "../definitions/RelationshipDefinition"
 import { formatRelationshipMap, GenericRelationshipMap } from "../utilities/formatRelationshipMap"
-import { IsPartial, RelativeRelationshipMap } from "../types/RelationshipMapv2"
-// import { RelativeRelationshipMap } from "../types/RelationshipMap"
-
+import { IsPartial, RelativeRelationshipMap } from "../types/RelationshipMap"
 
 /**
  * Factory for creating an action to create a node in the database

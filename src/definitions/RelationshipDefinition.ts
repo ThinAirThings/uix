@@ -18,7 +18,7 @@ export type GenericRelationshipDefinition = RelationshipDefinition<
 >
 export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefinition[]
 export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
-export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one'
+export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
 export type StrengthTypeSet = 'strong' | 'weak'
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
