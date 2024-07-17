@@ -14,7 +14,7 @@ export const UserNodeDefinition = defineNode('User', z.object({
     .defineUniqueIndexes(['email'])
     .defineRelationship({
         relationshipType: 'ACCESS_TO',
-        cardinality: 'one-to-many',
+        cardinality: 'many-to-many',
         strength: 'weak',
         toNodeDefinition: OrganizationNodeDefinition,
         relationshipStateSchema: z.object({

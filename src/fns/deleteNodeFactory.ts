@@ -1,8 +1,8 @@
 import { Driver, EagerResult } from "neo4j-driver"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeTypeMap } from "../definitions/NodeDefinition"
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import { NodeKey } from "../types/NodeKey"
+import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
 
 
 
@@ -14,7 +14,7 @@ import { NodeKey } from "../types/NodeKey"
  * @returns The delete node action
  */
 export const deleteNodeFactory = <
-    NodeTypeMap extends AnyNodeTypeMap,
+    NodeTypeMap extends AnyNodeDefinitionMap,
 >(
     nodeTypeMap: NodeTypeMap
 ) => neo4jAction(async ({
@@ -24,39 +24,38 @@ export const deleteNodeFactory = <
 }) => {
     console.log("Deleting", nodeKey)
     // First, retrieve parent node information
-    const parentNodeKeys = await neo4jDriver().executeQuery<EagerResult<{
+    await neo4jDriver().executeQuery<EagerResult<{
         parentNodeId: string,
         parentNodeType: string
     }>>(/*cypher*/ `
-        MATCH (parentNode)<-[:CHILD_TO|UNIQUE_TO]-(childNode:Node {nodeId: $nodeId})
-        RETURN parentNode.nodeId as parentNodeId, parentNode.nodeType as parentNodeType
+        match (n: Node {nodeId: $nodeKey.nodeId})<-[strongRelationship *0.. {strength: "strong"}]-(connectedNode)
+        detach delete n
+        with distinct connectedNode
+        match (connectedNode)-[{strength: "strong"}]->(strongConnectedNode)
+        with connectedNode, count(strongConnectedNode) as strongConnectedNodeCount
+        where strongConnectedNodeCount < 1
+        detach delete connectedNode
     `, {
-        ...nodeKey
-    }).then(result => result.records.map(record => ({
-        parentNodeId: record.get('parentNodeId'),
-        parentNodeType: record.get('parentNodeType')
-    })));
-
-    // Step 2: If parentNodeKeys retrieved successfully, then delete childNode
-    if (parentNodeKeys.length > 0) {
-        await neo4jDriver().executeQuery(/*cypher*/`
-            match (childNode:Node {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(recursiveChildNode)
-            detach delete childNode
-            detach delete recursiveChildNode
-        `, {
-            ...nodeKey
-        });
-    }
-    console.log("Deleted", nodeKey)
-    if (!parentNodeKeys.length) return UixErr({
-        subtype: UixErrSubtype.DELETE_NODE_FAILED,
-        message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
-        data: {
-            nodeKey
-        }
+        nodeKey
     })
-    return Ok(parentNodeKeys)
+    return Ok(true)
 })
+
+
+
+
+
+
+// // // THIS WORKS
+// match (n:Node {nodeId: "b4aead03-1c8b-413a-8f19-95b30aab9528"})<-[strongRel *0.. {strength: "string"}]-(connectedNode)
+// detach delete n
+// with distinct connectedNode
+// match (connectedNode)-[{strength: "strong"}]->(strongConnectedNode)
+// with connectedNode, count(strongConnectedNode) as strongConnectedNodeCount
+// where strongConnectedNodeCount = 1
+// detach delete connectedNode
+
+
 
 /* PROGRESS */
 const deleteAllStrongChildNodesWith1StrongConnection = /*cypher*/`

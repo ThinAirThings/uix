@@ -5,7 +5,7 @@ import { NodeKeyByCardinality } from "./NodeKeyByCardinality";
 
 
 export type IsPartial<T, Condition extends boolean> = Condition extends true ? Partial<T> : T
-export type RelativeRelationshipMap<
+export type RelationshipMergeMap<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
     Strength extends StrengthTypeSet

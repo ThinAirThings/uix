@@ -2,7 +2,7 @@ import { execSync } from 'child_process'
 import { v4 as uuid } from 'uuid'
 import { expect, test } from 'vitest'
 import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
-import { mergeNode } from './uix/generated/functionModule'
+import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
 import { create } from 'domain'
 
@@ -50,7 +50,7 @@ test('Integration test', async () => {
         }
     })
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)
-    const {data: chatNode, error: createChatNodeError} = await mergeNode({
+    const { data: chatNode, error: createChatNodeError } = await mergeNode({
         operation: 'create',
         nodeType: 'Chat',
         state: {
@@ -127,5 +127,86 @@ test('Integration test', async () => {
             }
         }
     })
+    // Get User A
+    const {data: userAByGet} = await collectNode({
+        referenceType: 'nodeIndex',
+        nodeType: 'User',
+        indexKey: 'email',
+        indexValue: userNodeA.nodeId,
+        relatedWith: {
+            'ACCESS_TO': {
+                'to': {
+                    'Organization': {
+                        'relatedWith': {
+                            'ACCESS_TO': {
+                                'from': {
+                                    'User': {
+                                        'relatedWith': {
+                                            'CONVERSATION_BETWEEN': {
+                                                'from': {
+                                                    'Chat': {
+                                                        'options': {
+                                                            'limit': 5
+                                                        },
+                                                        'relatedWith': {
+                                                            'SENT_IN': {
+                                                                'from': {
+                                                                    'Message': {
+                                                                        
+                                                                        'options': {
+                                                                            'limit': 5,
+                                                                            'orderBy': 'createdAt'
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // to: {
+                //     'Organization': {
+                //         relatedWith: {
+                //             'ACCESS_TO': {
+                //                 'from': {
+                //                     'User': {
+                //                         'relatedWith': {
+                //                             'CONVERSATION_BETWEEN': {
+                //                                 'from': {
+                //                                     'Chat': {
+                //                                         options
+                //                                     }
+                //                                 }
+                //                             }
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //         },
+                //         options: {
+                //             'limit': 5,
+                //         }
+                //     }
+                // }
+            },
+            // '': {
+            //     from: {
+            //         ''
+            //     }
+            // }
+        }
+    })
+    // // Delete User A
+    const { data: deletedUserNode } = await deleteNode({
+        nodeKey: userNodeB
+    })
+    console.log("DeletedUserNode", deletedUserNode)
     console.log("UpdatedUserNode", updatedUserNode)
 })

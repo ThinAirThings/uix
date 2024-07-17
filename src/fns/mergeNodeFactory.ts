@@ -6,7 +6,7 @@ import { AnyNodeDefinitionMap, GenericNodeDefinition, NodeShape } from "../defin
 import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
 import { formatRelationshipMap, GenericRelationshipMap } from "../utilities/formatRelationshipMap"
-import { IsPartial, RelativeRelationshipMap } from "../types/RelationshipMap"
+import { IsPartial, RelationshipMergeMap } from "../types/RelationshipMergeMap"
 
 /**
  * Factory for creating an action to create a node in the database
@@ -36,17 +36,17 @@ export const mergeNodeFactory = <
     nodeType: NodeType,
     state: MergeState,
     nodeId?: string
-    weakRelationshipMap?: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>
+    weakRelationshipMap?: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'weak'>
 }) & (
         IsPartial<{
-            strongRelationshipMap: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'strong'>
-        }, undefined extends RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'strong'> ? true : false>
+            strongRelationshipMap: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'strong'>
+        }, undefined extends RelationshipMergeMap<NodeDefinitionMap, NodeType, 'strong'> ? true : false>
     )) : ({
         nodeType: NodeType,
         nodeId: string
         state?: Partial<MergeState>,
         strongRelationshipMap?: undefined,
-        weakRelationshipMap?: RelativeRelationshipMap<NodeDefinitionMap, NodeType, 'weak'>
+        weakRelationshipMap?: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'weak'>
     }))) => {
     // Check Schema
     const stateSchema = (<GenericNodeDefinition>nodeTypeMap[nodeType]!)['stateSchema']
@@ -87,9 +87,12 @@ export const mergeNodeFactory = <
             })
     console.log("NodeKey", nodeId, nodeType)
     console.log("Creating", nodeType, newNodeStructure)
-    console.log("Strong Relationships", JSON.stringify(formatRelationshipMap(strongRelationshipMap as GenericRelationshipMap), null, 2))
-    console.log("Weak Relationships", JSON.stringify(formatRelationshipMap(weakRelationshipMap as GenericRelationshipMap), null, 2))
     // console.log("Weak Relationships", JSON.stringify(weakRelationshipMap, null, 2))
+    const relationshipMap = {
+        ...formatRelationshipMap(nodeTypeMap, nodeType as Capitalize<string>, strongRelationshipMap as GenericRelationshipMap), 
+        ...formatRelationshipMap(nodeTypeMap, nodeType as Capitalize<string>, weakRelationshipMap as GenericRelationshipMap)
+    }
+    console.log("Relationship Map", JSON.stringify(relationshipMap, null, 2))
     const node = await neo4jDriver().executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeDefinitionMap[NodeType]>>
     }>>(/* cypher */ `
@@ -104,38 +107,27 @@ export const mergeNodeFactory = <
             set node += $newNode,
                 node:Node,
                 node.updatedAt = timestamp()
-        // Process strong relationships
-        ${strongRelationshipMap && Object.keys(strongRelationshipMap).length > 0
+        // Process relationshipMap
+        ${relationshipMap && Object.keys(relationshipMap).length > 0
             ? /*cypher*/`
-            with node, $strongRelationshipMap as strongRelMap
-            unwind keys(strongRelMap) as strongRelType
-            unwind strongRelMap[strongRelType].to as strongRelNodeKey
-            with node, strongRelType, strongRelNodeKey, strongRelMap[strongRelType].state as state
-            match (strongRelNode:Node {nodeId: strongRelNodeKey.nodeId})
-            call apoc.create.relationship(node, strongRelType, apoc.map.merge(state, {strength: 'strong'}), strongRelNode) yield rel
-        ` : ''}
-        // Process weak relationships
-        ${weakRelationshipMap && Object.keys(weakRelationshipMap).length > 0
-            ? /*cypher*/`
-            with node, $weakRelationshipMap as weakRelMap
-            unwind keys(weakRelMap) as weakRelType
-            with node, weakRelType, weakRelMap[weakRelType] as relData
-            unwind (case when relData.to is not null then relData.to else relData.from end) as weakRelNodeKey
-            with node, weakRelType, weakRelNodeKey, relData.state as state, relData
-            match (weakRelNode:Node {nodeId: weakRelNodeKey.nodeId})
+            with node, $relationshipMap as relationshipMapRef
+            unwind keys(relationshipMapRef) as relationshipType
+            with node, relationshipType, relationshipMapRef[relationshipType] as relationshipData
+            unwind (case when relationshipData.to is not null then relationshipData.to else relationshipData.from end) as connectingNodeKey
+            with node, connectingNodeKey, relationshipType, relationshipData.strength as strength, relationshipData
+            match (connectingNode:Node {nodeId: connectingNodeKey.nodeId})
             call apoc.merge.relationship(
-                case when relData.to is not null then node else weakRelNode end,
-                weakRelType,
-                {strength: 'weak'},
-                state,
-                case when relData.to is not null then weakRelNode else node end,
-                state
+                case when relationshipData.to is not null then node else connectingNode end,
+                relationshipType,
+                {relationshipType: relationshipType, strength: strength, cardinality: relationshipData.cardinality},
+                relationshipData.state,
+                case when relationshipData.to is not null then connectingNode else node end,
+                relationshipData.state
             ) yield rel
         ` : ''}
         return node
     `, {
-        strongRelationshipMap: formatRelationshipMap(strongRelationshipMap as GenericRelationshipMap),
-        weakRelationshipMap: formatRelationshipMap(weakRelationshipMap as GenericRelationshipMap),
+        relationshipMap,
         newNode: newNodeStructure
     }).then(res => {
         console.log("Neo4j Response", JSON.stringify(res, null, 2))
@@ -145,12 +137,40 @@ export const mergeNodeFactory = <
     console.log("Node Result", node)
     if (!node) return UixErr({
         subtype: UixErrSubtype.CREATE_NODE_FAILED,
-        message: `Failed to create node of type ${nodeType as string
-            }`,
+        message: `Failed to create node of type ${nodeType as string}`,
         data: { nodeType, state, strongRelationshipMap }
     });
     return Ok(node)
 })
+
+
+        // ${strongRelationshipMap && Object.keys(strongRelationshipMap).length > 0
+        //     ? /*cypher*/`
+        //     with node, $strongRelationshipMap as strongRelMap
+        //     unwind keys(strongRelMap) as strongRelType
+        //     unwind strongRelMap[strongRelType].to as strongRelNodeKey
+        //     with node, strongRelType, strongRelNodeKey, strongRelMap[strongRelType].state as state
+        //     match (strongRelNode:Node {nodeId: strongRelNodeKey.nodeId})
+        //     call apoc.create.relationship(node, strongRelType, apoc.map.merge(state, {strength: 'strong'}), strongRelNode) yield rel
+        // ` : ''}
+        // // Process relationshipMap
+        // ${relationshipMap && Object.keys(relationshipMap).length > 0
+        //     ? /*cypher*/`
+        //     with node, $weakRelationshipMap as weakRelMap
+        //     unwind keys(weakRelMap) as weakRelType
+        //     with node, weakRelType, weakRelMap[weakRelType] as relData
+        //     unwind (case when relData.to is not null then relData.to else relData.from end) as weakRelNodeKey
+        //     with node, weakRelType, weakRelNodeKey, relData.state as state, relData
+        //     match (weakRelNode:Node {nodeId: weakRelNodeKey.nodeId})
+        //     call apoc.merge.relationship(
+        //         case when relData.to is not null then node else weakRelNode end,
+        //         weakRelType,
+        //         {strength: 'weak', relationshipType: weakRelType, cardinality: },
+        //         state,
+        //         case when relData.to is not null then weakRelNode else node end,
+        //         state
+        //     ) yield rel
+        // ` : ''}
 
 
 // ${weakRelationshipMap && Object.keys(weakRelationshipMap).length > 0
