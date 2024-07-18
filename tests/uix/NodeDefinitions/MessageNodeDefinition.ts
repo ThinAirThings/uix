@@ -28,4 +28,3 @@ export const MessageNodeDefinition = defineNode('Message', z.discriminatedUnion(
         cardinality: 'many-to-one',
         toNodeDefinition: UserNodeDefinition
     })
-    .defineRealtime()

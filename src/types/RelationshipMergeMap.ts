@@ -9,15 +9,17 @@ export type RelationshipMergeMap<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
     Strength extends StrengthTypeSet
-> = (
-    NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] & { strength: Strength } extends (infer RelationshipDefinitionRef extends AnyRelationshipDefinition | never)
+> = ((
+    NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] & { strength: Strength } extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
     ? IsPartial<(
-        AnyRelationshipDefinition extends RelationshipDefinitionRef
+        AnyRelationshipDefinition extends RelationshipDefinitionUnion
         ? ({
-            [ToRelationshipType in RelationshipDefinitionRef['type']]: (RelationshipDefinitionRef & { type: ToRelationshipType })['stateSchema'] extends (infer StateSchema extends ZodTypeAny)
+            [ToRelationshipType in RelationshipDefinitionUnion['type']]: (RelationshipDefinitionUnion & { 
+                type: ToRelationshipType
+            })['stateSchema'] extends (infer StateSchemaRef extends ZodTypeAny)
             ? ({
-                to: NodeKeyByCardinality<NodeDefinitionMap, NodeType, Strength, ToRelationshipType, 'to'>
-                state: TypeOf<StateSchema>
+                to: NodeKeyByCardinality<NodeDefinitionMap, NodeType, Strength, ToRelationshipType, 'to', StateSchemaRef>
+                // state: TypeOf<StateSchema>
             })
             : ({
                 to: NodeKeyByCardinality<NodeDefinitionMap, NodeType, Strength, ToRelationshipType, 'to'>
@@ -30,16 +32,19 @@ export type RelationshipMergeMap<
         (
             Strength extends 'weak'
             ? (
-                (NodeDefinitionMap[keyof NodeDefinitionMap]['relationshipDefinitionSet'][number] & { strength: Strength }) extends (infer RelationshipDefinitionRef extends AnyRelationshipDefinition | never)
-                ? AnyRelationshipDefinition extends RelationshipDefinitionRef
+                (NodeDefinitionMap[keyof NodeDefinitionMap]['relationshipDefinitionSet'][number] & { strength: Strength }) extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
+                ? AnyRelationshipDefinition extends RelationshipDefinitionUnion
                 ? ({
-                    [FromRelationshipType in NodeType extends RelationshipDefinitionRef['toNodeDefinition']['type'] ? RelationshipDefinitionRef['type'] : never]?: (
-                        RelationshipDefinitionRef & { type: FromRelationshipType }) extends RelationshipDefinition<infer FromNodeDefinition, any, any, any, infer ToNodeDefinition, infer StateSchemaRef>
+                    [FromRelationshipType in NodeType extends RelationshipDefinitionUnion['toNodeDefinition']['type'] ? RelationshipDefinitionUnion['type'] : never]?: (
+                        RelationshipDefinitionUnion & { 
+                            type: FromRelationshipType
+                            toNodeDefinition: { type: NodeType }
+                        }
+                    ) extends RelationshipDefinition<infer FromNodeDefinition, any, any, any, infer ToNodeDefinition, infer StateSchemaRef>
                     ? NodeType extends ToNodeDefinition['type']
                     ? StateSchemaRef extends ZodTypeAny
                     ? ({
-                        from: NodeKeyByCardinality<NodeDefinitionMap, FromNodeDefinition['type'], Strength, FromRelationshipType, 'from'>
-                        state: TypeOf<StateSchemaRef>
+                        from: NodeKeyByCardinality<NodeDefinitionMap, FromNodeDefinition['type'], Strength, FromRelationshipType, 'from', StateSchemaRef>
                     })
                     : ({
                         from: NodeKeyByCardinality<NodeDefinitionMap, FromNodeDefinition['type'], Strength, FromRelationshipType, 'from'>
@@ -56,4 +61,14 @@ export type RelationshipMergeMap<
         ? unknown
         : ReverseWeakRelationshipMap
         : 'this is a type error with uix. please file a bug'
-    )
+    )) extends infer FinalRelationshipMergeMap
+        ? FinalRelationshipMergeMap extends Partial<infer Inner>
+            ? unknown extends Inner
+                ? undefined
+                : FinalRelationshipMergeMap
+            : unknown extends FinalRelationshipMergeMap
+                ? undefined
+                : FinalRelationshipMergeMap
+        : never
+
+type Thing = Required<Partial<unknown>> extends {} ? true : false

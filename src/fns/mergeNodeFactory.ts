@@ -86,7 +86,7 @@ export const mergeNodeFactory = <
                 nodeType
             })
     console.log("NodeKey", nodeId, nodeType)
-    console.log("Creating", nodeType, newNodeStructure)
+    console.log(operation === 'create' ? "Creating" : 'Updating', nodeType, newNodeStructure)
     // console.log("Weak Relationships", JSON.stringify(weakRelationshipMap, null, 2))
     const relationshipMap = {
         ...formatRelationshipMap(nodeTypeMap, nodeType as Capitalize<string>, strongRelationshipMap as GenericRelationshipMap), 
@@ -113,16 +113,16 @@ export const mergeNodeFactory = <
             with node, $relationshipMap as relationshipMapRef
             unwind keys(relationshipMapRef) as relationshipType
             with node, relationshipType, relationshipMapRef[relationshipType] as relationshipData
-            unwind (case when relationshipData.to is not null then relationshipData.to else relationshipData.from end) as connectingNodeKey
-            with node, connectingNodeKey, relationshipType, relationshipData.strength as strength, relationshipData
-            match (connectingNode:Node {nodeId: connectingNodeKey.nodeId})
+            unwind (case when relationshipData.to is not null then relationshipData.to else relationshipData.from end) as connectingRelationshipEntry
+            with node, relationshipData, connectingRelationshipEntry, relationshipType, relationshipData.strength as strength, relationshipData.cardinality as cardinality
+            match (connectingNode:Node {nodeId: connectingRelationshipEntry.nodeKey.nodeId})
             call apoc.merge.relationship(
                 case when relationshipData.to is not null then node else connectingNode end,
                 relationshipType,
-                {relationshipType: relationshipType, strength: strength, cardinality: relationshipData.cardinality},
-                relationshipData.state,
+                {relationshipType: relationshipType, strength: strength, cardinality: cardinality},
+                connectingRelationshipEntry.state,
                 case when relationshipData.to is not null then connectingNode else node end,
-                relationshipData.state
+                connectingRelationshipEntry.state
             ) yield rel
         ` : ''}
         return node
@@ -130,11 +130,9 @@ export const mergeNodeFactory = <
         relationshipMap,
         newNode: newNodeStructure
     }).then(res => {
-        console.log("Neo4j Response", JSON.stringify(res, null, 2))
-        console.log(JSON.stringify(res.records, null, 2))
+        // console.log(JSON.stringify(res.records, null, 2))
         return res.records[0]?.get('node').properties
     })
-    console.log("Node Result", node)
     if (!node) return UixErr({
         subtype: UixErrSubtype.CREATE_NODE_FAILED,
         message: `Failed to create node of type ${nodeType as string}`,

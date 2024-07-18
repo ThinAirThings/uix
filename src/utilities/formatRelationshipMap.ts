@@ -2,14 +2,24 @@ import { GenericNodeDefinitionMap } from "../definitions/NodeDefinition"
 import { CardinalityTypeSet, GenericRelationshipDefinition, StrengthTypeSet } from "../definitions/RelationshipDefinition"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
 
+
+type RelationshipMapEntry = 
+    | GenericNodeKey 
+    | GenericNodeKey[] 
+    | ({
+    nodeKey: GenericNodeKey
+    state: Record<string, any>
+})  | ({
+    nodeKey: GenericNodeKey
+    state: Record<string, any>
+}[])
 export type GenericRelationshipMap = Record<string, {
-    to: GenericNodeKey | GenericNodeKey[]
-    state?: Record<string, any>
+    to: RelationshipMapEntry
 } | {
-    from: GenericNodeKey | GenericNodeKey[]
-    state?: Record<string, any>
+    from: RelationshipMapEntry
 } | undefined> | undefined
 
+Object.is
 export const formatRelationshipMap = (
     nodeTypeMap: GenericNodeDefinitionMap,
     nodeType: keyof GenericNodeDefinitionMap,
@@ -21,47 +31,78 @@ export const formatRelationshipMap = (
             ? nodeTypeMap[nodeType]
                     .relationshipDefinitionSet.find(definition => definition.type === relType)
             : Array.isArray(relData.from)
-                ? nodeTypeMap[relData.from[0].nodeType]
-                    .relationshipDefinitionSet.find(definition => definition.type === relType)
-                : nodeTypeMap[relData.from.nodeType]
-                    .relationshipDefinitionSet.find(definition => definition.type === relType)
+                ? 'state' in relData.from[0] 
+                    ? nodeTypeMap[relData.from[0].nodeKey.nodeType]
+                        .relationshipDefinitionSet.find(definition => definition.type === relType)
+                    : nodeTypeMap[relData.from[0].nodeType]
+                : 'state' in relData.from 
+                    ? nodeTypeMap[relData.from.nodeKey.nodeType]
+                        .relationshipDefinitionSet.find(definition => definition.type === relType)
+                    : nodeTypeMap[relData.from.nodeType]
         ) as GenericRelationshipDefinition
-
-        if ('state' in relData) {
-            acc[relType] = 'to' in relData ? {
+        // "To" Section
+        if ('to' in relData) {
+            acc[relType] = Array.isArray(relData.to) 
+            ? {
                 strength: relationshipDefinition.strength,
                 cardinality: relationshipDefinition.cardinality,
-                to: Array.isArray(relData.to) ? relData.to : [relData.to],
-                state: relData.state ?? {}
+                to: relData.to.map((entry) => 'state' in entry ? ({
+                    nodeKey: entry.nodeKey,
+                    state: entry.state
+                }) : ({
+                    nodeKey: entry,
+                    state: {}
+                })),
             }: {
                 strength: relationshipDefinition.strength,
                 cardinality: relationshipDefinition.cardinality,
-                from: Array.isArray(relData.from) ? relData.from : [relData.from],
-                state: relData.state ?? {}
+                to: ['state' in relData.to ? {
+                    nodeKey: relData.to.nodeKey,
+                    state: relData.to.state
+                }: {
+                    nodeKey: relData.to,
+                    state: {}
+                }]
             }
             return acc
         }
-        acc[relType] = 'to' in relData ? {
+        // "From" Section
+        acc[relType] = Array.isArray(relData.from)
+        ?{
             strength: relationshipDefinition.strength,
             cardinality: relationshipDefinition.cardinality,
-            to: Array.isArray(relData.to) ? relData.to : [relData.to],
-            state: {}
+            from: relData.from.map((entry) => 'state' in entry ? ({
+                nodeKey: entry.nodeKey,
+                state: entry.state
+            }) : ({
+                nodeKey: entry,
+                state: {}
+            })),
         } : {
             strength: relationshipDefinition.strength,
             cardinality: relationshipDefinition.cardinality,
-            from: Array.isArray(relData.from) ? relData.from : [relData.from],
-            state: {}
+            from: ['state' in relData.from ? {
+                nodeKey: relData.from.nodeKey,
+                state: relData.from.state
+            }: {
+                nodeKey: relData.from,
+                state: {}
+            }]
         }
         return acc
     }, {} as Record<string, {
         strength: StrengthTypeSet
         cardinality: CardinalityTypeSet
-        to: GenericNodeKey[]
-        state: Record<string, any>
+        to: ({
+            nodeKey: GenericNodeKey
+            state: Record<string, any>
+        }[])
     } | {
         strength: StrengthTypeSet
         cardinality: CardinalityTypeSet
-        from: GenericNodeKey[]
-        state: Record<string, any>
+        from: ({
+            nodeKey: GenericNodeKey
+            state: Record<string, any>
+        }[])
     }>)
     : {}

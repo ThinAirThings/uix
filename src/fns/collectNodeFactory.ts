@@ -3,7 +3,9 @@ import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
 import { NodeKey } from "../types/NodeKey"
 import { Ok } from "../types/Result"
-import { RelationshipCollectMap } from "../types/RelationshipCollectMap"
+import { RelationshipCollectionMap } from "../types/RelationshipCollectionMap"
+import dedent from "dedent"
+import { createCollectionSequence, GenericCollectionMapEntry } from "../utilities/createCollectionSequence"
 
 
 
@@ -26,24 +28,29 @@ export const collectNodeFactory = <
         indexValue: string
     })
 ) & ({
-    relatedWith?: RelationshipCollectMap<NodeTypeMap, NodeType>
+    relatedBy?: RelationshipCollectionMap<NodeTypeMap, NodeType>
 })
 ) => {
-    // console.log("Deleting", nodeKey)
-    // // First, retrieve parent node information
-    // await neo4jDriver().executeQuery<EagerResult<{
-    //     parentNodeId: string,
-    //     parentNodeType: string
-    // }>>(/*cypher*/ `
-    //     match (n: Node {nodeId: $nodeKey.nodeId})<-[strongRelationship *0.. {strength: "strong"}]-(connectedNode)
-    //     detach delete n
-    //     with distinct connectedNode
-    //     match (connectedNode)-[{strength: "strong"}]->(strongConnectedNode)
-    //     with connectedNode, count(strongConnectedNode) as strongConnectedNodeCount
-    //     where strongConnectedNodeCount < 1
-    //     detach delete connectedNode
-    // `, {
-    //     nodeKey
-    // })
-    return Ok(true)
+    const sequence = params.relatedBy ? createCollectionSequence({
+        relatedBy: params.relatedBy as GenericCollectionMapEntry,
+        sequence: [],
+    }).reverse() : null
+    const collection = await neo4jDriver().executeQuery<EagerResult<{
+        tree: any // YOU ARE HERE!!!
+    }>>(dedent/*cypher*/`
+        match (referenceNode:${params.nodeType} ${params.referenceType === 'nodeIndex' ?/*cypher*/`{${params.indexKey}: $indexValue}`: ''})
+        ${sequence 
+        ? /*cypher*/`call apoc.path.expandConfig(referenceNode, {
+            sequence: "${`+${params.nodeType as string}`},${sequence.map(
+                ({relationshipType, node}) => `${relationshipType.join('|')},${node.map(({nodeType}) => nodeType).join('|')}`).join(',')
+            }"
+        }) yield path
+        with collect(path) as paths
+        call apoc.convert.toTree(paths, false) yield value as tree
+        return tree
+        `: ''}
+    `, {
+        indexValue: 'indexValue' in params ? params.indexValue : undefined
+    })
+    return Ok(collection)
 })

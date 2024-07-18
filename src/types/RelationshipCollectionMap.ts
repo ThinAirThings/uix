@@ -2,7 +2,7 @@ import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition";
 import { AnyRelationshipDefinition, RelationshipDefinition } from "../definitions/RelationshipDefinition";
 
 
-type CollectOptions = {
+export type CollectOptions = {
     limit?: number
     page?: number
     orderBy?: 'updatedAt' | 'createdAt';
@@ -27,7 +27,7 @@ type NodeTypeByRelationshipType<
     > ? Direction extends 'to' ? ToNodeDefinition['type'] : FromNodeDefinition['type']
     : never
 )
-export type RelationshipCollectMap<
+export type RelationshipCollectionMap<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
 > = (
@@ -36,15 +36,15 @@ export type RelationshipCollectMap<
             ? ({
                 [ToRelationshipType in RelationshipDefinitionUnion['type']]?: {
                     to: {
-                        [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]: {
+                        [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]?: {
                             options?: CollectOptions
-                            relatedWith?: RelationshipCollectMap<NodeDefinitionMap, ToNodeType>
+                            relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, ToNodeType>
                         }  
                     }
                 }
             })
             : unknown
-        ))
+        )) 
         : never
 ) & (
     (NodeDefinitionMap[keyof NodeDefinitionMap]['relationshipDefinitionSet'][number] extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
@@ -56,9 +56,9 @@ export type RelationshipCollectMap<
                         : never
                 }[RelationshipDefinitionUnion['type']])]?: {
                     from: {
-                        [FromNodeType in (RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']]: {
+                        [FromNodeType in (RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']]?: {
                             options?: CollectOptions
-                            relatedWith?: RelationshipCollectMap<NodeDefinitionMap, FromNodeType>
+                            relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, FromNodeType>
                         }
                     }
                 }
@@ -68,13 +68,3 @@ export type RelationshipCollectMap<
         : unknown
 )
 ))
-
-
-
-
-// {
-//     from?: {
-//         [FromNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, FromRelationshipType, NodeType>]: 
-//             RelationshipCollectMap<NodeDefinitionMap, FromNodeType> | CollectOptions
-//     }
-// }

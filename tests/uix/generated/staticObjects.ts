@@ -15,9 +15,11 @@ export type UserNode = NodeShape<ConfiguredNodeTypeMap['User']>
 export type OrganizationNode = NodeShape<ConfiguredNodeTypeMap['Organization']> 
 export type ChatNode = NodeShape<ConfiguredNodeTypeMap['Chat']> 
 export type MessageNode = NodeShape<ConfiguredNodeTypeMap['Message']> 
+export type ProjectNode = NodeShape<ConfiguredNodeTypeMap['Project']> 
 
 export type UserNodeState = NodeState<ConfiguredNodeTypeMap['User']> 
 export type OrganizationNodeState = NodeState<ConfiguredNodeTypeMap['Organization']> 
 export type ChatNodeState = NodeState<ConfiguredNodeTypeMap['Chat']> 
 export type MessageNodeState = NodeState<ConfiguredNodeTypeMap['Message']> 
+export type ProjectNodeState = NodeState<ConfiguredNodeTypeMap['Project']> 
 

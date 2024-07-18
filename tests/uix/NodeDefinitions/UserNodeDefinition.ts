@@ -2,6 +2,7 @@
 import { defineNode } from "@thinairthings/uix";
 import { z } from "zod";
 import { OrganizationNodeDefinition } from "./OrganizationNodeDefinition";
+import { ProjectNodeDefinition } from "./ProjectNodeDefinition";
 
 export const UserNodeDefinition = defineNode('User', z.object({
     email: z.string().email('Invalid email address'),
@@ -18,6 +19,15 @@ export const UserNodeDefinition = defineNode('User', z.object({
         strength: 'weak',
         toNodeDefinition: OrganizationNodeDefinition,
         relationshipStateSchema: z.object({
-            accessLevel: z.enum(['admin', 'member'])
+            accessLevel: z.enum(['admin', 'member', 'owner'])
+        })
+    })
+    .defineRelationship({
+        relationshipType: 'ACCESS_TO',
+        strength: 'weak',
+        cardinality: 'many-to-many',
+        toNodeDefinition: ProjectNodeDefinition,
+        relationshipStateSchema: z.object({
+            accessLevel: z.enum(['admin', 'member', 'owner']),
         })
     })
