@@ -34,14 +34,14 @@ export type RelationshipCollectionMap<
     (NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
         ? ((AnyRelationshipDefinition extends RelationshipDefinitionUnion
             ? ({
-                [ToRelationshipType in RelationshipDefinitionUnion['type']]?: {
-                    to: {
-                        [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]?: {
-                            options?: CollectOptions
-                            relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, ToNodeType>
-                        }  
-                    }
-                }
+                [ToRelationshipType in RelationshipDefinitionUnion['type']]?: ({
+                    direction: 'to'
+                }) & ({
+                    [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]?: {
+                        options?: CollectOptions
+                        relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, ToNodeType>
+                    }  
+                })
             })
             : unknown
         )) 
@@ -54,14 +54,14 @@ export type RelationshipCollectionMap<
                     [RelationshipType in RelationshipDefinitionUnion['type']]: NodeType extends (RelationshipDefinitionUnion & {type: RelationshipType})['toNodeDefinition']['type'] 
                         ? RelationshipType 
                         : never
-                }[RelationshipDefinitionUnion['type']])]?: {
-                    from: {
+                }[RelationshipDefinitionUnion['type']])]?: ({
+                    direction: 'from'
+                }) & ({
                         [FromNodeType in (RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']]?: {
                             options?: CollectOptions
                             relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, FromNodeType>
                         }
-                    }
-                }
+                })
             })
             : unknown
         ))
