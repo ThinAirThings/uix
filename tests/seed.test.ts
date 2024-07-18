@@ -42,7 +42,7 @@ test('Integration test', async () => {
                 from: [{
                     nodeKey: userNodeA,
                     state: {
-                        accessLevel: 'owner',
+                        accessLevel: '',
                     }
                 }, {
                     nodeKey: userNodeB,
