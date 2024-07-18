@@ -22,16 +22,17 @@ test('Integration test', async () => {
         nodeType: 'User',
         indexKey: 'nodeId',
         indexValue: "userA@test.com",
-        ACCESS_TO: {
+        'ACCESS_TO': {
             direction: 'to',
             nodeType: 'Organization',
             options: { limit: 1 },
-            BELONGS_TO: {
+            'BELONGS_TO': {
                 direction: 'from',
                 nodeType: 'Project',
                 options: { limit: 1 }
             }
-        }
+        },
+
         // relatedBy: {
         //     ACCESS_TO: {
         //         to: {

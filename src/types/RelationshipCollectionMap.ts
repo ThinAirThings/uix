@@ -37,11 +37,11 @@ export type RelationshipCollectionMap<
                 [ToRelationshipType in RelationshipDefinitionUnion['type']]?: ({
                     direction: 'to'
                 }) & ({
-                    [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]?: {
-                        options?: CollectOptions
-                        relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, ToNodeType>
-                    }  
-                })
+                    [ToNodeType in NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>]?: ({
+                        nodeType: ToNodeType
+                        options?: CollectOptions  
+                    }) & RelationshipCollectionMap<NodeDefinitionMap, ToNodeType>
+                }[NodeTypeByRelationshipType<NodeDefinitionMap, NodeType, ToRelationshipType, 'to'>])
             })
             : unknown
         )) 
@@ -57,11 +57,11 @@ export type RelationshipCollectionMap<
                 }[RelationshipDefinitionUnion['type']])]?: ({
                     direction: 'from'
                 }) & ({
-                        [FromNodeType in (RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']]?: {
-                            options?: CollectOptions
-                            relatedBy?: RelationshipCollectionMap<NodeDefinitionMap, FromNodeType>
-                        }
-                })
+                    [FromNodeType in (RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']]?: ({
+                        nodeType: FromNodeType
+                        options?: CollectOptions
+                    }) & RelationshipCollectionMap<NodeDefinitionMap, FromNodeType>
+                }[(RelationshipDefinitionUnion & {type: FromRelationshipType})['fromNodeDefinition']['type']])
             })
             : unknown
         ))
