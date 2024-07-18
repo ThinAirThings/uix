@@ -14,7 +14,8 @@
         "dev": "nodemon",
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
-        "test:basic": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run basic --test-timeout=100000",
+        "test:seed": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run seed --test-timeout=100000",
+        "test:query": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run query --test-timeout=100000",
         "test:match": "pnpm build && dotenvx run -f .env.test -- vitest run match --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
         "wipset": "changeset && changeset version && changeset publish && git add . && git commit -m 'wipset' && git push"

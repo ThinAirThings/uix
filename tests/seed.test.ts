@@ -53,7 +53,7 @@ test('Integration test', async () => {
             }
         },
         state: {
-            name: "Wendy"
+            name: "Ranger Solar"
         }
     })
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)
@@ -87,7 +87,7 @@ test('Integration test', async () => {
             }
         },
         state: {
-            name: "Wendy"
+            name: "Solar Project for Bill"
         }
     })
     const { data: chatNode, error: createChatNodeError } = await mergeNode({
@@ -170,7 +170,7 @@ test('Integration test', async () => {
         }
     })
     // Get User A
-    const {data: userAByGet} = await collectNode({
+    const { data: userAByGet } = await collectNode({
         referenceType: 'nodeIndex',
         nodeType: 'User',
         indexKey: 'nodeId',
@@ -194,7 +194,7 @@ test('Integration test', async () => {
                             limit: 5
                         }
                     },
-                    
+
                 }
             },
         }

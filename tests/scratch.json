@@ -9,52 +9,7 @@
       ],
       "length": 1,
       "_fields": [
-        {
-          "ACCESS_TO": [
-            {
-              "ACCESS_TO.cardinality": "many-to-many",
-              "ACCESS_TO.relationshipType": "ACCESS_TO",
-              "BELONGS_TO": [
-                {
-                  "BELONGS_TO.relationshipType": "BELONGS_TO",
-                  "BELONGS_TO.strength": "strong",
-                  "BELONGS_TO._elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-                  "updatedAt": 1721288550580,
-                  "_type": "Node:Project",
-                  "BELONGS_TO._id": 3,
-                  "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-                  "BELONGS_TO.cardinality": "many-to-one",
-                  "_id": 3,
-                  "createdAt": 1721288550580,
-                  "name": "Wendy",
-                  "_elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-                  "BELONGS_TO.testing": "test",
-                  "nodeType": "Project"
-                }
-              ],
-              "updatedAt": 1721288550572,
-              "_type": "Node:Organization",
-              "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-              "_id": 2,
-              "ACCESS_TO._elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:12",
-              "createdAt": 1721288550572,
-              "name": "Wendy",
-              "ACCESS_TO._id": 12,
-              "_elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2",
-              "ACCESS_TO.strength": "weak",
-              "nodeType": "Organization",
-              "ACCESS_TO.accessLevel": "member"
-            }
-          ],
-          "updatedAt": 1721288550623,
-          "_type": "User:Node",
-          "nodeId": "24955260-c535-4561-8be8-e718a637514c",
-          "_id": 0,
-          "email": "userA@test.com",
-          "createdAt": 1721288550525,
-          "_elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
-          "nodeType": "User"
-        }
+        {}
       ],
       "_fieldLookup": {
         "tree": 0
@@ -65,7 +20,7 @@
     "query": {
       "text": "match (referenceNode:User {nodeId: $indexValue})\ncall apoc.path.expandConfig(referenceNode, {\n    sequence: \"+User,ACCESS_TO>,Organization,<BELONGS_TO,Project\"\n}) yield path\nwith collect(path) as paths\ncall apoc.convert.toTree(paths, false) yield value as tree\nreturn tree",
       "parameters": {
-        "indexValue": "24955260-c535-4561-8be8-e718a637514c"
+        "indexValue": "userA@test.com"
       }
     },
     "queryType": "r",
@@ -124,7 +79,7 @@
       "protocolVersion": 5.4
     },
     "resultConsumedAfter": 1,
-    "resultAvailableAfter": 29,
+    "resultAvailableAfter": 55,
     "database": {
       "name": "neo4j"
     }
