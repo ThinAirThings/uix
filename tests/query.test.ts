@@ -20,7 +20,7 @@ test('Integration test', async () => {
     const { data: userAByGet } = await collectNode({
         referenceType: 'nodeIndex',
         nodeType: 'User',
-        indexKey: 'nodeId',
+        indexKey: 'email',
         indexValue: "userA@test.com",
         'ACCESS_TO': {
             direction: 'to',
@@ -32,43 +32,11 @@ test('Integration test', async () => {
                 options: { limit: 1 }
             }
         },
-
-        // relatedBy: {
-        //     ACCESS_TO: {
-        //         to: {
-        //             Organization: {
-        //                 relatedBy: {
-        //                     'BELONGS_TO': {
-        //                         'from': {
-        //                             'Project': {
-        //                                 options: {
-        //                                     limit: 1
-        //                                 }
-        //                             }
-        //                         }
-        //                     }
-        //                 },
-        //                 options: {
-        //                     limit: 5
-        //                 }
-        //             },
-
-        //         }
-        //     },
-        // }
-    })
-
-    const relatedBy = {
-        ACCESS_TO: {
-            direction: 'to',
-            nodeType: 'Organization',
-            options: { limit: 1 },
-            BELONGS_TO: {
-                direction: 'from',
-                nodeType: 'Project',
-                options: { limit: 1 }
-            }
+        'SENT_BY': {
+            direction: 'from',
+            nodeType: 'Message',
+            options: { limit: 2 }
         }
-    }
+    })
     await writeFile('tests/query:test.json', JSON.stringify(userAByGet, null, 2))
 })

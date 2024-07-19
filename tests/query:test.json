@@ -1,0 +1,41 @@
+{
+  "pathIdx": 1,
+  "depthIdx": 2,
+  "rootNode": {
+    "createdAt": 1721288550525,
+    "nodeType": "User",
+    "nodeId": "24955260-c535-4561-8be8-e718a637514c",
+    "email": "userA@test.com",
+    "updatedAt": 1721288550623,
+    "ACCESS_TO": {
+      "createdAt": 1721288550572,
+      "name": "Wendy",
+      "nodeType": "Organization",
+      "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
+      "updatedAt": 1721288550572,
+      "BELONGS_TO": {
+        "createdAt": 1721288550580,
+        "name": "Wendy",
+        "nodeType": "Project",
+        "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
+        "updatedAt": 1721288550580
+      }
+    },
+    "SENT_BY": {
+      "createdAt": 1721288550615,
+      "text": "I am doing well!",
+      "nodeType": "Message",
+      "contentType": "text",
+      "nodeId": "a87e1d70-5729-45e4-992a-ff453e53551d",
+      "updatedAt": 1721288550615
+    }
+  },
+  "currentNode": {
+    "createdAt": 1721288550615,
+    "text": "I am doing well!",
+    "nodeType": "Message",
+    "contentType": "text",
+    "nodeId": "a87e1d70-5729-45e4-992a-ff453e53551d",
+    "updatedAt": 1721288550615
+  }
+}
