@@ -17,11 +17,13 @@ test('Integration test', async () => {
         })
     })
     // Get User A
-    const { data: userAByGet } = await collectNode({
-        referenceType: 'nodeIndex',
+    const { data: userATree } = await collectNode({
+        referenceType: 'nodeType',
         nodeType: 'User',
-        indexKey: 'email',
-        indexValue: "userA@test.com",
+        // referenceType: 'nodeIndex',
+        // nodeType: 'User',
+        // indexKey: 'email',
+        // indexValue: "userB@test.com",
         'ACCESS_TO': {
             direction: 'to',
             nodeType: 'Organization',
@@ -38,5 +40,6 @@ test('Integration test', async () => {
             options: { limit: 2 }
         }
     })
-    await writeFile('tests/query:test.json', JSON.stringify(userAByGet, null, 2))
+    // const thing = userATree.
+    await writeFile('tests/query:test.json', JSON.stringify(userATree, null, 2))
 })

@@ -42,7 +42,9 @@ const input: GraphQuery = {
         'BELONGS_TO': {
             direction: 'from',
             nodeType: 'Project',
-            options: { limit: 1 }
+            options: {
+                limit: 1,
+            }
         }
     },
     'SENT_BY': {
