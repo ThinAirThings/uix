@@ -5,6 +5,8 @@ import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
 import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
 import { writeFile } from 'fs/promises'
+import { RootSubgraphNode, Subgraph } from '../dist/lib'
+import { nodeTypeMap } from './uix/generated/staticObjects'
 
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
@@ -23,7 +25,7 @@ test('Integration test', async () => {
         // referenceType: 'nodeIndex',
         // nodeType: 'User',
         // indexKey: 'email',
-        // indexValue: "userB@test.com",
+        // indexValue: "userA@test.com",
         'ACCESS_TO': {
             direction: 'to',
             nodeType: 'Organization',
@@ -31,7 +33,7 @@ test('Integration test', async () => {
             'BELONGS_TO': {
                 direction: 'from',
                 nodeType: 'Project',
-                options: { limit: 1 }
+                options: { limit: 1 },
             }
         },
         'SENT_BY': {
@@ -40,6 +42,17 @@ test('Integration test', async () => {
             options: { limit: 2 }
         }
     })
-    // const thing = userATree.
+
     await writeFile('tests/query:test.json', JSON.stringify(userATree, null, 2))
 })
+
+const userSubgraph = new RootSubgraphNode(
+    nodeTypeMap,
+    'User'
+)
+    .branchTo('ACCESS_TO', 'Project')
+    .branchTo('BELONGS_TO', 'Organization')
+    .root
+
+const val = userSubgraph.root
+

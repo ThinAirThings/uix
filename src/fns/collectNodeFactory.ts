@@ -1,6 +1,6 @@
 import { EagerResult, Integer, Node, Relationship } from "neo4j-driver"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
+import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import { CollectOptions, RelationshipCollectionMap } from "../types/RelationshipCollectionMap"
 import dedent from "dedent"
@@ -76,20 +76,23 @@ export const collectNodeFactory = <
     nodeTypeMap: NodeTypeMap
 ) => neo4jAction(async <
     NodeType extends keyof NodeTypeMap,
+    ReferenceType extends 'nodeType' | 'nodeIndex',
+    CollectionTree extends RelationshipCollectionMap<NodeTypeMap, NodeType>
 >(params: ({
     nodeType: NodeType
 }) & (
-        ({
-            referenceType: 'nodeType'
+        ReferenceType extends 'nodeType'
+        ? ({
+            referenceType: ReferenceType
             options?: CollectOptions
-        }) | ({
-            referenceType: 'nodeIndex'
+        }) : ({
+            referenceType: ReferenceType
             indexKey: NodeTypeMap[NodeType]['uniqueIndexes'][number]
             indexValue: string
         })
-    ) & (unknown extends RelationshipCollectionMap<NodeTypeMap, NodeType>
+    ) & (unknown extends CollectionTree
         ? unknown
-        : RelationshipCollectionMap<NodeTypeMap, NodeType>)
+        : CollectionTree)
 ) => {
     let queryString = dedent/*cypher*/`
         match (n_0_0:${params.nodeType} ${params.referenceType === 'nodeIndex' ? /*cypher*/`{${params.indexKey}: "${params.indexValue}"}` : ''})
@@ -211,7 +214,18 @@ export const collectNodeFactory = <
         } as NodeAccumulator).rootDepth
     })
 
-    return Ok(collection as any)
+    return Ok(collection as unknown as ReferenceType extends 'nodeType'
+        ? [string, NodeShape<NodeTypeMap[NodeType]> & ({
+            [
+            K in ({
+                [J in keyof CollectionTree]: CollectionTree[J] extends undefined ? never : J
+            }[keyof CollectionTree])
+            ]: null
+        })]
+        : {
+            [K in keyof Omit<CollectionTree, 'referenceType' | 'nodeType'>]: null
+        }
+    )
 })
 
 

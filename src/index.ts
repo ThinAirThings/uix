@@ -10,7 +10,7 @@ export * from './types/NodeKey'
 export * from './types/Result'
 export * from './definitions/GraphDefinition'
 export * from './types/RelationshipMergeMap'
-
+export * from './types/SubgraphNode'
 // // Function
 // export * from './fns/createNodeFactory'
 export * from './fns/mergeNodeFactory'

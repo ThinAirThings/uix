@@ -455,7 +455,7 @@
       "protocolVersion": 5.4
     },
     "resultConsumedAfter": 0,
-    "resultAvailableAfter": 0,
+    "resultAvailableAfter": 1,
     "database": {
       "name": "neo4j"
     }

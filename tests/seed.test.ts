@@ -169,37 +169,8 @@ test('Integration test', async () => {
             }
         }
     })
-    // Get User A
-    const { data: userAByGet } = await collectNode({
-        referenceType: 'nodeIndex',
-        nodeType: 'User',
-        indexKey: 'nodeId',
-        indexValue: userNodeA.nodeId,
-        relatedBy: {
-            ACCESS_TO: {
-                to: {
-                    Organization: {
-                        relatedBy: {
-                            'BELONGS_TO': {
-                                'from': {
-                                    'Project': {
-                                        options: {
-                                            limit: 1
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        options: {
-                            limit: 5
-                        }
-                    },
 
-                }
-            },
-        }
-    })
-    await writeFile('tests/scratch.json', JSON.stringify(userAByGet, null, 2))
+    // await writeFile('tests/scratch.json', JSON.stringify(userAByGet, null, 2))
     // // // Delete User A
     // const { data: deletedUserNode } = await deleteNode({
     //     nodeKey: userNodeB
