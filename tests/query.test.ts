@@ -5,7 +5,7 @@ import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
 import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
 import { writeFile } from 'fs/promises'
-import { RootSubgraphNode, Subgraph } from '../dist/lib'
+import {  RootSubgraphNode } from '../dist/lib'
 import { nodeTypeMap } from './uix/generated/staticObjects'
 
 test('Integration test', async () => {
@@ -46,13 +46,35 @@ test('Integration test', async () => {
     await writeFile('tests/query:test.json', JSON.stringify(userATree, null, 2))
 })
 
-const userSubgraph = new RootSubgraphNode(
-    nodeTypeMap,
-    'User'
-)
-    .branchTo('ACCESS_TO', 'Project')
-    .branchTo('BELONGS_TO', 'Organization')
-    .root
 
-const val = userSubgraph.root
+const userSubgraphNode = new RootSubgraphNode(nodeTypeMap, 'User')
+
+
+userSubgraphNode
+    .hop('<-', 'Message', {
+        via: 'SENT_BY'
+    })
+    .hop('->', 'Chat', {
+        via: 'SENT_IN'
+    })
+    .hop('->', 'User', {
+        via: 'CONVERSATION_BETWEEN'
+    })
+    // .hop('->','Organization', {
+    //     via: 'ACCESS_TO',
+    // })
+    
+    
+    
+    
+
+// const userSubgraph = new RootSubgraphNode(
+//     nodeTypeMap,
+//     'User'
+// )
+//     .branchTo('ACCESS_TO', 'Project')
+//     .branchTo('BELONGS_TO', 'Organization')
+//     .root
+
+// const val = userSubgraph.root
 
