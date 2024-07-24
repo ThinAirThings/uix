@@ -396,7 +396,7 @@
   ],
   "summary": {
     "query": {
-      "text": "match (n_0_0:User )\n\ncall {\n    with n_0_0\n    match (n_0_0)-[r_0_1:ACCESS_TO]->(n_0_1:Organization)\n    return r_0_1, n_0_1\nlimit 1\n}\n\ncall {\n    with n_0_1\n    match (n_0_1)<-[r_0_2:BELONGS_TO]-(n_0_2:Project)\n    return r_0_2, n_0_2\nlimit 1\n}\n\ncall {\n    with n_0_0\n    match (n_0_0)<-[r_1_1:SENT_BY]-(n_1_1:Message)\n    return r_1_1, n_1_1\nlimit 2\n}\n\nreturn n_0_0, r_0_1, n_0_1, r_0_2, n_0_2, r_1_1, n_1_1",
+      "text": "match (n_0_0:User )\n\ncall {\n    with n_0_0\n    match (n_0_0)-[r_0_1:ACCESS_TO]->(n_0_1:Organization)\n    return r_0_1, n_0_1\n}\n\ncall {\n    with n_0_1\n    match (n_0_1)<-[r_0_2:BELONGS_TO]-(n_0_2:Project)\n    return r_0_2, n_0_2\n}\n\ncall {\n    with n_0_0\n    match (n_0_0)<-[r_1_1:SENT_BY]-(n_1_1:Message)\n    return r_1_1, n_1_1\n}\n\nreturn n_0_0, r_0_1, n_0_1, r_0_2, n_0_2, r_1_1, n_1_1",
       "parameters": {}
     },
     "queryType": "r",
@@ -454,8 +454,8 @@
       "agent": "Neo4j/5.18.1",
       "protocolVersion": 5.4
     },
-    "resultConsumedAfter": 0,
-    "resultAvailableAfter": 1,
+    "resultConsumedAfter": 1,
+    "resultAvailableAfter": 49,
     "database": {
       "name": "neo4j"
     }

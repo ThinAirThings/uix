@@ -3,13 +3,11 @@ import { AnyRelationshipDefinition, RelationshipDefinition } from "../definition
 import { CollectOptions, NodeTypeByRelationshipType } from "./RelationshipCollectionMap";
 
 
-type ThingUnion = 'Thing1' | 'Thing2' | 'Thing3'
-
 export type NodeTypeByDirection<
-    Direction extends '<-' | '->',
+    Direction extends 'to' | 'from',
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
-> = Direction extends '->'
+> = Direction extends 'to'
     ? NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
         ? AnyRelationshipDefinition extends RelationshipDefinitionUnion 
             ? RelationshipDefinitionUnion['toNodeDefinition']['type'] 
@@ -25,32 +23,55 @@ export type NodeTypeByDirection<
             : never
         : never
 
-class SubgraphNode<
-        NodeDefinitionMap extends AnyNodeDefinitionMap,
-        RootNodeType extends keyof NodeDefinitionMap,
-        RelatedSubgraph extends SubgraphNode<any, any, any, any, any> | null,
-        NodeType extends keyof NodeDefinitionMap,
-        HopSet extends readonly [string, {
-            relationshipType: string,
-            direction: 'to' | 'from',
-            nodeType: NodeType,
-            next: HopSet
-        }][]
-    > {
+export class QueryPathNode<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    RootNodeType extends keyof NodeDefinitionMap,
+    RelationshipToParent extends string | null,
+    NodeType extends keyof NodeDefinitionMap,
+    ParentQueryPathNode extends QueryPathNode<any, any, any, any, any, any> | null,
+    ChildQueryPathNodeSet extends readonly QueryPathNode<any, any, any, any, any, any>[] | [],
+> {
     constructor(
         public nodeDefinitionMap: NodeDefinitionMap,
         public rootNodeType: RootNodeType,
-        public relatedSubgraph: RelatedSubgraph,
+        public relationshipToParent: RelationshipToParent,
         public nodeType: NodeType,
-        public hopSet: HopSet
+        public parentQueryPathNode: ParentQueryPathNode,
+        public childQueryPathNodeSet: ChildQueryPathNodeSet,
     ) { }
-    get root(): RootSubgraphNode < NodeDefinitionMap, RootNodeType > {
-        return(this.relatedSubgraph ? this.relatedSubgraph.root : this) as RootSubgraphNode<NodeDefinitionMap, RootNodeType>
+    get root(): RootQueryPathNode < NodeDefinitionMap, RootNodeType > {
+        return(this.parentQueryPathNode ? this.parentQueryPathNode.root : this) as RootQueryPathNode<NodeDefinitionMap, RootNodeType>
+    }
+    _defineParentQueryPathNode<
+        ParentQueryPathNode extends QueryPathNode<any, any, any, any, any, any>,
+    >(
+        parentQueryPathNode: ParentQueryPathNode,
+    ) {
+        return new QueryPathNode(
+            this.nodeDefinitionMap,
+            this.rootNodeType,
+            this.relationshipToParent,
+            this.nodeType,
+            parentQueryPathNode,
+            this.childQueryPathNodeSet,
+        )
+    }
+    getQueryTree(): any {
+        if (this.nodeType === 'Organization'){
+            console.log(this.childQueryPathNodeSet)
+        }
+        return {
+            nodeType: this.nodeType,
+            relationshipToParent: this.relationshipToParent,
+            ...this.childQueryPathNodeSet.length ?
+                Object.fromEntries(this.childQueryPathNodeSet.map(queryPathNode => [queryPathNode.relationshipToParent, queryPathNode.getQueryTree()]))
+                : {}
+        }
     }
     hop <
-        Direction extends '<-' | '->',
+        Direction extends 'to' | 'from',
         NextNodeType extends NodeTypeByDirection<Direction, NodeDefinitionMap, NodeType>,
-        ViaRelationshipType extends Direction extends '->'
+        ViaRelationshipType extends Direction extends 'to'
             ? NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipDefinitionUnion extends AnyRelationshipDefinition | never)
             ? AnyRelationshipDefinition extends RelationshipDefinitionUnion
                 ? {
@@ -73,77 +94,37 @@ class SubgraphNode<
         direction: Direction,
         nodeType: NextNodeType,
         relationshipType: ViaRelationshipType
-    ) { 
-        return new SubgraphNode(
+    ) {
+        const newQueryPathNode = new QueryPathNode(
             this.nodeDefinitionMap,
             this.rootNodeType,
-            this,
+            relationshipType,
             nodeType,
-            [
-                ...this.hopSet as HopSet,
-                // [direction, {
-                //     relationshipType: params.via,
-                //     direction: direction,
-                //     nodeType: nodeType,
-                //     next: [] as HopSet
-                // }]
-            ]
+            this,
+            [],
         )
-    }
+        const thisNode = new QueryPathNode(
+            this.nodeDefinitionMap,
+            this.rootNodeType,
+            this.relationshipToParent,
+            this.nodeType,
+            this.parentQueryPathNode,
+            [...this.childQueryPathNodeSet, newQueryPathNode],
+        )
+        this.parentQueryPathNode?.childQueryPathNodeSet.push(thisNode)
+        const childNode = thisNode.childQueryPathNodeSet.find(childQueryNode => childQueryNode.nodeType === newQueryPathNode.nodeType)
+        return childNode!._defineParentQueryPathNode(thisNode)
+    }  
 }
 
-export class Hop<
-    NodeTypeMap extends AnyNodeDefinitionMap,
-    ParentHop extends Hop<any, any, any> | null,
-    RelationshipType extends NodeTypeMap[keyof NodeTypeMap]['relationshipDefinitionSet'][number]['type'],
-> {
-    constructor(
-        public nodeTypeMap: NodeTypeMap,
-        public relationshipType: RelationshipType,
-
-    ) { }
-}
-
-export class RootSubgraphNode<
+export class RootQueryPathNode<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     RootNodeType extends keyof NodeDefinitionMap,
-> extends SubgraphNode<NodeDefinitionMap, RootNodeType, null, RootNodeType, []> {
+> extends QueryPathNode<NodeDefinitionMap, RootNodeType, null, RootNodeType, null, []> {
     constructor(
         nodeDefinitionMap: NodeDefinitionMap,
         nodeType: RootNodeType,
     ) {
-        super(nodeDefinitionMap, nodeType, null, nodeType, [])
+        super(nodeDefinitionMap, nodeType, null, nodeType, null, [])
     }
 }
-
-// export const createRootSubgraphNode = <
-//     NodeDefinitionMap extends AnyNodeDefinitionMap,
-//     RootNodeType extends keyof NodeDefinitionMap,
-// >(
-//     nodeDefinitionMap: NodeDefinitionMap,
-//     nodeType: RootNodeType,
-// ) => new RootSubgraphNode(
-//     nodeDefinitionMap,
-//     nodeType,
-// ) as RootSubgraphNode<NodeDefinitionMap, RootNodeType>
-//     & RelationshipTypes<NodeDefinitionMap, RootNodeType, null, RootNodeType>
-
-
-
-
-// export const createSubgraph = <
-//     NodeDefinitionMap extends AnyNodeDefinitionMap,
-//     NodeType extends keyof NodeDefinitionMap,
-// >(
-//     nodeDefinitionMap: NodeDefinitionMap,
-//     nodeType: NodeType,
-// ) => class Subgraph {
-
-//     constructor(
-//         public nodeDefinitionMap: NodeDefinitionMap,
-//         public nodeType: NodeType,
-//     ){}
-//     [nodeDefinitionMap[nodeType].type]() {
-//         return
-//     }
-// }

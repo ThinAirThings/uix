@@ -5,7 +5,7 @@ import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
 import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
 import { writeFile } from 'fs/promises'
-import {  RootSubgraphNode } from '../dist/lib'
+import { RootQueryPathNode } from '../dist/lib'
 import { nodeTypeMap } from './uix/generated/staticObjects'
 
 test('Integration test', async () => {
@@ -47,19 +47,14 @@ test('Integration test', async () => {
 })
 
 
-const userSubgraphNode = new RootSubgraphNode(nodeTypeMap, 'User')
 
-
-userSubgraphNode
-    .hop('<-', 'Message', {
-        via: 'SENT_BY'
-    })
-    .hop('->', 'Chat', {
-        via: 'SENT_IN'
-    })
-    .hop('->', 'User', {
-        via: 'CONVERSATION_BETWEEN'
-    })
+    
+    // .hop('->', 'Chat', {
+    //     via: 'SENT_IN'
+    // })
+    // .hop('->', 'User', {
+    //     via: 'CONVERSATION_BETWEEN'
+    // })
     // .hop('->','Organization', {
     //     via: 'ACCESS_TO',
     // })
