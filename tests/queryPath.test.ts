@@ -17,6 +17,14 @@ test('Query path test', async () => {
             data: { e }
         })
     })
+    // console.log(JSON.stringify(QuerySubgraph.create(nodeTypeMap, 'User')
+    //     .addNode('-ACCESS_TO->Organization',  {
+    //         limit: 5
+    //     })
+    //     .addNode('<-BELONGS_TO-Project')
+    //     .root()
+    //     .addNode('<-SENT_BY-Message').getQueryTree()
+    // , null, 2))
     const {data: userATreeNodeType} = await collectNodev2({
         referenceType: 'nodeType',
         nodeType: 'User',
@@ -28,9 +36,9 @@ test('Query path test', async () => {
             .root()
             .addNode('<-SENT_BY-Message')
     })
-    if (userATreeNodeType) {
-        userATreeNodeType
-    }
+    // if (userATreeNodeType) {
+    //     userATreeNodeType.map(node => node['-ACCESS_TO->Organization'].map(node => node.ceo))
+    // }
     const {data: userATreeNodeIndex} = await collectNodev2({
         referenceType: 'nodeIndex',
         nodeType: 'User',
@@ -42,10 +50,10 @@ test('Query path test', async () => {
             .root()
             .addNode('<-SENT_BY-Message')
     })
-    if (userATreeNodeIndex) {
-        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'])
-        userATreeNodeIndex['<-SENT_BY-Message']
-    }
+    // if (userATreeNodeIndex) {
+    //     userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'])
+    //     userATreeNodeIndex['<-SENT_BY-Message']
+    // }
     await writeFile('tests/queryPath:test:nodeType.json', JSON.stringify(userATreeNodeType, null, 2))
     await writeFile('tests/queryPath:test:nodeIndex.json', JSON.stringify(userATreeNodeIndex, null, 2))
 })

@@ -45,10 +45,7 @@ export class QuerySubgraph<
         }))
         const createPath = (x: number = 0, y: number = 1): TreeNode => {
             const node = this.nodeSet.find(node => node.nodeIndex === `n_${x}_${y}`);
-            return node ? { [node.relationship.split('-')[0] === '<'
-                ? `${node.relationship}-${node.nodeType}`
-                : `-${node.relationship}${node.nodeType}`
-            ]: { 
+            return node ? { [node.relationship]: { 
                 ...createPath(x, y + 1), 
                 nodeType: node.nodeType,
                 direction: node.relationship.split('-')[0] === '<' ? 'from' : 'to',

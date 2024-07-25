@@ -36,9 +36,8 @@ type EagerCollectionResult = EagerResult<{
 } & {
     [Key: `r_${number}_${number}`]: Relationship<Integer, RelationshipRecord>
 }>
-type NodeMapEntry = [string, UixDataNode]
 type NextUixDataNode = ({
-    [relationshipType: string]: UixDataNode | NodeMapEntry[]
+    [relationshipType: string]: UixDataNode | UixDataNode[]
 })
 type UixDataNode = UixDataNodeRecord | NextUixDataNode
 class TypedRecord {
@@ -69,8 +68,8 @@ const isManyRelationship = (relationship: RelationshipRecord) =>
 type NodeAccumulator = {
     pathIdx: number
     depthIdx: number
-    rootDepth: UixDataNode | NodeMapEntry[]
-    nextDepth: UixDataNode | NodeMapEntry[]
+    rootDepth: UixDataNode | UixDataNode[]
+    nextDepth: UixDataNode | UixDataNode[]
 }
 
 export const collectNodeFactoryv2 = <
@@ -110,13 +109,6 @@ export const collectNodeFactoryv2 = <
         }
     `
     let variableList = ['n_0_0']
-    const queryPath = params.subgraphSelector(QuerySubgraph.create(nodeDefinitionMap, params.nodeType)).getQueryTree()
-    console.log("Query Path", JSON.stringify(queryPath, null, 2))
-    // const relationshipKeys = Object.keys(params).filter((key) => !['referenceType', 'nodeType', 'indexKey', 'indexValue'].includes(key))
-    const relationshipKeys = Object.keys(queryPath)
-        .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
-        .map((key) => [key.split('-')[1], key])
-    console.log("Relationship Keys", relationshipKeys)
     const createPath = (relationshipType: string, nodeRelation: NodeRelation, dimension: number, depth: number) => {
         const newVariables = [`r_${dimension}_${depth}`, `n_${dimension}_${depth}`]
         variableList.push(...newVariables)
@@ -139,6 +131,11 @@ export const collectNodeFactoryv2 = <
             createPath(relationshipType, nodeRelation[queryPathKey as keyof typeof nodeRelation] as NodeRelation, idx, depth + 1)
         })
     }
+    const queryPath = params.subgraphSelector(QuerySubgraph.create(nodeDefinitionMap, params.nodeType)).getQueryTree()
+    const relationshipKeys = Object.keys(queryPath)
+        .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
+        .map((key) => [key.split('-')[1], key])
+    console.log("Relationship Keys", relationshipKeys)
     relationshipKeys.forEach(([relationshipType, queryPathKey], idx) => queryPath[queryPathKey as keyof typeof queryPath] && createPath(relationshipType, queryPath[queryPathKey as keyof typeof queryPath] as NodeRelation, idx, 1))
     queryString += dedent/*cypher*/`\n
         return ${variableList.join(', ')}
@@ -163,22 +160,22 @@ export const collectNodeFactoryv2 = <
                     ? nodeMap.get(`n_0_0`)
                     : nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx - 1}`)
                 const currentNodeTo = (<NextUixDataNode>(Array.isArray(acc.nextDepth)
-                    ? acc.nextDepth.find(([nodeId]) => nodeId === referenceNode.nodeId)![1]
+                    ? acc.nextDepth.find((node) => node.nodeId === referenceNode.nodeId)
                     : acc.nextDepth))
                 if (isManyRelationship(relationship)) {
                     if (!currentNodeTo[relationship.relationshipType]) {
                         const node = nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx}`);
-                        currentNodeTo[relationship.relationshipType] = [[node.nodeId, { ...relationship, ...node }]];
+                        currentNodeTo[relationship.relationshipType] = [{ ...relationship, ...node }];
                         (<NextUixDataNode>acc[acc.depthIdx === 1 ? 'rootDepth' : 'nextDepth'])[
                             relationship.relationshipType
-                        ] = [[node.nodeId, { ...relationship, ...node }]]
+                        ] = [{ ...relationship, ...node }]
                     } else {
-                        const node = nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx}`);
-                        (<NodeMapEntry[]>currentNodeTo[relationship.relationshipType]) =
-                            (<NodeMapEntry[]>currentNodeTo[relationship.relationshipType]).some(([nodeId]) => nodeId === node.nodeId)
-                                ? (<NodeMapEntry[]>currentNodeTo[relationship.relationshipType])
-                                : (<NodeMapEntry[]>currentNodeTo[relationship.relationshipType])
-                                    .concat([[node.nodeId, { ...relationship, ...node }]])
+                        const referenceNode = nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx}`);
+                        (<UixDataNode[]>currentNodeTo[relationship.relationshipType]) =
+                            (<UixDataNode[]>currentNodeTo[relationship.relationshipType]).some((node) => node.nodeId === referenceNode.nodeId)
+                                ? (<UixDataNode[]>currentNodeTo[relationship.relationshipType])
+                                : (<UixDataNode[]>currentNodeTo[relationship.relationshipType])
+                                    .concat([{ ...relationship, ...referenceNode }])
                     }
                 } else {
                     if (!currentNodeTo[relationship.relationshipType]) {
@@ -197,9 +194,9 @@ export const collectNodeFactoryv2 = <
                     const rootNode = nodeMap.get(`n_0_0`)
                     if (params.referenceType === 'nodeType') {
                         acc.rootDepth = (acc.rootDepth && Array.isArray(acc.rootDepth))
-                            ? acc.rootDepth.some(([nodeId]) => nodeId === rootNode.nodeId)
-                                ? acc.rootDepth : acc.rootDepth.concat([[rootNode.nodeId, rootNode]]) //[...acc.rootDepth, [rootNode.nodeId, rootNode]]
-                            : [[rootNode.nodeId, rootNode]]
+                            ? acc.rootDepth.some((node) => node.nodeId === rootNode.nodeId)
+                                ? acc.rootDepth : acc.rootDepth.concat([rootNode]) //[...acc.rootDepth, [rootNode.nodeId, rootNode]]
+                            : [rootNode]
                     } else {
                         acc.rootDepth = acc.rootDepth || rootNode
                     }
