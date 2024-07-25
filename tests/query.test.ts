@@ -6,7 +6,7 @@ import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModu
 import { throwTestError } from './utils/throwTestError'
 import { writeFile } from 'fs/promises'
 import { RootQueryPathNode } from '../dist/lib'
-import { nodeTypeMap } from './uix/generated/staticObjects'
+import { nodeDefinitionMap } from './uix/generated/staticObjects'
 
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
@@ -64,7 +64,7 @@ test('Integration test', async () => {
     
 
 // const userSubgraph = new RootSubgraphNode(
-//     nodeTypeMap,
+//     nodeDefinitionMap,
 //     'User'
 // )
 //     .branchTo('ACCESS_TO', 'Project')

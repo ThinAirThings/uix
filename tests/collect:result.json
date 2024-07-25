@@ -28,26 +28,26 @@
             "Node"
           ],
           "properties": {
-            "createdAt": 1721288550525,
+            "createdAt": 1721873251920,
             "nodeType": "User",
-            "nodeId": "24955260-c535-4561-8be8-e718a637514c",
+            "nodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
             "email": "userA@test.com",
-            "updatedAt": 1721288550623
+            "updatedAt": 1721873252937
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
         },
         {
-          "identity": 12,
+          "identity": 13,
           "start": 0,
           "end": 2,
           "type": "ACCESS_TO",
           "properties": {
-            "accessLevel": "member",
-            "strength": "weak",
             "relationshipType": "ACCESS_TO",
+            "strength": "weak",
+            "accessLevel": "member",
             "cardinality": "many-to-many"
           },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:12",
+          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
           "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
           "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
         },
@@ -58,11 +58,13 @@
             "Organization"
           ],
           "properties": {
-            "createdAt": 1721288550572,
-            "name": "Wendy",
+            "createdAt": 1721873252137,
+            "name": "Ranger Solar",
             "nodeType": "Organization",
-            "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-            "updatedAt": 1721288550572
+            "ceo": "Bob Johnson",
+            "employees": 100,
+            "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
+            "updatedAt": 1721873252137
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
         },
@@ -88,11 +90,11 @@
             "Project"
           ],
           "properties": {
-            "createdAt": 1721288550580,
-            "name": "Wendy",
+            "createdAt": 1721873252395,
+            "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-            "updatedAt": 1721288550580
+            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
+            "updatedAt": 1721873252395
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3"
         },
@@ -117,12 +119,12 @@
             "Message"
           ],
           "properties": {
-            "createdAt": 1721288550615,
+            "createdAt": 1721873252895,
             "text": "I am doing well!",
             "nodeType": "Message",
             "contentType": "text",
-            "nodeId": "a87e1d70-5729-45e4-992a-ff453e53551d",
-            "updatedAt": 1721288550615
+            "nodeId": "ff65fd42-ea5b-4d3d-82e6-1700743c575b",
+            "updatedAt": 1721873252895
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:7"
         }
@@ -156,26 +158,26 @@
             "Node"
           ],
           "properties": {
-            "createdAt": 1721288550525,
+            "createdAt": 1721873251920,
             "nodeType": "User",
-            "nodeId": "24955260-c535-4561-8be8-e718a637514c",
+            "nodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
             "email": "userA@test.com",
-            "updatedAt": 1721288550623
+            "updatedAt": 1721873252937
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
         },
         {
-          "identity": 12,
+          "identity": 13,
           "start": 0,
           "end": 2,
           "type": "ACCESS_TO",
           "properties": {
-            "accessLevel": "member",
-            "strength": "weak",
             "relationshipType": "ACCESS_TO",
+            "strength": "weak",
+            "accessLevel": "member",
             "cardinality": "many-to-many"
           },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:12",
+          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
           "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
           "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
         },
@@ -186,11 +188,13 @@
             "Organization"
           ],
           "properties": {
-            "createdAt": 1721288550572,
-            "name": "Wendy",
+            "createdAt": 1721873252137,
+            "name": "Ranger Solar",
             "nodeType": "Organization",
-            "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-            "updatedAt": 1721288550572
+            "ceo": "Bob Johnson",
+            "employees": 100,
+            "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
+            "updatedAt": 1721873252137
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
         },
@@ -216,11 +220,11 @@
             "Project"
           ],
           "properties": {
-            "createdAt": 1721288550580,
-            "name": "Wendy",
+            "createdAt": 1721873252395,
+            "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-            "updatedAt": 1721288550580
+            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
+            "updatedAt": 1721873252395
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3"
         },
@@ -245,12 +249,12 @@
             "Message"
           ],
           "properties": {
-            "createdAt": 1721288550599,
+            "createdAt": 1721873252716,
             "text": "Hello User B!",
             "nodeType": "Message",
             "contentType": "text",
-            "nodeId": "a93d99c0-7f67-4eef-b84d-34c8b071ebb7",
-            "updatedAt": 1721288550599
+            "nodeId": "20097414-148b-4cba-a11f-a7705f83e176",
+            "updatedAt": 1721873252716
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:5"
         }
@@ -328,8 +332,8 @@
       "agent": "Neo4j/5.18.1",
       "protocolVersion": 5.4
     },
-    "resultConsumedAfter": 2,
-    "resultAvailableAfter": 1,
+    "resultConsumedAfter": 0,
+    "resultAvailableAfter": 7,
     "database": {
       "name": "neo4j"
     }

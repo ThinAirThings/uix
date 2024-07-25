@@ -1,9 +1,9 @@
 import {RelativeRelationshipMap} from '@thinairthings/uix'
-import {nodeTypeMap} from './generated/staticObjects'
+import {nodeDefinitionMap} from './generated/staticObjects'
 
-type Thing = (RelativeRelationshipMap<typeof nodeTypeMap, 'User', 'strong'>)
-type Organization = (RelativeRelationshipMap<typeof nodeTypeMap, 'Organization', 'weak'>)
-type Strong = RelativeRelationshipMap<typeof nodeTypeMap, 'User', 'strong'>
-type Thing3 = typeof nodeTypeMap['User']['relationshipDefinitionSet'][number] & { strength: 'strong' }
+type Thing = (RelativeRelationshipMap<typeof nodeDefinitionMap, 'User', 'strong'>)
+type Organization = (RelativeRelationshipMap<typeof nodeDefinitionMap, 'Organization', 'weak'>)
+type Strong = RelativeRelationshipMap<typeof nodeDefinitionMap, 'User', 'strong'>
+type Thing3 = typeof nodeDefinitionMap['User']['relationshipDefinitionSet'][number] & { strength: 'strong' }
 type Thing2 = Required<Thing>['']['to'][number]['nodeType']
 type OrganizationIndex = Organization['']

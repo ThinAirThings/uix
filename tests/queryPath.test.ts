@@ -1,10 +1,7 @@
 import { execSync } from 'child_process'
-import { v4 as uuid } from 'uuid'
-import { expect, test } from 'vitest'
-import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
-import { QuerySubgraph, RootQueryPathNode } from '@thinairthings/uix'
-import { nodeTypeMap } from './uix/generated/staticObjects'
-import { collectNodev2 } from './uix/generated/functionModule'
+import {  test } from 'vitest'
+import { Err, tryCatch } from '../src/types/Result'
+import { extractSubgraph } from './uix/generated/functionModule'
 import { writeFile } from 'fs/promises'
 
 test('Query path test', async () => {
@@ -17,29 +14,21 @@ test('Query path test', async () => {
             data: { e }
         })
     })
-    // console.log(JSON.stringify(QuerySubgraph.create(nodeTypeMap, 'User')
-    //     .addNode('-ACCESS_TO->Organization',  {
-    //         limit: 5
-    //     })
-    //     .addNode('<-BELONGS_TO-Project')
-    //     .root()
-    //     .addNode('<-SENT_BY-Message').getQueryTree()
-    // , null, 2))
-    const {data: userATreeNodeType} = await collectNodev2({
+    const {data: userATreeNodeType} = await extractSubgraph({
         referenceType: 'nodeType',
         nodeType: 'User',
         subgraphSelector: (subgraph) => subgraph
             .addNode('-ACCESS_TO->Organization',  {
                 limit: 5
             })
-            .addNode('<-BELONGS_TO-Project')
+            .addNode('-PAID_FOR->PaymentTier')
             .root()
             .addNode('<-SENT_BY-Message')
     })
-    // if (userATreeNodeType) {
-    //     userATreeNodeType.map(node => node['-ACCESS_TO->Organization'].map(node => node.ceo))
-    // }
-    const {data: userATreeNodeIndex} = await collectNodev2({
+    if (userATreeNodeType) {
+        userATreeNodeType.map(node => node['-ACCESS_TO->Organization'].map(node => node['-PAID_FOR->PaymentTier'].map(node => node)))
+    }
+    const {data: userATreeNodeIndex} = await extractSubgraph({
         referenceType: 'nodeIndex',
         nodeType: 'User',
         indexKey: 'email',
@@ -50,10 +39,10 @@ test('Query path test', async () => {
             .root()
             .addNode('<-SENT_BY-Message')
     })
-    // if (userATreeNodeIndex) {
-    //     userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'])
-    //     userATreeNodeIndex['<-SENT_BY-Message']
-    // }
+    if (userATreeNodeIndex) {
+        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'].map(node => node.nodeType))
+        userATreeNodeIndex['-ACCESS_TO->Organization']
+    }
     await writeFile('tests/queryPath:test:nodeType.json', JSON.stringify(userATreeNodeType, null, 2))
     await writeFile('tests/queryPath:test:nodeIndex.json', JSON.stringify(userATreeNodeIndex, null, 2))
 })

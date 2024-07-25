@@ -15,8 +15,8 @@ export const SeedNeo4j = () => {
         operationKey: 'createNullNode',
         tryOp: async ([uixConfig, neo4jDriver]) => {
             // Create Null Node
-            uixConfig.graph.nodeTypeMap['Null']
-                || uixConfig.graph.nodeTypeMap['Root']
+            uixConfig.graph.nodeDefinitionMap['Null']
+                || uixConfig.graph.nodeDefinitionMap['Root']
                 && await neo4jDriver.executeQuery(/*cypher*/`
                     merge (nullNode:Node:Null {nodeId: '0'})
                     on create set nullNode.createdAt = datetime()

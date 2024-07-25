@@ -27,7 +27,7 @@ export class GraphDefinition<
     constructor(
         public type: Type,
         public nodeDefinitionSet: NodeDefinitionSet,
-        public nodeTypeMap: NodeDefinitionMap<NodeDefinitionSet> = Object.fromEntries(
+        public nodeDefinitionMap: NodeDefinitionMap<NodeDefinitionSet> = Object.fromEntries(
             nodeDefinitionSet.map(nodeType => [nodeType.type, nodeType])
         ),
     ) { }

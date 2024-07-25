@@ -1,30 +1,39 @@
-import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition";
-import { CollectOptions } from "./RelationshipCollectionMap";
-import {Inc} from "@thinairthings/utilities"
-import { RelationshipUnion } from "./RelationshipUnion";
+import { Inc } from "@thinairthings/utilities"
+import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
+import { AnyExtractionNodeSet, ExtractionNode, RootExtractionNode } from "./ExtractionNode"
+import { RelationshipUnion } from "./RelationshipUnion"
 
 
 type CurrentTargetNodeType<
     CurrentNodeIndex extends `n_${number}_${number}`,
-    NodeSet extends AnyQueryNodeSet
+    NodeSet extends AnyExtractionNodeSet
 > = CurrentNodeIndex extends `n_${number}_${0}` 
     ? (NodeSet[number] & {nodeIndex: `n_0_0`})['nodeType']
     : (NodeSet[number] & {nodeIndex: CurrentNodeIndex})['nodeType']
 
-export type AnyQuerySubgraph = QuerySubgraph<any, any, any>
-export class QuerySubgraph<
+export type GenericRelationship = `<-${string}-${string}` | `-${string}->${string}`
+
+export type ExtractionOptions = {
+    limit?: number
+    page?: number
+    orderBy?: 'updatedAt' | 'createdAt';
+    orderDirection?: 'ASC' | 'DESC';
+}
+
+export type AnyExtractionSubgraph = ExtractionSubgraph<any, any, any>
+export class ExtractionSubgraph<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     CurrentNodeIndex extends `n_${number}_${number}`,
-    NodeSet extends AnyQueryNodeSet
+    NodeSet extends AnyExtractionNodeSet
 >{
     static create<
         NodeDefinitionMap extends AnyNodeDefinitionMap,
         NodeType extends keyof NodeDefinitionMap,
     >(nodeDefinitionMap: NodeDefinitionMap, nodeType: NodeType){
-        return new QuerySubgraph(
+        return new ExtractionSubgraph(
             nodeDefinitionMap, 
             'n_0_0', 
-            [new RootQueryNode(
+            [new RootExtractionNode(
                 nodeDefinitionMap,
                 nodeType
             )] as const
@@ -39,9 +48,9 @@ export class QuerySubgraph<
         type TreeNode = ({
             nodeType: string;
             direction: 'from' | 'to';
-            options?: CollectOptions;
+            options?: ExtractionOptions;
         }) | (({
-            [relationshipType: string]: TreeNode;
+            [relationshipType: GenericRelationship]: TreeNode;
         }))
         const createPath = (x: number = 0, y: number = 1): TreeNode => {
             const node = this.nodeSet.find(node => node.nodeIndex === `n_${x}_${y}`);
@@ -66,7 +75,7 @@ export class QuerySubgraph<
         }
     }
     root(){
-        return new QuerySubgraph(
+        return new ExtractionSubgraph(
             this.nodeDefinitionMap,
             this.idxy.split('_')
                 .map((val, idx) => idx === 1 ? Number(val)+1 : idx === 2 ? 0 : val)
@@ -81,7 +90,7 @@ export class QuerySubgraph<
         >
     >(
         relationship: Relationship,
-        options?: CollectOptions
+        options?: ExtractionOptions
     ){
         const nextHopIdxy = this.idxy.split('_')
             .map((val, idx) => idx === 2 ? Number(val)+1 : val)
@@ -90,12 +99,12 @@ export class QuerySubgraph<
         const nodeType = relationship.split('-')[0] === '<'
             ? relationship.split('-')[2] as Relationship extends `<-${string}-${infer NodeType}` ? NodeType : never
             : relationship.split('-')[2].slice(1) as Relationship extends `-${string}->${infer NodeType}` ? NodeType : never
-        return new QuerySubgraph(
+        return new ExtractionSubgraph(
             this.nodeDefinitionMap,
             nextHopIdxy,
             [
                 ...this.nodeSet,
-                new QueryNode(
+                new ExtractionNode(
                     this.nodeDefinitionMap,
                     relationship,
                     nodeType,
@@ -106,37 +115,3 @@ export class QuerySubgraph<
         )
     }
 }
-
-export type AnyQueryNode = QueryNode<any, any, any, any>
-export type AnyQueryNodeSet = readonly AnyQueryNode[]
-export class QueryNode<
-    NodeDefinitionMap extends AnyNodeDefinitionMap,
-    Relationship extends string | null,
-    NodeType extends keyof NodeDefinitionMap,
-    NodeIndex extends `n_${number}_${number}`,
->{
-    constructor(
-        public nodeDefinitionMap: NodeDefinitionMap,
-        public relationship: Relationship,
-        public nodeType: NodeType,
-        public nodeIndex: NodeIndex,
-        public options?: CollectOptions
-    ){}
-}
-export class RootQueryNode<
-    NodeDefinitionMap extends AnyNodeDefinitionMap,
-    NodeType extends keyof NodeDefinitionMap,
-> extends QueryNode<
-    NodeDefinitionMap,
-    null,
-    NodeType,
-    'n_0_0'
->{
-    constructor(
-        nodeDefinitionMap: NodeDefinitionMap,
-        nodeType: NodeType,
-    ){
-        super(nodeDefinitionMap, null, nodeType, 'n_0_0')
-    }
-}
-

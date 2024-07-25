@@ -11,14 +11,14 @@ import { IsPartial, RelationshipMergeMap } from "../types/RelationshipMergeMap"
 /**
  * Factory for creating an action to create a node in the database
  * @param neo4jDriver The neo4j driver to use
- * @param nodeTypeMap The node type map to use
+ * @param nodeDefinitionMap The node type map to use
  * @returns The create node action
  */
 
 export const mergeNodeFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
-    nodeTypeMap: NodeDefinitionMap
+    nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
     Operation extends 'create' | 'update',
     NodeType extends keyof NodeDefinitionMap,
@@ -49,7 +49,7 @@ export const mergeNodeFactory = <
         weakRelationshipMap?: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'weak'>
     }))) => {
     // Check Schema
-    const stateSchema = (<GenericNodeDefinition>nodeTypeMap[nodeType]!)['stateSchema']
+    const stateSchema = (<GenericNodeDefinition>nodeDefinitionMap[nodeType]!)['stateSchema']
     const newNodeStructure = operation === 'create'
         ? isZodDiscriminatedUnion(stateSchema)
             ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
@@ -89,8 +89,8 @@ export const mergeNodeFactory = <
     console.log(operation === 'create' ? "Creating" : 'Updating', nodeType, newNodeStructure)
     // console.log("Weak Relationships", JSON.stringify(weakRelationshipMap, null, 2))
     const relationshipMap = {
-        ...formatRelationshipMap(nodeTypeMap, nodeType as Capitalize<string>, strongRelationshipMap as GenericRelationshipMap), 
-        ...formatRelationshipMap(nodeTypeMap, nodeType as Capitalize<string>, weakRelationshipMap as GenericRelationshipMap)
+        ...formatRelationshipMap(nodeDefinitionMap, nodeType as Capitalize<string>, strongRelationshipMap as GenericRelationshipMap), 
+        ...formatRelationshipMap(nodeDefinitionMap, nodeType as Capitalize<string>, weakRelationshipMap as GenericRelationshipMap)
     }
     console.log("Relationship Map", JSON.stringify(relationshipMap, null, 2))
     const node = await neo4jDriver().executeQuery<EagerResult<{

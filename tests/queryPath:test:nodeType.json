@@ -1,111 +1,115 @@
 [
   {
-    "createdAt": 1721288550525,
+    "createdAt": 1721873251920,
     "nodeType": "User",
-    "nodeId": "24955260-c535-4561-8be8-e718a637514c",
+    "nodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
     "email": "userA@test.com",
-    "updatedAt": 1721288550623,
-    "ACCESS_TO": [
+    "updatedAt": 1721873252937,
+    "-ACCESS_TO->Organization": [
       {
-        "accessLevel": "member",
-        "strength": "weak",
         "relationshipType": "ACCESS_TO",
+        "strength": "weak",
+        "accessLevel": "member",
         "cardinality": "many-to-many",
         "direction": "to",
-        "createdAt": 1721288550572,
-        "name": "Wendy",
+        "createdAt": 1721873252137,
+        "name": "Ranger Solar",
         "nodeType": "Organization",
-        "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-        "updatedAt": 1721288550572,
-        "BELONGS_TO": [
+        "ceo": "Bob Johnson",
+        "employees": 100,
+        "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
+        "updatedAt": 1721873252137,
+        "<-BELONGS_TO-Project": [
           {
             "strength": "strong",
             "relationshipType": "BELONGS_TO",
             "testing": "test",
             "cardinality": "many-to-one",
             "direction": "from",
-            "createdAt": 1721288550580,
-            "name": "Wendy",
+            "createdAt": 1721873252395,
+            "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-            "updatedAt": 1721288550580
+            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
+            "updatedAt": 1721873252395
           }
         ]
       }
     ],
-    "SENT_BY": [
+    "<-SENT_BY-Message": [
       {
         "strength": "strong",
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721288550615,
+        "createdAt": 1721873252895,
         "text": "I am doing well!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "a87e1d70-5729-45e4-992a-ff453e53551d",
-        "updatedAt": 1721288550615
+        "nodeId": "ff65fd42-ea5b-4d3d-82e6-1700743c575b",
+        "updatedAt": 1721873252895
       },
       {
         "strength": "strong",
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721288550599,
+        "createdAt": 1721873252716,
         "text": "Hello User B!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "a93d99c0-7f67-4eef-b84d-34c8b071ebb7",
-        "updatedAt": 1721288550599
+        "nodeId": "20097414-148b-4cba-a11f-a7705f83e176",
+        "updatedAt": 1721873252716
       }
     ]
   },
   {
-    "createdAt": 1721288550565,
+    "createdAt": 1721873252106,
     "nodeType": "User",
-    "nodeId": "d71651a2-2770-486a-896a-cb79ed403733",
+    "nodeId": "424c5b7a-5042-4a7f-a230-9de8e98ba86c",
     "email": "userB@test.com",
-    "updatedAt": 1721288550565,
-    "ACCESS_TO": [
+    "updatedAt": 1721873252106,
+    "-ACCESS_TO->Organization": [
       {
         "relationshipType": "ACCESS_TO",
         "strength": "weak",
         "accessLevel": "member",
         "cardinality": "many-to-many",
         "direction": "to",
-        "createdAt": 1721288550572,
-        "name": "Wendy",
+        "createdAt": 1721873252137,
+        "name": "Ranger Solar",
         "nodeType": "Organization",
-        "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-        "updatedAt": 1721288550572,
-        "BELONGS_TO": [
+        "ceo": "Bob Johnson",
+        "employees": 100,
+        "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
+        "updatedAt": 1721873252137,
+        "<-BELONGS_TO-Project": [
           {
             "strength": "strong",
             "relationshipType": "BELONGS_TO",
             "testing": "test",
             "cardinality": "many-to-one",
             "direction": "from",
-            "createdAt": 1721288550580,
-            "name": "Wendy",
+            "createdAt": 1721873252395,
+            "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-            "updatedAt": 1721288550580
+            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
+            "updatedAt": 1721873252395
           }
         ]
       }
     ],
-    "SENT_BY": [
+    "<-SENT_BY-Message": [
       {
         "strength": "strong",
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721288550606,
+        "createdAt": 1721873252876,
         "text": "How are you User A!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "f42fa0a4-cba5-4a61-93f1-938023dfe397",
-        "updatedAt": 1721288550606
+        "nodeId": "709fb0fe-851e-4618-b90b-797cd05f178d",
+        "updatedAt": 1721873252876
       }
     ]
   }

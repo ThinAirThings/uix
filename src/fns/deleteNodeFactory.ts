@@ -10,13 +10,13 @@ import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
 /**
  * Factory for creating an action to delete a node in the database
  * @param neo4jDriver The neo4j driver to use
- * @param nodeTypeMap The node type map to use
+ * @param nodeDefinitionMap The node type map to use
  * @returns The delete node action
  */
 export const deleteNodeFactory = <
     NodeTypeMap extends AnyNodeDefinitionMap,
 >(
-    nodeTypeMap: NodeTypeMap
+    nodeDefinitionMap: NodeTypeMap
 ) => neo4jAction(async ({
     nodeKey
 }: {

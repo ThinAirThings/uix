@@ -5,24 +5,24 @@ import { upsertMatchesv2 } from "./upsertMatchesv2";
 
 export const upsertVectorNode = async (
     nodeShape: AnyNodeShape,
-    nodeTypeMap: GenericNodeTypeMap
+    nodeDefinitionMap: GenericNodeTypeMap
 ) => {
 
     await Promise.all([
         // Create Property Vectors
-        ...(<GenericNodeType>nodeTypeMap[nodeShape.nodeType]).propertyVectors.map(async propertyVectorKey => await upsertPropertyVector(
+        ...(<GenericNodeType>nodeDefinitionMap[nodeShape.nodeType]).propertyVectors.map(async propertyVectorKey => await upsertPropertyVector(
             propertyVectorKey,
             nodeShape
         ))
     ])
     // Check all possible fromNodeTypes to see which ones are associated with the nodeShape in question.
-    const fromNodeTypesAndRelationshipTypesToDirectlyUpdate = Object.values(nodeTypeMap).map(fromNodeType => ({
+    const fromNodeTypesAndRelationshipTypesToDirectlyUpdate = Object.values(nodeDefinitionMap).map(fromNodeType => ({
         fromNodeType,
         matchToRelationshipTypeSet: fromNodeType.matchToRelationshipTypeSet.filter(matchToRelationshipType =>
             matchToRelationshipType.weightednodeDefinitionSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
         )
     }))
-    const fromNodeTypesToUpdateMatches = Object.values(nodeTypeMap).map(fromNodeType => ({
+    const fromNodeTypesToUpdateMatches = Object.values(nodeDefinitionMap).map(fromNodeType => ({
         fromNodeType,
         matchToRelationshipTypeSet: fromNodeType.matchToRelationshipTypeSet.filter(matchToRelationshipType =>
             matchToRelationshipType.weightednodeDefinitionSet.some(({ NodeType }) => NodeType.type === nodeShape.nodeType)
@@ -41,7 +41,7 @@ export const upsertVectorNode = async (
     ]).then(res => res.flat().filter(node => node !== undefined))
     // Add matches to targetNode
     await Promise.all(updatedTargetNodes.map(async (targetNode) =>
-        await Promise.all(nodeTypeMap[targetNode.nodeType].matchToRelationshipTypeSet.map(async matchToRelationshipType => await upsertMatchesv2(
+        await Promise.all(nodeDefinitionMap[targetNode.nodeType].matchToRelationshipTypeSet.map(async matchToRelationshipType => await upsertMatchesv2(
             targetNode,
             matchToRelationshipType
         )))

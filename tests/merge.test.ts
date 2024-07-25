@@ -1,10 +1,8 @@
 import { execSync } from 'child_process'
-import { v4 as uuid } from 'uuid'
-import { expect, test } from 'vitest'
-import { Err, tryCatch, UixErrSubtype } from '../src/types/Result'
-import { mergeNode, deleteNode, collectNode } from './uix/generated/functionModule'
+import { test } from 'vitest'
+import { Err, tryCatch } from '../src/types/Result'
+import { mergeNode } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
-import { writeFile } from 'fs/promises'
 
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
@@ -53,7 +51,9 @@ test('Integration test', async () => {
             }
         },
         state: {
-            name: "Ranger Solar"
+            name: "Ranger Solar",
+            'ceo': "Bob Johnson",
+            'employees': 100
         }
     })
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)

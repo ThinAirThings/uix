@@ -4,6 +4,7 @@ import { OrganizationNodeDefinition } from './NodeDefinitions/OrganizationNodeDe
 import { MessageNodeDefinition } from './NodeDefinitions/MessageNodeDefinition'
 import { ChatNodeDefinition } from './NodeDefinitions/ChatNodeDefinition'
 import { ProjectNodeDefinition } from './NodeDefinitions/ProjectNodeDefinition'
+import { PaymentTierDefinition } from './NodeDefinitions/PaymentTierDefinition'
 export default defineConfig({
     type: 'Base',
     nodeDefinitionSet: [
@@ -11,7 +12,8 @@ export default defineConfig({
         OrganizationNodeDefinition,
         ChatNodeDefinition,
         MessageNodeDefinition,
-        ProjectNodeDefinition
+        ProjectNodeDefinition,
+        PaymentTierDefinition
     ],
     outdir: 'tests/uix/generated',
     envPath: '.env.test',

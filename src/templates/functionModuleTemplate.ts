@@ -5,16 +5,14 @@ export const functionModuleTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 'use server'
 // Start of File
-import {nodeTypeMap} from './staticObjects'
+import {nodeDefinitionMap} from './staticObjects'
 import {
     mergeNodeFactory,
     deleteNodeFactory,
-    collectNodeFactory,
-    collectNodeFactoryv2
+    extractSubgraphFactory,
 } from '@thinairthings/uix'
 
-export const mergeNode = mergeNodeFactory(nodeTypeMap)
-export const deleteNode = deleteNodeFactory(nodeTypeMap)
-export const collectNode = collectNodeFactory(nodeTypeMap)
-export const collectNodev2 = collectNodeFactoryv2(nodeTypeMap)
+export const mergeNode = mergeNodeFactory(nodeDefinitionMap)
+export const deleteNode = deleteNodeFactory(nodeDefinitionMap)
+export const extractSubgraph = extractSubgraphFactory(nodeDefinitionMap)
 `}

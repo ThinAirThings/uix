@@ -21,24 +21,24 @@ export type GenericRelationshipMap = Record<string, {
 
 Object.is
 export const formatRelationshipMap = (
-    nodeTypeMap: GenericNodeDefinitionMap,
+    nodeDefinitionMap: GenericNodeDefinitionMap,
     nodeType: keyof GenericNodeDefinitionMap,
     relationshipMap: GenericRelationshipMap
 ) => relationshipMap 
     ? Object.entries(relationshipMap).reduce((acc, [relType, relData]) => {
         if (!relData) return acc
         const relationshipDefinition = ('to' in relData
-            ? nodeTypeMap[nodeType]
+            ? nodeDefinitionMap[nodeType]
                     .relationshipDefinitionSet.find(definition => definition.type === relType)
             : Array.isArray(relData.from)
                 ? 'state' in relData.from[0] 
-                    ? nodeTypeMap[relData.from[0].nodeKey.nodeType]
+                    ? nodeDefinitionMap[relData.from[0].nodeKey.nodeType]
                         .relationshipDefinitionSet.find(definition => definition.type === relType)
-                    : nodeTypeMap[relData.from[0].nodeType]
+                    : nodeDefinitionMap[relData.from[0].nodeType]
                 : 'state' in relData.from 
-                    ? nodeTypeMap[relData.from.nodeKey.nodeType]
+                    ? nodeDefinitionMap[relData.from.nodeKey.nodeType]
                         .relationshipDefinitionSet.find(definition => definition.type === relType)
-                    : nodeTypeMap[relData.from.nodeType]
+                    : nodeDefinitionMap[relData.from.nodeType]
         ) as GenericRelationshipDefinition
         // "To" Section
         if ('to' in relData) {
