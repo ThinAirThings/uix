@@ -15,7 +15,7 @@ import { IsPartial, RelationshipMergeMap } from "../types/RelationshipMergeMap"
  * @returns The create node action
  */
 
-export const mergeNodeFactory = <
+export const mergeSubgraphFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
     nodeDefinitionMap: NodeDefinitionMap

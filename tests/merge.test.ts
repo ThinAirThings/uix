@@ -1,7 +1,7 @@
 import { execSync } from 'child_process'
 import { test } from 'vitest'
 import { Err, tryCatch } from '../src/types/Result'
-import { mergeNode } from './uix/generated/functionModule'
+import { mergeSubgraph } from './uix/generated/functionModule'
 import { throwTestError } from './utils/throwTestError'
 
 test('Integration test', async () => {
@@ -15,14 +15,14 @@ test('Integration test', async () => {
         })
     })
     // Create Node
-    const { data: userNodeA, error: createUserNodeAError } = await mergeNode({
+    const { data: userNodeA, error: createUserNodeAError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'User',
         state: {
             email: 'userA@test.com'
         }
     })
-    const { data: userNodeB, error: createUserNodeBError } = await mergeNode({
+    const { data: userNodeB, error: createUserNodeBError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'User',
         state: {
@@ -32,9 +32,14 @@ test('Integration test', async () => {
     if (createUserNodeAError || createUserNodeBError) throwTestError(createUserNodeAError || createUserNodeBError!)
     console.log("User Node", userNodeA)
     // Create Organization
-    const { data: organizationNode, error: createOrganizationNodeError } = await mergeNode({
+    const { data: organizationNode, error: createOrganizationNodeError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Organization',
+        // strongRelationshipMap: {
+        //     'PAID_FOR': {
+        //         'to': 
+        //     }
+        // },
         weakRelationshipMap: {
             'ACCESS_TO': {
                 from: [{
@@ -58,7 +63,7 @@ test('Integration test', async () => {
     })
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)
     // Create Project
-    const { data: projectNode, error: createProjectNodeError } = await mergeNode({
+    const { data: projectNode, error: createProjectNodeError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Project',
         strongRelationshipMap: {
@@ -90,7 +95,7 @@ test('Integration test', async () => {
             name: "Solar Project for Bill"
         }
     })
-    const { data: chatNode, error: createChatNodeError } = await mergeNode({
+    const { data: chatNode, error: createChatNodeError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Chat',
         state: {
@@ -104,7 +109,7 @@ test('Integration test', async () => {
     })
     if (createChatNodeError) throwTestError(createChatNodeError)
     // Create Messages
-    const { data: messageNode1, error: createMessageNode1Error } = await mergeNode({
+    const { data: messageNode1, error: createMessageNode1Error } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Message',
         state: {
@@ -121,7 +126,7 @@ test('Integration test', async () => {
         }
     })
     if (createMessageNode1Error) throwTestError(createMessageNode1Error)
-    const { data: messageNode2, error: createMessageNode2Error } = await mergeNode({
+    const { data: messageNode2, error: createMessageNode2Error } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Message',
         state: {
@@ -138,7 +143,7 @@ test('Integration test', async () => {
         }
     })
     if (createMessageNode2Error) throwTestError(createMessageNode2Error)
-    const { data: messageNode3, error: createMessageNode3Error } = await mergeNode({
+    const { data: messageNode3, error: createMessageNode3Error } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Message',
         state: {
@@ -155,7 +160,7 @@ test('Integration test', async () => {
         }
     })
     // Update Permissions
-    const { data: updatedUserNode } = await mergeNode({
+    const { data: updatedUserNode } = await mergeSubgraph({
         operation: 'update',
         ...userNodeA,
         weakRelationshipMap: {

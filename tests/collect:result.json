@@ -1,25 +1,13 @@
 {
   "keys": [
-    "n_0_0",
-    "r_0_1",
-    "n_0_1",
-    "r_0_2",
-    "n_0_2",
-    "r_1_1",
-    "n_1_1"
+    "n_0_0"
   ],
   "records": [
     {
       "keys": [
-        "n_0_0",
-        "r_0_1",
-        "n_0_1",
-        "r_0_2",
-        "n_0_2",
-        "r_1_1",
-        "n_1_1"
+        "n_0_0"
       ],
-      "length": 7,
+      "length": 1,
       "_fields": [
         {
           "identity": 0,
@@ -35,244 +23,16 @@
             "updatedAt": 1721873252937
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
-        },
-        {
-          "identity": 13,
-          "start": 0,
-          "end": 2,
-          "type": "ACCESS_TO",
-          "properties": {
-            "relationshipType": "ACCESS_TO",
-            "strength": "weak",
-            "accessLevel": "member",
-            "cardinality": "many-to-many"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 2,
-          "labels": [
-            "Node",
-            "Organization"
-          ],
-          "properties": {
-            "createdAt": 1721873252137,
-            "name": "Ranger Solar",
-            "nodeType": "Organization",
-            "ceo": "Bob Johnson",
-            "employees": 100,
-            "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
-            "updatedAt": 1721873252137
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "start": 3,
-          "end": 2,
-          "type": "BELONGS_TO",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "BELONGS_TO",
-            "testing": "test",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "labels": [
-            "Node",
-            "Project"
-          ],
-          "properties": {
-            "createdAt": 1721873252395,
-            "name": "Solar Project for Bill",
-            "nodeType": "Project",
-            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
-            "updatedAt": 1721873252395
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3"
-        },
-        {
-          "identity": 10,
-          "start": 7,
-          "end": 0,
-          "type": "SENT_BY",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "SENT_BY",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:7",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
-        },
-        {
-          "identity": 7,
-          "labels": [
-            "Node",
-            "Message"
-          ],
-          "properties": {
-            "createdAt": 1721873252895,
-            "text": "I am doing well!",
-            "nodeType": "Message",
-            "contentType": "text",
-            "nodeId": "ff65fd42-ea5b-4d3d-82e6-1700743c575b",
-            "updatedAt": 1721873252895
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:7"
         }
       ],
       "_fieldLookup": {
-        "n_0_0": 0,
-        "r_0_1": 1,
-        "n_0_1": 2,
-        "r_0_2": 3,
-        "n_0_2": 4,
-        "r_1_1": 5,
-        "n_1_1": 6
-      }
-    },
-    {
-      "keys": [
-        "n_0_0",
-        "r_0_1",
-        "n_0_1",
-        "r_0_2",
-        "n_0_2",
-        "r_1_1",
-        "n_1_1"
-      ],
-      "length": 7,
-      "_fields": [
-        {
-          "identity": 0,
-          "labels": [
-            "User",
-            "Node"
-          ],
-          "properties": {
-            "createdAt": 1721873251920,
-            "nodeType": "User",
-            "nodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
-            "email": "userA@test.com",
-            "updatedAt": 1721873252937
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
-        },
-        {
-          "identity": 13,
-          "start": 0,
-          "end": 2,
-          "type": "ACCESS_TO",
-          "properties": {
-            "relationshipType": "ACCESS_TO",
-            "strength": "weak",
-            "accessLevel": "member",
-            "cardinality": "many-to-many"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 2,
-          "labels": [
-            "Node",
-            "Organization"
-          ],
-          "properties": {
-            "createdAt": 1721873252137,
-            "name": "Ranger Solar",
-            "nodeType": "Organization",
-            "ceo": "Bob Johnson",
-            "employees": 100,
-            "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
-            "updatedAt": 1721873252137
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "start": 3,
-          "end": 2,
-          "type": "BELONGS_TO",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "BELONGS_TO",
-            "testing": "test",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "labels": [
-            "Node",
-            "Project"
-          ],
-          "properties": {
-            "createdAt": 1721873252395,
-            "name": "Solar Project for Bill",
-            "nodeType": "Project",
-            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
-            "updatedAt": 1721873252395
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3"
-        },
-        {
-          "identity": 6,
-          "start": 5,
-          "end": 0,
-          "type": "SENT_BY",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "SENT_BY",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:6",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:5",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0"
-        },
-        {
-          "identity": 5,
-          "labels": [
-            "Node",
-            "Message"
-          ],
-          "properties": {
-            "createdAt": 1721873252716,
-            "text": "Hello User B!",
-            "nodeType": "Message",
-            "contentType": "text",
-            "nodeId": "20097414-148b-4cba-a11f-a7705f83e176",
-            "updatedAt": 1721873252716
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:5"
-        }
-      ],
-      "_fieldLookup": {
-        "n_0_0": 0,
-        "r_0_1": 1,
-        "n_0_1": 2,
-        "r_0_2": 3,
-        "n_0_2": 4,
-        "r_1_1": 5,
-        "n_1_1": 6
+        "n_0_0": 0
       }
     }
   ],
   "summary": {
     "query": {
-      "text": "match (n_0_0:User {email: \"userA@test.com\"})\n\ncall {\n    with n_0_0\n    match (n_0_0)-[r_0_1:ACCESS_TO]->(n_0_1:Organization)\n    return r_0_1, n_0_1\n}\n\ncall {\n    with n_0_1\n    match (n_0_1)<-[r_0_2:BELONGS_TO]-(n_0_2:Project)\n    return r_0_2, n_0_2\n}\n\ncall {\n    with n_0_0\n    match (n_0_0)<-[r_1_1:SENT_BY]-(n_1_1:Message)\n    return r_1_1, n_1_1\n}\n\nreturn n_0_0, r_0_1, n_0_1, r_0_2, n_0_2, r_1_1, n_1_1",
+      "text": "match (n_0_0:User {email: \"userA@test.com\"})\n\nreturn n_0_0",
       "parameters": {
         "indexValue": "userA@test.com"
       }
@@ -333,7 +93,7 @@
       "protocolVersion": 5.4
     },
     "resultConsumedAfter": 0,
-    "resultAvailableAfter": 7,
+    "resultAvailableAfter": 1,
     "database": {
       "name": "neo4j"
     }

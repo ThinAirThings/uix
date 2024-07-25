@@ -17,16 +17,16 @@ test('Query path test', async () => {
     const {data: userATreeNodeType} = await extractSubgraph({
         referenceType: 'nodeType',
         nodeType: 'User',
-        subgraphSelector: (subgraph) => subgraph
-            .addNode('-ACCESS_TO->Organization',  {
-                limit: 5
-            })
-            .addNode('-PAID_FOR->PaymentTier')
-            .root()
-            .addNode('<-SENT_BY-Message')
+        // subgraphSelector: (subgraph) => subgraph
+
+            // .addNode('-ACCESS_TO->Organization',  {
+            //     limit: 5
+            // })
+            // .root()
+            // .addNode('<-SENT_BY-Message')
     })
     if (userATreeNodeType) {
-        userATreeNodeType.map(node => node['-ACCESS_TO->Organization'].map(node => node['-PAID_FOR->PaymentTier'].map(node => node)))
+        // userATreeNodeType.map(node => node['-ACCESS_TO->Organization'])
     }
     const {data: userATreeNodeIndex} = await extractSubgraph({
         referenceType: 'nodeIndex',
@@ -38,10 +38,11 @@ test('Query path test', async () => {
             .addNode('<-BELONGS_TO-Project')
             .root()
             .addNode('<-SENT_BY-Message')
+
     })
     if (userATreeNodeIndex) {
-        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'].map(node => node.nodeType))
-        userATreeNodeIndex['-ACCESS_TO->Organization']
+        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'].map(node => node))
+        // userATreeNodeIndex['-ACCESS_TO->Organization']
     }
     await writeFile('tests/queryPath:test:nodeType.json', JSON.stringify(userATreeNodeType, null, 2))
     await writeFile('tests/queryPath:test:nodeIndex.json', JSON.stringify(userATreeNodeIndex, null, 2))

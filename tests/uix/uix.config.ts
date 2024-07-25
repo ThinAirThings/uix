@@ -13,7 +13,7 @@ export default defineConfig({
         ChatNodeDefinition,
         MessageNodeDefinition,
         ProjectNodeDefinition,
-        PaymentTierDefinition
+        // PaymentTierDefinition
     ],
     outdir: 'tests/uix/generated',
     envPath: '.env.test',

@@ -4,7 +4,6 @@ import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import dedent from "dedent"
 import { AnyRelationshipDefinition, CardinalityTypeSet,  StrengthTypeSet } from "../definitions/RelationshipDefinition"
-import { open, writeFile } from "fs/promises"
 import { AnyExtractionNode,  GenericExtractionNode, RootExtractionNode } from "../types/ExtractionNode"
 import { Dec, Inc } from "@thinairthings/utilities"
 import { AnyExtractionSubgraph, ExtractionOptions, ExtractionSubgraph } from "../types/ExtractionSubgraph"
@@ -77,7 +76,7 @@ export const extractSubgraphFactory = <
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
     ReferenceType extends 'nodeType' | 'nodeIndex',
-    TypedSubgraph extends AnyExtractionSubgraph,
+    TypedSubgraph extends AnyExtractionSubgraph | undefined = undefined,
 >(params: ({
     nodeType: NodeType
 }) & (
@@ -91,7 +90,7 @@ export const extractSubgraphFactory = <
             indexValue: string
         })
     ) & ({
-        subgraphSelector: (subgraph: ExtractionSubgraph<NodeDefinitionMap, `n_0_0`, readonly [
+        subgraphSelector?: (subgraph: ExtractionSubgraph<NodeDefinitionMap, `n_0_0`, readonly [
             RootExtractionNode<NodeDefinitionMap, NodeType>
         ]>) => TypedSubgraph
     })
@@ -129,24 +128,24 @@ export const extractSubgraphFactory = <
             createPath(relationshipType, nodeRelation[queryPathKey as keyof typeof nodeRelation] as NodeRelation, idx, depth + 1)
         })
     }
-    const subgraph = params.subgraphSelector(ExtractionSubgraph.create(nodeDefinitionMap, params.nodeType))
-    const subgraphQueryTree = subgraph.getQueryTree()
-    const relationshipKeys = Object.keys(subgraphQueryTree )
-        .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
-        .map((key) => [key.split('-')[1], key])
-    console.log("Relationship Keys", relationshipKeys)
-    relationshipKeys.forEach(
-        ([relationshipType, queryPathKey], idx) => subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] 
-        && createPath(relationshipType, subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] as NodeRelation, idx, 1)
-    )
+    const subgraph = params.subgraphSelector?.(ExtractionSubgraph.create(nodeDefinitionMap, params.nodeType)) ?? null
+    if (subgraph) {
+        const subgraphQueryTree = subgraph.getQueryTree()
+        const relationshipKeys = Object.keys(subgraphQueryTree )
+            .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
+            .map((key) => [key.split('-')[1], key])
+        console.log("Relationship Keys", relationshipKeys)
+        relationshipKeys.forEach(
+            ([relationshipType, queryPathKey], idx) => subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] 
+            && createPath(relationshipType, subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] as NodeRelation, idx, 1)
+        )
+    }
     queryString += dedent/*cypher*/`\n
         return ${variableList.join(', ')}
     `
-    console.log(queryString)
     const collection = await neo4jDriver().executeQuery<EagerCollectionResult>(queryString, {
         indexValue: 'indexValue' in params ? params.indexValue : undefined
     }).then(async (result) => {
-        await writeFile('tests/collect:result.json', JSON.stringify(result, null, 2))
         return result.records.reduce((acc, record) => {
             const nodeMap = new TypedRecord(record)
             const handleCurrentNodeDepth = ({
@@ -157,7 +156,7 @@ export const extractSubgraphFactory = <
                 acc: NodeAccumulator
             }) => {
                 const relationship = nodeMap.get(`r_${acc.pathIdx}_${acc.depthIdx}`);
-                const relationshipKey = (<GenericExtractionNode>subgraph.nodeSet.find((node: GenericExtractionNode) => node.nodeIndex === `n_${acc.pathIdx}_${acc.depthIdx}`))?.relationship
+                const relationshipKey = (<GenericExtractionNode>subgraph?.nodeSet.find((node: GenericExtractionNode) => node.nodeIndex === `n_${acc.pathIdx}_${acc.depthIdx}`))?.relationship
                 const referenceNode = (acc.depthIdx - 1) === 0
                     ? nodeMap.get(`n_0_0`)
                     : nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx - 1}`)
@@ -225,9 +224,13 @@ export const extractSubgraphFactory = <
         } as NodeAccumulator).rootDepth
     })
 
-    return Ok(collection as ReferenceType extends 'nodeIndex' 
-        ? NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>
-        : (NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>)[]
+    return Ok(collection as ReferenceType extends 'nodeIndex'
+        ? TypedSubgraph extends AnyExtractionSubgraph
+            ? NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>
+            : NodeShape<NodeDefinitionMap[NodeType]>
+        : TypedSubgraph extends AnyExtractionSubgraph
+            ? (NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>)[]
+            : NodeShape<NodeDefinitionMap[NodeType]>[]
     )
 })
 
@@ -264,6 +267,6 @@ export type SubgraphTree<
     Subgraph extends AnyExtractionSubgraph, 
     X extends number = 0
 > = SubgraphPath<NodeDefinitionMap, Subgraph> & (`n_${X}_${1}` extends Subgraph['nodeSet'][number]['nodeIndex']
-    ? SubgraphPath<NodeDefinitionMap, Subgraph, X> & SubgraphTree<NodeDefinitionMap, Subgraph, Inc<X>> 
-    : unknown
+        ? SubgraphPath<NodeDefinitionMap, Subgraph, X> & SubgraphTree<NodeDefinitionMap, Subgraph, Inc<X>> 
+        : unknown
 )

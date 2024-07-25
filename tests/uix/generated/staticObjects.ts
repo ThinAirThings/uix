@@ -16,12 +16,10 @@ export type OrganizationNode = NodeShape<ConfiguredNodeDefinitionMap['Organizati
 export type ChatNode = NodeShape<ConfiguredNodeDefinitionMap['Chat']> 
 export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap['Message']> 
 export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap['Project']> 
-export type PaymentTierNode = NodeShape<ConfiguredNodeDefinitionMap['PaymentTier']> 
 
 export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
 export type OrganizationNodeState = NodeState<ConfiguredNodeDefinitionMap['Organization']> 
 export type ChatNodeState = NodeState<ConfiguredNodeDefinitionMap['Chat']> 
 export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap['Message']> 
 export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap['Project']> 
-export type PaymentTierNodeState = NodeState<ConfiguredNodeDefinitionMap['PaymentTier']> 
 

@@ -10,9 +10,9 @@ export const OrganizationNodeDefinition = defineNode('Organization', z.object({
     employees: z.number().nonnegative(),
 }))
     .defineUniqueIndexes(['name'])
-    .defineRelationship({
-        relationshipType: 'PAID_FOR',
-        strength: 'strong',
-        cardinality: 'one-to-many',
-        toNodeDefinition: PaymentTierDefinition
-    })
+    // .defineRelationship({
+    //     relationshipType: 'PAID_FOR',
+    //     strength: 'strong',
+    //     cardinality: 'one-to-many',
+    //     toNodeDefinition: PaymentTierDefinition
+    // })
