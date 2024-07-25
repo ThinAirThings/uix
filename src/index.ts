@@ -12,6 +12,7 @@ export * from './definitions/GraphDefinition'
 export * from './types/RelationshipMergeMap'
 // export * from './types/QueryPathNode'
 export * from './types/QueryPathNodev2'
+export * from './types/QueryNode'
 // // Function
 // export * from './fns/createNodeFactory'
 export * from './fns/mergeNodeFactory'

@@ -1,13 +1,15 @@
 import { EagerResult, Integer, Node, Relationship } from "neo4j-driver"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
+import { AnyNodeDefinitionMap, NodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import { CollectOptions, RelationshipCollectionMap } from "../types/RelationshipCollectionMap"
 import dedent from "dedent"
 import path from "path"
-import { CardinalityTypeSet, StrengthTypeSet } from "../definitions/RelationshipDefinition"
+import { AnyRelationshipDefinition, CardinalityTypeSet, RelationshipDefinition, StrengthTypeSet } from "../definitions/RelationshipDefinition"
 import { open, writeFile } from "fs/promises"
 import { QueryPathNode, RootQueryPathNode } from "../types/QueryPathNodev2"
+import { AnyQuerySubgraph, QueryNode, QuerySubgraph, RootQueryNode } from "../types/QueryNode"
+import { Dec, Inc } from "@thinairthings/utilities"
 
 
 type NodeRelation = ({
@@ -72,13 +74,13 @@ type NodeAccumulator = {
 }
 
 export const collectNodeFactoryv2 = <
-    NodeTypeMap extends AnyNodeDefinitionMap,
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
-    nodeTypeMap: NodeTypeMap
+    nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
-    NodeType extends keyof NodeTypeMap,
+    NodeType extends keyof NodeDefinitionMap,
     ReferenceType extends 'nodeType' | 'nodeIndex',
-    QueryPath extends QueryPathNode<NodeTypeMap, NodeType, any, any, any, any>,
+    TypedSubgraph extends AnyQuerySubgraph,
 >(params: ({
     nodeType: NodeType
 }) & (
@@ -88,11 +90,13 @@ export const collectNodeFactoryv2 = <
             options?: CollectOptions
         }) : ({
             referenceType: ReferenceType
-            indexKey: NodeTypeMap[NodeType]['uniqueIndexes'][number]
+            indexKey: NodeDefinitionMap[NodeType]['uniqueIndexes'][number]
             indexValue: string
         })
     ) & ({
-        queryPath: (rootQueryPathNode: RootQueryPathNode<NodeTypeMap, NodeType>) => QueryPath
+        subgraphSelector: (subgraph: QuerySubgraph<NodeDefinitionMap, `n_0_0`, readonly [
+            RootQueryNode<NodeDefinitionMap, NodeType>
+        ]>) => TypedSubgraph
     })
 ) => {
     let queryString = dedent/*cypher*/`
@@ -106,7 +110,7 @@ export const collectNodeFactoryv2 = <
         }
     `
     let variableList = ['n_0_0']
-    const queryPath = params.queryPath(new RootQueryPathNode(nodeTypeMap, params.nodeType)).root.getQueryTree()
+    const queryPath = params.subgraphSelector(QuerySubgraph.create(nodeDefinitionMap, params.nodeType)).getQueryTree()
     console.log("Query Path", JSON.stringify(queryPath, null, 2))
     // const relationshipKeys = Object.keys(params).filter((key) => !['referenceType', 'nodeType', 'indexKey', 'indexValue'].includes(key))
     const relationshipKeys = Object.keys(queryPath)
@@ -135,7 +139,7 @@ export const collectNodeFactoryv2 = <
             createPath(relationshipType, nodeRelation[queryPathKey as keyof typeof nodeRelation] as NodeRelation, idx, depth + 1)
         })
     }
-    relationshipKeys.forEach(([relationshipType, queryPathKey], idx) => queryPath[queryPathKey] && createPath(relationshipType, queryPath[queryPathKey] as NodeRelation, idx, 1))
+    relationshipKeys.forEach(([relationshipType, queryPathKey], idx) => queryPath[queryPathKey as keyof typeof queryPath] && createPath(relationshipType, queryPath[queryPathKey as keyof typeof queryPath] as NodeRelation, idx, 1))
     queryString += dedent/*cypher*/`\n
         return ${variableList.join(', ')}
     `
@@ -223,5 +227,45 @@ export const collectNodeFactoryv2 = <
         } as NodeAccumulator).rootDepth
     })
 
-    return Ok(collection as unknown as QueryPath)
+    return Ok(collection as ReferenceType extends 'nodeIndex' 
+        ? NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>
+        : (NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>)[]
+    )
 })
+
+export type SubgraphPath<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    Subgraph extends AnyQuerySubgraph, 
+    X extends number=0, 
+    Y extends number = 1
+> = `n_${X}_${Y}` extends Subgraph['nodeSet'][number]['nodeIndex']
+    ? ({
+        [Relationship in (Subgraph['nodeSet'][number] & {nodeIndex: `n_${X}_${Y}`})['relationship']]: 
+            Relationship extends `-${infer RelationshipType}->${infer NextNodeType}`
+                ? (NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                    ? AnyRelationshipDefinition extends RelationshipUnionRef
+                        ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `${string}-to-many`
+                            ? (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)[]
+                            : (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)
+                        : never
+                    : never
+            : Relationship extends `<-${infer RelationshipType}-${infer NextNodeType}`
+                ? (NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                    ? AnyRelationshipDefinition extends RelationshipUnionRef
+                        ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `${string}-to-many`
+                            ? (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)[]
+                            : (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)
+                        : never
+                    : never
+                : never
+    })
+    : unknown
+
+export type SubgraphTree<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    Subgraph extends AnyQuerySubgraph, 
+    X extends number = 0
+> = SubgraphPath<NodeDefinitionMap, Subgraph> & (`n_${X}_${1}` extends Subgraph['nodeSet'][number]['nodeIndex']
+    ? SubgraphPath<NodeDefinitionMap, Subgraph, X> & SubgraphTree<NodeDefinitionMap, Subgraph, Inc<X>> 
+    : unknown
+)

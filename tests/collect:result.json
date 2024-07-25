@@ -264,140 +264,14 @@
         "r_1_1": 5,
         "n_1_1": 6
       }
-    },
-    {
-      "keys": [
-        "n_0_0",
-        "r_0_1",
-        "n_0_1",
-        "r_0_2",
-        "n_0_2",
-        "r_1_1",
-        "n_1_1"
-      ],
-      "length": 7,
-      "_fields": [
-        {
-          "identity": 1,
-          "labels": [
-            "User",
-            "Node"
-          ],
-          "properties": {
-            "createdAt": 1721288550565,
-            "nodeType": "User",
-            "nodeId": "d71651a2-2770-486a-896a-cb79ed403733",
-            "email": "userB@test.com",
-            "updatedAt": 1721288550565
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:1"
-        },
-        {
-          "identity": 0,
-          "start": 1,
-          "end": 2,
-          "type": "ACCESS_TO",
-          "properties": {
-            "relationshipType": "ACCESS_TO",
-            "strength": "weak",
-            "accessLevel": "member",
-            "cardinality": "many-to-many"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:0",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:1",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 2,
-          "labels": [
-            "Node",
-            "Organization"
-          ],
-          "properties": {
-            "createdAt": 1721288550572,
-            "name": "Wendy",
-            "nodeType": "Organization",
-            "nodeId": "a0fa2f76-12ff-4a8f-83fe-c972629ac598",
-            "updatedAt": 1721288550572
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "start": 3,
-          "end": 2,
-          "type": "BELONGS_TO",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "BELONGS_TO",
-            "testing": "test",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:2"
-        },
-        {
-          "identity": 3,
-          "labels": [
-            "Node",
-            "Project"
-          ],
-          "properties": {
-            "createdAt": 1721288550580,
-            "name": "Wendy",
-            "nodeType": "Project",
-            "nodeId": "d13b6e16-6f30-4997-9aaf-cc5aaf8f971c",
-            "updatedAt": 1721288550580
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:3"
-        },
-        {
-          "identity": 8,
-          "start": 6,
-          "end": 1,
-          "type": "SENT_BY",
-          "properties": {
-            "strength": "strong",
-            "relationshipType": "SENT_BY",
-            "cardinality": "many-to-one"
-          },
-          "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8",
-          "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:6",
-          "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:1"
-        },
-        {
-          "identity": 6,
-          "labels": [
-            "Node",
-            "Message"
-          ],
-          "properties": {
-            "createdAt": 1721288550606,
-            "text": "How are you User A!",
-            "nodeType": "Message",
-            "contentType": "text",
-            "nodeId": "f42fa0a4-cba5-4a61-93f1-938023dfe397",
-            "updatedAt": 1721288550606
-          },
-          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:6"
-        }
-      ],
-      "_fieldLookup": {
-        "n_0_0": 0,
-        "r_0_1": 1,
-        "n_0_1": 2,
-        "r_0_2": 3,
-        "n_0_2": 4,
-        "r_1_1": 5,
-        "n_1_1": 6
-      }
     }
   ],
   "summary": {
     "query": {
-      "text": "match (n_0_0:User )\n\ncall {\n    with n_0_0\n    match (n_0_0)-[r_0_1:ACCESS_TO]->(n_0_1:Organization)\n    return r_0_1, n_0_1\n}\n\ncall {\n    with n_0_1\n    match (n_0_1)<-[r_0_2:BELONGS_TO]-(n_0_2:Project)\n    return r_0_2, n_0_2\n}\n\ncall {\n    with n_0_0\n    match (n_0_0)<-[r_1_1:SENT_BY]-(n_1_1:Message)\n    return r_1_1, n_1_1\n}\n\nreturn n_0_0, r_0_1, n_0_1, r_0_2, n_0_2, r_1_1, n_1_1",
-      "parameters": {}
+      "text": "match (n_0_0:User {email: \"userA@test.com\"})\n\ncall {\n    with n_0_0\n    match (n_0_0)-[r_0_1:ACCESS_TO]->(n_0_1:Organization)\n    return r_0_1, n_0_1\n}\n\ncall {\n    with n_0_1\n    match (n_0_1)<-[r_0_2:BELONGS_TO]-(n_0_2:Project)\n    return r_0_2, n_0_2\n}\n\ncall {\n    with n_0_0\n    match (n_0_0)<-[r_1_1:SENT_BY]-(n_1_1:Message)\n    return r_1_1, n_1_1\n}\n\nreturn n_0_0, r_0_1, n_0_1, r_0_2, n_0_2, r_1_1, n_1_1",
+      "parameters": {
+        "indexValue": "userA@test.com"
+      }
     },
     "queryType": "r",
     "counters": {
@@ -454,8 +328,8 @@
       "agent": "Neo4j/5.18.1",
       "protocolVersion": 5.4
     },
-    "resultConsumedAfter": 1,
-    "resultAvailableAfter": 49,
+    "resultConsumedAfter": 2,
+    "resultAvailableAfter": 1,
     "database": {
       "name": "neo4j"
     }
