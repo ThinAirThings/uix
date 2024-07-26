@@ -1,0 +1,27 @@
+{
+  "id": "functions/getNodeByIndex",
+  "title": "getNodeByIndex",
+  "description": "A function to get a pre-existing node from your database via a defined unique index.",
+  "source": "@site/docs/functions/getNodeByIndex.md",
+  "sourceDirName": "functions",
+  "slug": "/functions/getNodeByIndex",
+  "permalink": "/docs/functions/getNodeByIndex",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/functions/getNodeByIndex.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "getNodeByKey",
+    "permalink": "/docs/functions/getNodeByKey"
+  },
+  "next": {
+    "title": "getAllOfNodeType",
+    "permalink": "/docs/functions/getAllOfNodeType"
+  }
+}

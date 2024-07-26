@@ -1,5 +1,11 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 3.2.0
+
+### Minor Changes
+
+- adds caching to uix
+
 ## 3.1.3
 
 ### Patch Changes

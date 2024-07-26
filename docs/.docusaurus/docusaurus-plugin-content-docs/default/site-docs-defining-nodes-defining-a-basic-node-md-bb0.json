@@ -1,0 +1,27 @@
+{
+  "id": "defining-nodes/defining-a-basic-node",
+  "title": "Defining a Basic Node",
+  "description": "Defining nodes in Uix can be very simple. No methods are necessary to generate a node without vector embeddings, unique indexes, etc.",
+  "source": "@site/docs/defining-nodes/defining-a-basic-node.md",
+  "sourceDirName": "defining-nodes",
+  "slug": "/defining-nodes/defining-a-basic-node",
+  "permalink": "/docs/defining-nodes/defining-a-basic-node",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/defining-nodes/defining-a-basic-node.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Defining Nodes",
+    "permalink": "/docs/category/defining-nodes"
+  },
+  "next": {
+    "title": "Defining Unique Indexes",
+    "permalink": "/docs/defining-nodes/defineUniqueIndexes"
+  }
+}

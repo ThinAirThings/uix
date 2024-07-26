@@ -1,0 +1,27 @@
+{
+  "id": "defining-nodes/definePropertyVector",
+  "title": "Defining Property Vectors",
+  "description": "Arguably defining property vectors is one of the greatest draws to using Uix for AI focused implementations. By defining a property vector, your node will be automatically embedded on those properties, allowing for seamless vector search and AI searching implementations.",
+  "source": "@site/docs/defining-nodes/definePropertyVector.md",
+  "sourceDirName": "defining-nodes",
+  "slug": "/defining-nodes/definePropertyVector",
+  "permalink": "/docs/defining-nodes/definePropertyVector",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/defining-nodes/definePropertyVector.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Defining Node Set Relationships",
+    "permalink": "/docs/defining-nodes/defineNodeSetRelationship"
+  },
+  "next": {
+    "title": "Functions",
+    "permalink": "/docs/category/functions"
+  }
+}

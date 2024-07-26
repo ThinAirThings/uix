@@ -1,0 +1,24 @@
+{
+  "id": "defining-nodes/defineUniqueIndex",
+  "title": "defineUniqueIndex",
+  "description": "",
+  "source": "@site/docs/defining-nodes/defineUniqueIndex.md",
+  "sourceDirName": "defining-nodes",
+  "slug": "/defining-nodes/defineUniqueIndex",
+  "permalink": "/docs/defining-nodes/defineUniqueIndex",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/docs/defining-nodes/defineUniqueIndex.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Defining a Basic Node",
+    "permalink": "/docs/defining-nodes/defining-a-basic-node"
+  },
+  "next": {
+    "title": "Functions",
+    "permalink": "/docs/category/functions"
+  }
+}

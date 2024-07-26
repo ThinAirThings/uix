@@ -1,0 +1,176 @@
+{
+  "/__docusaurus/debug-5ff": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/config-5ba": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/content-a2b": {
+    "__comp": "__comp---theme-debug-contentba-8-ce7",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    },
+    "__props": "__props---docusaurus-debug-content-3-c-0-be2"
+  },
+  "/__docusaurus/debug/globalData-c3c": {
+    "__comp": "__comp---theme-debug-global-dataede-0fa",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/metadata-156": {
+    "__comp": "__comp---theme-debug-site-metadata-68-e-3d4",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/registry-88c": {
+    "__comp": "__comp---theme-debug-registry-679-501",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/routes-000": {
+    "__comp": "__comp---theme-debug-routes-946-699",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/markdown-page-3d7": {
+    "__comp": "__comp---theme-mdx-page-1-f-3-b90",
+    "__context": {
+      "plugin": "plugin---markdown-pagea-74-7b5"
+    },
+    "content": "content---markdown-page-393-028"
+  },
+  "/docs-759": {
+    "__comp": "__comp---theme-docs-root-5-e-9-0b6",
+    "__context": {
+      "plugin": "plugin---docsaba-d7c"
+    }
+  },
+  "/docs-9e1": {
+    "__comp": "__comp---theme-doc-version-roota-7-b-5de",
+    "__props": "__props---docs-005-788"
+  },
+  "/docs-c87": {
+    "__comp": "__comp---theme-doc-roota-94-67a"
+  },
+  "/docs/category/defining-nodes-62a": {
+    "__comp": "__comp---theme-doc-category-generated-index-page-14-e-640",
+    "__props": "__props---docs-category-defining-nodes-77-e-9c7"
+  },
+  "/docs/category/functions-a6e": {
+    "__comp": "__comp---theme-doc-category-generated-index-page-14-e-640",
+    "__props": "__props---docs-category-functions-5-a-8-c46"
+  },
+  "/docs/category/getting-started-4e8": {
+    "__comp": "__comp---theme-doc-category-generated-index-page-14-e-640",
+    "__props": "__props---docs-category-getting-startedc-26-887"
+  },
+  "/docs/category/using-uix-d7a": {
+    "__comp": "__comp---theme-doc-category-generated-index-page-14-e-640",
+    "__props": "__props---docs-category-using-uix-482-7b3"
+  },
+  "/docs/defining-nodes/defineNodeSetRelationship-090": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-defining-nodes-define-node-set-relationshipe-91-a1e"
+  },
+  "/docs/defining-nodes/definePropertyVector-54c": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-defining-nodes-define-property-vector-49-a-685"
+  },
+  "/docs/defining-nodes/defineUniqueIndexes-8f8": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-defining-nodes-define-unique-indexes-520-be7"
+  },
+  "/docs/defining-nodes/defineUniqueRelationship-cc5": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-defining-nodes-define-unique-relationshipd-8-e-5f6"
+  },
+  "/docs/defining-nodes/defining-a-basic-node-958": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-defining-nodes-defining-a-basic-nodebb-0-712"
+  },
+  "/docs/functions/createNode-91c": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-create-nodee-7-c-42c"
+  },
+  "/docs/functions/deleteNode-449": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-delete-nodebc-3-518"
+  },
+  "/docs/functions/getAllOfNodeType-a3c": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-all-of-node-type-344-443"
+  },
+  "/docs/functions/getChildNodeSet-de6": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-child-node-set-290-f0d"
+  },
+  "/docs/functions/getNodeByIndex-456": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-node-by-indexb-56-089"
+  },
+  "/docs/functions/getNodeByKey-5e5": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-node-by-keyf-1-a-e53"
+  },
+  "/docs/functions/getUniqueChildNode-bc5": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-unique-child-node-0-e-5-2a2"
+  },
+  "/docs/functions/getVectorNodeByKey-71c": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-get-vector-node-by-key-3-d-6-474"
+  },
+  "/docs/functions/updateNode-0a0": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-functions-update-node-0-f-8-c1d"
+  },
+  "/docs/getting-started/configure-env-vars-e20": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-started-configure-env-vars-379-65a"
+  },
+  "/docs/getting-started/define-a-node-5ac": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-started-define-a-noded-66-0f9"
+  },
+  "/docs/getting-started/define-config-14e": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-started-define-configf-71-b2a"
+  },
+  "/docs/getting-started/install-uix-6f7": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-started-install-uix-385-8d3"
+  },
+  "/docs/getting-started/running-the-cli-4e6": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-getting-started-running-the-cli-6-be-e2f"
+  },
+  "/docs/intro-61d": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-intro-0-e-3-be1"
+  },
+  "/docs/using-uix/-1b9": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-using-uix-6-f-7-c92"
+  },
+  "/docs/using-uix/prerequisites-691": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-using-uix-prerequisites-69-e-ea1"
+  },
+  "/-e5f": {
+    "__comp": "__comp---site-src-pages-index-tsx-1-df-d3e",
+    "__context": {
+      "plugin": "plugin---markdown-pagea-74-7b5"
+    },
+    "config": "config---5-e-9-4f3"
+  }
+}

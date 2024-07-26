@@ -1,0 +1,27 @@
+{
+  "id": "getting-started/configure-env-vars",
+  "title": "Environment Variables",
+  "description": "Out of the box Uix is integrated with services such as Neo4j and OpenAI. Using Neo4j is required with Uix as it is the only graph lib we currently support (more coming soon), but OpenAI use is optional.",
+  "source": "@site/docs/getting-started/configure-env-vars.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/configure-env-vars",
+  "permalink": "/docs/getting-started/configure-env-vars",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/getting-started/configure-env-vars.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Define a Node Type",
+    "permalink": "/docs/getting-started/define-a-node"
+  },
+  "next": {
+    "title": "Define Uix Config",
+    "permalink": "/docs/getting-started/define-config"
+  }
+}

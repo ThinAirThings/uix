@@ -1,0 +1,27 @@
+{
+  "id": "getting-started/define-config",
+  "title": "Define Uix Config",
+  "description": "Uix is a CLI based function generation tool, so it only makes sense that it requires some configuration to know what to generate. This configuration should live in the root of your repo under the name uix.config.ts",
+  "source": "@site/docs/getting-started/define-config.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/define-config",
+  "permalink": "/docs/getting-started/define-config",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/getting-started/define-config.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Environment Variables",
+    "permalink": "/docs/getting-started/configure-env-vars"
+  },
+  "next": {
+    "title": "Running the CLI",
+    "permalink": "/docs/getting-started/running-the-cli"
+  }
+}

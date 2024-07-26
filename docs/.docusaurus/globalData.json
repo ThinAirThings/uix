@@ -1,0 +1,158 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "defining-nodes/defineNodeSetRelationship",
+              "path": "/docs/defining-nodes/defineNodeSetRelationship",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "defining-nodes/definePropertyVector",
+              "path": "/docs/defining-nodes/definePropertyVector",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "defining-nodes/defineUniqueIndexes",
+              "path": "/docs/defining-nodes/defineUniqueIndexes",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "defining-nodes/defineUniqueRelationship",
+              "path": "/docs/defining-nodes/defineUniqueRelationship",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "defining-nodes/defining-a-basic-node",
+              "path": "/docs/defining-nodes/defining-a-basic-node",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/createNode",
+              "path": "/docs/functions/createNode",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/deleteNode",
+              "path": "/docs/functions/deleteNode",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getAllOfNodeType",
+              "path": "/docs/functions/getAllOfNodeType",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getChildNodeSet",
+              "path": "/docs/functions/getChildNodeSet",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getNodeByIndex",
+              "path": "/docs/functions/getNodeByIndex",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getNodeByKey",
+              "path": "/docs/functions/getNodeByKey",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getUniqueChildNode",
+              "path": "/docs/functions/getUniqueChildNode",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/getVectorNodeByKey",
+              "path": "/docs/functions/getVectorNodeByKey",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "functions/updateNode",
+              "path": "/docs/functions/updateNode",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "getting-started/configure-env-vars",
+              "path": "/docs/getting-started/configure-env-vars",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "getting-started/define-a-node",
+              "path": "/docs/getting-started/define-a-node",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "getting-started/define-config",
+              "path": "/docs/getting-started/define-config",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "getting-started/install-uix",
+              "path": "/docs/getting-started/install-uix",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "getting-started/running-the-cli",
+              "path": "/docs/getting-started/running-the-cli",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/docs/intro",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "using-uix/prerequisites",
+              "path": "/docs/using-uix/prerequisites",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "using-uix/using-uix",
+              "path": "/docs/using-uix/",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "/category/getting-started",
+              "path": "/docs/category/getting-started",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "/category/using-uix",
+              "path": "/docs/category/using-uix",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "/category/defining-nodes",
+              "path": "/docs/category/defining-nodes",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "/category/functions",
+              "path": "/docs/category/functions",
+              "sidebar": "tutorialSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "tutorialSidebar": {
+              "link": {
+                "path": "/docs/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

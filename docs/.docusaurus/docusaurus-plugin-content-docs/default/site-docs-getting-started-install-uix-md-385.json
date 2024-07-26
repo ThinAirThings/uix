@@ -1,0 +1,27 @@
+{
+  "id": "getting-started/install-uix",
+  "title": "Install Uix",
+  "description": "How to install and add Uix to your project.",
+  "source": "@site/docs/getting-started/install-uix.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/install-uix",
+  "permalink": "/docs/getting-started/install-uix",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/getting-started/install-uix.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/docs/category/getting-started"
+  },
+  "next": {
+    "title": "Define a Node Type",
+    "permalink": "/docs/getting-started/define-a-node"
+  }
+}

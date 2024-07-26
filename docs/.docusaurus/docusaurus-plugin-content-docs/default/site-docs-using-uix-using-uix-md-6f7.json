@@ -1,0 +1,27 @@
+{
+  "id": "using-uix/using-uix",
+  "title": "Using Uix",
+  "description": "Let's use Uix.",
+  "source": "@site/docs/using-uix/using-uix.md",
+  "sourceDirName": "using-uix",
+  "slug": "/using-uix/",
+  "permalink": "/docs/using-uix/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/thinairthings/uix/tree/documentation/docs/docs/using-uix/using-uix.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Prerequisites",
+    "permalink": "/docs/using-uix/prerequisites"
+  },
+  "next": {
+    "title": "Defining Nodes",
+    "permalink": "/docs/category/defining-nodes"
+  }
+}
