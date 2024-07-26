@@ -16,6 +16,7 @@
         "build:run": "tsup-node && node dist/cli/cli.js",
         "test:merge": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run merge --test-timeout=100000",
         "test:extract": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run extract --test-timeout=100000",
+        "test:hooks": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooks --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
         "wipset": "changeset && changeset version && changeset publish && git add . && git commit -m 'wipset' && git push"
     },
@@ -38,6 +39,8 @@
         "@babel/preset-env": "^7.24.7",
         "@changesets/cli": "^2.27.6",
         "@sindresorhus/tsconfig": "^5.0.0",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/react": "^16.0.0",
         "@types/node": "^20.14.9",
         "@types/react": "^18.3.3",
         "@types/uuid": "^10.0.0",

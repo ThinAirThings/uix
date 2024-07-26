@@ -17,13 +17,11 @@ test('Query path test', async () => {
     const {data: userATreeNodeType} = await extractSubgraph({
         referenceType: 'nodeType',
         nodeType: 'User',
-        // subgraphSelector: (subgraph) => subgraph
-
-            // .addNode('-ACCESS_TO->Organization',  {
-            //     limit: 5
-            // })
-            // .root()
-            // .addNode('<-SENT_BY-Message')
+        subgraphSelector: (subgraph) => subgraph
+            .addNode('-ACCESS_TO->Organization')
+            .addNode('<-BELONGS_TO-Project')
+            .root()
+            .addNode('<-SENT_BY-Message')
     })
     if (userATreeNodeType) {
         // userATreeNodeType.map(node => node['-ACCESS_TO->Organization'])
@@ -38,10 +36,9 @@ test('Query path test', async () => {
             .addNode('<-BELONGS_TO-Project')
             .root()
             .addNode('<-SENT_BY-Message')
-
     })
     if (userATreeNodeIndex) {
-        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node['<-BELONGS_TO-Project'].map(node => node))
+        userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node)
         // userATreeNodeIndex['-ACCESS_TO->Organization']
     }
     await writeFile('tests/queryPath:test:nodeType.json', JSON.stringify(userATreeNodeType, null, 2))

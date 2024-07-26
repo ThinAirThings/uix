@@ -1,4 +1,4 @@
-import { ZodObject } from "zod"
+import { TypeOf, ZodObject } from "zod"
 import { AnyNodeDefinition, GenericNodeDefinition } from "./NodeDefinition"
 
 
@@ -20,6 +20,12 @@ export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefin
 export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
 export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
 export type StrengthTypeSet = 'strong' | 'weak'
+export type RelationshipState<T extends AnyRelationshipDefinition> = TypeOf<T['stateSchema']>
+export type RelationshipShape<T extends AnyRelationshipDefinition> = RelationshipState<T> & {
+    relatedNodeId: string
+    cardinality: T['cardinality']
+    strength: T['strength']
+}
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 

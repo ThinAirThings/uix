@@ -3,7 +3,7 @@ import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import dedent from "dedent"
-import { AnyRelationshipDefinition, CardinalityTypeSet,  StrengthTypeSet } from "../definitions/RelationshipDefinition"
+import { AnyRelationshipDefinition, CardinalityTypeSet,  RelationshipShape,  StrengthTypeSet } from "../definitions/RelationshipDefinition"
 import { AnyExtractionNode,  GenericExtractionNode, RootExtractionNode } from "../types/ExtractionNode"
 import { Dec, Inc } from "@thinairthings/utilities"
 import { AnyExtractionSubgraph, ExtractionOptions, ExtractionSubgraph } from "../types/ExtractionSubgraph"
@@ -134,7 +134,6 @@ export const extractSubgraphFactory = <
         const relationshipKeys = Object.keys(subgraphQueryTree )
             .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
             .map((key) => [key.split('-')[1], key])
-        console.log("Relationship Keys", relationshipKeys)
         relationshipKeys.forEach(
             ([relationshipType, queryPathKey], idx) => subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] 
             && createPath(relationshipType, subgraphQueryTree[queryPathKey as keyof typeof subgraphQueryTree] as NodeRelation, idx, 1)
@@ -166,17 +165,32 @@ export const extractSubgraphFactory = <
                 if (isManyRelationship(relationship)) {
                     if (!currentNodeTo[relationshipKey]) {
                         const node = nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx}`);
-                        currentNodeTo[relationshipKey] = [{ ...relationship, ...node }];
+                        currentNodeTo[relationshipKey] = [{ 
+                            ...{relationship: `${nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeType}${relationshipKey}`},
+                            ...relationship, 
+                            ...node,
+                            ...{relatedNodeId: nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeId} 
+                        }];
                         (<NextUixDataNode>acc[acc.depthIdx === 1 ? 'rootDepth' : 'nextDepth'])[
                             relationshipKey
-                        ] = [{ ...relationship, ...node }]
+                        ] = [{ 
+                            ...{relationship: `${nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeType}${relationshipKey}`},
+                            ...relationship, 
+                            ...node,
+                            ...{relatedNodeId: nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeId} 
+                        }]
                     } else {
                         const referenceNode = nodeMap.get(`n_${acc.pathIdx}_${acc.depthIdx}`);
                         (<UixDataNode[]>currentNodeTo[relationshipKey]) =
                             (<UixDataNode[]>currentNodeTo[relationshipKey]).some((node) => node.nodeId === referenceNode.nodeId)
                                 ? (<UixDataNode[]>currentNodeTo[relationshipKey])
                                 : (<UixDataNode[]>currentNodeTo[relationshipKey])
-                                    .concat([{ ...relationship, ...referenceNode }])
+                                    .concat([{ 
+                                        ...{relationship: `${nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeType}${relationshipKey}`},
+                                        ...relationship, 
+                                        ...referenceNode,
+                                        ...{relatedNodeId: nodeMap.get((acc.depthIdx-1) === 0 ? `n_0_0` : `n_${acc.pathIdx}_${acc.depthIdx-1}`).nodeId} 
+                                    }])
                     }
                 } else {
                     if (!currentNodeTo[relationshipKey]) {
@@ -240,27 +254,48 @@ export type SubgraphPath<
     X extends number=0, 
     Y extends number = 1
 > = `n_${X}_${Y}` extends Subgraph['nodeSet'][number]['nodeIndex']
-    ? ({
-        [Relationship in (Subgraph['nodeSet'][number] & {nodeIndex: `n_${X}_${Y}`})['relationship']]: 
-            Relationship extends `-${infer RelationshipType}->${infer NextNodeType}`
-                ? (NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
-                    ? AnyRelationshipDefinition extends RelationshipUnionRef
-                        ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `${string}-to-many`
-                            ? (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)[]
-                            : (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)
+        ? ({
+            [Relationship in (Subgraph['nodeSet'][number] & {nodeIndex: `n_${X}_${Y}`})['relationship']]: 
+                Relationship extends `-${infer RelationshipType}->${infer NextNodeType}`
+                    ? (NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                        ? AnyRelationshipDefinition extends RelationshipUnionRef
+                            ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `${string}-to-many`
+                                ? (
+                                    NodeShape<NodeDefinitionMap[NextNodeType]>
+                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
+                                    & RelationshipShape<(NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
+                                    & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
+                                )[]
+                                : (
+                                    NodeShape<NodeDefinitionMap[NextNodeType]>
+                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
+                                    & RelationshipShape<(NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
+                                    & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
+                                )
+                            : never
+                        : never
+                : Relationship extends `<-${infer RelationshipType}-${infer NextNodeType}`
+                    ? (NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                        ? AnyRelationshipDefinition extends RelationshipUnionRef
+                            ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `many-to-${string}`
+                                ? (
+                                    NodeShape<NodeDefinitionMap[NextNodeType]>
+                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
+                                    & RelationshipShape<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
+                                    & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
+                                )[]
+                                : (
+                                    NodeShape<NodeDefinitionMap[NextNodeType]>
+                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
+                                    & RelationshipShape<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
+                                    & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
+                                )
+                            : never
                         : never
                     : never
-            : Relationship extends `<-${infer RelationshipType}-${infer NextNodeType}`
-                ? (NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]) extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
-                    ? AnyRelationshipDefinition extends RelationshipUnionRef
-                        ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `many-to-${string}`
-                            ? (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)[]
-                            : (NodeShape<NodeDefinitionMap[NextNodeType]>&SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>)
-                        : never
-                    : never
-                : never
-    })
-    : unknown
+        })
+        : unknown
+
 
 export type SubgraphTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
@@ -269,4 +304,5 @@ export type SubgraphTree<
 > = SubgraphPath<NodeDefinitionMap, Subgraph> & (`n_${X}_${1}` extends Subgraph['nodeSet'][number]['nodeIndex']
         ? SubgraphPath<NodeDefinitionMap, Subgraph, X> & SubgraphTree<NodeDefinitionMap, Subgraph, Inc<X>> 
         : unknown
-)
+    )
+
