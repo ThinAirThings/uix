@@ -1,45 +1,15 @@
 {
-  "n_t0_i0": {
-    "createdAt": 1722035827977,
-    "nodeType": "User",
-    "nodeId": "d9e705fd-0053-46da-8b41-6cc8646f6e4e",
-    "email": "daniel@testing.com",
-    "updatedAt": 1722035827977
-  },
-  "n_t0_i0_t0_i0": {
-    "createdAt": 1722035827977,
-    "name": "Ranger Solar",
-    "ceo": "Bob Johnson",
-    "employees": 100,
-    "nodeId": "bbb10138-fdcf-4ce2-a3f9-1099b7816a88",
-    "updatedAt": 1722035827977
-  },
-  "r_t0_i0_t0_i0": {
-    "accessLevel": "member"
-  },
-  "n_t0_i0_t0_i0_t0_i0": {
-    "createdAt": 1722035827977,
-    "name": "Project 1",
-    "nodeId": "4849f638-e184-4573-8fc9-466465b57bdc",
-    "updatedAt": 1722035827977
-  },
-  "r_t0_i0_t0_i0_t0_i0": {
-    "testing": "fdsafsd"
-  },
-  "n_t0_i0_t1_i0": {
-    "createdAt": 1722035827977,
-    "imageUrl": "https://thinair.cloud",
-    "nodeId": "5bd53ee6-eb50-4e0f-927f-c12dfd1056dd",
-    "contentType": "image",
-    "updatedAt": 1722035827977
-  },
-  "r_t0_i0_t1_i0": {},
-  "n_t0_i0_t1_i1": {
-    "createdAt": 1722035827977,
-    "text": "Hello World",
-    "nodeId": "2a5a468c-86df-4612-8199-d8ff81306cab",
-    "contentType": "text",
-    "updatedAt": 1722035827977
-  },
-  "r_t0_i0_t1_i1": {}
+  "nodeType": "User",
+  "email": "",
+  "-ACCESS_TO->Organization": [
+    {
+      "accessLevel": "member",
+      "name": "Ranger Solar",
+      "employees": 100,
+      "ceo": "Bob Johnson"
+    }
+  ],
+  "createdAt": 1722062018077,
+  "nodeId": "6f2a3705-8220-4e8b-906b-59051ce8ffca",
+  "updatedAt": 1722062018077
 }

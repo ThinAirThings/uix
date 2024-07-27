@@ -1,6 +1,6 @@
 import { Dec, Inc } from "@thinairthings/utilities"
 import { AnyNodeDefinitionMap, NodeShape, NodeState } from "../definitions/NodeDefinition"
-import { AnyRelationshipDefinition, RelationshipShape } from "../definitions/RelationshipDefinition"
+import { AnyRelationshipDefinition, RelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition"
 import { AnySubgraphSpecification } from "./SubgraphSpecification"
 
 
@@ -21,10 +21,12 @@ export type SubgraphPath<
                             ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `${string}-to-many`
                                 ? (
                                     NodeState<NodeDefinitionMap[NextNodeType]>
+                                    & RelationshipState<(NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )[]
                                 : (
                                     NodeState<NodeDefinitionMap[NextNodeType]>
+                                    & RelationshipState<(NodeDefinitionMap[(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )
                             : never
@@ -35,10 +37,12 @@ export type SubgraphPath<
                             ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `many-to-${string}`
                                 ? (
                                     NodeState<NodeDefinitionMap[NextNodeType]>
+                                    & RelationshipState<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )[]
                                 : (
                                     NodeState<NodeDefinitionMap[NextNodeType]>
+                                    & RelationshipState<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )
                             : never
