@@ -9,6 +9,8 @@ export * from './types/Result'
 export * from './definitions/GraphDefinition'
 export * from './types/ExtractionNode'
 export * from './types/ExtractionSubgraph'
+export * from './types/SubgraphSpecification'
+export * from './types/SubgraphSpecificationNode'
 // // Function
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/mergeSubgraphFactoryv2'

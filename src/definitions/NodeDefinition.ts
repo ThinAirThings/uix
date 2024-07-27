@@ -17,7 +17,12 @@ export type NodeDefinitionMap<NodeDefinitionSet extends AnyNodeDefinitionSet> = 
 };
 export type NodeState<T extends AnyNodeDefinition> = TypeOf<T['stateSchema']>;
 export type AnyNodeShape = NodeShape<AnyNodeDefinition>;
-export type GenericNodeShape = NodeShape<GenericNodeDefinition>;
+export type GenericNodeShape = {
+    nodeId: string
+    nodeType: string
+    createdAt: number
+    updatedAt: number
+};
 export type NodeShape<T extends AnyNodeDefinition> = NodeState<T> & {
     nodeId: string;
     nodeType: T['type'];

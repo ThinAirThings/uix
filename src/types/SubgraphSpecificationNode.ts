@@ -1,13 +1,12 @@
+
+
 import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition";
-import { ExtractionOptions } from "./ExtractionSubgraph";
 import { GenericRelationship } from "./SubgraphSpecification";
 
-
-
-export type GenericExtractionNode = ExtractionNode<AnyNodeDefinitionMap, GenericRelationship, string, `n_${number}_${number}`>
-export type AnyExtractionNode = ExtractionNode<any, any, any, any>
-export type AnyExtractionNodeSet = readonly AnyExtractionNode[]
-export class ExtractionNode<
+export type GenericSubgraphSpecificationNode = SubgraphSpecificationNode<AnyNodeDefinitionMap, GenericRelationship, string, `n_${number}_${number}`>
+export type AnySubgraphSpecificationNode = SubgraphSpecificationNode<any, any, any, any>
+export type AnySubgraphSpecificationNodeSet = readonly AnySubgraphSpecificationNode[]
+export class SubgraphSpecificationNode<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     Relationship extends string | null,
     NodeType extends keyof NodeDefinitionMap,
@@ -18,13 +17,12 @@ export class ExtractionNode<
         public relationship: Relationship,
         public nodeType: NodeType,
         public nodeIndex: NodeIndex,
-        public options?: ExtractionOptions
     ){}
 }
-export class RootExtractionNode<
+export class RootSubgraphSpecificationNode<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
-> extends ExtractionNode<
+> extends SubgraphSpecificationNode<
     NodeDefinitionMap,
     null,
     NodeType,
@@ -37,4 +35,3 @@ export class RootExtractionNode<
         super(nodeDefinitionMap, null, nodeType, 'n_0_0')
     }
 }
-

@@ -1,15 +1,42 @@
 {
+  "createdAt": 1722118760628,
   "nodeType": "User",
-  "email": "",
+  "nodeId": "ef01a56d-338b-4fd9-bf5e-e6ec96752680",
+  "email": "dan.lannan@thinair.cloud",
+  "updatedAt": 1722118760716,
   "-ACCESS_TO->Organization": [
     {
       "accessLevel": "member",
+      "relationshipType": "ACCESS_TO",
+      "createdAt": 1722118760628,
       "name": "Ranger Solar",
+      "ceo": "Bobothy",
+      "nodeType": "Organization",
       "employees": 100,
-      "ceo": "Bob Johnson"
+      "nodeId": "57ffd214-956e-431e-be1b-051f5eeb9880",
+      "updatedAt": 1722118760716
+    },
+    {
+      "accessLevel": "owner",
+      "relationshipType": "ACCESS_TO",
+      "createdAt": 1722118760628,
+      "name": "Thin Air",
+      "nodeType": "Organization",
+      "ceo": "Dan Lannan",
+      "employees": 1000,
+      "nodeId": "9c5a0566-2dcb-4675-a64d-07e5352a0947",
+      "updatedAt": 1722118760716
     }
   ],
-  "createdAt": 1722062018077,
-  "nodeId": "6f2a3705-8220-4e8b-906b-59051ce8ffca",
-  "updatedAt": 1722062018077
+  "<-SENT_BY-Message": [
+    {
+      "relationshipType": "SENT_BY",
+      "createdAt": 1722118760628,
+      "text": "Hello, World!",
+      "nodeType": "Message",
+      "contentType": "text",
+      "nodeId": "9f32eed9-95de-42ee-94d7-c58494079e16",
+      "updatedAt": 1722118760716
+    }
+  ]
 }

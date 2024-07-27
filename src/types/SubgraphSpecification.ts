@@ -1,7 +1,7 @@
 import { Inc } from "@thinairthings/utilities";
 import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition";
 import { RelationshipUnion } from "./RelationshipUnion";
-import { AnySubgraphSpecificationNodeSet, RootSubgraphSpecificationNode, SubgraphSpecificationNode } from "./SubgrapSpecificationNode";
+import { AnySubgraphSpecificationNodeSet, RootSubgraphSpecificationNode, SubgraphSpecificationNode } from "./SubgraphSpecificationNode";
 
 
 export type GenericRelationship = `<-${string}-${string}` | `-${string}->${string}`
@@ -58,7 +58,6 @@ export class SubgraphSpecification<
                 ...createPath(x, y + 1), 
                 nodeType: node.nodeType,
                 direction: node.relationship.split('-')[0] === '<' ? 'from' : 'to',
-                options: node.options
             } } : {};
         }
         const createTree = (x: number = 0): TreeNode => {
@@ -70,8 +69,7 @@ export class SubgraphSpecification<
         }
         return {
             ...createTree(),
-            nodeType: this.nodeSet[0].nodeType,
-            options : this.nodeSet[0].options
+            nodeType: this.nodeSet[0].nodeType
         }
     }
     root(){

@@ -11,7 +11,6 @@ type CurrentTargetNodeType<
     ? (NodeSet[number] & {nodeIndex: `n_0_0`})['nodeType']
     : (NodeSet[number] & {nodeIndex: CurrentNodeIndex})['nodeType']
 
-export type GenericRelationship = `<-${string}-${string}` | `-${string}->${string}`
 
 export type ExtractionOptions = {
     limit?: number

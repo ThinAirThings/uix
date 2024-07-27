@@ -1,5 +1,5 @@
 
-import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey} from "@thinairthings/uix"
+import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey, AnySubgraphSpecification} from "@thinairthings/uix"
 import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 import { createImmerState } from "@thinairthings/utilities";
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "../uix/generated/staticObjects";
@@ -82,8 +82,14 @@ export const useSubgraph = <
 }
 
 
-export const useDraft = <
-    T extends GenericNodeKey & {relatedNodeId: string}
+export const useMerge = <
+    NodeType extends keyof ConfiguredNodeDefinitionMap,
+    SubgraphSpecificationRef extends AnySubgraphSpecification | undefined,
+    Subgraph extends SubgraphSpecificationRef extends AnySubgraphSpecification 
+        ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & (SubgraphSpecificationRef extends AnySubgraphSpecification 
+            ? SubgraphTree<ConfiguredNodeDefinitionMap, SubgraphSpecificationRef>
+            : unknown)
+        : {nodeType: NodeType, nodeId?: string}
 >(
     node: T
 ) => {
