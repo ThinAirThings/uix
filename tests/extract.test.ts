@@ -24,7 +24,7 @@ test('Query path test', async () => {
             .addNode('<-SENT_BY-Message')
     })
     if (userATreeNodeType) {
-        // userATreeNodeType.map(node => node['-ACCESS_TO->Organization'])
+        userATreeNodeType.map(node => node['-ACCESS_TO->Organization'].map(node => node))
     }
     const {data: userATreeNodeIndex} = await extractSubgraph({
         referenceType: 'nodeIndex',

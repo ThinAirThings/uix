@@ -1,10 +1,10 @@
 [
   {
-    "createdAt": 1721873251920,
+    "createdAt": 1721966653099,
     "nodeType": "User",
-    "nodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
+    "nodeId": "ce64ae6b-a358-431f-a647-4ece52c6f6ac",
     "email": "userA@test.com",
-    "updatedAt": 1721873252937,
+    "updatedAt": 1721966653259,
     "-ACCESS_TO->Organization": [
       {
         "relationship": "User-ACCESS_TO->Organization",
@@ -13,14 +13,14 @@
         "accessLevel": "member",
         "cardinality": "many-to-many",
         "direction": "to",
-        "createdAt": 1721873252137,
-        "name": "Ranger Solar",
+        "createdAt": 1721966653148,
+        "name": "Thin Air",
         "nodeType": "Organization",
-        "ceo": "Bob Johnson",
+        "ceo": "Tim Stevens",
         "employees": 100,
-        "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
-        "updatedAt": 1721873252137,
-        "relatedNodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b",
+        "nodeId": "a312c419-bc04-4487-a5ae-dcbb57617458",
+        "updatedAt": 1721966653148,
+        "relatedNodeId": "ce64ae6b-a358-431f-a647-4ece52c6f6ac",
         "<-BELONGS_TO-Project": [
           {
             "relationship": "Organization<-BELONGS_TO-Project",
@@ -29,12 +29,44 @@
             "testing": "test",
             "cardinality": "many-to-one",
             "direction": "from",
-            "createdAt": 1721873252395,
+            "createdAt": 1721966653187,
+            "name": "Other project",
+            "nodeType": "Project",
+            "nodeId": "ee2f82f8-fd7e-490b-b567-fb5967fe81d9",
+            "updatedAt": 1721966653187,
+            "relatedNodeId": "a312c419-bc04-4487-a5ae-dcbb57617458"
+          }
+        ]
+      },
+      {
+        "relationship": "User-ACCESS_TO->Organization",
+        "relationshipType": "ACCESS_TO",
+        "strength": "weak",
+        "accessLevel": "member",
+        "cardinality": "many-to-many",
+        "direction": "to",
+        "createdAt": 1721966653132,
+        "name": "Ranger Solar",
+        "nodeType": "Organization",
+        "ceo": "Bob Johnson",
+        "employees": 100,
+        "nodeId": "b9bcef34-610e-489e-8c48-3b28e3cb28c5",
+        "updatedAt": 1721966653132,
+        "relatedNodeId": "ce64ae6b-a358-431f-a647-4ece52c6f6ac",
+        "<-BELONGS_TO-Project": [
+          {
+            "relationship": "Organization<-BELONGS_TO-Project",
+            "strength": "strong",
+            "relationshipType": "BELONGS_TO",
+            "testing": "test",
+            "cardinality": "many-to-one",
+            "direction": "from",
+            "createdAt": 1721966653168,
             "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
-            "updatedAt": 1721873252395,
-            "relatedNodeId": "cd1134bd-04c3-477c-9612-e971af5b1932"
+            "nodeId": "9d10d98b-8f3d-4863-a708-bd66d90f1e75",
+            "updatedAt": 1721966653168,
+            "relatedNodeId": "b9bcef34-610e-489e-8c48-3b28e3cb28c5"
           }
         ]
       }
@@ -46,13 +78,13 @@
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721873252895,
+        "createdAt": 1721966653245,
         "text": "I am doing well!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "ff65fd42-ea5b-4d3d-82e6-1700743c575b",
-        "updatedAt": 1721873252895,
-        "relatedNodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b"
+        "nodeId": "e156c177-f595-4035-8fa3-02363f50f13c",
+        "updatedAt": 1721966653245,
+        "relatedNodeId": "ce64ae6b-a358-431f-a647-4ece52c6f6ac"
       },
       {
         "relationship": "User<-SENT_BY-Message",
@@ -60,22 +92,22 @@
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721873252716,
+        "createdAt": 1721966653218,
         "text": "Hello User B!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "20097414-148b-4cba-a11f-a7705f83e176",
-        "updatedAt": 1721873252716,
-        "relatedNodeId": "845cbf3d-97cc-4eb4-b6d9-631a1484e88b"
+        "nodeId": "0cd08874-7114-4467-953e-3f2cce1202ad",
+        "updatedAt": 1721966653218,
+        "relatedNodeId": "ce64ae6b-a358-431f-a647-4ece52c6f6ac"
       }
     ]
   },
   {
-    "createdAt": 1721873252106,
+    "createdAt": 1721966653116,
     "nodeType": "User",
-    "nodeId": "424c5b7a-5042-4a7f-a230-9de8e98ba86c",
+    "nodeId": "e7b77a49-d4b2-48a5-b157-cdf6ab5022d4",
     "email": "userB@test.com",
-    "updatedAt": 1721873252106,
+    "updatedAt": 1721966653116,
     "-ACCESS_TO->Organization": [
       {
         "relationship": "User-ACCESS_TO->Organization",
@@ -84,14 +116,14 @@
         "accessLevel": "member",
         "cardinality": "many-to-many",
         "direction": "to",
-        "createdAt": 1721873252137,
-        "name": "Ranger Solar",
+        "createdAt": 1721966653148,
+        "name": "Thin Air",
         "nodeType": "Organization",
-        "ceo": "Bob Johnson",
+        "ceo": "Tim Stevens",
         "employees": 100,
-        "nodeId": "cd1134bd-04c3-477c-9612-e971af5b1932",
-        "updatedAt": 1721873252137,
-        "relatedNodeId": "424c5b7a-5042-4a7f-a230-9de8e98ba86c",
+        "nodeId": "a312c419-bc04-4487-a5ae-dcbb57617458",
+        "updatedAt": 1721966653148,
+        "relatedNodeId": "e7b77a49-d4b2-48a5-b157-cdf6ab5022d4",
         "<-BELONGS_TO-Project": [
           {
             "relationship": "Organization<-BELONGS_TO-Project",
@@ -100,12 +132,44 @@
             "testing": "test",
             "cardinality": "many-to-one",
             "direction": "from",
-            "createdAt": 1721873252395,
+            "createdAt": 1721966653187,
+            "name": "Other project",
+            "nodeType": "Project",
+            "nodeId": "ee2f82f8-fd7e-490b-b567-fb5967fe81d9",
+            "updatedAt": 1721966653187,
+            "relatedNodeId": "a312c419-bc04-4487-a5ae-dcbb57617458"
+          }
+        ]
+      },
+      {
+        "relationship": "User-ACCESS_TO->Organization",
+        "relationshipType": "ACCESS_TO",
+        "strength": "weak",
+        "accessLevel": "member",
+        "cardinality": "many-to-many",
+        "direction": "to",
+        "createdAt": 1721966653132,
+        "name": "Ranger Solar",
+        "nodeType": "Organization",
+        "ceo": "Bob Johnson",
+        "employees": 100,
+        "nodeId": "b9bcef34-610e-489e-8c48-3b28e3cb28c5",
+        "updatedAt": 1721966653132,
+        "relatedNodeId": "e7b77a49-d4b2-48a5-b157-cdf6ab5022d4",
+        "<-BELONGS_TO-Project": [
+          {
+            "relationship": "Organization<-BELONGS_TO-Project",
+            "strength": "strong",
+            "relationshipType": "BELONGS_TO",
+            "testing": "test",
+            "cardinality": "many-to-one",
+            "direction": "from",
+            "createdAt": 1721966653168,
             "name": "Solar Project for Bill",
             "nodeType": "Project",
-            "nodeId": "e295ea80-264e-48b3-b66e-fefa3ebf60f2",
-            "updatedAt": 1721873252395,
-            "relatedNodeId": "cd1134bd-04c3-477c-9612-e971af5b1932"
+            "nodeId": "9d10d98b-8f3d-4863-a708-bd66d90f1e75",
+            "updatedAt": 1721966653168,
+            "relatedNodeId": "b9bcef34-610e-489e-8c48-3b28e3cb28c5"
           }
         ]
       }
@@ -117,13 +181,13 @@
         "relationshipType": "SENT_BY",
         "cardinality": "many-to-one",
         "direction": "from",
-        "createdAt": 1721873252876,
+        "createdAt": 1721966653232,
         "text": "How are you User A!",
         "nodeType": "Message",
         "contentType": "text",
-        "nodeId": "709fb0fe-851e-4618-b90b-797cd05f178d",
-        "updatedAt": 1721873252876,
-        "relatedNodeId": "424c5b7a-5042-4a7f-a230-9de8e98ba86c"
+        "nodeId": "8b95b146-e58f-4ba3-8e18-aa3c733ccda8",
+        "updatedAt": 1721966653232,
+        "relatedNodeId": "e7b77a49-d4b2-48a5-b157-cdf6ab5022d4"
       }
     ]
   }

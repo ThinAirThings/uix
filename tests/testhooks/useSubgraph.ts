@@ -1,10 +1,11 @@
 
-import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape} from "@thinairthings/uix"
-import { QueryClient, useQuery, useQueryClient} from "@tanstack/react-query"
+import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey} from "@thinairthings/uix"
+import { useQuery, useQueryClient} from "@tanstack/react-query"
 import { createImmerState } from "@thinairthings/utilities";
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap, NodeKey } from "../uix/generated/staticObjects";
 import { extractSubgraph } from "../uix/generated/functionModule";
-
+import {makeAutoObservable} from 'mobx'
+import { useEffect, useRef } from "react";
 const subgraphStore = createImmerState({
     nodeMap: new Map<string, NodeShape<ConfiguredNodeDefinitionMap[keyof ConfiguredNodeDefinitionMap]>>(),
 })
@@ -13,13 +14,13 @@ export const useSubgraph = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
     ReferenceType extends 'nodeType' | 'nodeIndex' = 'nodeIndex',
     TypedSubgraph extends AnyExtractionSubgraph | undefined = undefined,
-    Data = ReferenceType extends 'nodeIndex'
-    ? TypedSubgraph extends AnyExtractionSubgraph
-        ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
-        : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
-    : TypedSubgraph extends AnyExtractionSubgraph
-        ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
-        : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]
+    // Data = ReferenceType extends 'nodeIndex'
+    // ? TypedSubgraph extends AnyExtractionSubgraph
+    //     ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
+    //     : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
+    // : TypedSubgraph extends AnyExtractionSubgraph
+    //     ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
+    //     : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]
 >(params: (({
     nodeType: NodeType
 }) & (
@@ -36,83 +37,143 @@ export const useSubgraph = <
         subgraphSelector?: (subgraph: ExtractionSubgraph<ConfiguredNodeDefinitionMap, `n_0_0`, readonly [
             RootExtractionNode<ConfiguredNodeDefinitionMap, NodeType>
         ]>) => TypedSubgraph
-        selector?: (data: ReferenceType extends 'nodeIndex'
-            ? TypedSubgraph extends AnyExtractionSubgraph
-                ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
-                : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
-            : TypedSubgraph extends AnyExtractionSubgraph
-                ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
-                : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]) => Data
+        // selector?: (data: ReferenceType extends 'nodeIndex'
+        //     ? TypedSubgraph extends AnyExtractionSubgraph
+        //         ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
+        //         : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
+        //     : TypedSubgraph extends AnyExtractionSubgraph
+        //         ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
+        //         : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]) => Data
     }))
-    //  | ({
-    //     nodeShape: NodeKey<NodeType>
-    //     selector?: (data: NodeShape<ConfiguredNodeDefinitionMap[NodeType]>) => Data
-    // })
 ) => {
+    type SubgraphType = ReferenceType extends 'nodeIndex'
+        ? TypedSubgraph extends AnyExtractionSubgraph
+            ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
+            : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
+        : TypedSubgraph extends AnyExtractionSubgraph
+            ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
+            : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]
 
-    const { data, error, isPending, isSuccess } = useQuery({
-        queryKey: [...'referenceType' in params ? [
+    const subgraphRef = useRef<SubgraphType>()
+    type UixNode<T extends SubgraphType> = T & {
+        update: "Dan"
+        FDSAFADSFSAFSD: string
+    }
+    type UixClassConstructor = {
+        new <T extends SubgraphType>(node: T): UixNode<T>
+    }
+    const UixNode = class UixNode<
+        T extends GenericNodeKey
+    > {
+        constructor(node:T){
+            Object.assign(this, node)
+        }
+    } as UixClassConstructor
+    const uixSubgraphRef = useRef<UixNode<SubgraphType>>()
+    const { data: subgraph, error, isPending, isSuccess } = useQuery({
+        queryKey: [
             params, 
             // params.subgraphSelector?.(ExtractionSubgraph.create(nodeDefinitionMap, params.nodeType))?.getQueryTree()
-        ] : [
-            // params.nodeShape.nodeId, params.nodeShape
-        ]],
+        ],
         //@ts-ignore
         queryFn: async () => {
             console.log("RUNNING QUERY")
-            const result = 'referenceType' in params 
-                ? await extractSubgraph(params) 
-                : null as any
-                // await extractSubgraph({
-                //     nodeType: params.nodeShape.nodeType,
-                //     referenceType: 'nodeIndex',
-                //     indexKey: 'nodeId',
-                //     indexValue: params.nodeShape.nodeId,
-                // })
+            const result = await extractSubgraph(params) 
             if (result.error) throw new QueryError(result.error)
-            // Create queryKeyTree
-            
-            return result.data as ReferenceType extends 'nodeIndex'
-                ? TypedSubgraph extends AnyExtractionSubgraph
-                    ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>
-                    : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>
-                : TypedSubgraph extends AnyExtractionSubgraph
-                    ? (NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>)[]
-                    : NodeShape<ConfiguredNodeDefinitionMap[NodeType]>[]
+            // Create queryKeyTree 
+            const subgraph = result.data as SubgraphType
+            subgraphRef.current = subgraph
+            return subgraph
         },
-        select: params.selector
+        // select: params.selector
     })
+    // Create State Tree
+    useEffect(() => {
+        if (!subgraph) return
+
+        const convertToUixNode = <T extends SubgraphType>(
+            previousNodeRef: T,
+            currentNodeRef:T,
+            currentUixNode?: UixNode<T>
+        ) => {
+            if ((previousNodeRef === currentNodeRef) && currentUixNode) return currentUixNode
+            // Recursively convert related nodes if they exist
+            const uixNode = new UixNode(currentNodeRef)
+            Object.keys(uixNode).forEach(key => {
+                if (key.includes('<-') || key.includes('->')) {
+                    console.log("Here")
+                    if (Array.isArray(uixNode[key])) {
+                        uixNode[key] = uixNode[key].map((node, index) => convertToUixNode(
+                            previousNodeRef[key][index], 
+                            currentNodeRef[key][index], 
+                            currentUixNode ? currentUixNode[key][index] : undefined
+                        ))
+                    } else {
+                        uixNode[key] = convertToUixNode(previousNodeRef[key], currentNodeRef[key], currentUixNode ? currentUixNode[key] : undefined)
+                    }
+                }
+            })
+            return uixNode
+        }
+        const uixSubgraph = convertToUixNode(subgraphRef.current!, subgraph!, uixSubgraphRef.current)
+        uixSubgraphRef.current = uixSubgraph
+    }, [subgraph])
     return {
-        data,
+        subgraph,
+        uixSubgraph: uixSubgraphRef.current,
         error,
         isPending,
         isSuccess
     }
 }
 
-// NOTE! You can do type level hook loops, but not node level hook loops
-export const useNode = <
-    N extends NodeShape<ConfiguredNodeDefinitionMap[keyof ConfiguredNodeDefinitionMap]> 
-        & ({relationship?: `${string}-${string}->${string}` | `${string}<-${string}-${string}`}),
-    Data = N
->(
-    nodeData: N,
-    selector?: (node: N) => Data
-) => {
-
-    const {data, error, isPending} = useQuery({
-        queryKey: [nodeData.nodeId],
-        queryFn: async () => {
-            const result = await extractSubgraph({
-                nodeType: nodeData.nodeType,
-                indexKey: 'nodeId',
-                indexValue: nodeData.nodeId,
-                referenceType: 'nodeIndex',
-            })
-            if (result.error) throw new QueryError(result.error)
-            return result.data as N
-        },
-        select: selector
-    })
-    return {data, error, isPending}
+type UixNode<T extends GenericNodeKey> = T & {
+    update: "Dan"
 }
+type UixClassConstructor = {
+    new <T extends GenericNodeKey>(node: T): UixNode<T>
+}
+export const UixNode = class UixNode<
+    T extends GenericNodeKey
+> {
+    constructor(node:T){
+        Object.assign(this, node)
+    }
+} as UixClassConstructor
+
+export const convertToUixNode = <T extends GenericNodeKey>(
+    previousNodeRef: T,
+    currentNodeRef:T,
+    currentUixNode?: UixNode<T>
+) => {
+    if ((previousNodeRef === currentNodeRef) && currentUixNode) return currentUixNode
+    // Recursively convert related nodes if they exist
+    const uixNode = new UixNode(currentNodeRef)
+    Object.keys(uixNode).forEach(key => {
+        if (key.includes('<-') || key.includes('->')) {
+            console.log("Here")
+            if (Array.isArray(uixNode[key])) {
+                uixNode[key] = uixNode[key].map((node, index) => convertToUixNode(
+                    previousNodeRef[key][index], 
+                    currentNodeRef[key][index], 
+                    currentUixNode ? currentUixNode[key][index] : undefined
+                ))
+            } else {
+                uixNode[key] = convertToUixNode(previousNodeRef[key], currentNodeRef[key], currentUixNode ? currentUixNode[key] : undefined)
+            }
+        }
+    })
+    return uixNode
+}
+
+const convertToTree = <T extends GenericNodeKey>(
+    previousSubgraphRef: T,
+    currentSubgraphRef:T,
+    currentUixSubgraphRef: UixNode<T>
+) => {
+    if (previousSubgraphRef === currentSubgraphRef) return currentUixSubgraphRef
+    // Recursively convert related nodes if they exist
+    return convertToUixNode(previousSubgraphRef, currentSubgraphRef, currentUixSubgraphRef)
+}
+
+

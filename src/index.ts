@@ -11,6 +11,7 @@ export * from './types/ExtractionNode'
 export * from './types/ExtractionSubgraph'
 // // Function
 export * from './fns/mergeSubgraphFactory'
+export * from './fns/mergeSubgraphFactoryv2'
 export * from './fns/extractSubgraphFactory'
 export * from './fns/deleteNodeFactory'
 

@@ -35,11 +35,6 @@ test('Integration test', async () => {
     const { data: organizationNode, error: createOrganizationNodeError } = await mergeSubgraph({
         operation: 'create',
         nodeType: 'Organization',
-        // strongRelationshipMap: {
-        //     'PAID_FOR': {
-        //         'to': 
-        //     }
-        // },
         weakRelationshipMap: {
             'ACCESS_TO': {
                 from: [{
@@ -61,6 +56,32 @@ test('Integration test', async () => {
             'employees': 100
         }
     })
+    // Create Organization2
+    const { data: organizationNode2, error: createOrganizationNodeError2 } = await mergeSubgraph({
+        operation: 'create',
+        nodeType: 'Organization',
+        weakRelationshipMap: {
+            'ACCESS_TO': {
+                from: [{
+                    nodeKey: userNodeA,
+                    state: {
+                        accessLevel: 'member',
+                    }
+                }, {
+                    nodeKey: userNodeB,
+                    state: {
+                        accessLevel: 'member'
+                    }
+                }],
+            }
+        },
+        state: {
+            name: "Thin Air",
+            'ceo': "Tim Stevens",
+            'employees': 100
+        }
+    })
+    if (createOrganizationNodeError2) throwTestError(createOrganizationNodeError2)
     if (createOrganizationNodeError) throwTestError(createOrganizationNodeError)
     // Create Project
     const { data: projectNode, error: createProjectNodeError } = await mergeSubgraph({
@@ -93,6 +114,39 @@ test('Integration test', async () => {
         },
         state: {
             name: "Solar Project for Bill"
+        }
+    })
+    // Create Project
+    const { data: projectNode2, error: createProjectNodeError2 } = await mergeSubgraph({
+        operation: 'create',
+        nodeType: 'Project',
+        strongRelationshipMap: {
+            'BELONGS_TO': {
+                to: {
+                    nodeKey: organizationNode2,
+                    state: {
+                        'testing': 'test'
+                    }
+                }
+            }
+        },
+        weakRelationshipMap: {
+            'ACCESS_TO': {
+                'from': [{
+                    nodeKey: userNodeA,
+                    state: {
+                        accessLevel: 'owner',
+                    }
+                }, {
+                    nodeKey: userNodeB,
+                    state: {
+                        accessLevel: 'member',
+                    }
+                }]
+            }
+        },
+        state: {
+            name: "Other project"
         }
     })
     const { data: chatNode, error: createChatNodeError } = await mergeSubgraph({
