@@ -33,22 +33,22 @@ test('Integration test', async () => {
             .root()
             // .addNode('<-SENT_BY-Message')
     })
-    const {data: newMerge, error} = await mergeSubgraphv3({
+    const {data: merge, error} = await mergeSubgraphv3({
         nodeType: 'User',
         email: "Dan",
         '-ACCESS_TO->Organization': [{
             'accessLevel': 'member',
             'ceo': 'Bob Johnson',
             'employees': 100,
-            'name': 'Ranger Solar'
-        }]
+            'name': 'Ranger Solar',
+        }],
         // nodeId: 'fdsa', 
     }) 
-    newMerge
-    const {data: newMerge2} = await mergeSubgraphv3(createUserNode!, (draft) => {
+    const thing = merge!
+    const {data: update} = await mergeSubgraphv3(merge!, (draft) => {
         draft['-ACCESS_TO->Organization']
     }) 
-    newMerge2!
+    update!['-ACCESS_TO->Organization'][0]
     if (createUserNodeError) throwTestError(createUserNodeError)
     if (createUserNode) {
         await writeFile('tests/mergev2:data.json', JSON.stringify(createUserNode, null, 2))

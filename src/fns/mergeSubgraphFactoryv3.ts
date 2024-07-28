@@ -45,7 +45,7 @@ export const mergeSubgraphFactoryv3 = <
     nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
-    Subgraph extends NodeShape<NodeDefinitionMap[NodeType]> | unknown = unknown
+    Subgraph extends NodeShape<NodeDefinitionMap[NodeType]> | NodeState<NodeDefinitionMap[NodeType]>
 >(subgraph: (
     ({
         nodeType: NodeType
@@ -172,15 +172,33 @@ export const mergeSubgraphFactoryv3 = <
     })
     return Ok(result as Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
         ? Subgraph
-        : NodeShapeTree<NodeDefinitionMap, Subgraph>
-        
-        // NodeShape<NodeDefinitionMap[NodeType]>
+        : NodeShapeTree<NodeDefinitionMap, NodeType, Subgraph>
     )
 })
 
 type NodeShapeTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
-    // NodeType extends keyof NodeDefinitionMap,
-    Subgraph extends {nodeType: keyof NodeDefinitionMap},
-> = NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>
+    NodeType extends keyof NodeDefinitionMap,
+    Subgraph extends {nodeType: NodeType} & Record<string, any>,
+> = NodeShape<NodeDefinitionMap[NodeType]> & {
+    [Relationship in keyof Subgraph as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>>]: 
+        (Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+            ? NodeDefinitionMap[Subgraph['nodeType']]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                ? AnyRelationshipDefinition extends RelationshipUnionRef
+                    ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `${string}-many`
+                        ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship][number]>)[]
+                        : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship]>
+                    : unknown
+                : unknown
+            : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+                ? NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                    ? AnyRelationshipDefinition extends RelationshipUnionRef
+                        ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `many-${string}`
+                            ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship][number]>)[]
+                            : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship]>
+                        : unknown
+                    : unknown
+                : unknown
+        )
+}
 
