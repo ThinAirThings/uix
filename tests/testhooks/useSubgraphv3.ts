@@ -1,14 +1,10 @@
-
 import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey, AnySubgraphSpecification, NodeState, SubgraphSpecification, RootSubgraphSpecificationNode} from "@thinairthings/uix"
 import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
-import { createImmerState } from "@thinairthings/utilities";
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "../uix/generated/staticObjects";
 import { extractSubgraph, mergeSubgraph } from "../uix/generated/functionModule";
 import {useImmer} from "@thinairthings/use-immer"
 import { Draft } from "immer";
-const subgraphStore = createImmerState({
-    nodeMap: new Map<string, NodeShape<ConfiguredNodeDefinitionMap[keyof ConfiguredNodeDefinitionMap]>>(),
-})
+
 
 export const cacheKeyMap = new Map<string, any>()
 
@@ -16,24 +12,25 @@ export const useSubgraph = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
     ReferenceType extends 'nodeType' | 'nodeIndex' = 'nodeIndex',
     TypedSubgraph extends AnyExtractionSubgraph | undefined = undefined
->(params: (({
+>(params: (
+({
     nodeType: NodeType
 }) & (
-        ReferenceType extends 'nodeType'
-        ? ({
-            referenceType: `${ReferenceType}`
-            options?: ExtractionOptions
-        }) : ({
-            referenceType: ReferenceType
-            indexKey: ConfiguredNodeDefinitionMap[NodeType]['uniqueIndexes'][number]
-            indexValue: string
-        })
-    ) & ({
-        subgraphSelector?: (subgraph: ExtractionSubgraph<ConfiguredNodeDefinitionMap, `n_0_0`, readonly [
-            RootExtractionNode<ConfiguredNodeDefinitionMap, NodeType>
-        ]>) => TypedSubgraph
-    }))
-) => {
+    ReferenceType extends 'nodeType'
+    ? ({
+        referenceType: `${ReferenceType}`
+        options?: ExtractionOptions
+    }) : ({
+        referenceType: ReferenceType
+        indexKey: ConfiguredNodeDefinitionMap[NodeType]['uniqueIndexes'][number]
+        indexValue: string
+    })
+) & ({
+    subgraphSelector?: (subgraph: ExtractionSubgraph<ConfiguredNodeDefinitionMap, `n_0_0`, readonly [
+        RootExtractionNode<ConfiguredNodeDefinitionMap, NodeType>
+    ]>) => TypedSubgraph
+})
+)) => {
     type SubgraphType = ReferenceType extends 'nodeIndex'
         ? TypedSubgraph extends AnyExtractionSubgraph
             ? NodeShape<ConfiguredNodeDefinitionMap[NodeType]> & SubgraphTree<ConfiguredNodeDefinitionMap, TypedSubgraph>

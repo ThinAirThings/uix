@@ -37,9 +37,9 @@ test('Query path test', async () => {
             .root()
             // .addNode('-ACCESS_TO->Organization')
             // .addNode('<-BELONGS_TO-Project')
-            // .root()
             // .addNode('<-SENT_BY-Message')
     })
+    console.log(userATreeNodeIndex)
     if (userATreeNodeIndex) {
         userATreeNodeIndex['-ACCESS_TO->Organization'].map(node => node)
         // userATreeNodeIndex['-ACCESS_TO->Organization']

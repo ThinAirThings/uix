@@ -97,7 +97,7 @@ export const extractSubgraphFactory = <
     })
 ) => {
     let queryString = dedent/*cypher*/`
-        match (n_0_0:${params.nodeType} ${params.referenceType === 'nodeIndex' ? /*cypher*/`{${params.indexKey}: "${params.indexValue}"}` : ''})
+        optional match (n_0_0:${params.nodeType} ${params.referenceType === 'nodeIndex' ? /*cypher*/`{${params.indexKey}: "${params.indexValue}"}` : ''})
         ${'options' in params && params.options && 'limit' in params.options
             ? dedent/*cypher*/`
                 with n_0_0
@@ -113,7 +113,7 @@ export const extractSubgraphFactory = <
         queryString += dedent/*cypher*/`\n
             call {
                 with n_${(dimension > 0 && depth === 1) ? 0 : dimension}_${depth - 1}
-                match (n_${(dimension > 0 && depth === 1) ? 0 : dimension}_${depth - 1})${nodeRelation.direction === 'from' ? '<' : ''}-[r_${dimension}_${depth}:${relationshipType}]-${nodeRelation.direction === 'to' ? '>' : ''}(n_${dimension}_${depth}:${nodeRelation.nodeType})
+                optional match (n_${(dimension > 0 && depth === 1) ? 0 : dimension}_${depth - 1})${nodeRelation.direction === 'from' ? '<' : ''}-[r_${dimension}_${depth}:${relationshipType}]-${nodeRelation.direction === 'to' ? '>' : ''}(n_${dimension}_${depth}:${nodeRelation.nodeType})
                 ${'options' in nodeRelation && nodeRelation.options && 'limit' in nodeRelation.options
                 ? dedent/*cypher*/`
                     return ${newVariables.join(', ')}
@@ -143,6 +143,7 @@ export const extractSubgraphFactory = <
     queryString += dedent/*cypher*/`\n
         return ${variableList.join(', ')}
     `
+    console.log(queryString)
     const collection = await neo4jDriver().executeQuery<EagerCollectionResult>(queryString, {
         indexValue: 'indexValue' in params ? params.indexValue : undefined
     }).then(async (result) => {

@@ -3,55 +3,61 @@ import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeDefinitionMap, GenericNodeShape, NodeShape, NodeState } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import { v4 as uuid } from 'uuid'
-import {  GenericRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition"
-import { GenericNodeKey, NodeKey } from "../types/NodeKey"
-import { AnySubgraphSpecification, SubgraphSpecification } from "../types/SubgraphSpecification"
-import { RootSubgraphSpecificationNode } from "../types/SubgraphSpecificationNode"
-import { SubgraphTree } from "../types/SubgraphTypeFunctions"
+import {  AnyRelationshipDefinition, GenericRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition"
+import { GenericNodeKey} from "../types/NodeKey"
 import { Draft, produce } from "immer"
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver"
+import { RelationshipUnion } from "../types/RelationshipUnion"
 
 
-type RecordIndex = `n_${number}_${number}` | `r_${number}_${number}`
 
-export const mergeSubgraphFactoryv2 = <
+type NodeStateTree<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap,
+> = (
+    NodeState<NodeDefinitionMap[NodeType]>&{nodeId?:string}
+) & {
+    [Relationship in RelationshipUnion<NodeDefinitionMap, NodeType>]?: {
+        nodeId?: string
+    } & (Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+        ? NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+            ? AnyRelationshipDefinition extends RelationshipUnionRef
+                ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `${string}-many`
+                    ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>)[]
+                    : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>
+                : unknown
+            : unknown
+        : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+            ? NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                ? AnyRelationshipDefinition extends RelationshipUnionRef
+                    ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `many-${string}`
+                        ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>)[]
+                        : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>
+                    : unknown
+                : unknown
+            : unknown
+    )
+}
+
+export const mergeSubgraphFactoryv3 = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
     nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
-    SubgraphSpecificationRef extends AnySubgraphSpecification | undefined,
-    Subgraph extends SubgraphSpecificationRef extends AnySubgraphSpecification 
-        ? NodeShape<NodeDefinitionMap[NodeType]> & (SubgraphSpecificationRef extends AnySubgraphSpecification 
-            ? SubgraphTree<NodeDefinitionMap, SubgraphSpecificationRef>
-            : unknown)
-        : {nodeType: NodeType, nodeId?: string},
->(params: (
-({
-    nodeType: NodeType
-}) & (({
-    operation: 'update',
-    subgraph: Subgraph,
-    updater: (draft: Draft<Subgraph>) => void
-}) | ({
-    operation: 'create',
-    state: NodeState<NodeDefinitionMap[NodeType]> & (SubgraphSpecificationRef extends AnySubgraphSpecification 
-        ? SubgraphTree<NodeDefinitionMap, SubgraphSpecificationRef>
-        : unknown
-    ),
-})) & ({
-    subgraphSpec?: (subgraph: SubgraphSpecification<NodeDefinitionMap, `n_0_0`, readonly [
-        RootSubgraphSpecificationNode<NodeDefinitionMap, NodeType>
-    ]>) => SubgraphSpecificationRef
-}))
+    Subgraph extends NodeShape<NodeDefinitionMap[NodeType]> | unknown = unknown
+>(subgraph: (
+    ({
+        nodeType: NodeType
+    }) & Subgraph & (NodeStateTree<NodeDefinitionMap, NodeType>)
+), 
+    ...[updater]: Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
+    ? [(draft: Draft<Subgraph>) => void]
+    : []
 ) => {
     const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key]) => !(key.includes('->') || key.includes('<-'))))
     const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
-    console.log(JSON.stringify(params, null, 2))
-    const subgraphRef = (params.operation === 'update' ? produce(params.subgraph, params.updater) : {
-        nodeType: params.nodeType,
-        ...params.state
-    })
+    const subgraphRef = ('createdAt' in subgraph ? produce(subgraph, updater) : subgraph)
     // Flatten Tree 
     // Create Index Set
     const rootVariable = `n_t0_i0`
@@ -81,7 +87,7 @@ export const mergeSubgraphFactoryv2 = <
             ${relationshipString}
             (n_${path}:${relation?.nodeType??pathSegments[2].replaceAll('>', '')} { 
                 nodeId: "${relation.nodeId ? relation.nodeId : uuid()}"
-                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes.map(index => `${index}: "${relation[index]}"`).join(', ')}
+                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes.map((index: any) => `${index}: "${relation[index]}"`).join(', ')}
             })
             on create
                 set n_${path} += $n_${path}_state,
@@ -164,5 +170,17 @@ export const mergeSubgraphFactoryv2 = <
         }
         return buildTree(rootNode as any, rootStringIndex)
     })
-    return Ok(result as Subgraph)
+    return Ok(result as Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
+        ? Subgraph
+        : NodeShapeTree<NodeDefinitionMap, Subgraph>
+        
+        // NodeShape<NodeDefinitionMap[NodeType]>
+    )
 })
+
+type NodeShapeTree<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    // NodeType extends keyof NodeDefinitionMap,
+    Subgraph extends {nodeType: keyof NodeDefinitionMap},
+> = NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>
+

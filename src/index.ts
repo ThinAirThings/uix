@@ -14,6 +14,7 @@ export * from './types/SubgraphSpecificationNode'
 // // Function
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/mergeSubgraphFactoryv2'
+export * from './fns/mergeSubgraphFactoryv3'
 export * from './fns/extractSubgraphFactory'
 export * from './fns/deleteNodeFactory'
 

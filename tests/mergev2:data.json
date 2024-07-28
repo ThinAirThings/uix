@@ -1,42 +1,31 @@
 {
-  "createdAt": 1722118760628,
+  "createdAt": 1722127722478,
   "nodeType": "User",
-  "nodeId": "ef01a56d-338b-4fd9-bf5e-e6ec96752680",
-  "email": "dan.lannan@thinair.cloud",
-  "updatedAt": 1722118760716,
+  "nodeId": "a58b0333-f033-421e-a7c1-f28f38f183ea",
+  "email": "userA@test.com",
+  "updatedAt": 1722127722536,
   "-ACCESS_TO->Organization": [
     {
       "accessLevel": "member",
       "relationshipType": "ACCESS_TO",
-      "createdAt": 1722118760628,
+      "createdAt": 1722127722478,
       "name": "Ranger Solar",
       "ceo": "Bobothy",
       "nodeType": "Organization",
       "employees": 100,
-      "nodeId": "57ffd214-956e-431e-be1b-051f5eeb9880",
-      "updatedAt": 1722118760716
+      "nodeId": "ee4d55c6-6dc4-4bca-b14d-fdc5c9ca82a3",
+      "updatedAt": 1722127722536
     },
     {
       "accessLevel": "owner",
       "relationshipType": "ACCESS_TO",
-      "createdAt": 1722118760628,
+      "createdAt": 1722127722478,
       "name": "Thin Air",
       "nodeType": "Organization",
       "ceo": "Dan Lannan",
       "employees": 1000,
-      "nodeId": "9c5a0566-2dcb-4675-a64d-07e5352a0947",
-      "updatedAt": 1722118760716
-    }
-  ],
-  "<-SENT_BY-Message": [
-    {
-      "relationshipType": "SENT_BY",
-      "createdAt": 1722118760628,
-      "text": "Hello, World!",
-      "nodeType": "Message",
-      "contentType": "text",
-      "nodeId": "9f32eed9-95de-42ee-94d7-c58494079e16",
-      "updatedAt": 1722118760716
+      "nodeId": "ca5b4cfd-4fac-4263-beb6-aabb5aee6ac4",
+      "updatedAt": 1722127722536
     }
   ]
 }
