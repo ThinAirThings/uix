@@ -21,6 +21,7 @@ export class ExtractionNode<
         public options?: ExtractionOptions
     ){}
 }
+
 export class RootExtractionNode<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,

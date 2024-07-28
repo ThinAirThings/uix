@@ -6,7 +6,8 @@ import dedent from "dedent"
 import { AnyRelationshipDefinition, CardinalityTypeSet,  RelationshipShape,  StrengthTypeSet } from "../definitions/RelationshipDefinition"
 import { AnyExtractionNode,  GenericExtractionNode, RootExtractionNode } from "../types/ExtractionNode"
 import { Dec, Inc } from "@thinairthings/utilities"
-import { AnyExtractionSubgraph, ExtractionOptions, ExtractionSubgraph } from "../types/ExtractionSubgraph"
+import { ExtractionOptions, ExtractionSubgraph } from "../types/ExtractionSubgraph"
+import { AnySubgraphSpecification } from "../types/SubgraphSpecification"
 
 
 type NodeRelation = ({
@@ -76,7 +77,7 @@ export const extractSubgraphFactory = <
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
     ReferenceType extends 'nodeType' | 'nodeIndex',
-    TypedSubgraph extends AnyExtractionSubgraph | undefined = undefined,
+    TypedSubgraph extends AnySubgraphSpecification | undefined = undefined,
 >(params: ({
     nodeType: NodeType
 }) & (
@@ -130,7 +131,7 @@ export const extractSubgraphFactory = <
     }
     const subgraph = params.subgraphSelector?.(ExtractionSubgraph.create(nodeDefinitionMap, params.nodeType)) ?? null
     if (subgraph) {
-        const subgraphQueryTree = subgraph.getQueryTree()
+        const subgraphQueryTree = subgraph.getSubgraphTree()
         const relationshipKeys = Object.keys(subgraphQueryTree )
             .filter((key) => !['direction', 'nodeType', 'options'].includes(key))
             .map((key) => [key.split('-')[1], key])
@@ -239,10 +240,10 @@ export const extractSubgraphFactory = <
     })
 
     return Ok(collection as ReferenceType extends 'nodeIndex'
-        ? TypedSubgraph extends AnyExtractionSubgraph
+        ? TypedSubgraph extends AnySubgraphSpecification
             ? NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>
             : NodeShape<NodeDefinitionMap[NodeType]>
-        : TypedSubgraph extends AnyExtractionSubgraph
+        : TypedSubgraph extends AnySubgraphSpecification
             ? (NodeShape<NodeDefinitionMap[NodeType]> & SubgraphTree<NodeDefinitionMap, TypedSubgraph>)[]
             : NodeShape<NodeDefinitionMap[NodeType]>[]
     )
@@ -250,7 +251,7 @@ export const extractSubgraphFactory = <
 
 export type SubgraphPath<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
-    Subgraph extends AnyExtractionSubgraph, 
+    Subgraph extends AnySubgraphSpecification, 
     X extends number=0, 
     Y extends number = 1
 > = `n_${X}_${Y}` extends Subgraph['nodeSet'][number]['nodeIndex']
@@ -280,13 +281,11 @@ export type SubgraphPath<
                             ? (RelationshipUnionRef & { type: RelationshipType })['cardinality'] extends `many-to-${string}`
                                 ? (
                                     NodeShape<NodeDefinitionMap[NextNodeType]>
-                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
                                     & RelationshipShape<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )[]
                                 : (
                                     NodeShape<NodeDefinitionMap[NextNodeType]>
-                                    & {relationship: `${(Subgraph['nodeSet'][number] & {nodeIndex: `n_${Dec<Y> extends 0 ? 0 : X}_${Dec<Y>}`})['nodeType']}${Relationship}`}
                                     & RelationshipShape<(NodeDefinitionMap[NextNodeType]['relationshipDefinitionSet'][number]&{type: RelationshipType})>
                                     & SubgraphPath<NodeDefinitionMap, Subgraph, X, Inc<Y>>
                                 )
@@ -299,7 +298,7 @@ export type SubgraphPath<
 
 export type SubgraphTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
-    Subgraph extends AnyExtractionSubgraph, 
+    Subgraph extends AnySubgraphSpecification, 
     X extends number = 0
 > = SubgraphPath<NodeDefinitionMap, Subgraph> & (`n_${X}_${1}` extends Subgraph['nodeSet'][number]['nodeIndex']
         ? SubgraphPath<NodeDefinitionMap, Subgraph, X> & SubgraphTree<NodeDefinitionMap, Subgraph, Inc<X>> 

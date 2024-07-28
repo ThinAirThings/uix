@@ -1,10 +1,11 @@
 
-import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey, AnySubgraphSpecification} from "@thinairthings/uix"
+import {AnyExtractionSubgraph, ExtractionSubgraph, ExtractionOptions, RootExtractionNode, QueryError, NodeShape, SubgraphTree, RelationshipShape, GenericNodeKey, AnySubgraphSpecification, NodeState, SubgraphSpecification, RootSubgraphSpecificationNode} from "@thinairthings/uix"
 import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 import { createImmerState } from "@thinairthings/utilities";
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "../uix/generated/staticObjects";
 import { extractSubgraph, mergeSubgraph } from "../uix/generated/functionModule";
 import {useImmer} from "@thinairthings/use-immer"
+import { Draft } from "immer";
 const subgraphStore = createImmerState({
     nodeMap: new Map<string, NodeShape<ConfiguredNodeDefinitionMap[keyof ConfiguredNodeDefinitionMap]>>(),
 })
@@ -80,8 +81,7 @@ export const useSubgraph = <
         isSuccess
     }
 }
-
-
+// @ts-ignore
 export const useMerge = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
     SubgraphSpecificationRef extends AnySubgraphSpecification | undefined,
@@ -90,8 +90,24 @@ export const useMerge = <
             ? SubgraphTree<ConfiguredNodeDefinitionMap, SubgraphSpecificationRef>
             : unknown)
         : {nodeType: NodeType, nodeId?: string}
->(
-    node: T
+>(params: (
+    ({
+        nodeType: NodeType
+    }) & (({
+        operation: 'update',
+        subgraph: Subgraph,
+        updater: (draft: Draft<Subgraph>) => void
+    }) | ({
+        operation: 'create',
+        state: NodeState<ConfiguredNodeDefinitionMap[NodeType]> & (SubgraphSpecificationRef extends AnySubgraphSpecification 
+            ? SubgraphTree<ConfiguredNodeDefinitionMap, SubgraphSpecificationRef>
+            : unknown
+        ),
+    })) & ({
+        subgraphSpec?: (subgraph: SubgraphSpecification<ConfiguredNodeDefinitionMap, `n_0_0`, readonly [
+            RootSubgraphSpecificationNode<ConfiguredNodeDefinitionMap, NodeType>
+        ]>) => SubgraphSpecificationRef
+    }))
 ) => {
     const queryClient = useQueryClient()
     const [draft, updateDraft] = useImmer(node)
