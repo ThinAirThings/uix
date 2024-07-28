@@ -86,11 +86,11 @@ export const mergeSubgraphFactoryv3 = <
             merge p_${path}=(n_${pathSegments.slice(0, pathSegments.length-2).join('_')})
             ${relationshipString}
             (n_${path}:${relation?.nodeType??pathSegments[2].replaceAll('>', '')} { 
-                nodeId: "${relation.nodeId ? relation.nodeId : uuid()}"
-                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes.map((index: any) => `${index}: "${relation[index]}"`).join(', ')}
+                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes.filter((index:string) => !!relation[index]).map((index: any) => `${index}: "${relation[index]}"`).join(', ')}
             })
             on create
-                set n_${path} += $n_${path}_state,
+                set n_${path}.nodeId = "${relation.nodeId ? relation.nodeId : uuid()}",
+                    n_${path} += $n_${path}_state,
                     n_${path}.nodeType = "${relation?.nodeType??pathSegments[2].replaceAll('>', '')}",
                     n_${path}:Node,
                     n_${path}.createdAt = timestamp(),
@@ -181,8 +181,8 @@ type NodeShapeTree<
     NodeType extends keyof NodeDefinitionMap,
     Subgraph extends {nodeType: NodeType} & Record<string, any>,
 > = NodeShape<NodeDefinitionMap[NodeType]> & {
-    [Relationship in keyof Subgraph as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>>]: 
-        (Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+    [Relationship in keyof Subgraph as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>>]: (
+        Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
             ? NodeDefinitionMap[Subgraph['nodeType']]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
                 ? AnyRelationshipDefinition extends RelationshipUnionRef
                     ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `${string}-many`

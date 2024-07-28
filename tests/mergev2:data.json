@@ -1,31 +1,20 @@
 {
-  "createdAt": 1722127722478,
+  "createdAt": 1722204805835,
   "nodeType": "User",
-  "nodeId": "a58b0333-f033-421e-a7c1-f28f38f183ea",
-  "email": "userA@test.com",
-  "updatedAt": 1722127722536,
+  "nodeId": "Custom",
+  "email": "Dan",
+  "updatedAt": 1722204805924,
   "-ACCESS_TO->Organization": [
     {
       "accessLevel": "member",
       "relationshipType": "ACCESS_TO",
-      "createdAt": 1722127722478,
+      "createdAt": 1722204805835,
       "name": "Ranger Solar",
       "ceo": "Bobothy",
       "nodeType": "Organization",
       "employees": 100,
-      "nodeId": "ee4d55c6-6dc4-4bca-b14d-fdc5c9ca82a3",
-      "updatedAt": 1722127722536
-    },
-    {
-      "accessLevel": "owner",
-      "relationshipType": "ACCESS_TO",
-      "createdAt": 1722127722478,
-      "name": "Thin Air",
-      "nodeType": "Organization",
-      "ceo": "Dan Lannan",
-      "employees": 1000,
-      "nodeId": "ca5b4cfd-4fac-4263-beb6-aabb5aee6ac4",
-      "updatedAt": 1722127722536
+      "nodeId": "adc80f2b-de75-4649-bb82-bf3965c4504a",
+      "updatedAt": 1722204805924
     }
   ]
 }
