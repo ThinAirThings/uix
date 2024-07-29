@@ -1,188 +1,213 @@
-import { EagerResult, Integer, Node } from "neo4j-driver"
-import { v4 as uuid } from 'uuid'
-import { AnyZodObject, TypeOf, z } from "zod"
+import dedent from "dedent"
 import { neo4jAction, neo4jDriver } from "../clients/neo4j"
-import { AnyNodeDefinitionMap, GenericNodeDefinition, NodeShape } from "../definitions/NodeDefinition"
-import { UixErr, Ok, UixErrSubtype } from "../types/Result"
-import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion"
-import { formatRelationshipMap, GenericRelationshipMap } from "../utilities/formatRelationshipMap"
-import { IsPartial, RelationshipMergeMap } from "../types/RelationshipMergeMap"
+import { AnyNodeDefinitionMap, GenericNodeShape, NodeShape, NodeState } from "../definitions/NodeDefinition"
+import { Ok } from "../types/Result"
+import { v4 as uuid } from 'uuid'
+import {  AnyRelationshipDefinition, GenericRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition"
+import { GenericNodeKey} from "../types/NodeKey"
+import { Draft, produce } from "immer"
+import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver"
+import { RelationshipUnion } from "../types/RelationshipUnion"
 
-/**
- * Factory for creating an action to create a node in the database
- * @param neo4jDriver The neo4j driver to use
- * @param nodeDefinitionMap The node type map to use
- * @returns The create node action
- */
+
+
+type NodeStateTree<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap,
+> = (
+    NodeState<NodeDefinitionMap[NodeType]>&{nodeId?:string}
+) & {
+    [Relationship in RelationshipUnion<NodeDefinitionMap, NodeType>]?: {
+        nodeId?: string
+    } & (Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+        ? NodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+            ? AnyRelationshipDefinition extends RelationshipUnionRef
+                ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `${string}-many`
+                    ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>)[]
+                    : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>
+                : unknown
+            : unknown
+        : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+            ? NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                ? AnyRelationshipDefinition extends RelationshipUnionRef
+                    ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `many-${string}`
+                        ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>)[]
+                        : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeStateTree<NodeDefinitionMap, RelatedNodeType>
+                    : unknown
+                : unknown
+            : unknown
+    )
+}
 
 export const mergeSubgraphFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
     nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
-    Operation extends 'create' | 'update',
     NodeType extends keyof NodeDefinitionMap,
-    MergeState extends TypeOf<NodeDefinitionMap[NodeType]['stateSchema']>
->({
-    operation,
-    nodeType,
-    strongRelationshipMap,
-    weakRelationshipMap,
-    state,
-    nodeId
-}: {
-    operation: Operation,
-} & (Operation extends 'create' ? (({
-    nodeType: NodeType,
-    state: MergeState,
-    nodeId?: string
-    weakRelationshipMap?: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'weak'>
-}) & (
-        IsPartial<{
-            strongRelationshipMap: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'strong'>
-        }, undefined extends RelationshipMergeMap<NodeDefinitionMap, NodeType, 'strong'> ? true : false>
-    )) : ({
-        nodeType: NodeType,
-        nodeId: string
-        state?: Partial<MergeState>,
-        strongRelationshipMap?: undefined,
-        weakRelationshipMap?: RelationshipMergeMap<NodeDefinitionMap, NodeType, 'weak'>
-    }))) => {
-    // Check Schema
-    const stateSchema = (<GenericNodeDefinition>nodeDefinitionMap[nodeType]!)['stateSchema']
-    const newNodeStructure = operation === 'create'
-        ? isZodDiscriminatedUnion(stateSchema)
-            ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
-                nodeId: z.string(),
-                nodeType: z.string()
-            }))) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse({
-                ...state,
-                nodeId: nodeId ?? uuid(),
-                nodeType: nodeType
+    Subgraph extends NodeShape<NodeDefinitionMap[NodeType]> | NodeState<NodeDefinitionMap[NodeType]>
+>(subgraph: (
+    ({
+        nodeType: NodeType
+    }) & Subgraph & (NodeStateTree<NodeDefinitionMap, NodeType>)
+), 
+    ...[updater]: Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
+    ? [(draft: Draft<Subgraph>) => void]
+    : []
+) => {
+    const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key]) => !(key.includes('->') || key.includes('<-'))))
+    const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
+    const subgraphRef = ('createdAt' in subgraph ? produce(subgraph, updater) : subgraph)
+    // Flatten Tree 
+    // Create Index Set
+    const rootVariable = `n_t0_i0`
+    let variableList = [rootVariable]
+    let variableStateEntries = [[`${rootVariable}_state`, removeRelationshipEntries(subgraphRef!)]]
+    let queryString = dedent/*cypher*/`
+        merge (${rootVariable}:${(subgraphRef as GenericNodeKey).nodeType} { 
+            ${nodeDefinitionMap[subgraph.nodeType].uniqueIndexes
+                .filter((index:string) => !!subgraph[index])
+                .map((index: any) => `${index}: "${subgraph[index]}"`).join(', ')
+            }
+        })
+        on create 
+            set ${rootVariable}.nodeId = "${subgraph.nodeId ? subgraph.nodeId : uuid()}",
+                ${rootVariable} += $${rootVariable}_state,
+                ${rootVariable}:Node,
+                ${rootVariable}.createdAt = timestamp(),
+                ${rootVariable}.updatedAt = timestamp()
+        on match
+            set ${rootVariable} += $${rootVariable}_state,
+                ${rootVariable}:Node,
+                ${rootVariable}.updatedAt = timestamp() \n
+    `
+    type RelationshipKey = `<-${string}-${string}-${string}` | `${string}-${string}->${string}`
+    const relationToQueryString = (relationshipKey: RelationshipKey, relation: any, path: string, previousNodeType: string) => {
+        const pathSegments = path.split('_')
+        const relationshipString = relationshipKey[0] === '<'
+        ? `<-[r_${path}:${relationshipKey.split('-')[1]}]-`
+        : `-[r_${path}:${relationshipKey.split('-')[1]}]->`
+        const relationshipType = relationshipKey.split('-')[1]
+        queryString += dedent/*cypher*/`
+            merge p_${path}=(n_${pathSegments.slice(0, pathSegments.length-2).join('_')})
+            ${relationshipString}
+            (n_${path}:${relation?.nodeType??pathSegments[2].replaceAll('>', '')} { 
+                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes
+                    .filter((index:string) => !!relation[index])
+                    .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
+                }
             })
-            : stateSchema.extend({
-                nodeId: z.string(),
-                nodeType: z.string()
-            }).parse({
-                ...state,
-                nodeId: nodeId ?? uuid(),
-                nodeType: nodeType
-            })
-        : isZodDiscriminatedUnion(stateSchema)
-            ? z.union(stateSchema.options.map((option: AnyZodObject) => option.extend({
-                nodeId: z.string(),
-                nodeType: z.string()
-            }).partial()) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]]).parse({
-                ...(state ?? {}),
-                nodeId,
-                nodeType
-            })
-            : stateSchema.extend({
-                nodeId: z.string(),
-                nodeType: z.string()
-            }).partial().parse({
-                ...(state ?? {}),
-                nodeId,
-                nodeType
-            })
-    console.log("NodeKey", nodeId, nodeType)
-    console.log(operation === 'create' ? "Creating" : 'Updating', nodeType, newNodeStructure)
-    // console.log("Weak Relationships", JSON.stringify(weakRelationshipMap, null, 2))
-    const relationshipMap = {
-        ...formatRelationshipMap(nodeDefinitionMap, nodeType as Capitalize<string>, strongRelationshipMap as GenericRelationshipMap), 
-        ...formatRelationshipMap(nodeDefinitionMap, nodeType as Capitalize<string>, weakRelationshipMap as GenericRelationshipMap)
+            on create
+                set n_${path}.nodeId = "${relation.nodeId ? relation.nodeId : uuid()}",
+                    n_${path} += $n_${path}_state,
+                    n_${path}.nodeType = "${relation?.nodeType??pathSegments[2].replaceAll('>', '')}",
+                    n_${path}:Node,
+                    n_${path}.createdAt = timestamp(),
+                    n_${path}.updatedAt = timestamp(),
+                    r_${path}.relationshipType = "${relationshipType}",
+                    r_${path} += $r_${path}_state
+            on match
+                set n_${path} += $n_${path}_state,
+                    n_${path}:Node,
+                    n_${path}.updatedAt = timestamp(),
+                    r_${path} += $r_${path}_state \n 
+        `
+        variableList.push(`p_${path}`, `r_${path}`, `n_${path}`)
+        const relationshipSchema = relationshipString.includes('<') 
+            ? nodeDefinitionMap[relation.nodeType].relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
+            : nodeDefinitionMap[previousNodeType].relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
+        variableStateEntries.push(
+            [`n_${path}_state`, nodeDefinitionMap[relation.nodeType].stateSchema.parse(removeRelationshipEntries(relation))],
+            relationshipSchema ? [`r_${path}_state`, relationshipSchema.parse(removeRelationshipEntries(relation))] : [`r_${path}_state`, {}]
+        )
+        treeToQueryString(relation, `${path}`)
     }
-    console.log("Relationship Map", JSON.stringify(relationshipMap, null, 2))
-    const node = await neo4jDriver().executeQuery<EagerResult<{
-        node: Node<Integer, NodeShape<NodeDefinitionMap[NodeType]>>
-    }>>(/* cypher */ `
-        merge (node:Node:${nodeType as string} {nodeId: $newNode.nodeId})
-        on create
-            set node += $newNode,
-                node:Node,
-                node.createdAt = timestamp(),
-                node.updatedAt = timestamp()
-
-        on match 
-            set node += $newNode,
-                node:Node,
-                node.updatedAt = timestamp()
-        // Process relationshipMap
-        ${relationshipMap && Object.keys(relationshipMap).length > 0
-            ? /*cypher*/`
-            with node, $relationshipMap as relationshipMapRef
-            unwind keys(relationshipMapRef) as relationshipType
-            with node, relationshipType, relationshipMapRef[relationshipType] as relationshipData
-            unwind (case when relationshipData.to is not null then relationshipData.to else relationshipData.from end) as connectingRelationshipEntry
-            with node, relationshipData, connectingRelationshipEntry, relationshipType, relationshipData.strength as strength, relationshipData.cardinality as cardinality
-            match (connectingNode:Node {nodeId: connectingRelationshipEntry.nodeKey.nodeId})
-            call apoc.merge.relationship(
-                case when relationshipData.to is not null then node else connectingNode end,
-                relationshipType,
-                {relationshipType: relationshipType, strength: strength, cardinality: cardinality},
-                connectingRelationshipEntry.state,
-                case when relationshipData.to is not null then connectingNode else node end,
-                connectingRelationshipEntry.state
-            ) yield rel
-        ` : ''}
-        return node
-    `, {
-        relationshipMap,
-        newNode: newNodeStructure
-    }).then(res => {
-        // console.log(JSON.stringify(res.records, null, 2))
-        return res.records[0]?.get('node').properties
+    const treeToQueryString = (subgraph: any, path: string) => {
+        getRelationshipEntries(subgraph).forEach(([key], t_idx) => {
+            if (!(key.includes('<-') || key.includes('->'))) return
+            const nodeType = key.split('-')[2].replace('>', '')
+            const related = subgraph[key as keyof typeof subgraph]
+            if (Array.isArray(related)) {
+                related.forEach((node, i_idx) => {
+                    relationToQueryString(key as RelationshipKey, {nodeType, ...node}, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType)
+                })
+            } else {
+                relationToQueryString(key as RelationshipKey, {nodeType, ...related} as any, `${path}_t${t_idx}_i0`, subgraph.nodeType)
+            }
+        })
+    }
+    treeToQueryString(subgraphRef as any, `t0_i0`)
+    // Add Return Statement
+    queryString += dedent/*cypher*/`
+        return ${variableList.join(', ')}
+    `
+    console.log(queryString)
+    const result = await neo4jDriver().executeQuery<EagerResult<{
+        [Key: `p_${string}`]: Path<Integer>
+    } & {
+        [Key: `r_${string}`]: Relationship<Integer, GenericRelationshipShape>
+    } & {
+        [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
+    }>>(
+        queryString, 
+        Object.fromEntries(variableStateEntries)
+    )
+    .then(result => {
+        const entityMap = result.records[0]
+        const rootNode = result.records[0].get(rootVariable).properties
+        const rootStringIndex = rootVariable 
+        const buildTree = (node: GenericNodeShape & {[r: string]: GenericNodeShape[]}, nodeIndex: `n_${string}`) => {
+            const pathIndexSet = variableList.filter(variable => 
+                variable.startsWith(nodeIndex.replace('n', 'p')) 
+                && nodeIndex.split('_').length === variable.split('_').length - 2
+            ) as `p_${string}`[]
+            pathIndexSet.forEach(pathIndex => {
+                const path = entityMap.get(pathIndex).segments[0]
+                const relationship = path.relationship as Relationship<Integer, GenericRelationshipShape>
+                const rightEndcap = relationship.start === path.start.identity  ? '->' : '-'
+                const leftEndcap = relationship.start === path.end.identity ? '<-' : '-'
+                const nextNode = path.end.properties as GenericNodeShape
+                const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
+                const nextNodeMerged = {
+                    ...relationship.properties,
+                    ...nextNode,
+                }
+                node[relationshipKey] = node[relationshipKey] ? [...node[relationshipKey], nextNodeMerged] : [nextNodeMerged]
+                buildTree(nextNodeMerged as any, pathIndex.replace('p', 'n') as `n_${string}`)
+            })
+            return node
+        }
+        return buildTree(rootNode as any, rootStringIndex)
     })
-    if (!node) return UixErr({
-        subtype: UixErrSubtype.CREATE_NODE_FAILED,
-        message: `Failed to create node of type ${nodeType as string}`,
-        data: { nodeType, state, strongRelationshipMap }
-    });
-    return Ok(node)
+    return Ok(result as Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
+        ? Subgraph
+        : NodeShapeTree<NodeDefinitionMap, NodeType, Subgraph>
+    )
 })
 
+type NodeShapeTree<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap,
+    Subgraph extends {nodeType: NodeType} & Record<string, any>,
+> = NodeShape<NodeDefinitionMap[NodeType]> & {
+    [Relationship in keyof Subgraph as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap[Subgraph['nodeType']]>>]: (
+        Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+            ? NodeDefinitionMap[Subgraph['nodeType']]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                ? AnyRelationshipDefinition extends RelationshipUnionRef
+                    ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `${string}-many`
+                        ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship][number]>)[]
+                        : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship]>
+                    : unknown
+                : unknown
+            : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+                ? NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                    ? AnyRelationshipDefinition extends RelationshipUnionRef
+                        ? (RelationshipUnionRef&{type: RelationshipType})['cardinality'] extends `many-${string}`
+                            ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship][number]>)[]
+                            : RelationshipState<RelationshipUnionRef&{type: RelationshipType}> & NodeShapeTree<NodeDefinitionMap, RelatedNodeType, Subgraph[Relationship]>
+                        : unknown
+                    : unknown
+                : unknown
+        )
+}
 
-        // ${strongRelationshipMap && Object.keys(strongRelationshipMap).length > 0
-        //     ? /*cypher*/`
-        //     with node, $strongRelationshipMap as strongRelMap
-        //     unwind keys(strongRelMap) as strongRelType
-        //     unwind strongRelMap[strongRelType].to as strongRelNodeKey
-        //     with node, strongRelType, strongRelNodeKey, strongRelMap[strongRelType].state as state
-        //     match (strongRelNode:Node {nodeId: strongRelNodeKey.nodeId})
-        //     call apoc.create.relationship(node, strongRelType, apoc.map.merge(state, {strength: 'strong'}), strongRelNode) yield rel
-        // ` : ''}
-        // // Process relationshipMap
-        // ${relationshipMap && Object.keys(relationshipMap).length > 0
-        //     ? /*cypher*/`
-        //     with node, $weakRelationshipMap as weakRelMap
-        //     unwind keys(weakRelMap) as weakRelType
-        //     with node, weakRelType, weakRelMap[weakRelType] as relData
-        //     unwind (case when relData.to is not null then relData.to else relData.from end) as weakRelNodeKey
-        //     with node, weakRelType, weakRelNodeKey, relData.state as state, relData
-        //     match (weakRelNode:Node {nodeId: weakRelNodeKey.nodeId})
-        //     call apoc.merge.relationship(
-        //         case when relData.to is not null then node else weakRelNode end,
-        //         weakRelType,
-        //         {strength: 'weak', relationshipType: weakRelType, cardinality: },
-        //         state,
-        //         case when relData.to is not null then weakRelNode else node end,
-        //         state
-        //     ) yield rel
-        // ` : ''}
-
-
-// ${weakRelationshipMap && Object.keys(weakRelationshipMap).length > 0
-//     ? /*cypher*/`
-//     with node, $weakRelationshipMap as weakRelMap
-//     unwind keys(weakRelMap) as weakRelType
-//     with node, weakRelType, weakRelMap[weakRelType] as relData
-//     unwind (case when relData.to is not null then relData.to else relData.from end) as weakRelNodeKey
-//     with node, weakRelType, weakRelNodeKey, relData.state as state, relData
-//     match (weakRelNode:Node {nodeId: weakRelNodeKey.nodeId})
-//     call apoc.create.relationship(
-//         case when relData.to is not null then node else weakRelNode end,
-//         weakRelType,
-//         apoc.map.merge(state, {strength: 'weak'}),
-//         case when relData.to is not null then weakRelNode else node end
-//     ) yield rel
-// ` : ''}

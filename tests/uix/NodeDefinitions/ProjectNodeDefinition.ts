@@ -14,8 +14,5 @@ export const ProjectNodeDefinition = defineNode('Project', z.object({
         relationshipType: 'BELONGS_TO',
         strength: 'strong',
         cardinality: 'many-to-one',
-        toNodeDefinition: OrganizationNodeDefinition,
-        relationshipStateSchema: z.object({
-            testing: z.string()
-        })
+        toNodeDefinition: OrganizationNodeDefinition
     })

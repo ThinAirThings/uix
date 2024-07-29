@@ -4,14 +4,12 @@
 import {nodeDefinitionMap} from './staticObjects'
 import {
     mergeSubgraphFactory,
-    mergeSubgraphFactoryv2,
-    mergeSubgraphFactoryv3,
     deleteNodeFactory,
     extractSubgraphFactory,
+    extractSubgraphFactoryv2,
 } from '@thinairthings/uix'
 
 export const mergeSubgraph = mergeSubgraphFactory(nodeDefinitionMap)
-export const mergeSubgraphv2 = mergeSubgraphFactoryv2(nodeDefinitionMap)
-export const mergeSubgraphv3 = mergeSubgraphFactoryv3(nodeDefinitionMap)
 export const deleteNode = deleteNodeFactory(nodeDefinitionMap)
 export const extractSubgraph = extractSubgraphFactory(nodeDefinitionMap)
+export const extractSubgraphv2 = extractSubgraphFactoryv2(nodeDefinitionMap)
