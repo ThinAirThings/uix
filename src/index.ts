@@ -12,6 +12,7 @@ export * from './types/ExtractionNode'
 export * from './types/ExtractionSubgraph'
 export * from './types/SubgraphSpecification'
 export * from './types/SubgraphSpecificationNode'
+export * from './types/RelationshipUnion'
 
 // // Function
 export * from './fns/mergeSubgraphFactory'

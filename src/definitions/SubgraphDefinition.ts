@@ -1,58 +1,61 @@
+import { NextNodeTypeFromPath } from "../fns/extractSubgraphFactoryv2";
 import { RelationshipUnion } from "../types/RelationshipUnion";
-import { AnyNodeDefinitionMap, AnyNodeDefinitionSet, defineNode, NodeDefinition, NodeDefinitionMap } from "./NodeDefinition";
-import { AnySubgraphNodeDefinitionSet, GenericSubgraphNodeDefinitionSet, SubgraphNodeDefinition } from "./SubgraphNodeDefinition";
+import { AnyNodeDefinitionMap } from "./NodeDefinition";
+import { AnySubgraphPathDefinitionSet, GenericSubgraphPathDefinitionSet, SubgraphPathDefinition } from "./SubgraphPathDefinition";
 
 
-export type SubgraphNodeDefinitionMap<NodeDefinitionSet extends AnySubgraphNodeDefinitionSet> = {
-    [Type in NodeDefinitionSet[number]['nodeType']]: (NodeDefinitionSet[number] & { nodeType: Type });
+export type SubgraphPathDefinitionMap<PathDefinitionSet extends AnySubgraphPathDefinitionSet> = {
+    [Type in PathDefinitionSet[number]['pathType']]: (PathDefinitionSet[number] & { pathType: Type });
 };
-
 
 export type GenericSubgraphDefinition = SubgraphDefinition<
     AnyNodeDefinitionMap,
-    GenericSubgraphNodeDefinitionSet
+    GenericSubgraphPathDefinitionSet
 >
 export type AnySubgraphDefinition = SubgraphDefinition<any, any>
 export class SubgraphDefinition<
     GraphNodeDefinitionMap extends AnyNodeDefinitionMap,
-    NodeDefinitionSet extends AnySubgraphNodeDefinitionSet
+    PathDefinitionSet extends AnySubgraphPathDefinitionSet
 >{
     constructor(
-        private nodeDefinitionMap: GraphNodeDefinitionMap,
-        private nodeDefinitionSet: NodeDefinitionSet,
-        public subgraphNodeDefinitionMap: SubgraphNodeDefinitionMap<NodeDefinitionSet> = Object.fromEntries(
-            nodeDefinitionSet.map(nodeDefinition => [nodeDefinition.nodeType, nodeDefinition])
+        public nodeDefinitionMap: GraphNodeDefinitionMap,
+        public pathDefinitionSet: PathDefinitionSet,
+        public subgraphPathDefinitionMap: SubgraphPathDefinitionMap<PathDefinitionSet> = Object.fromEntries(
+            pathDefinitionSet.map(nodeDefinition => [nodeDefinition.pathType, nodeDefinition])
         )
     ){}
-    defineRelationship<
-        NodeType extends NodeDefinitionSet[number]['nodeType'],
-        Relationship extends RelationshipUnion<GraphNodeDefinitionMap, NodeType>
+    extendPath<
+        PathType extends PathDefinitionSet[number]['pathType'],
+        Relationship extends RelationshipUnion<
+            GraphNodeDefinitionMap, 
+            NextNodeTypeFromPath<GraphNodeDefinitionMap, PathType>
+        >
     >(
-        nodeType: NodeType,
+        pathType: PathType,
         relationship: Relationship
     ){
-        const nodeDefinition = this.nodeDefinitionSet.find(node => node.nodeType === nodeType)!
-        this.nodeDefinitionSet = [
-            ...this.nodeDefinitionSet.filter(node => node.nodeType !== nodeType)
-        ] as unknown as any
+        const nodeDefinition = this.pathDefinitionSet.find(path => path.pathType === pathType)!
+        this.pathDefinitionSet = [
+            ...this.pathDefinitionSet.filter(node => node.pathType !== pathType)
+        ] as any
         return new SubgraphDefinition(
             this.nodeDefinitionMap,
             [
-                ...this.nodeDefinitionSet,
-                new SubgraphNodeDefinition(
-                    nodeType,
-                    [...nodeDefinition.subgraphRelationshipSet, relationship]
+                ...(this.pathDefinitionSet),
+                new SubgraphPathDefinition(
+                    this.nodeDefinitionMap,
+                    pathType,
+                    [relationship] as const
                 ),
-                new SubgraphNodeDefinition(
-                    relationship.split('-')[2].replaceAll('>', '') as Relationship extends `-${string}->${infer NextNodeType}`
-                        ? NextNodeType
-                        : Relationship extends `<-${string}-${infer NextNodeType}`
-                            ? NextNodeType
-                            : never,
-                    []
+                new SubgraphPathDefinition(
+                    this.nodeDefinitionMap,
+                    pathType+relationship as `${PathType}${Relationship}`,
+                    [] as const
                 )
-            ],
+            ] as const,
         )
     }
 }
 
+
+type Thing = AnySubgraphPathDefinitionSet extends [] | AnySubgraphPathDefinitionSet ? true : false
