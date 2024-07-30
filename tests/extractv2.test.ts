@@ -4,48 +4,43 @@ import { execSync } from 'child_process'
 import {  test } from 'vitest'
 import { Err, tryCatch } from '../src/types/Result'
 import { writeFile } from 'fs/promises'
-import { NextNodeTypeFromPath, PreviousNodeTypeFromPath, RelationshipUnion, SubgraphDefinition} from "@thinairthings/uix"
+import { 
+    NextNodeTypeFromPath, 
+    PreviousNodeTypeFromPath, 
+    RelationshipUnion, 
+    SubgraphDefinition
+} from "@thinairthings/uix"
 import { nodeDefinitionMap } from './uix/generated/staticObjects'
 import { extractSubgraphv2 } from './uix/generated/functionModule'
+import { writeFileSync } from 'fs'
+import { throwTestError } from './utils/throwTestError'
 
 test('Query path test', async () => {
-    // const subgraphDefinition = new SubgraphDefinition(
-    //     nodeDefinitionMap,
-    //     [new SubgraphNodeDefinition('User', [])]
-    // )
-    //     .defineRelationship('User', '-ACCESS_TO->Organization')
-    //     .defineRelationship('User', '<-SENT_BY-Message')
-    //     .defineRelationship('Organization', '<-BELONGS_TO-Project')
-    //     .defineRelationship('Message', '-SENT_IN->Chat')
-    // const thing = subgraphDefinition.nodeDefinitionSet[0].nodeType
-    // console.log(JSON.stringify(subgraphDefinition.nodeDefinitionSet, null, 2))
-    const {data} = await extractSubgraphv2({
+    const {data: subgraph, error: subgraphError} = await extractSubgraphv2({
             'nodeType': 'User',
             'email': 'dan.lannan@thinair.cloud'
         }, (subgraph) => subgraph
         .extendPath('User', '-ACCESS_TO->Organization')
-        // .extendPath('User-ACCESS_TO->Organization', '<-BELONGS_TO-Project')
-        // .extendPath('User-ACCESS_TO->Organization<-BELONGS_TO-Project', '<-ACCESS_TO-User')
+        .extendPath('User-ACCESS_TO->Organization', '<-BELONGS_TO-Project')
+        .extendPath('User-ACCESS_TO->Organization<-BELONGS_TO-Project', '<-ACCESS_TO-User')
         .extendPath('User', '<-CONVERSATION_BETWEEN-Chat')
         .extendPath('User<-CONVERSATION_BETWEEN-Chat', '-CONVERSATION_BETWEEN->User')
-        // .defineRelationship('Organization', '<-ACCESS_TO-User')
-        // .defineRelationship('Organization', '<-BELONGS_TO-Project')
     )
-    const thing1 = data!['-ACCESS_TO->Organization'].map(node => node.ceo)
-        // .map(node => node['<-BELONGS_TO-Project']
-        //     .map(node => {
-        //         node
-        //         return node['-BELONGS_TO->Organization']
-        //     })
-        // )
-    const thing2 = data!['<-CONVERSATION_BETWEEN-Chat'].map(node => node)
-        .map(node => {
-            node
-            node['-CONVERSATION_BETWEEN->User']
-            node['-CONVERSATION_BETWEEN->User'].map(node => node)
-            return node['-CONVERSATION_BETWEEN->User'].map(node => node)
-        })
-        .map(node => node.map(node => node))
+    writeFileSync('tests/extractv2:output.json', JSON.stringify(subgraph, null, 2))
+    if (subgraphError) throwTestError(subgraphError)
+    const thing1 = subgraph['-ACCESS_TO->Organization']?.map(node => {
+        console.log(node)
+        return node.ceo
+    })
+        
+    // const thing2 = data!['<-CONVERSATION_BETWEEN-Chat'].map(node => node)
+    //     .map(node => {
+    //         node
+    //         node['-CONVERSATION_BETWEEN->User']
+    //         node['-CONVERSATION_BETWEEN->User'].map(node => node)
+    //         return node['-CONVERSATION_BETWEEN->User'].map(node => node)
+    //     })
+    //     .map(node => node.map(node => node))
         
 })
 

@@ -6,27 +6,6 @@
   "updatedAt": 1722302242087,
   "-ACCESS_TO->Organization": [
     {
-      "accessLevel": "owner",
-      "relationshipType": "ACCESS_TO",
-      "createdAt": 1722207645141,
-      "name": "Thin Air Computer LLC.",
-      "employees": 10000,
-      "nodeType": "Organization",
-      "ceo": "Dan Lannan",
-      "nodeId": "079a8b16-cca2-4b55-a889-691e334f19f1",
-      "updatedAt": 1722302242087,
-      "<-BELONGS_TO-Project": [
-        {
-          "relationshipType": "BELONGS_TO",
-          "createdAt": 1722207645141,
-          "name": "Thin Air Infinite Canvas",
-          "nodeType": "Project",
-          "nodeId": "1659ab6b-2b2c-4d25-8ace-326bac50848c",
-          "updatedAt": 1722302242087
-        }
-      ]
-    },
-    {
       "accessLevel": "admin",
       "relationshipType": "ACCESS_TO",
       "createdAt": 1722207645141,
@@ -46,17 +25,27 @@
           "updatedAt": 1722302242087
         }
       ]
-    }
-  ],
-  "<-SENT_BY-Message": [
+    },
     {
-      "relationshipType": "SENT_BY",
+      "accessLevel": "owner",
+      "relationshipType": "ACCESS_TO",
       "createdAt": 1722207645141,
-      "text": "Hello, World!",
-      "nodeType": "Message",
-      "contentType": "text",
-      "nodeId": "47f85914-7dc1-4e78-9d2b-0929285ee043",
-      "updatedAt": 1722302242087
+      "name": "Thin Air Computer LLC.",
+      "nodeType": "Organization",
+      "ceo": "Dan Lannan",
+      "employees": 10000,
+      "nodeId": "079a8b16-cca2-4b55-a889-691e334f19f1",
+      "updatedAt": 1722302242087,
+      "<-BELONGS_TO-Project": [
+        {
+          "relationshipType": "BELONGS_TO",
+          "createdAt": 1722207645141,
+          "name": "Thin Air Infinite Canvas",
+          "nodeType": "Project",
+          "nodeId": "1659ab6b-2b2c-4d25-8ace-326bac50848c",
+          "updatedAt": 1722302242087
+        }
+      ]
     }
   ]
 }
