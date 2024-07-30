@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 import { AnySubgraphDefinition } from "../../dist/lib"
-import { ConfiguredNodeDefinitionMap } from "../uix/generated/staticObjects"
-import { SubgraphDefinition, SubgraphPathDefinition, QueryError, SubgraphTree} from "@thinairthings/uix"
+import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "../uix/generated/staticObjects"
+import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree} from "@thinairthings/uix"
 import { extractSubgraph } from "../uix/generated/functionModule"
 
 
 
 
-
+const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
+export const cacheKeyMap = new Map<string, Set<string>>()
 export const useSubgraph = <
     RootNodeType extends keyof ConfiguredNodeDefinitionMap,
     SubgraphIndex extends ({
@@ -28,11 +29,35 @@ export const useSubgraph = <
     ) => SubgraphDefinitionRef
 ) => {
     const { data: subgraph, error, isPending, isSuccess } = useQuery({
-        queryKey: [rootNode],
-        queryFn: async () => {
-            const result = await extractSubgraph(rootNode, defineSubgraph)
+        queryKey: [{rootNode, subgraphDefinition: defineSubgraph(new SubgraphDefinition(
+            nodeDefinitionMap,
+            [new SubgraphPathDefinition(
+                nodeDefinitionMap,
+                rootNode.nodeType,
+                []
+            )]
+        )).serialize()}],
+        queryFn: async ({queryKey: [params]}) => {
+            const result = await extractSubgraph(params.rootNode, params.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
-            return result.data
+            const subgraph = result.data as GenericNodeShapeTree
+            const addNodeToCache = (node: GenericNodeShapeTree) => {
+                cacheKeyMap.set(
+                    node.nodeId as string, 
+                    cacheKeyMap.get(node.nodeId as string) 
+                        ? cacheKeyMap.get(node.nodeId as string)!.add(JSON.stringify(params)) 
+                        : new Set<string>([JSON.stringify(params)])
+                )
+                getRelationshipEntries(node).forEach(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        value.forEach(addNodeToCache)
+                    } else {
+                        addNodeToCache(value)
+                    }
+                })
+            }
+            addNodeToCache(subgraph)
+            return result.data 
         }
     })
     return {
@@ -42,14 +67,3 @@ export const useSubgraph = <
         isSuccess
     }
 }
-
-const {subgraph} = useSubgraph({
-    'nodeType': 'User',
-    'email': 'dan.lannan@thinair.cloud'
-}, (subgraph) => subgraph
-    .extendPath('User', '-ACCESS_TO->Organization')
-    .extendPath('User-ACCESS_TO->Organization', '<-BELONGS_TO-Project')
-    .extendPath('User-ACCESS_TO->Organization<-BELONGS_TO-Project', '<-ACCESS_TO-User')
-    .extendPath('User', '<-CONVERSATION_BETWEEN-Chat')
-    .extendPath('User<-CONVERSATION_BETWEEN-Chat', '-CONVERSATION_BETWEEN->User')
-)

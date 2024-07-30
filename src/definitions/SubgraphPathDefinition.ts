@@ -28,4 +28,10 @@ export class SubgraphPathDefinition<
         public pathType: PathType,
         public subgraphRelationshipSet: SubgraphRelationshipSet,
     ){}
+    serialize() {
+        return {
+            pathType: this.pathType,
+            subgraphRelationshipSet: this.subgraphRelationshipSet
+        } as typeof this
+    }
 }

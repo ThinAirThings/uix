@@ -8,6 +8,10 @@ import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState 
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver";
 
 
+export type GenericNodeShapeTree = GenericNodeShape | {
+    [key: string]: GenericNodeShapeTree
+}
+
 export const extractSubgraphFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
@@ -22,24 +26,24 @@ export const extractSubgraphFactory = <
     rootNode: (({
         nodeType: RootNodeType
     }) & SubgraphIndex),
-    defineSubgraph: (subgraph: SubgraphDefinition<
+    subgraphArg: ((subgraph: SubgraphDefinition<
         NodeDefinitionMap, 
         [SubgraphPathDefinition<
             NodeDefinitionMap,
             RootNodeType,
             []
         >]>
-    ) => SubgraphDefinitionRef
+    ) => SubgraphDefinitionRef) | SubgraphDefinitionRef
 ) => {
     // Begin extraction
-    const subgraph = defineSubgraph(new SubgraphDefinition(
+    const subgraph = (subgraphArg instanceof Function ? subgraphArg(new SubgraphDefinition(
         nodeDefinitionMap,
         [new SubgraphPathDefinition(
             nodeDefinitionMap,
             rootNode.nodeType,
             []
         )]
-    )) as GenericSubgraphDefinition
+    )) : subgraphArg) as GenericSubgraphDefinition
     const rootVariable = `n_0`
     let variableList = [rootVariable]    
     let queryString = dedent/*cypher*/`
@@ -153,6 +157,8 @@ export type PreviousNodeTypeFromPath<
                 ? PreviousNodeTypeFromPath<NodeDefinitionMap, Path, true>
                 : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
         : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
+
+// export type GenericSubgraphTree
 
 export type SubgraphTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,

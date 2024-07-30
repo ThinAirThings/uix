@@ -8,10 +8,11 @@ import { GenericNodeKey} from "../types/NodeKey"
 import { Draft, produce } from "immer"
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver"
 import { RelationshipUnion } from "../types/RelationshipUnion"
+import { writeFileSync } from "fs"
 
 
 
-type NodeStateTree<
+export type NodeStateTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
 > = (
@@ -52,12 +53,12 @@ export const mergeSubgraphFactory = <
     }) & Subgraph & (NodeStateTree<NodeDefinitionMap, NodeType>)
 ), 
     ...[updater]: Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
-    ? [(draft: Draft<Subgraph>) => void]
+    ? [(draft: Draft<Subgraph>) => void] | []
     : []
 ) => {
     const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key]) => !(key.includes('->') || key.includes('<-'))))
     const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
-    const subgraphRef = ('createdAt' in subgraph ? produce(subgraph, updater) : subgraph)
+    const subgraphRef = (('createdAt' in subgraph  && updater) ? produce(subgraph, updater) : subgraph)
     // Flatten Tree 
     // Create Index Set
     const rootVariable = `n_t0_i0`
@@ -141,7 +142,6 @@ export const mergeSubgraphFactory = <
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
-    console.log(queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
     } & {
@@ -153,6 +153,8 @@ export const mergeSubgraphFactory = <
         Object.fromEntries(variableStateEntries)
     )
     .then(result => {
+        writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
+        writeFileSync('tests/merge:queryString.cypher', queryString)
         const entityMap = result.records[0]
         const rootNode = result.records[0].get(rootVariable).properties
         const rootStringIndex = rootVariable 
@@ -172,7 +174,9 @@ export const mergeSubgraphFactory = <
                     ...relationship.properties,
                     ...nextNode,
                 }
-                node[relationshipKey] = node[relationshipKey] ? [...node[relationshipKey], nextNodeMerged] : [nextNodeMerged]
+                node[relationshipKey] = node[relationshipKey] 
+                    ? [...node[relationshipKey], ...node[relationshipKey].some(node => node.nodeId === nextNodeMerged.nodeId) ? [] : [nextNodeMerged]] 
+                    : [nextNodeMerged]
                 buildTree(nextNodeMerged as any, pathIndex.replace('p', 'n') as `n_${string}`)
             })
             return node
@@ -185,7 +189,7 @@ export const mergeSubgraphFactory = <
     )
 })
 
-type NodeShapeTree<
+export type NodeShapeTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
     Subgraph extends {nodeType: NodeType} & Record<string, any>,

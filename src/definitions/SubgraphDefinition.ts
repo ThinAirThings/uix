@@ -24,6 +24,14 @@ export class SubgraphDefinition<
             pathDefinitionSet.map(nodeDefinition => [nodeDefinition.pathType, nodeDefinition])
         )
     ){}
+    serialize() {
+        return {
+            pathDefinitionSet: this.pathDefinitionSet.map(nodeDefinition => nodeDefinition.serialize()) as any,
+            subgraphPathDefinitionMap: Object.fromEntries(
+                this.pathDefinitionSet.map(nodeDefinition => [nodeDefinition.pathType, nodeDefinition.serialize()])
+            )
+        } as typeof this
+    }
     extendPath<
         PathType extends PathDefinitionSet[number]['pathType'],
         Relationship extends RelationshipUnion<
