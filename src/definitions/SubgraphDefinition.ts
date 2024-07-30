@@ -1,4 +1,4 @@
-import { NextNodeTypeFromPath } from "../fns/extractSubgraphFactoryv2";
+import { NextNodeTypeFromPath } from "../fns/extractSubgraphFactory";
 import { RelationshipUnion } from "../types/RelationshipUnion";
 import { AnyNodeDefinitionMap } from "./NodeDefinition";
 import { AnySubgraphPathDefinitionSet, GenericSubgraphPathDefinitionSet, SubgraphPathDefinition } from "./SubgraphPathDefinition";

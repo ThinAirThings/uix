@@ -41,6 +41,6 @@ test('Integration test', async () => {
     })
 
     if (updatedUserNodeError) throwTestError(updatedUserNodeError)
-    await writeFile('tests/mergev2:data.json', JSON.stringify(updatedUserNode, null, 2))
+    await writeFile('tests/merge:data.json', JSON.stringify(updatedUserNode, null, 2))
     // await writeFile('tests/mergev2:queryString.cypher', userNodeA!)
 })

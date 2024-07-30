@@ -16,7 +16,6 @@
         "build:run": "tsup-node && node dist/cli/cli.js",
         "test:merge": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run merge --test-timeout=100000",
         "test:extract": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run extract --test-timeout=100000",
-        "test:extractv2": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run extractv2 --test-timeout=100000",
         "test:hooks": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooks --test-timeout=100000",
         "test:hooksv2": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooksv2 --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
