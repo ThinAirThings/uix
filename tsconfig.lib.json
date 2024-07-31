@@ -4,7 +4,8 @@
         "rootDir": "src",
         "moduleResolution": "bundler",
         "module": "ESNext",
-        "jsx": "react"
+        "jsx": "react",
+        "strictNullChecks": true
     },
     "include": [
         "src",

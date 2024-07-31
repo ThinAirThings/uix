@@ -23,6 +23,7 @@ export type GenericNodeShape = {
     createdAt: number
     updatedAt: number
 };
+// 
 export type NodeShape<T extends AnyNodeDefinition> = NodeState<T> & {
     nodeId: string;
     nodeType: T['type'];

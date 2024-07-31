@@ -9,6 +9,7 @@ import { Draft, produce } from "immer"
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver"
 import { RelationshipUnion } from "../types/RelationshipUnion"
 import { writeFileSync } from "fs"
+import { z } from "zod"
 
 
 
@@ -70,7 +71,7 @@ export const mergeSubgraphFactory = <
 
     let queryString = dedent/*cypher*/`
         merge (${rootVariable}:${(subgraphRef as GenericNodeKey).nodeType} { 
-            ${nodeDefinitionMap[subgraph.nodeType].uniqueIndexes
+            ${nodeDefinitionMap[subgraph.nodeType]!.uniqueIndexes
                 .filter((index:string) => !!subgraph[index])
                 .map((index: any) => `${index}: "${subgraph[index]}"`).join(', ')
             }
@@ -95,13 +96,13 @@ export const mergeSubgraphFactory = <
         ? `<-[r_${path}:${relationshipKey.split('-')[1]}]-`
         : `-[r_${path}:${relationshipKey.split('-')[1]}]->`
         const relationshipType = relationshipKey.split('-')[1]
-        const nextNodeType = relation?.nodeType??pathSegments[2].replaceAll('>', '')
-        const nextNodeIndexes = nodeDefinitionMap[nextNodeType].uniqueIndexes
+        const nextNodeType = relation?.nodeType??pathSegments[2]!.replaceAll('>', '')
+        const nextNodeIndexes = nodeDefinitionMap[nextNodeType]!.uniqueIndexes
             .filter((index:string) => !!relation[index]).length > 1
-            ? nodeDefinitionMap[nextNodeType].uniqueIndexes
+            ? nodeDefinitionMap[nextNodeType]!.uniqueIndexes
                 .filter((index:string) => !!relation[index] && index !== 'nodeId')
                 .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
-            : nodeDefinitionMap[nextNodeType].uniqueIndexes
+            : nodeDefinitionMap[nextNodeType]!.uniqueIndexes
                 .filter((index:string) => !!relation[index])
                 .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
 
@@ -130,7 +131,7 @@ export const mergeSubgraphFactory = <
                 set r_${path}.relationshipType = "${relationshipType}",
                     r_${path} += $r_${path}_state,
                     r_${path}.strength = "${                 
-                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
+                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]!
                         .relationshipDefinitionSet.find(
                             (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
                         ).strength
@@ -138,7 +139,7 @@ export const mergeSubgraphFactory = <
             on match
                 set r_${path} += $r_${path}_state,
                     r_${path}.strength = "${                 
-                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
+                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]!
                         .relationshipDefinitionSet.find(
                             (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
                         ).strength
@@ -147,24 +148,21 @@ export const mergeSubgraphFactory = <
         `
         variableList.push(`p_${path}`, `r_${path}`, `n_${path}`)
         const relationshipSchema = relationshipString.includes('<') 
-            ? nodeDefinitionMap[relation.nodeType].relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
-            : nodeDefinitionMap[previousNodeType].relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
+            ? nodeDefinitionMap[relation.nodeType]!.relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
+            : nodeDefinitionMap[previousNodeType]!.relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
         variableStateEntries.push(
-            [`n_${path}_state`, nodeDefinitionMap[relation.nodeType].stateSchema.parse(removeRelationshipEntries(relation))],
+            [`n_${path}_state`, nodeDefinitionMap[relation.nodeType]!.stateSchema.extend({nodeId: z.string()}).parse(removeRelationshipEntries(relation))],
             relationshipSchema ? [`r_${path}_state`, relationshipSchema.parse(removeRelationshipEntries(relation))] : [`r_${path}_state`, {}],
         )
         treeToQueryString(relation, `${path}`)
     }
 
     const treeToQueryString = (subgraph: any, path: string) => {
-        console.log("PATH", path)
         getRelationshipEntries(subgraph).forEach(([key], t_idx) => {
-            console.log("LOOPING", key)
             if (!(key.includes('<-') || key.includes('->'))) return
             const pathSegments = path.split('_')
-            const nextNodeType = key.split('-')[2].replace('>', '') ?? pathSegments[2].replaceAll('>', '')
+            const nextNodeType = key.split('-')[2]!.replace('>', '') ?? pathSegments[2]!.replaceAll('>', '')
             const related = subgraph[key as keyof typeof subgraph]
-            const relationshipType = key.split('-')[1]
             if (Array.isArray(related)) {
                 // NOTE!! Passing in a map of undefined values causes neo4j to behave unexpectedly
                 const relatedNodeIdSet = related.map((node: GenericNodeShape) => node.nodeId).filter(nodeId => nodeId !== undefined)
@@ -185,7 +183,7 @@ export const mergeSubgraphFactory = <
                         delete dr_${`${path}`}
                         
                         // Check for deletion of node
-                        ${nodeDefinitionMap[nextNodeType]
+                        ${nodeDefinitionMap[nextNodeType]!
                         .relationshipDefinitionSet
                         .some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
                             ? dedent/*cypher*/`
@@ -241,8 +239,8 @@ export const mergeSubgraphFactory = <
 
         writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
         
-        const entityMap = result.records[0]
-        const rootNode = result.records[0].get(rootVariable).properties
+        const entityMap = result.records[0]!
+        const rootNode = result.records[0]!.get(rootVariable).properties
         const rootStringIndex = rootVariable 
         const buildTree = (node: GenericNodeShape & {[r: string]: GenericNodeShape[]}, nodeIndex: `n_${string}`) => {
             const pathIndexSet = variableList.filter(variable => 
@@ -250,7 +248,7 @@ export const mergeSubgraphFactory = <
                 && nodeIndex.split('_').length === variable.split('_').length - 2
             ) as `p_${string}`[]
             pathIndexSet.forEach(pathIndex => {
-                const path = entityMap.get(pathIndex).segments[0]
+                const path = entityMap.get(pathIndex).segments[0]!
                 const relationship = path.relationship as Relationship<Integer, GenericRelationshipShape>
                 const rightEndcap = relationship.start === path.start.identity  ? '->' : '-'
                 const leftEndcap = relationship.start === path.end.identity ? '<-' : '-'

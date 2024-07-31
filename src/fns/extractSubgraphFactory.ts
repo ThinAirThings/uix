@@ -2,7 +2,7 @@ import dedent from "dedent";
 import { neo4jAction, neo4jDriver } from "../clients/neo4j";
 import { AnyNodeDefinitionMap, GenericNodeShape, NodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition";
 import { AnySubgraphDefinition, GenericSubgraphDefinition, SubgraphDefinition } from "../definitions/SubgraphDefinition";
-import { Ok } from "../types/Result";
+import { Ok, UixErr } from "../types/Result";
 import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition";
 import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver";
@@ -26,7 +26,7 @@ export const extractSubgraphFactory = <
     rootNode: (({
         nodeType: RootNodeType
     }) & SubgraphIndex),
-    subgraphArg: ((subgraph: SubgraphDefinition<
+    subgraphArg?: ((subgraph: SubgraphDefinition<
         NodeDefinitionMap, 
         [SubgraphPathDefinition<
             NodeDefinitionMap,
@@ -36,22 +36,31 @@ export const extractSubgraphFactory = <
     ) => SubgraphDefinitionRef) | SubgraphDefinitionRef
 ) => {
     // Begin extraction
-    const subgraph = (subgraphArg instanceof Function ? subgraphArg(new SubgraphDefinition(
+    const subgraph = ((subgraphArg instanceof Function ? subgraphArg(new SubgraphDefinition(
         nodeDefinitionMap,
         [new SubgraphPathDefinition(
             nodeDefinitionMap,
             rootNode.nodeType,
             []
         )]
-    )) : subgraphArg) as GenericSubgraphDefinition
+    )) : subgraphArg) ?? new SubgraphDefinition(
+        nodeDefinitionMap,
+        [new SubgraphPathDefinition(
+            nodeDefinitionMap,
+            rootNode.nodeType,
+            []
+        )]
+    )) as GenericSubgraphDefinition
     const rootVariable = `n_0`
     let variableList = [rootVariable]    
     let queryString = dedent/*cypher*/`
         match (${rootVariable}:${rootNode.nodeType} {
-            ${Object.entries(rootNode).map(([key, value]) => `${key}: "${value as string}"`).join(', ')}
+            ${nodeDefinitionMap[rootNode.nodeType]!.uniqueIndexes
+                .filter((index:string) => !!rootNode[index as keyof typeof rootNode])
+                .map((index: any) => `${index}: "${rootNode[index as keyof typeof rootNode]}"`).join(', ')
+            }
         })\n
     `
-    const subgraphRootRelationshipSet = subgraph.subgraphPathDefinitionMap[rootNode.nodeType].subgraphRelationshipSet
     const buildTree = (subgraph: GenericSubgraphDefinition, pathSegment: string, indexedPath: string, pathIdx: string) => {
         const pathLength = pathSegment.split('-').length
         const nextPathSet = subgraph.pathDefinitionSet
@@ -92,7 +101,8 @@ export const extractSubgraphFactory = <
         [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
     }>>(queryString).then(result => {
         const records = result.records
-        const rootNode = result.records[0].get(rootVariable).properties 
+        const rootNode = records?.[0]?.get(rootVariable)?.properties 
+        if (!rootNode) return null
         const buildTree = (record: typeof records[number], node: GenericNodeShape & {[r:string]: GenericNodeShape[]}, pathIndex: `p_${string}`) => {
             const nextPathIndexSet = variableList.filter(variable => 
                 variable.startsWith(pathIndex)
@@ -101,7 +111,7 @@ export const extractSubgraphFactory = <
             nextPathIndexSet.forEach(nextPathIndex => {
                 const segments = record.get(nextPathIndex)?.segments
                 if (!segments) return
-                const nextPath = segments[segments.length-1]
+                const nextPath = segments[segments.length-1]!
                 const relationship = nextPath.relationship as Relationship<Integer, GenericRelationshipShape>
                 const rightEndcap = relationship.start === nextPath.start.identity  ? '->' : '-'
                 const leftEndcap = relationship.start === nextPath.end.identity ? '<-' : '-'
@@ -121,6 +131,13 @@ export const extractSubgraphFactory = <
             buildTree(record, rootNode as any, rootStringIndex)
         })
         return rootNode
+    })
+    if (!resultTree) return UixErr({
+        subtype: 'ExpectedRuntimeError',
+        message: "The root node requested was not found. This is likely due to it not existing in the database.",
+        data: {
+            rootNode: rootNode,
+        }
     })
     return Ok(resultTree as SubgraphTree<NodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>)
 })
@@ -158,7 +175,6 @@ export type PreviousNodeTypeFromPath<
                 : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
         : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
 
-// export type GenericSubgraphTree
 
 export type SubgraphTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
@@ -203,5 +219,17 @@ export type SubgraphTree<
     )
 }
 
+
+// type Thing1 = string[]
+// type Thing = {
+//     [Key in Thing1[number]]: null
+// }
+// type Thing2 = ['this', 'that']
+// type Thing3 = {
+//     [Key in Thing2[number]]: null
+// }
+
+// type Eliminate1 = Record<string, any> extends Thing ? true : false
+// type Eliminate2 = Record<string, any> extends Thing3 ? true : false
 
 

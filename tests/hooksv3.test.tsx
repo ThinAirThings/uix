@@ -1,13 +1,10 @@
 
 import {  expect, test } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { renderHook, waitFor } from "@testing-library/react";
 import { useSubgraph } from './testhooks/useSubgraphv4';
-import { produce } from 'immer';
 import { useMerge } from './testhooks/useMerge';
-import { ConfiguredNodeDefinitionMap } from './uix/generated/staticObjects';
-import {NodeState} from "@thinairthings/uix"
 // @vitest-environment jsdom
 test('Query path test', async () => {
     const queryClient = new QueryClient({
@@ -58,14 +55,7 @@ test('Query path test', async () => {
             })
             save()
         }, [])
-        return (<>
-            {subgraph?.['-ACCESS_TO->Organization']?.map(node => {
-                <Component orgNode={node}/>
-            })}
-        </>
-            
-        )
-        // return {draft, isSaving}
+        return {draft, isSaving}
     }, { wrapper })
     await waitFor(() => expect(result.current.isSaving).toBe(false));
     expect(result.current.draft['-ACCESS_TO->Organization']![0].ceo).toBe('Bobothy')

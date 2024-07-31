@@ -1,9 +1,13 @@
-import { useQuery } from "@tanstack/react-query"
-import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "../uix/generated/staticObjects"
-import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition} from "@thinairthings/uix"
-import { extractSubgraph } from "../uix/generated/functionModule"
-import { useSubgraphDraft } from "./useSubgraphDraft"
 
+
+
+export const useSubgraphTemplate = () => /*ts*/`
+'use client'
+import { useQuery } from "@tanstack/react-query"
+import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
+import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition} from "@thinairthings/uix"
+import { extractSubgraph } from "./functionModule"
+import { useSubgraphDraft } from "./useSubgraphDraft"
 const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useSubgraph = <
@@ -35,9 +39,7 @@ export const useSubgraph = <
             )]
         )).serialize()}],
         queryFn: async ({queryKey: [params]}) => {
-            console.log("Running hook")
             const result = await extractSubgraph(params.rootNode, params.subgraphDefinition)
-            console.log("RESULT", result)
             if (result.error) throw new QueryError(result.error)
             const subgraph = result.data as GenericNodeShapeTree
             const addNodeToCache = (node: GenericNodeShapeTree) => {
@@ -78,3 +80,4 @@ export const useSubgraph = <
         save
     }
 }
+`

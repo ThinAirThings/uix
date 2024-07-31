@@ -1,13 +1,18 @@
+
+
+export const useSubgraphDraftTemplate = () => /*ts*/`
+'use client'
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ConfiguredNodeDefinitionMap } from "../uix/generated/staticObjects";
-import { NodeShape, NodeState, NodeStateTree, NodeShapeTree, GenericNodeShape, GenericNodeShapeTree } from "@thinairthings/uix";
-import { Draft, produce, WritableDraft } from "immer";
-import { mergeSubgraph } from "../uix/generated/functionModule";
+import { ConfiguredNodeDefinitionMap } from "./staticObjects";
+import { NodeState, NodeStateTree, GenericNodeShapeTree } from "@thinairthings/uix";
+import { produce, WritableDraft } from "immer";
+import { mergeSubgraph } from "./functionModule";
 import { useImmer } from "@thinairthings/use-immer";
-import { cacheKeyMap } from "./useSubgraphv4";
+import { cacheKeyMap } from "./useSubgraph";
+import { useEffect } from "react";
 
-
-export const useMerge = <
+export const useSubgraphDraft = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
     Subgraph extends 
         | NodeState<ConfiguredNodeDefinitionMap[NodeType]>
@@ -15,17 +20,23 @@ export const useMerge = <
     ({
         nodeType: NodeType
     }) & Subgraph 
-)) => {
+) | undefined) => {
     const queryClient = useQueryClient()
-    const [draft, updateDraft] = useImmer(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>))
+    const [draft, updateDraft] = useImmer(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>) | undefined)
+    useEffect(() => {
+        if (draft) return
+        updateDraft(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>))
+    }, [subgraph])
     const mutation = useMutation({
         mutationFn: async () => {
             console.log("Inside mutationFn")
             console.log("Mutating with draft:", draft)
+            if (!draft) return
             const {data, error} = await mergeSubgraph(draft as any)
             return null as any
         },
         onMutate: async () => {
+            if (!draft) return
             console.log("Inside onMutate Function")
             const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
             const previousSubgraphEntries = [...cacheKeyMap.get(draft.nodeId as string)!.values()]
@@ -63,6 +74,7 @@ export const useMerge = <
             })
         },
         onSuccess: () => {
+            if (!draft) return
             [...cacheKeyMap.get(draft.nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
                     queryKey: [JSON.parse(paramString)]
@@ -78,3 +90,4 @@ export const useMerge = <
         save: mutation.mutate
     }
 }
+`

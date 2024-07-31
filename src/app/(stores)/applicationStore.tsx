@@ -7,7 +7,7 @@ import { Box, Newline, Text } from "ink";
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import { Error } from "../(components)/Error";
-import { UixErr, UixErrSubtype } from "../../types/Result";
+import { UixErr } from "../../types/Result";
 
 export const applicationStore = createImmerState({
     outputMap: new Map<string, {
@@ -33,7 +33,7 @@ export const applicationStore = createImmerState({
                 state.pendingSet.clear()
                 state.outputMap.set('timeout', {
                     Component: () => <Error message="Operation timed out" error={UixErr({
-                        subtype: UixErrSubtype.CODE_GENERATION_FAILED,
+                        subtype: 'CLIError',
                         message: 'System timeout. Check your database connection!',
                     }).error!} />
                 })

@@ -6,7 +6,7 @@ import { Box, Text } from 'ink';
 import { useOperation } from '../(hooks)/useOperation';
 import { GenericUixConfig, GenericUixConfigDefinition, GenericUixConfigWithoutPath } from '../../config/defineConfig';
 import { applicationStore } from '../(stores)/applicationStore';
-import { UixErr, UixErrSubtype } from '../../types/Result';
+import { UixErr } from '../../types/Result';
 import { Loading } from './Loading';
 import { bundleRequire } from 'bundle-require'
 import { findConfig } from '../../utilities/findConfig';
@@ -47,7 +47,7 @@ export const CommandEnvironment: FC<{
                             catchOp: (error: Error) => {
                                 console.log(error)
                                 return UixErr({
-                                    subtype: UixErrSubtype.UIX_CONFIG_NOT_FOUND,
+                                    subtype: 'CLIError',
                                     message: `${error.message}`,
                                     data: { relativePathToConfig }
                                 })

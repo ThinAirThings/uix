@@ -14,5 +14,4 @@ export * from './types/RelationshipUnion'
 // // Function
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/extractSubgraphFactory'
-export * from './fns/deleteNodeFactory'
 

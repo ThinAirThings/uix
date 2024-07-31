@@ -8,5 +8,6 @@
         //     "ESNext"
         // ],
         "strictNullChecks": true,
+        "noUncheckedIndexedAccess": true
     }
 }
