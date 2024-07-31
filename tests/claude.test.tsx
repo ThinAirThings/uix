@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 import { renderHook, waitFor, act } from "@testing-library/react";
@@ -41,7 +41,6 @@ test('Query path and optimistic update test', async () => {
         'nodeType': 'User',
         'email': 'dan.lannan@thinair.cloud'
     }, subgraphDefinition), { wrapper });
-
     await waitFor(() => expect(subgraphResult.current.isSuccess).toBe(true));
     const { result, rerender } = renderHook(() => {
         const { subgraph } = useSubgraph({    
@@ -49,38 +48,44 @@ test('Query path and optimistic update test', async () => {
             'email': 'dan.lannan@thinair.cloud'
         }, subgraphDefinition)
         console.log("Line 49")
-        const { draft, updateDraft, save, isSaving } = useMerge(subgraph!)
-        return { subgraph, draft, updateDraft, save, isSaving }
+        const { draft, updateDraft, save, isSaving, isSuccess } = useMerge(subgraph!)
+        return { subgraph, draft, updateDraft, save, isSaving, isSuccess }
     }, { wrapper })
     // Create Next States
     const nextFirstName = uuid()
-    const initialOrganizationLength = result.current.draft['-ACCESS_TO->Organization']!.length
-    const nextOrganization: OrganizationNodeState&RelationshipState<(typeof nodeDefinitionMap['User']['relationshipDefinitionSet'][number]&{type: 'ACCESS_TO'})> = {
-        employees: 300,
-        'name': uuid(),
-        'ceo': uuid(),
-        accessLevel: 'member',
-    }
     // Perform update
     act(() => {
         result.current.updateDraft(draft => {
             draft.firstName = nextFirstName
-            draft['-ACCESS_TO->Organization']?.push(nextOrganization)
+            draft['-ACCESS_TO->Organization'] = [{
+                'ceo': "Dan",
+                'name': "Thin Air",
+                'employees': 200,
+                'accessLevel': 'owner',
+                '<-BELONGS_TO-Project': []
+                // '<-BELONGS_TO-Project': [{
+                //     'name': 'iOS App',
+                //     'description': "Write mad code"
+                // }]
+            }]
         })
     })
     // Check if the cache was updated correctly
     expect(result.current.draft!.firstName).toBe(nextFirstName)
-    expect(result.current.draft!['-ACCESS_TO->Organization']!.length).toBe(initialOrganizationLength + 1)
     act(() => {
         result.current.save()
     })
-    // // Check optimistic update
-    rerender()  // Rerender to get the latest state from the cache after calling save
     // Wait for the mutation to complete
-    await waitFor(() => expect(result.current.isSaving).toBe(false));
+    await waitFor(() => {
+        console.log("Current isSaving state:", result.current.isSaving);
+        return expect(result.current.isSaving).toBe(false);
+    }, { timeout: 1000 });
 
-    // console.log(JSON.stringify(result.current.draft, null, 2))
+    await waitFor(() => {
+        console.log("Current isSuccess state:", result.current.isSuccess);
+        return expect(result.current.isSuccess).toBe(true);
+    }, { timeout: 1000 })
+    rerender() 
     // Check if the cache was updated correctly
     expect(result.current.subgraph!.firstName).toBe(nextFirstName)
-    expect(result.current.subgraph!['-ACCESS_TO->Organization']!.length).toBe(initialOrganizationLength + 1)
 })

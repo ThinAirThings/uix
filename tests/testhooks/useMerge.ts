@@ -74,6 +74,7 @@ export const useMerge = <
         draft, 
         updateDraft,
         isSaving: mutation.isPending,
+        isSuccess: mutation.isSuccess,
         save: mutation.mutate
     }
 }

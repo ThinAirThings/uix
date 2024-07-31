@@ -77,6 +77,7 @@ export class NodeDefinition<
                 createdAt: z.string(),
                 updatedAt: z.string()
             })),
+        
     ) { }
 
     /**

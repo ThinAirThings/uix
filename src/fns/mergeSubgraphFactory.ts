@@ -63,7 +63,10 @@ export const mergeSubgraphFactory = <
     // Create Index Set
     const rootVariable = `n_t0_i0`
     let variableList = [rootVariable]
-    let variableStateEntries = [[`${rootVariable}_state`, removeRelationshipEntries(subgraphRef!)]]
+    let variableStateEntries = [
+        [`${rootVariable}_state`, removeRelationshipEntries(subgraphRef!)],
+    ]
+
     let queryString = dedent/*cypher*/`
         merge (${rootVariable}:${(subgraphRef as GenericNodeKey).nodeType} { 
             ${nodeDefinitionMap[subgraph.nodeType].uniqueIndexes
@@ -83,7 +86,7 @@ export const mergeSubgraphFactory = <
                 ${rootVariable}.updatedAt = timestamp() \n
     `
     type RelationshipKey = `<-${string}-${string}-${string}` | `${string}-${string}->${string}`
-    const relationToQueryString = (relationshipKey: RelationshipKey, relation: any, path: string, previousNodeType: string) => {
+    const relationToQueryString = (relationshipKey: RelationshipKey, relation: any, path: string, previousNodeType: string, relatedNodeIdSet: string[]) => {
         const pathSegments = path.split('_')
         const relationshipString = relationshipKey[0] === '<'
         ? `<-[r_${path}:${relationshipKey.split('-')[1]}]-`
@@ -119,7 +122,7 @@ export const mergeSubgraphFactory = <
             : nodeDefinitionMap[previousNodeType].relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
         variableStateEntries.push(
             [`n_${path}_state`, nodeDefinitionMap[relation.nodeType].stateSchema.parse(removeRelationshipEntries(relation))],
-            relationshipSchema ? [`r_${path}_state`, relationshipSchema.parse(removeRelationshipEntries(relation))] : [`r_${path}_state`, {}]
+            relationshipSchema ? [`r_${path}_state`, relationshipSchema.parse(removeRelationshipEntries(relation))] : [`r_${path}_state`, {}],
         )
         treeToQueryString(relation, `${path}`)
     }
@@ -129,19 +132,46 @@ export const mergeSubgraphFactory = <
             const nodeType = key.split('-')[2].replace('>', '')
             const related = subgraph[key as keyof typeof subgraph]
             if (Array.isArray(related)) {
+                const relatedNodeIdSet = related.map((node: GenericNodeShape) => node.nodeId)
+                console.log("RELATED NODE ID SET!", relatedNodeIdSet)
+                // ---- Handle Deletion -----
+                const pathSegments = path.split('_')
+                const relationshipString = key[0] === '<'
+                ? `<-[r_${path}:${key.split('-')[1]}]-`
+                : `-[r_${path}:${key.split('-')[1]}]->`
+                queryString += dedent/*cypher*/`
+                    // ---Handle Deletion--- (Node need to handle limit here as well)
+                    with *
+                    call {
+                        with *  // <--- Ensure necessary variables are included
+                        match (n_${path})
+                        ${relationshipString.replace('r', 'dr')}
+                        (dn_${`${path}_t`}:${nodeType ?? pathSegments[2].replaceAll('>', '')})
+                        where not dn_${`${path}_t`}.nodeId in $dn_${`${path}_t`}_relatedNodeIdSet
+                        detach delete dn_${`${path}_t`}
+                    }
+                    // ---Handle Merge---
+                    with *  // <--- Ensure necessary variables are included
+                    \n
+                `
+                variableStateEntries.push([`dn_${`${path}_t`}_relatedNodeIdSet`, relatedNodeIdSet])
+                // --- End Handle Deletion ---
                 related.forEach((node, i_idx) => {
-                    relationToQueryString(key as RelationshipKey, {nodeType, ...node}, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType)
+                    relationToQueryString(key as RelationshipKey, {nodeType, ...node}, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType, relatedNodeIdSet)
                 })
             } else {
-                relationToQueryString(key as RelationshipKey, {nodeType, ...related} as any, `${path}_t${t_idx}_i0`, subgraph.nodeType)
+                relationToQueryString(key as RelationshipKey, {nodeType, ...related} as any, `${path}_t${t_idx}_i0`, subgraph.nodeType, [related.nodeId])
             }
         })
     }
     treeToQueryString(subgraphRef as any, `t0_i0`)
     // Add Return Statement
+    console.log("RETURN STATEMENT", variableList)
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
+    console.log("QUERY STRING", queryString)
+    writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
     } & {
@@ -153,8 +183,9 @@ export const mergeSubgraphFactory = <
         Object.fromEntries(variableStateEntries)
     )
     .then(result => {
+
         writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
-        writeFileSync('tests/merge:queryString.cypher', queryString)
+        
         const entityMap = result.records[0]
         const rootNode = result.records[0].get(rootVariable).properties
         const rootStringIndex = rootVariable 
