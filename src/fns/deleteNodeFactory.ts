@@ -42,48 +42,71 @@ export const deleteNodeFactory = <
 })
 
 
+                    // r_${path}.strength = "${                 
+                    //     nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
+                    //     .relationshipDefinitionSet.find(
+                    //         (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
+                    //     ).strength
+                    // }"
+
+                                            // // Check for deletion of node
+                        // ${nodeDefinitionMap[nextNodeType].relationshipDefinitionSet.some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
+                        //     ? dedent/*cypher*/`
+                        //         (dn_${`${path}_t`})-[{strength: "strong"}]->(strongConnectedNode)
+                        //         with dn_${`${path}_t`}, count(strongConnectedNode) as strongConnectedNodeCount
+                        //         where strongConnectedNodeCount < 1
+                        //         detach delete dn_${`${path}_t`}
+                        //     `
+                        //     : ''
+                        // }
 
 
 
 
-// // // THIS WORKS
-// match (n:Node {nodeId: "b4aead03-1c8b-413a-8f19-95b30aab9528"})<-[strongRel *0.. {strength: "string"}]-(connectedNode)
-// detach delete n
-// with distinct connectedNode
-// match (connectedNode)-[{strength: "strong"}]->(strongConnectedNode)
-// with connectedNode, count(strongConnectedNode) as strongConnectedNodeCount
-// where strongConnectedNodeCount = 1
-// detach delete connectedNode
 
 
 
-/* PROGRESS */
-const deleteAllStrongChildNodesWith1StrongConnection = /*cypher*/`
-    MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
-    CALL apoc.path.expandConfig(n, {
-        relationshipFilter: '<',
-        minLevel: 1,
-        uniqueness: 'NODE_GLOBAL'
-    }) YIELD path
-    WITH path
-    WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
-    UNWIND nodes(path) AS filteredNode
-    with DISTINCT filteredNode
-    MATCH (filteredNode)-[rel:strength]->(otherNode)
-    WHERE rel.strength = 'strong'
-    WITH filteredNode, count(otherNode) AS strongCount
-    WHERE strongCount = 1
-    DETACH DELETE filteredNode
-`
-const getAllStrongChildNodes = /*cypher*/`
-    MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
-    CALL apoc.path.expandConfig(n, {
-        relationshipFilter: '<',
-        minLevel: 1,
-        uniqueness: 'NODE_GLOBAL'
-    }) YIELD path
-    WITH path
-    WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
-    UNWIND nodes(path) AS filteredNode
-    RETURN DISTINCT filteredNode
-`
+
+
+
+// // // // THIS WORKS
+// // match (n:Node {nodeId: "b4aead03-1c8b-413a-8f19-95b30aab9528"})<-[strongRel *0.. {strength: "string"}]-(connectedNode)
+// // detach delete n
+// // with distinct connectedNode
+// // match (connectedNode)-[{strength: "strong"}]->(strongConnectedNode)
+// // with connectedNode, count(strongConnectedNode) as strongConnectedNodeCount
+// // where strongConnectedNodeCount = 1
+// // detach delete connectedNode
+
+
+
+// /* PROGRESS */
+// const deleteAllStrongChildNodesWith1StrongConnection = /*cypher*/`
+//     MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
+//     CALL apoc.path.expandConfig(n, {
+//         relationshipFilter: '<',
+//         minLevel: 1,
+//         uniqueness: 'NODE_GLOBAL'
+//     }) YIELD path
+//     WITH path
+//     WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
+//     UNWIND nodes(path) AS filteredNode
+//     with DISTINCT filteredNode
+//     MATCH (filteredNode)-[rel:strength]->(otherNode)
+//     WHERE rel.strength = 'strong'
+//     WITH filteredNode, count(otherNode) AS strongCount
+//     WHERE strongCount = 1
+//     DETACH DELETE filteredNode
+// `
+// const getAllStrongChildNodes = /*cypher*/`
+//     MATCH (n:Node {nodeId: "f0db0d91-d667-443f-a1ab-4ffa9e9b08e2"})
+//     CALL apoc.path.expandConfig(n, {
+//         relationshipFilter: '<',
+//         minLevel: 1,
+//         uniqueness: 'NODE_GLOBAL'
+//     }) YIELD path
+//     WITH path
+//     WHERE ALL(rel IN relationships(path) WHERE rel.strength = 'strong')
+//     UNWIND nodes(path) AS filteredNode
+//     RETURN DISTINCT filteredNode
+// `

@@ -56,6 +56,7 @@ export const mergeSubgraphFactory = <
     ? [(draft: Draft<Subgraph>) => void] | []
     : []
 ) => {
+    console.log("MERGING", JSON.stringify(subgraph))
     const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key]) => !(key.includes('->') || key.includes('<-'))))
     const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
     const subgraphRef = (('createdAt' in subgraph  && updater) ? produce(subgraph, updater) : subgraph)
@@ -85,6 +86,8 @@ export const mergeSubgraphFactory = <
                 ${rootVariable}:Node,
                 ${rootVariable}.updatedAt = timestamp() \n
     `
+            // // Get Previous Node
+            // match (n_${pathSegments.slice(0, pathSegments.length-2).join('_')})
     type RelationshipKey = `<-${string}-${string}-${string}` | `${string}-${string}->${string}`
     const relationToQueryString = (relationshipKey: RelationshipKey, relation: any, path: string, previousNodeType: string, relatedNodeIdSet: string[]) => {
         const pathSegments = path.split('_')
@@ -92,29 +95,55 @@ export const mergeSubgraphFactory = <
         ? `<-[r_${path}:${relationshipKey.split('-')[1]}]-`
         : `-[r_${path}:${relationshipKey.split('-')[1]}]->`
         const relationshipType = relationshipKey.split('-')[1]
+        const nextNodeType = relation?.nodeType??pathSegments[2].replaceAll('>', '')
+        const nextNodeIndexes = nodeDefinitionMap[nextNodeType].uniqueIndexes
+            .filter((index:string) => !!relation[index]).length > 1
+            ? nodeDefinitionMap[nextNodeType].uniqueIndexes
+                .filter((index:string) => !!relation[index] && index !== 'nodeId')
+                .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
+            : nodeDefinitionMap[nextNodeType].uniqueIndexes
+                .filter((index:string) => !!relation[index])
+                .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
+
         queryString += dedent/*cypher*/`
-            merge p_${path}=(n_${pathSegments.slice(0, pathSegments.length-2).join('_')})
-            ${relationshipString}
-            (n_${path}:${relation?.nodeType??pathSegments[2].replaceAll('>', '')} { 
-                ${nodeDefinitionMap[relation.nodeType].uniqueIndexes
-                    .filter((index:string) => !!relation[index])
-                    .map((index: any) => `${index}: "${relation[index]}"`).join(', ')
-                }
+            // Merge Next Node
+            merge (n_${path}:${nextNodeType} { 
+                ${nextNodeIndexes}
             })
             on create
-                set n_${path}.nodeId = "${relation.nodeId ? relation.nodeId : uuid()}",
-                    n_${path} += $n_${path}_state,
-                    n_${path}.nodeType = "${relation?.nodeType??pathSegments[2].replaceAll('>', '')}",
+                set n_${path} += $n_${path}_state,
+                    n_${path}.nodeType = "${nextNodeType}",
                     n_${path}:Node,
                     n_${path}.createdAt = timestamp(),
-                    n_${path}.updatedAt = timestamp(),
-                    r_${path}.relationshipType = "${relationshipType}",
-                    r_${path} += $r_${path}_state
+                    n_${path}.updatedAt = timestamp()
+
             on match
                 set n_${path} += $n_${path}_state,
                     n_${path}:Node,
-                    n_${path}.updatedAt = timestamp(),
-                    r_${path} += $r_${path}_state \n 
+                    n_${path}.updatedAt = timestamp()
+
+            // Merge Relationship
+            merge p_${path}=(n_${pathSegments.slice(0, pathSegments.length-2).join('_')})
+            ${relationshipString}
+            (n_${path})
+            on create
+                set r_${path}.relationshipType = "${relationshipType}",
+                    r_${path} += $r_${path}_state,
+                    r_${path}.strength = "${                 
+                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
+                        .relationshipDefinitionSet.find(
+                            (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
+                        ).strength
+                    }"
+            on match
+                set r_${path} += $r_${path}_state,
+                    r_${path}.strength = "${                 
+                        nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
+                        .relationshipDefinitionSet.find(
+                            (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
+                        ).strength
+                    }"
+            \n
         `
         variableList.push(`p_${path}`, `r_${path}`, `n_${path}`)
         const relationshipSchema = relationshipString.includes('<') 
@@ -126,16 +155,21 @@ export const mergeSubgraphFactory = <
         )
         treeToQueryString(relation, `${path}`)
     }
+
     const treeToQueryString = (subgraph: any, path: string) => {
+        console.log("PATH", path)
         getRelationshipEntries(subgraph).forEach(([key], t_idx) => {
+            console.log("LOOPING", key)
             if (!(key.includes('<-') || key.includes('->'))) return
-            const nodeType = key.split('-')[2].replace('>', '')
+            const pathSegments = path.split('_')
+            const nextNodeType = key.split('-')[2].replace('>', '') ?? pathSegments[2].replaceAll('>', '')
             const related = subgraph[key as keyof typeof subgraph]
+            const relationshipType = key.split('-')[1]
             if (Array.isArray(related)) {
-                const relatedNodeIdSet = related.map((node: GenericNodeShape) => node.nodeId)
-                console.log("RELATED NODE ID SET!", relatedNodeIdSet)
+                // NOTE!! Passing in a map of undefined values causes neo4j to behave unexpectedly
+                const relatedNodeIdSet = related.map((node: GenericNodeShape) => node.nodeId).filter(nodeId => nodeId !== undefined)
+                console.log("RELATED NODE IDS", relatedNodeIdSet)
                 // ---- Handle Deletion -----
-                const pathSegments = path.split('_')
                 const relationshipString = key[0] === '<'
                 ? `<-[r_${path}:${key.split('-')[1]}]-`
                 : `-[r_${path}:${key.split('-')[1]}]->`
@@ -146,9 +180,23 @@ export const mergeSubgraphFactory = <
                         with *  // <--- Ensure necessary variables are included
                         match (n_${path})
                         ${relationshipString.replace('r', 'dr')}
-                        (dn_${`${path}_t`}:${nodeType ?? pathSegments[2].replaceAll('>', '')})
+                        (dn_${`${path}_t`}:${nextNodeType})
                         where not dn_${`${path}_t`}.nodeId in $dn_${`${path}_t`}_relatedNodeIdSet
-                        detach delete dn_${`${path}_t`}
+                        delete dr_${`${path}`}
+                        
+                        // Check for deletion of node
+                        ${nodeDefinitionMap[nextNodeType]
+                        .relationshipDefinitionSet
+                        .some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
+                            ? dedent/*cypher*/`
+                                with dn_${`${path}_t`}
+                                optional match (dn_${`${path}_t`})-[{strength: "strong"}]->(strongConnectedNode)
+                                with dn_${`${path}_t`}, count(strongConnectedNode) as strongConnectedNodeCount
+                                where strongConnectedNodeCount < 1
+                                detach delete dn_${`${path}_t`}
+                            `
+                            : ''
+                        }
                     }
                     // ---Handle Merge---
                     with *  // <--- Ensure necessary variables are included
@@ -157,20 +205,27 @@ export const mergeSubgraphFactory = <
                 variableStateEntries.push([`dn_${`${path}_t`}_relatedNodeIdSet`, relatedNodeIdSet])
                 // --- End Handle Deletion ---
                 related.forEach((node, i_idx) => {
-                    relationToQueryString(key as RelationshipKey, {nodeType, ...node}, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType, relatedNodeIdSet)
+                    relationToQueryString(key as RelationshipKey, {
+                        nodeType: nextNodeType,
+                        nodeId: node.nodeId ?? uuid(),
+                        ...node
+                    }, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType, relatedNodeIdSet)
                 })
             } else {
-                relationToQueryString(key as RelationshipKey, {nodeType, ...related} as any, `${path}_t${t_idx}_i0`, subgraph.nodeType, [related.nodeId])
+                relationToQueryString(
+                    key as RelationshipKey, {
+                        nodeType: nextNodeType,
+                        nodeId: related.nodeId ?? uuid(),
+                        ...related
+                    } as any, `${path}_t${t_idx}_i0`, subgraph.nodeType, [related.nodeId])
             }
         })
     }
     treeToQueryString(subgraphRef as any, `t0_i0`)
     // Add Return Statement
-    console.log("RETURN STATEMENT", variableList)
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
-    console.log("QUERY STRING", queryString)
     writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>

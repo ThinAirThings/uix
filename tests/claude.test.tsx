@@ -56,17 +56,24 @@ test('Query path and optimistic update test', async () => {
     // Perform update
     act(() => {
         result.current.updateDraft(draft => {
+            console.log(draft)
             draft.firstName = nextFirstName
+            // draft['-ACCESS_TO->Organization'] = []
             draft['-ACCESS_TO->Organization'] = [{
                 'ceo': "Dan",
                 'name': "Thin Air",
                 'employees': 200,
                 'accessLevel': 'owner',
-                '<-BELONGS_TO-Project': []
-                // '<-BELONGS_TO-Project': [{
-                //     'name': 'iOS App',
-                //     'description': "Write mad code"
-                // }]
+                // '<-BELONGS_TO-Project': []
+                '<-BELONGS_TO-Project': [{
+                    'name': 'iOS App',
+                    'description': "Write mad code"
+                }, 
+                // {
+                //     'name': 'Android App',
+                //     'description': "Eat mad nuggets"
+                // }
+            ]
             }]
         })
     })

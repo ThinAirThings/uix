@@ -4,9 +4,12 @@
       "n_t0_i0",
       "p_t0_i0_t0_i0",
       "r_t0_i0_t0_i0",
-      "n_t0_i0_t0_i0"
+      "n_t0_i0_t0_i0",
+      "p_t0_i0_t0_i0_t0_i0",
+      "r_t0_i0_t0_i0_t0_i0",
+      "n_t0_i0_t0_i0_t0_i0"
     ],
-    "length": 4,
+    "length": 7,
     "_fields": [
       {
         "identity": 8,
@@ -15,12 +18,12 @@
           "Node"
         ],
         "properties": {
-          "firstName": "e71d652c-47db-4757-910e-1ef6900e285c",
+          "firstName": "75f0cbd4-045c-42a7-8752-57ec8749078b",
           "createdAt": 1722207645141,
           "nodeType": "User",
           "nodeId": "af53ff6c-e781-4fe3-be05-2b00162859cf",
           "email": "dan.lannan@thinair.cloud",
-          "updatedAt": 1722390170381
+          "updatedAt": 1722403265621
         },
         "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8"
       },
@@ -32,12 +35,12 @@
             "Node"
           ],
           "properties": {
-            "firstName": "e71d652c-47db-4757-910e-1ef6900e285c",
+            "firstName": "75f0cbd4-045c-42a7-8752-57ec8749078b",
             "createdAt": 1722207645141,
             "nodeType": "User",
             "nodeId": "af53ff6c-e781-4fe3-be05-2b00162859cf",
             "email": "dan.lannan@thinair.cloud",
-            "updatedAt": 1722390170381
+            "updatedAt": 1722403265621
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8"
         },
@@ -54,7 +57,7 @@
             "ceo": "Dan",
             "employees": 200,
             "nodeId": "2ad19b4d-7357-49ce-b06a-88dd86183f7d",
-            "updatedAt": 1722390170381
+            "updatedAt": 1722403265621
           },
           "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
         },
@@ -67,25 +70,26 @@
                 "Node"
               ],
               "properties": {
-                "firstName": "e71d652c-47db-4757-910e-1ef6900e285c",
+                "firstName": "75f0cbd4-045c-42a7-8752-57ec8749078b",
                 "createdAt": 1722207645141,
                 "nodeType": "User",
                 "nodeId": "af53ff6c-e781-4fe3-be05-2b00162859cf",
                 "email": "dan.lannan@thinair.cloud",
-                "updatedAt": 1722390170381
+                "updatedAt": 1722403265621
               },
               "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8"
             },
             "relationship": {
-              "identity": 6,
+              "identity": 11,
               "start": 8,
               "end": 10,
               "type": "ACCESS_TO",
               "properties": {
+                "strength": "weak",
                 "accessLevel": "owner",
                 "relationshipType": "ACCESS_TO"
               },
-              "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:6",
+              "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:11",
               "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8",
               "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
             },
@@ -102,7 +106,7 @@
                 "ceo": "Dan",
                 "employees": 200,
                 "nodeId": "2ad19b4d-7357-49ce-b06a-88dd86183f7d",
-                "updatedAt": 1722390170381
+                "updatedAt": 1722403265621
               },
               "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
             }
@@ -111,15 +115,16 @@
         "length": 1
       },
       {
-        "identity": 6,
+        "identity": 11,
         "start": 8,
         "end": 10,
         "type": "ACCESS_TO",
         "properties": {
+          "strength": "weak",
           "accessLevel": "owner",
           "relationshipType": "ACCESS_TO"
         },
-        "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:6",
+        "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:11",
         "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:8",
         "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
       },
@@ -136,16 +141,134 @@
           "ceo": "Dan",
           "employees": 200,
           "nodeId": "2ad19b4d-7357-49ce-b06a-88dd86183f7d",
-          "updatedAt": 1722390170381
+          "updatedAt": 1722403265621
         },
         "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
+      },
+      {
+        "start": {
+          "identity": 10,
+          "labels": [
+            "Node",
+            "Organization"
+          ],
+          "properties": {
+            "createdAt": 1722385058512,
+            "name": "Thin Air",
+            "nodeType": "Organization",
+            "ceo": "Dan",
+            "employees": 200,
+            "nodeId": "2ad19b4d-7357-49ce-b06a-88dd86183f7d",
+            "updatedAt": 1722403265621
+          },
+          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
+        },
+        "end": {
+          "identity": 4,
+          "labels": [
+            "Node",
+            "Project"
+          ],
+          "properties": {
+            "createdAt": 1722403265621,
+            "name": "iOS App",
+            "description": "Write mad code",
+            "nodeType": "Project",
+            "nodeId": "a75ca514-1d65-4e44-83a7-1e349427a880",
+            "updatedAt": 1722403265621
+          },
+          "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:4"
+        },
+        "segments": [
+          {
+            "start": {
+              "identity": 10,
+              "labels": [
+                "Node",
+                "Organization"
+              ],
+              "properties": {
+                "createdAt": 1722385058512,
+                "name": "Thin Air",
+                "nodeType": "Organization",
+                "ceo": "Dan",
+                "employees": 200,
+                "nodeId": "2ad19b4d-7357-49ce-b06a-88dd86183f7d",
+                "updatedAt": 1722403265621
+              },
+              "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
+            },
+            "relationship": {
+              "identity": 13,
+              "start": 4,
+              "end": 10,
+              "type": "BELONGS_TO",
+              "properties": {
+                "strength": "strong",
+                "relationshipType": "BELONGS_TO"
+              },
+              "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
+              "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:4",
+              "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
+            },
+            "end": {
+              "identity": 4,
+              "labels": [
+                "Node",
+                "Project"
+              ],
+              "properties": {
+                "createdAt": 1722403265621,
+                "name": "iOS App",
+                "description": "Write mad code",
+                "nodeType": "Project",
+                "nodeId": "a75ca514-1d65-4e44-83a7-1e349427a880",
+                "updatedAt": 1722403265621
+              },
+              "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:4"
+            }
+          }
+        ],
+        "length": 1
+      },
+      {
+        "identity": 13,
+        "start": 4,
+        "end": 10,
+        "type": "BELONGS_TO",
+        "properties": {
+          "strength": "strong",
+          "relationshipType": "BELONGS_TO"
+        },
+        "elementId": "5:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:13",
+        "startNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:4",
+        "endNodeElementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:10"
+      },
+      {
+        "identity": 4,
+        "labels": [
+          "Node",
+          "Project"
+        ],
+        "properties": {
+          "createdAt": 1722403265621,
+          "name": "iOS App",
+          "description": "Write mad code",
+          "nodeType": "Project",
+          "nodeId": "a75ca514-1d65-4e44-83a7-1e349427a880",
+          "updatedAt": 1722403265621
+        },
+        "elementId": "4:929a7abc-13dd-4fee-a8ca-c75e5eae8e9e:4"
       }
     ],
     "_fieldLookup": {
       "n_t0_i0": 0,
       "p_t0_i0_t0_i0": 1,
       "r_t0_i0_t0_i0": 2,
-      "n_t0_i0_t0_i0": 3
+      "n_t0_i0_t0_i0": 3,
+      "p_t0_i0_t0_i0_t0_i0": 4,
+      "r_t0_i0_t0_i0_t0_i0": 5,
+      "n_t0_i0_t0_i0_t0_i0": 6
     }
   }
 ]
