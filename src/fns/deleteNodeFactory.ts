@@ -42,23 +42,7 @@ export const deleteNodeFactory = <
 })
 
 
-                    // r_${path}.strength = "${                 
-                    //     nodeDefinitionMap[relationshipKey.includes('<') ? nextNodeType : previousNodeType]
-                    //     .relationshipDefinitionSet.find(
-                    //         (relationship: GenericRelationshipDefinition) => relationship.type === relationshipType
-                    //     ).strength
-                    // }"
 
-                                            // // Check for deletion of node
-                        // ${nodeDefinitionMap[nextNodeType].relationshipDefinitionSet.some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
-                        //     ? dedent/*cypher*/`
-                        //         (dn_${`${path}_t`})-[{strength: "strong"}]->(strongConnectedNode)
-                        //         with dn_${`${path}_t`}, count(strongConnectedNode) as strongConnectedNodeCount
-                        //         where strongConnectedNodeCount < 1
-                        //         detach delete dn_${`${path}_t`}
-                        //     `
-                        //     : ''
-                        // }
 
 
 
