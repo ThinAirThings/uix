@@ -57,8 +57,7 @@ export const mergeSubgraphFactory = <
     ? [(draft: Draft<Subgraph>) => void] | []
     : []
 ) => {
-    console.log("MERGING", JSON.stringify(subgraph))
-    const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key]) => !(key.includes('->') || key.includes('<-'))))
+    const removeRelationshipEntries = (subgraph: object) => Object.fromEntries(Object.entries(subgraph).filter(([key, value]) => !(key.includes('->') || key.includes('<-')) || value === undefined))
     const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
     const subgraphRef = (('createdAt' in subgraph  && updater) ? produce(subgraph, updater) : subgraph)
     // Flatten Tree 
@@ -166,7 +165,6 @@ export const mergeSubgraphFactory = <
             if (Array.isArray(related)) {
                 // NOTE!! Passing in a map of undefined values causes neo4j to behave unexpectedly
                 const relatedNodeIdSet = related.map((node: GenericNodeShape) => node.nodeId).filter(nodeId => nodeId !== undefined)
-                console.log("RELATED NODE IDS", relatedNodeIdSet)
                 // ---- Handle Deletion -----
                 const relationshipString = key[0] === '<'
                 ? `<-[r_${path}:${key.split('-')[1]}]-`
@@ -224,7 +222,7 @@ export const mergeSubgraphFactory = <
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
-    writeFileSync('tests/merge:queryString.cypher', queryString)
+    // writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
     } & {
@@ -236,9 +234,7 @@ export const mergeSubgraphFactory = <
         Object.fromEntries(variableStateEntries)
     )
     .then(result => {
-
-        writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
-        
+        // writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
         const entityMap = result.records[0]!
         const rootNode = result.records[0]!.get(rootVariable).properties
         const rootStringIndex = rootVariable 
@@ -267,6 +263,7 @@ export const mergeSubgraphFactory = <
         }
         return buildTree(rootNode as any, rootStringIndex)
     })
+    console.log("MERGE RESULT", result)
     return Ok(result as Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
         ? Subgraph
         : NodeShapeTree<NodeDefinitionMap, NodeType, Subgraph>

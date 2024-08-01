@@ -46,7 +46,9 @@ test('Query path and optimistic update test', async () => {
     })
     if (createUserNodeError) throwTestError(createUserNodeError)
     expect(userNode?.email).toBe('dan.lannan@thinair.cloud')
-    const {result: userNodeSubgraph, rerender} = renderHook(() => useSubgraph(userNode, subgraphDefinition), { wrapper })
+    const {result: userNodeSubgraph, rerender} = renderHook(() => useSubgraph(userNode, {
+        defineSubgraph: subgraphDefinition
+    }), { wrapper })
     await waitFor(() => {expect(userNodeSubgraph.current.isSuccess).toBe(true)}, {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current.draft!.email).toBe('dan.lannan@thinair.cloud')
     act(() => {
@@ -56,11 +58,12 @@ test('Query path and optimistic update test', async () => {
             draft.lastName = 'Lannan'
         })
     })
-    act(() => {userNodeSubgraph.current.save()})
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    act(() => {userNodeSubgraph.current.commitDraft()})
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current.subgraph!.firstName).toBe('Dan')
     // Add Organization
     act(() => {
+        userNodeSubgraph.current.draft
         userNodeSubgraph.current.updateDraft(draft => {
             if (!draft) return
             draft['-ACCESS_TO->Organization'] = [{
@@ -72,10 +75,10 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        userNodeSubgraph.current.save()
+        userNodeSubgraph.current.commitDraft()
     })
-    rerender() // Required for isSaveSuccess to be updated
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    rerender() // Required for isCommitSuccessful to be updated
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current.subgraph?.['-ACCESS_TO->Organization']?.[0].name).toBe('Thin Air')
     // Add Project to organization
     act(() => {
@@ -89,10 +92,10 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        userNodeSubgraph.current.save()
+        userNodeSubgraph.current.commitDraft()
     })
-    rerender() // Required for isSaveSuccess to be updated
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    rerender() // Required for isCommitSuccessful to be updated
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current.subgraph?.['-ACCESS_TO->Organization']?.[0]['<-BELONGS_TO-Project']?.[0].name).toBe('Uix')
     // Add Other Project to Organization
     act(() => {
@@ -105,10 +108,10 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        userNodeSubgraph.current.save()
+        userNodeSubgraph.current.commitDraft()
     })
-    rerender() // Required for isSaveSuccess to be updated
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    rerender() // Required for isCommitSuccessful to be updated
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current
         .subgraph?.['-ACCESS_TO->Organization']
         ?.find(org => org.name === 'Thin Air')
@@ -123,10 +126,10 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        userNodeSubgraph.current.save()
+        userNodeSubgraph.current.commitDraft()
     })
-    rerender() // Required for isSaveSuccess to be updated
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    rerender() // Required for isCommitSuccessful to be updated
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current
         .subgraph?.['-ACCESS_TO->Organization']
         ?.find(org => org.name === 'Thin Air')
@@ -140,10 +143,10 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        userNodeSubgraph.current.save()
+        userNodeSubgraph.current.commitDraft()
     })
-    rerender() // Required for isSaveSuccess to be updated
-    await waitFor(() => expect(userNodeSubgraph.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    rerender() // Required for isCommitSuccessful to be updated
+    await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(userNodeSubgraph.current
         .subgraph?.['-ACCESS_TO->Organization']
         ?.find(org => org.name === 'Thin Air')).toBe(undefined)
@@ -151,7 +154,9 @@ test('Query path and optimistic update test', async () => {
     const {result: organizationNodeResult} = renderHook(() => useSubgraph({
         'nodeType': 'Organization',
         'name': 'Thin Air'
-    }, (subgraph) => subgraph.extendPath('Organization', '<-ACCESS_TO-User')), {wrapper}) 
+    }, {
+        defineSubgraph: (subgraph) => subgraph.extendPath('Organization', '<-ACCESS_TO-User')
+    }), {wrapper}) 
     await waitFor(() => expect(organizationNodeResult.current.isSuccess).toBe(true), {timeout: 3000, interval: 1000})
     // Test Add User to Organization
     act(() => {
@@ -164,8 +169,8 @@ test('Query path and optimistic update test', async () => {
         })
     })
     act(() => {
-        organizationNodeResult.current.save()
+        organizationNodeResult.current.commitDraft()
     })
-    await waitFor(() => expect(organizationNodeResult.current.isSaveSuccess).toBe(true), {timeout: 3000, interval: 1000})
+    await waitFor(() => expect(organizationNodeResult.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
     expect(organizationNodeResult.current.subgraph?.['<-ACCESS_TO-User']?.[0].email).toBe('dan.lannan@thinair.cloud')
 })

@@ -2,13 +2,14 @@
 'use client'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ConfiguredNodeDefinitionMap } from "./staticObjects";
+import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects";
 import { NodeState, NodeStateTree, GenericNodeShapeTree } from "@thinairthings/uix";
 import { produce, WritableDraft } from "immer";
 import { mergeSubgraph } from "./functionModule";
 import { useImmer } from "@thinairthings/use-immer";
 import { cacheKeyMap } from "./useSubgraph";
 import { useEffect } from "react";
+import { ZodObject, ZodTypeAny } from "zod";
 
 export const useSubgraphDraft = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
@@ -18,31 +19,47 @@ export const useSubgraphDraft = <
     ({
         nodeType: NodeType
     }) & Subgraph 
-) | undefined) => {
+) | undefined,
+schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => ZodObject<{
+    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]: ZodTypeAny
+}>
+) => {
     const queryClient = useQueryClient()
     const [draft, updateDraft] = useImmer(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>) | undefined)
+    const [draftErrors, setDraftErrors] = useImmer({} as {
+        [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: {message: string} | undefined
+    })
     useEffect(() => {
-        if (draft) return
+        if (draft || !subgraph) return
         updateDraft(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>))
     }, [subgraph])
     const mutation = useMutation({
         mutationFn: async () => {
-            console.log("Inside mutationFn")
-            console.log("Mutating with draft:", draft)
-            if (!draft) return
+            if (!draft || !subgraph) return
             const {data, error} = await mergeSubgraph(draft as any)
             return null as any
         },
         onMutate: async () => {
-            if (!draft) return
-            console.log("Inside onMutate Function")
+            if (!draft || !subgraph) return
+            const res = schema?.(nodeDefinitionMap[subgraph.nodeType].stateSchema as typeof nodeDefinitionMap[NodeType]['stateSchema']).safeParse(draft as any)
+            if (res?.error){
+                const errorSet = res?.error?.issues.reduce((acc, issue) => {
+                    acc[issue.path[0] as keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>] = {message: issue.message}
+                    return acc
+                }, {} as {
+                    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: {message: string} | undefined
+                })
+                setDraftErrors(errorSet)
+                throw new Error('Invalid draft')
+            }
+            setDraftErrors({})
             const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
-            const previousSubgraphEntries = [...cacheKeyMap.get(draft.nodeId as string)!.values()]
+            const previousSubgraphEntries = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericNodeShapeTree][]
-            previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
+            previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
                 const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
                     const findAndReplace = (subgraphNode: WritableDraft<GenericNodeShapeTree>) => {
                         if (subgraphNode.nodeId === draft.nodeId) {
@@ -73,7 +90,7 @@ export const useSubgraphDraft = <
         },
         onSuccess: () => {
             if (!draft) return
-            [...cacheKeyMap.get(draft.nodeId as string)!.values()].forEach(paramString => {
+            cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
                     queryKey: [JSON.parse(paramString)]
                 })
@@ -82,9 +99,10 @@ export const useSubgraphDraft = <
     })
     return {
         draft, 
+        draftErrors,
         updateDraft,
-        isSaving: mutation.isPending,
-        isSuccess: mutation.isSuccess,
-        save: mutation.mutate
+        isCommitting: mutation.isPending,
+        isCommitSuccessful: mutation.isSuccess,
+        commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)
     }
 }
