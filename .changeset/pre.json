@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@thinairthings/uix": "3.0.14"
+  },
+  "changesets": [
+    "stupid-buckets-own"
+  ]
+}
