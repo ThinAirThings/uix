@@ -2,9 +2,12 @@
 'use client'
 import { useQuery } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
-import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition, NodeState} from "@thinairthings/uix"
+import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition, NodeState, GenericNodeShape} from "@thinairthings/uix"
 import { extractSubgraph } from "./functionModule"
-
+import { useSubgraphDraft } from "./_useSubgraphDraft"
+import { ZodObject, ZodTypeAny } from "zod"
+import { produce } from "immer"
+import * as _ from 'lodash'
 const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useSubgraph = <
@@ -40,6 +43,24 @@ export const useSubgraph = <
             const result = await extractSubgraph(params.rootNode, params.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
             const subgraph = result.data as GenericNodeShapeTree
+
+            const subgraphToMapped = (subgraph: GenericNodeShapeTree, acc={}) => {
+                acc = {...subgraph}
+                getRelationshipEntries(subgraph).forEach(([key, nodeSet]: [string, GenericNodeShape | GenericNodeShape[]]) => {
+                    if (Array.isArray(nodeSet)) {
+                        acc[key] = new Map(nodeSet.map(node => [node.nodeId, node]))
+                        nodeSet.forEach((node) => subgraphToMapped(node, acc[key].get(node.nodeId)))
+                    } else {
+                        acc[key] = nodeSet
+                        subgraphToMapped(subgraph, acc[key])
+                    }
+                })
+                return acc
+            }
+            const mapped = subgraphToMapped(subgraph)
+            const mappedToObject = (mapped: GenericNodeShapeTree, acc={}) => {
+                
+            }
             const addNodeToCache = (node: GenericNodeShapeTree) => {
                 cacheKeyMap.set(
                     node.nodeId as string, 
@@ -59,7 +80,6 @@ export const useSubgraph = <
             return result.data 
         }
     })
-    
     return {
         subgraph,
         error,

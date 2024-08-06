@@ -1,0 +1,23 @@
+{
+  "lastName": "Lannan",
+  "firstName": "Dan",
+  "createdAt": 1722949233124,
+  "nodeType": "User",
+  "nodeId": "49298ac9-f9b0-43c9-8751-1244ec29739b",
+  "email": "dan.lannan@thinair.cloud",
+  "updatedAt": 1722953808546,
+  "-ACCESS_TO->Organization": [
+    {
+      "relationshipType": "ACCESS_TO",
+      "accessLevel": "owner",
+      "strength": "weak",
+      "createdAt": 1722949613934,
+      "name": "Thin Air",
+      "employees": 200,
+      "nodeType": "Organization",
+      "ceo": "Dan",
+      "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
+      "updatedAt": 1722953808546
+    }
+  ]
+}

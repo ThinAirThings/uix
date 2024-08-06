@@ -1,22 +1,9 @@
-import { relationshipLiteralType, stringLiteralType } from "../../utilities/stringLiteralType";
 
-
-export const useSubgraphDraftTemplate = () => /*ts*/`
 'use client'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects";
-import { 
-    NodeState, 
-    NodeStateTree, 
-    GenericNodeShapeTree, 
-    NodeShape, 
-    getRelationshipEntries, 
-    createNestedZodSchema, 
-    RelationshipUnion, 
-    RelationshipState,
-    AnyRelationshipDefinition
-} from "@thinairthings/uix";
+import { NodeState, NodeStateTree,NodeShape, getRelationshipEntries, createNestedZodSchema, RelationshipUnion, RelationshipState, AnyRelationshipDefinition } from "@thinairthings/uix";
 import { produce, WritableDraft } from "immer";
 import { mergeSubgraph } from "./functionModule";
 import { useImmer } from "@thinairthings/use-immer";
@@ -24,36 +11,34 @@ import { cacheKeyMap } from "./useSubgraph";
 import { useEffect, useRef } from "react";
 import { z, ZodObject, ZodTypeAny } from "zod";
 
-
-
-
 export const useSubgraphDraft = <
-NodeType extends keyof ConfiguredNodeDefinitionMap,
-Relationship extends RelationshipUnion<ConfiguredNodeDefinitionMap, NodeType>,
-Subgraph extends NodeState<ConfiguredNodeDefinitionMap[NodeType]> 
-    & (Relationship extends ${relationshipLiteralType('->')}
-        ? ConfiguredNodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
-            ? RelationshipState<
-                (RelationshipUnionRef&{type: RelationshipType})
-            >
-            : unknown
-        : Relationship extends ${relationshipLiteralType('<-')}
-            ? ConfiguredNodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+    NodeType extends keyof ConfiguredNodeDefinitionMap,
+    Relationship extends RelationshipUnion<ConfiguredNodeDefinitionMap, NodeType>,
+    Subgraph extends NodeState<ConfiguredNodeDefinitionMap[NodeType]> 
+        & (Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+            ? ConfiguredNodeDefinitionMap[NodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
                 ? RelationshipState<
                     (RelationshipUnionRef&{type: RelationshipType})
                 >
                 : unknown
-            : unknown
-    )
->(subgraph: (
-    ({
-        nodeType: ${stringLiteralType('NodeType')}
-        relationship?: ${stringLiteralType('Relationship')}
-    }) & Subgraph 
-) | undefined,
-schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => ZodObject<{
-    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]: ZodTypeAny
-}>
+            : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType extends keyof ConfiguredNodeDefinitionMap}`
+                ? ConfiguredNodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
+                    ? RelationshipState<
+                        (RelationshipUnionRef&{type: RelationshipType})
+                    >
+                    : unknown
+                : unknown
+        )
+>(
+    subgraph: (
+        ({
+            nodeType: `${NodeType}`,
+            relationship?: `${Relationship}`
+        }) & Subgraph 
+    ) | undefined,
+    schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => ZodObject<{
+        [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]: ZodTypeAny
+    }>
 ) => {
     const queryClient = useQueryClient()
     const [draft, updateDraft] = useImmer(subgraph as Subgraph & NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>)
@@ -96,15 +81,15 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
             }
             setDraftErrors({})
             const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
-            const previousSubgraphEntries = cacheKeyMap.has((draft as GenericNodeShapeTree).nodeId as string) && [...cacheKeyMap.get((draft as GenericNodeShapeTree).nodeId as string)!.values()]
+            const previousSubgraphEntries = cacheKeyMap.has((draft as any).nodeId as string) && [...cacheKeyMap.get((draft as any).nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
-                ] as const) as [string, GenericNodeShapeTree][]
+                ] as const) as [string, any][]
             previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
                 const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
-                    const findAndReplace = (subgraphNode: WritableDraft<GenericNodeShapeTree>) => {
-                        if (subgraphNode.nodeId === (draft as GenericNodeShapeTree).nodeId) {
+                    const findAndReplace = (subgraphNode: WritableDraft<any>) => {
+                        if (subgraphNode.nodeId === (draft as any).nodeId) {
                             Object.assign(subgraphNode, draft)
                             return
                         }
@@ -125,14 +110,14 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
         },
         onError: async (error, variables, context) => {
             // Rollback
-            const {previousData} = context as {previousData: [string, GenericNodeShapeTree][]}
+            const {previousData} = context as {previousData: [string, any][]}
             previousData.forEach(([paramString, previousSubgraph]) => {
                 queryClient.setQueryData([JSON.parse(paramString)], previousSubgraph)
             })
         },
         onSuccess: () => {
             if (!draft) return
-            cacheKeyMap.has((draft as GenericNodeShapeTree).nodeId as string) && [...cacheKeyMap.get((draft as GenericNodeShapeTree).nodeId as string)!.values()].forEach(paramString => {
+            cacheKeyMap.has((draft as any).nodeId as string) && [...cacheKeyMap.get((draft as any).nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
                     queryKey: [JSON.parse(paramString)]
                 })
@@ -153,4 +138,3 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
         commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)
     }
 }
-`

@@ -7,8 +7,6 @@ import { useQuery } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
 import { SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition, NodeState} from "@thinairthings/uix"
 import { extractSubgraph } from "./functionModule"
-import { useSubgraphDraft } from "./useSubgraphDraft"
-import { ZodObject, ZodTypeAny } from "zod"
 
 const getRelationshipEntries = (subgraph: object) => Object.entries(subgraph).filter(([key]) => key.includes('->') || key.includes('<-'))
 export const cacheKeyMap = new Map<string, Set<string>>()
@@ -30,9 +28,6 @@ export const useSubgraph = <
                 []
             >]>
         ) => SubgraphDefinitionRef,
-        schema?: (stateSchema: typeof nodeDefinitionMap[RootNodeType]['stateSchema']) => ZodObject<{
-            [K in keyof NodeState<ConfiguredNodeDefinitionMap[RootNodeType]>]: ZodTypeAny
-        }>
     }
 ) => {
     const { data: subgraph, error, isPending, isSuccess } = useQuery({
@@ -67,25 +62,11 @@ export const useSubgraph = <
             return result.data 
         }
     })
-    const {
-        draft,
-        draftErrors,
-        updateDraft,
-        isCommitting,
-        isCommitSuccessful,
-        commitDraft
-    } = useSubgraphDraft(subgraph, options?.schema)
     return {
         subgraph,
         error,
         isPending,
-        isSuccess,
-        draft,
-        draftErrors,
-        updateDraft,
-        isCommitting,
-        isCommitSuccessful,
-        commitDraft
+        isSuccess
     }
 }
 `

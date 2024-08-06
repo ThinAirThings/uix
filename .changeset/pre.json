@@ -5,6 +5,7 @@
     "@thinairthings/uix": "3.0.14"
   },
   "changesets": [
+    "smart-jokes-invite",
     "stupid-buckets-own"
   ]
 }

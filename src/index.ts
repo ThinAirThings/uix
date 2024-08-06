@@ -15,3 +15,5 @@ export * from './types/RelationshipUnion'
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/extractSubgraphFactory'
 
+// Utilities
+export * from './utilities/index'

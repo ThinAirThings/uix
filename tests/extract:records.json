@@ -1,15 +1,24 @@
 [
   {
     "keys": [
-      "n_t0_i0",
-      "p_t0_i0_t0_i0",
-      "r_t0_i0_t0_i0",
-      "n_t0_i0_t0_i0",
-      "p_t0_i0_t0_i1",
-      "r_t0_i0_t0_i1",
-      "n_t0_i0_t0_i1"
+      "n_0",
+      "p_0_0",
+      "r_0_0",
+      "n_0_0",
+      "p_0_0_0",
+      "r_0_0_0",
+      "n_0_0_0",
+      "p_0_0_0_0",
+      "r_0_0_0_0",
+      "n_0_0_0_0",
+      "p_0_1",
+      "r_0_1",
+      "n_0_1",
+      "p_0_1_0",
+      "r_0_1_0",
+      "n_0_1_0"
     ],
-    "length": 7,
+    "length": 16,
     "_fields": [
       {
         "identity": 0,
@@ -55,9 +64,9 @@
           "properties": {
             "createdAt": 1722949613934,
             "name": "Thin Air",
-            "ceo": "Dan",
             "employees": 200,
             "nodeType": "Organization",
+            "ceo": "Dan",
             "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
             "updatedAt": 1722953808546
           },
@@ -105,9 +114,9 @@
               "properties": {
                 "createdAt": 1722949613934,
                 "name": "Thin Air",
-                "ceo": "Dan",
                 "employees": 200,
                 "nodeType": "Organization",
+                "ceo": "Dan",
                 "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
                 "updatedAt": 1722953808546
               },
@@ -140,143 +149,44 @@
         "properties": {
           "createdAt": 1722949613934,
           "name": "Thin Air",
-          "ceo": "Dan",
           "employees": 200,
           "nodeType": "Organization",
+          "ceo": "Dan",
           "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
           "updatedAt": 1722953808546
         },
         "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
       },
-      {
-        "start": {
-          "identity": 0,
-          "labels": [
-            "User",
-            "Node"
-          ],
-          "properties": {
-            "lastName": "Lannan",
-            "firstName": "Dan",
-            "createdAt": 1722949233124,
-            "nodeType": "User",
-            "nodeId": "49298ac9-f9b0-43c9-8751-1244ec29739b",
-            "email": "dan.lannan@thinair.cloud",
-            "updatedAt": 1722953808546
-          },
-          "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0"
-        },
-        "end": {
-          "identity": 1,
-          "labels": [
-            "Node",
-            "Organization"
-          ],
-          "properties": {
-            "createdAt": 1722949613934,
-            "name": "Thin Air",
-            "ceo": "Dan",
-            "employees": 200,
-            "nodeType": "Organization",
-            "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
-            "updatedAt": 1722953808546
-          },
-          "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
-        },
-        "segments": [
-          {
-            "start": {
-              "identity": 0,
-              "labels": [
-                "User",
-                "Node"
-              ],
-              "properties": {
-                "lastName": "Lannan",
-                "firstName": "Dan",
-                "createdAt": 1722949233124,
-                "nodeType": "User",
-                "nodeId": "49298ac9-f9b0-43c9-8751-1244ec29739b",
-                "email": "dan.lannan@thinair.cloud",
-                "updatedAt": 1722953808546
-              },
-              "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0"
-            },
-            "relationship": {
-              "identity": 0,
-              "start": 0,
-              "end": 1,
-              "type": "ACCESS_TO",
-              "properties": {
-                "relationshipType": "ACCESS_TO",
-                "accessLevel": "owner",
-                "strength": "weak"
-              },
-              "elementId": "5:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0",
-              "startNodeElementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0",
-              "endNodeElementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
-            },
-            "end": {
-              "identity": 1,
-              "labels": [
-                "Node",
-                "Organization"
-              ],
-              "properties": {
-                "createdAt": 1722949613934,
-                "name": "Thin Air",
-                "ceo": "Dan",
-                "employees": 200,
-                "nodeType": "Organization",
-                "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
-                "updatedAt": 1722953808546
-              },
-              "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
-            }
-          }
-        ],
-        "length": 1
-      },
-      {
-        "identity": 0,
-        "start": 0,
-        "end": 1,
-        "type": "ACCESS_TO",
-        "properties": {
-          "relationshipType": "ACCESS_TO",
-          "accessLevel": "owner",
-          "strength": "weak"
-        },
-        "elementId": "5:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0",
-        "startNodeElementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:0",
-        "endNodeElementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
-      },
-      {
-        "identity": 1,
-        "labels": [
-          "Node",
-          "Organization"
-        ],
-        "properties": {
-          "createdAt": 1722949613934,
-          "name": "Thin Air",
-          "ceo": "Dan",
-          "employees": 200,
-          "nodeType": "Organization",
-          "nodeId": "0d662406-b55b-4f35-bfcb-6dd06b88a500",
-          "updatedAt": 1722953808546
-        },
-        "elementId": "4:ed4f4a88-9cc5-48f0-831e-1ef0d49811c9:1"
-      }
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "_fieldLookup": {
-      "n_t0_i0": 0,
-      "p_t0_i0_t0_i0": 1,
-      "r_t0_i0_t0_i0": 2,
-      "n_t0_i0_t0_i0": 3,
-      "p_t0_i0_t0_i1": 4,
-      "r_t0_i0_t0_i1": 5,
-      "n_t0_i0_t0_i1": 6
+      "n_0": 0,
+      "p_0_0": 1,
+      "r_0_0": 2,
+      "n_0_0": 3,
+      "p_0_0_0": 4,
+      "r_0_0_0": 5,
+      "n_0_0_0": 6,
+      "p_0_0_0_0": 7,
+      "r_0_0_0_0": 8,
+      "n_0_0_0_0": 9,
+      "p_0_1": 10,
+      "r_0_1": 11,
+      "n_0_1": 12,
+      "p_0_1_0": 13,
+      "r_0_1_0": 14,
+      "n_0_1_0": 15
     }
   }
 ]

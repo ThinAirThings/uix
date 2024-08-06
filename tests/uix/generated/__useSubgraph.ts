@@ -59,7 +59,6 @@ export const useSubgraph = <
             return result.data 
         }
     })
-    
     return {
         subgraph,
         error,

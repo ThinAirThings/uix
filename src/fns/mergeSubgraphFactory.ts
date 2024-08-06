@@ -263,7 +263,7 @@ export const mergeSubgraphFactory = <
         }
         return buildTree(rootNode as any, rootStringIndex)
     })
-    console.log("MERGE RESULT", result)
+    console.log("MERGE RESULT", JSON.stringify(result, null, 2))
     return Ok(result as Subgraph extends NodeShape<NodeDefinitionMap[NodeType]>
         ? Subgraph
         : NodeShapeTree<NodeDefinitionMap, NodeType, Subgraph>

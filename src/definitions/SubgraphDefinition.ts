@@ -65,5 +65,3 @@ export class SubgraphDefinition<
     }
 }
 
-
-type Thing = AnySubgraphPathDefinitionSet extends [] | AnySubgraphPathDefinitionSet ? true : false
