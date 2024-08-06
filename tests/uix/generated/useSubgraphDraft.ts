@@ -27,7 +27,7 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
     const queryClient = useQueryClient()
     const [draft, updateDraft] = useImmer(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>) | undefined)
     const [draftErrors, setDraftErrors] = useImmer({} as {
-        [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: {message: string} | undefined
+        [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: string | undefined
     })
     useEffect(() => {
         if (draft || !subgraph) return
@@ -44,10 +44,10 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
             const res = schema?.(nodeDefinitionMap[subgraph.nodeType].stateSchema as typeof nodeDefinitionMap[NodeType]['stateSchema']).safeParse(draft as any)
             if (res?.error){
                 const errorSet = res?.error?.issues.reduce((acc, issue) => {
-                    acc[issue.path[0] as keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>] = {message: issue.message}
+                    acc[issue.path[0] as keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>] = issue.message
                     return acc
                 }, {} as {
-                    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: {message: string} | undefined
+                    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: string | undefined
                 })
                 setDraftErrors(errorSet)
                 throw new Error('Invalid draft')
@@ -100,7 +100,12 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
     return {
         draft, 
         draftErrors,
-        updateDraft,
+        updateDraft: (updater: (callbackDraft: WritableDraft<NonNullable<typeof draft>>) => void) => {
+            if (!draft) return
+            updateDraft(draft => {
+                updater(draft as any)
+            })
+        },
         isCommitting: mutation.isPending,
         isCommitSuccessful: mutation.isSuccess,
         commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)

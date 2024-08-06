@@ -169,35 +169,35 @@ export const mergeSubgraphFactory = <
                 const relationshipString = key[0] === '<'
                 ? `<-[r_${path}:${key.split('-')[1]}]-`
                 : `-[r_${path}:${key.split('-')[1]}]->`
-                queryString += dedent/*cypher*/`
-                    // ---Handle Deletion--- (Node need to handle limit here as well)
-                    with *
-                    call {
-                        with *  // <--- Ensure necessary variables are included
-                        match (n_${path})
-                        ${relationshipString.replace('r', 'dr')}
-                        (dn_${`${path}_t`}:${nextNodeType})
-                        where not dn_${`${path}_t`}.nodeId in $dn_${`${path}_t`}_relatedNodeIdSet
-                        delete dr_${`${path}`}
+                // queryString += dedent/*cypher*/`
+                //     // ---Handle Deletion--- (Node need to handle limit here as well)
+                //     with *
+                //     call {
+                //         with *  // <--- Ensure necessary variables are included
+                //         match (n_${path})
+                //         ${relationshipString.replace('r', 'dr')}
+                //         (dn_${`${path}_t`}:${nextNodeType})
+                //         where not dn_${`${path}_t`}.nodeId in $dn_${`${path}_t`}_relatedNodeIdSet
+                //         delete dr_${`${path}`}
                         
-                        // Check for deletion of node
-                        ${nodeDefinitionMap[nextNodeType]!
-                        .relationshipDefinitionSet
-                        .some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
-                            ? dedent/*cypher*/`
-                                with dn_${`${path}_t`}
-                                optional match (dn_${`${path}_t`})-[{strength: "strong"}]->(strongConnectedNode)
-                                with dn_${`${path}_t`}, count(strongConnectedNode) as strongConnectedNodeCount
-                                where strongConnectedNodeCount < 1
-                                detach delete dn_${`${path}_t`}
-                            `
-                            : ''
-                        }
-                    }
-                    // ---Handle Merge---
-                    with *  // <--- Ensure necessary variables are included
-                    \n
-                `
+                //         // Check for deletion of node
+                //         ${nodeDefinitionMap[nextNodeType]!
+                //         .relationshipDefinitionSet
+                //         .some((relationship: GenericRelationshipDefinition) => relationship.strength === 'strong')
+                //             ? dedent/*cypher*/`
+                //                 with dn_${`${path}_t`}
+                //                 optional match (dn_${`${path}_t`})-[{strength: "strong"}]->(strongConnectedNode)
+                //                 with dn_${`${path}_t`}, count(strongConnectedNode) as strongConnectedNodeCount
+                //                 where strongConnectedNodeCount < 1
+                //                 detach delete dn_${`${path}_t`}
+                //             `
+                //             : ''
+                //         }
+                //     }
+                //     // ---Handle Merge---
+                //     with *  // <--- Ensure necessary variables are included
+                //     \n
+                // `
                 variableStateEntries.push([`dn_${`${path}_t`}_relatedNodeIdSet`, relatedNodeIdSet])
                 // --- End Handle Deletion ---
                 related.forEach((node, i_idx) => {

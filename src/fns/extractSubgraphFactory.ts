@@ -6,6 +6,7 @@ import { Ok, UixErr } from "../types/Result";
 import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition";
 import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver";
+import { writeFileSync } from "fs";
 
 
 export type GenericNodeShapeTree = GenericNodeShape | {
@@ -100,38 +101,46 @@ export const extractSubgraphFactory = <
     } & {
         [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
     }>>(queryString).then(result => {
+        // writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
+        // writeFileSync('tests/extract:queryString.cypher', queryString)
         const records = result.records
         const rootNode = records?.[0]?.get(rootVariable)?.properties 
         if (!rootNode) return null
-        const buildTree = (record: typeof records[number], node: GenericNodeShape & {[r:string]: GenericNodeShape[]}, pathIndex: `p_${string}`) => {
+        const buildTree = (
+            node: GenericNodeShape & {[r:string]: GenericNodeShape[]}, 
+            pathIndex: `p_${string}`
+        ) => {
             const nextPathIndexSet = variableList.filter(variable => 
                 variable.startsWith(pathIndex)
                 && pathIndex.split('_').length === variable.split('_').length - 1
             ) as `p_${string}`[]
             nextPathIndexSet.forEach(nextPathIndex => {
-                const segments = record.get(nextPathIndex)?.segments
-                if (!segments) return
-                const nextPath = segments[segments.length-1]!
-                const relationship = nextPath.relationship as Relationship<Integer, GenericRelationshipShape>
-                const rightEndcap = relationship.start === nextPath.start.identity  ? '->' : '-'
-                const leftEndcap = relationship.start === nextPath.end.identity ? '<-' : '-'
-                const nextNode = nextPath.end.properties as GenericNodeShape
-                const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
-                const nextNodeMerged = {
-                    ...relationship.properties,
-                    ...nextNode,
-                }
-                node[relationshipKey] = node[relationshipKey] ? [...node[relationshipKey], nextNodeMerged] : [nextNodeMerged]
-                buildTree(record, nextNodeMerged as any, nextPathIndex as `p_${string}`)
+                records.forEach(record => {
+                    const segments = record.get(nextPathIndex)?.segments
+                    if (!segments) return
+                    const nextPath = segments[segments.length-1]!
+                    const relationship = nextPath.relationship as Relationship<Integer, GenericRelationshipShape>
+                    const rightEndcap = relationship.start === nextPath.start.identity  ? '->' : '-'
+                    const leftEndcap = relationship.start === nextPath.end.identity ? '<-' : '-'
+                    const nextNode = nextPath.end.properties as GenericNodeShape
+                    const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
+                    const nextNodeMerged = {
+                        ...relationship.properties,
+                        ...nextNode,
+                    }
+                    node[relationshipKey] = node[relationshipKey] 
+                    ? [...node[relationshipKey], ...node[relationshipKey].some(node => node.nodeId === nextNodeMerged.nodeId) ? [] : [nextNodeMerged]] 
+                    : [nextNodeMerged]
+                    buildTree(nextNodeMerged as any, nextPathIndex as `p_${string}`)
+                })
             })
             return node
         }
         const rootStringIndex = `p_0`
-        records.forEach(record => {
-            buildTree(record, rootNode as any, rootStringIndex)
-        })
+        buildTree(rootNode as any, rootStringIndex)
         return rootNode
     })
+    // writeFileSync('tests/extract:resultTree.json', JSON.stringify(resultTree, null, 2))
     if (!resultTree) return UixErr({
         subtype: 'ExpectedRuntimeError',
         message: "The root node requested was not found. This is likely due to it not existing in the database.",
@@ -218,18 +227,3 @@ export type SubgraphTree<
                 : unknown
     )
 }
-
-
-// type Thing1 = string[]
-// type Thing = {
-//     [Key in Thing1[number]]: null
-// }
-// type Thing2 = ['this', 'that']
-// type Thing3 = {
-//     [Key in Thing2[number]]: null
-// }
-
-// type Eliminate1 = Record<string, any> extends Thing ? true : false
-// type Eliminate2 = Record<string, any> extends Thing3 ? true : false
-
-
