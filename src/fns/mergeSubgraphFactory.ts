@@ -3,7 +3,7 @@ import { neo4jAction, neo4jDriver } from "../clients/neo4j"
 import { AnyNodeDefinitionMap, GenericNodeShape, NodeShape, NodeState } from "../definitions/NodeDefinition"
 import { Ok } from "../types/Result"
 import { v4 as uuid } from 'uuid'
-import {  AnyRelationshipDefinition, GenericRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition"
+import {  GenericRelationshipDefinition, GenericRelationshipShape } from "../definitions/RelationshipDefinition"
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver"
 import { AnyZodObject, z } from "zod"
 import { removeRelationshipEntries } from "../utilities/removeRelationshipEntries"

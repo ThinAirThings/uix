@@ -29,7 +29,7 @@ ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
         export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap['${nodeType}']> 
         ${config.graph.nodeDefinitionMap[nodeType as keyof typeof config.graph.nodeDefinitionMap]!.relationshipDefinitionSet.map(relationshipDefinition =>
             dedent/*ts*/`
-                export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
+                export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
             `
             ).join('\n')}
     `).join('\n')

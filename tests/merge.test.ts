@@ -33,6 +33,43 @@ test('Integration test', async () => {
                         'name': 'Mobile Application'
                     }
                 }
+            },
+            'draft3': {
+                'accessLevel': 'owner',
+                ceo: "Bob Johnson",
+                'employees': 300,
+                'name': 'Anova Solar',
+                '<-BELONGS_TO-Project': {
+                    'draft1': {
+                        'name': 'Solar Panel Installation',
+                        'startDate': '2022-01-01',
+                        '<-BELONGS_TO-Kanban': {
+                            draft1: {
+                                'columnOrder': ['todo', 'inProgress', 'done'],
+                                'title': 'Project Board',
+                                'status': 'Active',
+                                '<-BELONGS_TO-Task': {
+                                    'draft1': {
+                                        'title': 'task',
+                                        'status': 'Draft',
+                                        'progress': 50,
+                                        'priority': 'High',
+                                        '<-BELONGS_TO-Comment': {
+                                            'draft1': {
+                                                'sentAt': 500,
+                                                'message': 'Hello, World!',
+                                            },
+                                            'draft2': {
+                                                'sentAt': 500,
+                                                'message': 'Hello, World!',
+                                            },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         '<-SENT_BY-Message': {

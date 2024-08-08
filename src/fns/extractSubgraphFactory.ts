@@ -130,6 +130,7 @@ export const extractSubgraphFactory = <
                     const nextNode = nextPath.end.properties as GenericNodeShape
                     const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
                     const nextNodeMerged = {
+                        fromNodeId: node.nodeId,
                         ...relationship.properties,
                         ...nextNode,
                     }

@@ -4,7 +4,9 @@ import { OrganizationNodeDefinition } from './NodeDefinitions/OrganizationNodeDe
 import { MessageNodeDefinition } from './NodeDefinitions/MessageNodeDefinition'
 import { ChatNodeDefinition } from './NodeDefinitions/ChatNodeDefinition'
 import { ProjectNodeDefinition } from './NodeDefinitions/ProjectNodeDefinition'
-import { PaymentTierDefinition } from './NodeDefinitions/PaymentTierDefinition'
+import {KanbanNodeDefinition} from './NodeDefinitions/KanbanNodeDefinition'
+import {TaskNodeDefinition} from './NodeDefinitions/TaskNodeDefinition'
+import {CommentNodeDefinition} from './NodeDefinitions/CommentNodeDefinition'
 export default defineConfig({
     type: 'Base',
     nodeDefinitionSet: [
@@ -13,6 +15,9 @@ export default defineConfig({
         ChatNodeDefinition,
         MessageNodeDefinition,
         ProjectNodeDefinition,
+        KanbanNodeDefinition,
+        TaskNodeDefinition,
+        CommentNodeDefinition
         // PaymentTierDefinition
     ],
     outdir: 'tests/uix/generated',

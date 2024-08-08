@@ -45,7 +45,7 @@ export type ExtractOutputTree<
     (
         Relationship extends `-${infer RelationshipType}->${string}`
             ? {
-                    [id: string]: RelationshipState<
+                    [id: string]: {fromNodeId: string} & RelationshipState<
                         NodeDefinitionMap[PreviousNodeTypeFromPath<NodeDefinitionMap, PathType>]['relationshipDefinitionMap'][RelationshipType]
                     > & ExtractOutputTree<
                         NodeDefinitionMap,
@@ -55,7 +55,7 @@ export type ExtractOutputTree<
                 }
             : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
                 ? {
-                    [id: string]: RelationshipState<
+                    [id: string]: {fromNodeId: string} & RelationshipState<
                         NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionMap'][RelationshipType]
                     >&ExtractOutputTree<
                             NodeDefinitionMap,

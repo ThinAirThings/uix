@@ -5,6 +5,7 @@
     "@thinairthings/uix": "3.0.14"
   },
   "changesets": [
+    "metal-cows-check",
     "stupid-buckets-own"
   ]
 }

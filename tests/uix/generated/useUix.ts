@@ -1,6 +1,6 @@
 
 'use client'
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, skipToken } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
 import { AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
@@ -18,7 +18,7 @@ export const useUix = <
         [UniqueIndex in ConfiguredNodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
     }),
     SubgraphDefinitionRef extends AnySubgraphDefinition,
-    Data extends ({nodeId?: string}&MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) | ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+    Data extends (MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) | ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
 >({
     rootNodeIndex,
     defineSubgraph,
@@ -27,7 +27,7 @@ export const useUix = <
 }: {    
     rootNodeIndex: (({
         nodeType: RootNodeType
-    }) & SubgraphIndex),
+    }) & SubgraphIndex) | undefined,
     defineSubgraph?: (subgraph: SubgraphDefinition<
         ConfiguredNodeDefinitionMap, 
         [SubgraphPathDefinition<
@@ -46,16 +46,16 @@ export const useUix = <
 }) => {
     const queryClient = useQueryClient()
     const queryResult = useQuery({
-        queryKey: [{rootNodeIndex, subgraphDefinition: defineSubgraph?.(new SubgraphDefinition(
+        queryKey: rootNodeIndex ? [{rootNodeIndex, subgraphDefinition: defineSubgraph?.(new SubgraphDefinition(
             nodeDefinitionMap,
             [new SubgraphPathDefinition(
                 nodeDefinitionMap,
                 rootNodeIndex.nodeType,
                 []
             )]
-        )).serialize()}] as const,
-        queryFn: async ({queryKey: [params]}) => {
-            const result = await extractSubgraph(params.rootNodeIndex, params.subgraphDefinition)
+        )).serialize()}] as const : [] as const,
+        queryFn: rootNodeIndex ? async ({queryKey: [params]}) => {
+            const result = await extractSubgraph(params!.rootNodeIndex, params!.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
             const subgraph = result.data as GenericMergeOutputTree
             const addNodeToCache = (node: GenericMergeOutputTree) => {
@@ -73,21 +73,26 @@ export const useUix = <
             }
             addNodeToCache(subgraph)
             return result.data 
-        }
+        } : skipToken
     })
     const subgraph = queryResult.data
     const [draft, updateDraft] = useImmer(((initializeDraft && subgraph) 
         ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
         : subgraph
     ) as Data | undefined)
-    const [draftErrors, setDraftErrors] = useImmer({} as any)
-    useEffect(() => {
-        if (!subgraph) return
-        updateDraft(((initializeDraft && subgraph) 
-            ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
-            : subgraph
-        ) as any)
-    }, [subgraph])
+    
+    type DraftErrorTree<
+        DraftTree extends Record<string, any>
+    > = {
+        [K in keyof DraftTree as Exclude<K, 'nodeId'|'createdAt'|'updatedAt'|'nodeType'>]: 
+            K extends `-${string}->${string}`|`<-${string}-${string}`
+                ? {
+                    [Id in keyof DraftTree[K]]: DraftErrorTree<DraftTree[K][Id]> 
+                }
+                : string
+    }
+    const [draftErrors, setDraftErrors] = useImmer({} as DraftErrorTree<Data>)
+
     
     const mutation = useMutation({
         mutationFn: async () => {
@@ -116,7 +121,7 @@ export const useUix = <
                 setDraftErrors(errorSet)
                 throw new Error('Invalid draft')
             }
-            setDraftErrors({})
+            setDraftErrors({} as DraftErrorTree<Data>)
             const previousSubgraphEntries = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
@@ -158,6 +163,13 @@ export const useUix = <
             })
         }
     })
+    useEffect(() => {
+        if (!subgraph || mutation.isPending) return
+        updateDraft(((initializeDraft && subgraph) 
+            ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
+            : subgraph
+        ) as any)
+    }, [subgraph])
     return {
         ...queryResult,
         draft,
