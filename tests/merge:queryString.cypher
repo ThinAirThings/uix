@@ -1,8 +1,8 @@
-merge (n_t0_i0:Organization { 
-    name: "Thin Air", nodeId: "cd5d93c4-b5ac-4448-bb6d-1fd783c287e1"
+merge (n_t0_i0:User { 
+    email: "dan.lannan@thinair.cloud"
 })
 on create 
-    set n_t0_i0.nodeId = "cd5d93c4-b5ac-4448-bb6d-1fd783c287e1",
+    set n_t0_i0.nodeId = "718fd0e9-736b-45ed-a127-8b642e55070c",
         n_t0_i0 += $n_t0_i0_state,
         n_t0_i0:Node,
         n_t0_i0.createdAt = timestamp(),
@@ -11,29 +11,13 @@ on match
     set n_t0_i0 += $n_t0_i0_state,
         n_t0_i0:Node,
         n_t0_i0.updatedAt = timestamp() 
-// ---Handle Deletion--- (Node need to handle limit here as well)
-with *
-call {
-    with *  // <--- Ensure necessary variables are included
-    match (n_t0_i0)
-    <-[dr_t0_i0:ACCESS_TO]-
-    (dn_t0_i0_t:User)
-    where not dn_t0_i0_t.nodeId in $dn_t0_i0_t_relatedNodeIdSet
-    delete dr_t0_i0
-    
-    // Check for deletion of node
-    
-}
-// ---Handle Merge---
-with *  // <--- Ensure necessary variables are included
-
 // Merge Next Node
-merge (n_t0_i0_t0_i0:User { 
-    email: "dan.lannan@thinair.cloud"
+merge (n_t0_i0_t0_i0:Organization { 
+    name: "Thin Air"
 })
 on create
     set n_t0_i0_t0_i0 += $n_t0_i0_t0_i0_state,
-        n_t0_i0_t0_i0.nodeType = "User",
+        n_t0_i0_t0_i0.nodeType = "Organization",
         n_t0_i0_t0_i0:Node,
         n_t0_i0_t0_i0.createdAt = timestamp(),
         n_t0_i0_t0_i0.updatedAt = timestamp()
@@ -45,7 +29,7 @@ on match
 
 // Merge Relationship
 merge p_t0_i0_t0_i0=(n_t0_i0)
-<-[r_t0_i0_t0_i0:ACCESS_TO]-
+-[r_t0_i0_t0_i0:ACCESS_TO]->
 (n_t0_i0_t0_i0)
 on create
     set r_t0_i0_t0_i0.relationshipType = "ACCESS_TO",

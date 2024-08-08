@@ -1,6 +1,4 @@
 
-
-export const useSubgraphDraftTemplate = () => /*ts*/`
 'use client'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +7,7 @@ import { NodeState, NodeStateTree, GenericNodeShapeTree } from "@thinairthings/u
 import { produce, WritableDraft } from "immer";
 import { mergeSubgraph } from "./functionModule";
 import { useImmer } from "@thinairthings/use-immer";
-import { cacheKeyMap } from "./useSubgraph";
+import { cacheKeyMap } from "./_useSubgraph";
 import { useEffect } from "react";
 import { ZodObject, ZodTypeAny } from "zod";
 
@@ -113,4 +111,3 @@ schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => Zod
         commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)
     }
 }
-`

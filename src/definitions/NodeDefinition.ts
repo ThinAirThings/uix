@@ -6,7 +6,7 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption, UnknownKeysParam, objectOutputType, objectInputType } from "zod";
 import { Integer } from "neo4j-driver";
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion";
-import { AnyRelationshipDefinitionSet, CardinalityTypeSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition } from "./RelationshipDefinition";
+import { AnyRelationshipDefinitionSet, CardinalityTypeSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition, RelationshipDefinitionMap } from "./RelationshipDefinition";
 
 export type GenericNodeDefinitionSet = readonly GenericNodeDefinition[];
 export type AnyNodeDefinitionSet = readonly AnyNodeDefinition[];
@@ -68,6 +68,9 @@ export class NodeDefinition<
         public stateSchema: StateSchema,
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
         public relationshipDefinitionSet: RelationshipDefinitionSet = [] as RelationshipDefinitionSet,
+        public relationshipDefinitionMap: RelationshipDefinitionMap<RelationshipDefinitionSet> = Object.fromEntries(
+            relationshipDefinitionSet.map(relationshipDefinition => [relationshipDefinition.type, relationshipDefinition])
+        ),
         public shapeSchema = isZodDiscriminatedUnion(stateSchema) ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
             nodeId: z.string(),
             nodeType: z.string()

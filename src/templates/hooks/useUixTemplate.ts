@@ -1,8 +1,11 @@
 
+
+
+export const useUixTemplate = () => /*ts*/`
 'use client'
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
-import { AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericNodeShapeTree, AnySubgraphDefinition, NodeState, SubgraphTree, NodeStateTree, getRelationshipEntries} from "@thinairthings/uix"
+import { AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
 import { ZodObject, ZodTypeAny, z, AnyZodObject } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
@@ -18,40 +21,47 @@ export const useUix = <
         [UniqueIndex in ConfiguredNodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
     }),
     SubgraphDefinitionRef extends AnySubgraphDefinition,
-    Data extends ({nodeId?: string}&NodeStateTree<ConfiguredNodeDefinitionMap, RootNodeType>) | SubgraphTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= SubgraphTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
->(
-    rootNode: (({
+    Data extends (MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) | ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+>({
+    rootNodeIndex,
+    defineSubgraph,
+    modifySchema,
+    initializeDraft
+}: {    
+    rootNodeIndex: (({
         nodeType: RootNodeType
-    }) & SubgraphIndex), options?: {    
-        defineSubgraph?: (subgraph: SubgraphDefinition<
-            ConfiguredNodeDefinitionMap, 
-            [SubgraphPathDefinition<
-                ConfiguredNodeDefinitionMap,
-                RootNodeType,
-                []
-            >]>
-        ) => SubgraphDefinitionRef,
-        modifySchema?: (stateSchema: typeof nodeDefinitionMap[RootNodeType]['stateSchema']) => ZodObject<{
-            [K in keyof NodeState<ConfiguredNodeDefinitionMap[RootNodeType]>]: ZodTypeAny
-        }>,
-        initializeDraft?: (data: SubgraphTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>) => Data
-    }
-) => {
+    }) & SubgraphIndex),
+    defineSubgraph?: (subgraph: SubgraphDefinition<
+        ConfiguredNodeDefinitionMap, 
+        [SubgraphPathDefinition<
+            ConfiguredNodeDefinitionMap,
+            RootNodeType,
+            []
+        >]>
+    ) => SubgraphDefinitionRef,
+    modifySchema?: (stateSchema: typeof nodeDefinitionMap[RootNodeType]['stateSchema']) => ZodObject<{
+        [K in keyof NodeState<ConfiguredNodeDefinitionMap[RootNodeType]>]: ZodTypeAny
+    }>,
+    initializeDraft?: (
+        data: ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>,
+        initialize: <T extends MergeInputTree<typeof nodeDefinitionMap, RootNodeType>>(freeze: T) => T
+    ) => Data
+}) => {
     const queryClient = useQueryClient()
-    const { data: subgraph, error, isPending, isSuccess } = useQuery({
-        queryKey: [{rootNode, subgraphDefinition: options?.defineSubgraph?.(new SubgraphDefinition(
+    const queryResult = useQuery({
+        queryKey: [{rootNodeIndex, subgraphDefinition: defineSubgraph?.(new SubgraphDefinition(
             nodeDefinitionMap,
             [new SubgraphPathDefinition(
                 nodeDefinitionMap,
-                rootNode.nodeType,
+                rootNodeIndex.nodeType,
                 []
             )]
         )).serialize()}] as const,
         queryFn: async ({queryKey: [params]}) => {
-            const result = await extractSubgraph(params.rootNode, params.subgraphDefinition)
+            const result = await extractSubgraph(params.rootNodeIndex, params.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
-            const subgraph = result.data as GenericNodeShapeTree
-            const addNodeToCache = (node: GenericNodeShapeTree) => {
+            const subgraph = result.data as GenericMergeOutputTree
+            const addNodeToCache = (node: GenericMergeOutputTree) => {
                 cacheKeyMap.set(
                     node.nodeId as string, 
                     cacheKeyMap.get(node.nodeId as string) 
@@ -60,7 +70,7 @@ export const useUix = <
                 )
                 getRelationshipEntries(node).forEach(([key, nodeMap]) => {
                     Object.entries(nodeMap).forEach(([_, value]) => {
-                        addNodeToCache(value as GenericNodeShapeTree)
+                        addNodeToCache(value as GenericMergeOutputTree)
                     })
                 })
             }
@@ -68,18 +78,13 @@ export const useUix = <
             return result.data 
         }
     })
-    const [draft, updateDraft] = useImmer(((options?.initializeDraft && subgraph) 
-        ? options?.initializeDraft(subgraph) 
+    const subgraph = queryResult.data
+    const [draft, updateDraft] = useImmer(((initializeDraft && subgraph) 
+        ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
         : subgraph
     ) as Data | undefined)
     const [draftErrors, setDraftErrors] = useImmer({} as any)
-    useEffect(() => {
-        if (!subgraph) return
-        updateDraft(((options?.initializeDraft && subgraph) 
-            ? options?.initializeDraft(subgraph) 
-            : subgraph
-        ) as any)
-    }, [subgraph])
+
     
     const mutation = useMutation({
         mutationFn: async () => {
@@ -90,7 +95,7 @@ export const useUix = <
         onMutate: async () => {
             if (!draft || !subgraph) return
             const res = (
-                options?.modifySchema?.(createNestedZodSchema(nodeDefinitionMap, draft as any) as any)
+                modifySchema?.(createNestedZodSchema(nodeDefinitionMap, draft as any) as any)
                 ?? createNestedZodSchema(nodeDefinitionMap, draft as any)
             ).extend({
                 nodeId: z.string(),
@@ -113,17 +118,17 @@ export const useUix = <
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
-                ] as const) as [string, GenericNodeShapeTree][]
+                ] as const) as [string, GenericMergeOutputTree][]
             previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
                 const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
-                    const findAndReplace = (subgraphNode: WritableDraft<GenericNodeShapeTree>) => {
+                    const findAndReplace = (subgraphNode: WritableDraft<GenericMergeOutputTree>) => {
                         if (subgraphNode.nodeId === draft.nodeId) {
                             Object.assign(subgraphNode, draft)
                             return
                         }
                         getRelationshipEntries(subgraphNode).forEach(([_relationshipKey, nodeMap]) => {
                             Object.entries(nodeMap).forEach(([_nodeId, value]) => {
-                                findAndReplace(value as WritableDraft<GenericNodeShapeTree>)
+                                findAndReplace(value as WritableDraft<GenericMergeOutputTree>)
                             })
                         })
                     }
@@ -136,7 +141,7 @@ export const useUix = <
         },
         onError: async (error, variables, context) => {
             // Rollback
-            const {previousData} = context as {previousData: [string, GenericNodeShapeTree][]}
+            const {previousData} = context as {previousData: [string, GenericMergeOutputTree][]}
             previousData.forEach(([paramString, previousSubgraph]) => {
                 queryClient.setQueryData([JSON.parse(paramString)], previousSubgraph)
             })
@@ -150,11 +155,15 @@ export const useUix = <
             })
         }
     })
+    useEffect(() => {
+        if (!subgraph || mutation.isPending) return
+        updateDraft(((initializeDraft && subgraph) 
+            ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
+            : subgraph
+        ) as any)
+    }, [subgraph])
     return {
-        subgraph,
-        error,
-        isPending,
-        isSuccess,
+        ...queryResult,
         draft,
         draftErrors,
         updateDraft: (updater: (callbackDraft: WritableDraft<NonNullable<typeof draft>>) => void) => {
@@ -169,7 +178,7 @@ export const useUix = <
     }
 }
 
-export const createNestedZodSchema = (nodeDefinitionMap: AnyNodeDefinitionMap, node: GenericNodeShapeTree, acc: AnyZodObject=z.object({})) => {
+export const createNestedZodSchema = (nodeDefinitionMap: AnyNodeDefinitionMap, node: GenericMergeOutputTree, acc: AnyZodObject=z.object({})) => {
     const nextSchema = nodeDefinitionMap[node.nodeType as keyof typeof nodeDefinitionMap]!.stateSchema
     acc = acc.merge(nextSchema)
     getRelationshipEntries(node).forEach(([key, nextNodeMap]) => {
@@ -184,3 +193,6 @@ export const createNestedZodSchema = (nodeDefinitionMap: AnyNodeDefinitionMap, n
     })
     return acc
 }
+`
+
+

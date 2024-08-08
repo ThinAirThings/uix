@@ -1,0 +1,34 @@
+{
+  "firstName": "Danielson",
+  "createdAt": 1723046330007,
+  "nodeType": "User",
+  "nodeId": "529d8948-a205-48a7-8c5b-917aaf10cb3e",
+  "email": "dan.lannan@thinair.cloud2",
+  "updatedAt": 1723046330204,
+  "-ACCESS_TO->Organization": {
+    "c919647e-3255-40f1-8ba0-49c10c77b9a1": {
+      "accessLevel": "admin",
+      "relationshipType": "ACCESS_TO",
+      "strength": "weak",
+      "createdAt": 1723046330007,
+      "name": "Hirebird",
+      "nodeType": "Organization",
+      "ceo": "Sam Hogan",
+      "employees": 200,
+      "nodeId": "c919647e-3255-40f1-8ba0-49c10c77b9a1",
+      "updatedAt": 1723046330204
+    },
+    "83cc55a5-adf4-4a50-834f-798b2dffc31a": {
+      "strength": "weak",
+      "accessLevel": "member",
+      "relationshipType": "ACCESS_TO",
+      "createdAt": 1723046330007,
+      "name": "Thin Air Computer LLC.",
+      "nodeType": "Organization",
+      "ceo": "Dan Lannan",
+      "employees": 100,
+      "nodeId": "83cc55a5-adf4-4a50-834f-798b2dffc31a",
+      "updatedAt": 1723046330204
+    }
+  }
+}

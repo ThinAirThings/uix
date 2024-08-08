@@ -18,6 +18,9 @@ export type GenericRelationshipDefinition = RelationshipDefinition<
 >
 export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefinition[]
 export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
+export type RelationshipDefinitionMap<RelationshipDefinitionSet extends AnyRelationshipDefinitionSet> = {
+    [Type in RelationshipDefinitionSet[number]['type']]: (RelationshipDefinitionSet[number] & { type: Type });
+}
 export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
 export type StrengthTypeSet = 'strong' | 'weak'
 export type RelationshipState<T extends AnyRelationshipDefinition> = TypeOf<T['stateSchema']>
@@ -59,3 +62,6 @@ export class RelationshipDefinition<
     // | _ \ || | | / _` / -_) '_(_-<
     // |___/\_,_|_|_\__,_\___|_| /__/
 }
+
+
+type Thing = {} extends {[t:string]: any} ? true : false

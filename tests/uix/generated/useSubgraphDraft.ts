@@ -13,24 +13,27 @@ import { ZodObject, ZodTypeAny } from "zod";
 
 export const useSubgraphDraft = <
     NodeType extends keyof ConfiguredNodeDefinitionMap,
-    Subgraph extends 
-        | NodeState<ConfiguredNodeDefinitionMap[NodeType]>
->(subgraph: (
-    ({
-        nodeType: NodeType
-    }) & Subgraph 
-) | undefined,
-schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => ZodObject<{
-    [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]: ZodTypeAny
-}>
-) => {
+    Subgraph extends | NodeState<ConfiguredNodeDefinitionMap[NodeType]>
+>({
+    subgraph,
+    schema
+}:{
+    subgraph: (
+        ({
+            nodeType: NodeType
+        }) & Subgraph 
+    ) | undefined,
+    schema?: (stateSchema: typeof nodeDefinitionMap[NodeType]['stateSchema']) => ZodObject<{
+        [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]: ZodTypeAny
+    }>
+}) => {
     const queryClient = useQueryClient()
     const [draft, updateDraft] = useImmer(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>) | undefined)
     const [draftErrors, setDraftErrors] = useImmer({} as {
         [K in keyof NodeState<ConfiguredNodeDefinitionMap[NodeType]>]?: string | undefined
     })
     useEffect(() => {
-        if (draft || !subgraph) return
+        if (!subgraph) return
         updateDraft(subgraph as (NodeStateTree<ConfiguredNodeDefinitionMap, NodeType>))
     }, [subgraph])
     const mutation = useMutation({

@@ -1,7 +1,4 @@
 
-
-
-export const useSubgraphTemplate = () => /*ts*/`
 'use client'
 import { useQuery } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
@@ -88,4 +85,3 @@ export const useSubgraph = <
         commitDraft
     }
 }
-`

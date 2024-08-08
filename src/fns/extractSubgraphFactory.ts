@@ -7,10 +7,11 @@ import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition";
 import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
 import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver";
 import { writeFileSync } from "fs";
+import { ExtractOutputTree } from "../types/ExtractOutputTree";
 
 
-export type GenericNodeShapeTree = GenericNodeShape | {
-    [key: string]: GenericNodeShapeTree
+export type GenericMergeOutputTree = GenericNodeShape | {
+    [key: string]: GenericMergeOutputTree
 }
 
 export const extractSubgraphFactory = <
@@ -107,7 +108,11 @@ export const extractSubgraphFactory = <
         const rootNode = records?.[0]?.get(rootVariable)?.properties 
         if (!rootNode) return null
         const buildTree = (
-            node: GenericNodeShape & {[r:string]: GenericNodeShape[]}, 
+            node: GenericNodeShape & {
+                [r:string]: {
+                    [id: string]: GenericNodeShape
+                }
+            }, 
             pathIndex: `p_${string}`
         ) => {
             const nextPathIndexSet = variableList.filter(variable => 
@@ -129,8 +134,13 @@ export const extractSubgraphFactory = <
                         ...nextNode,
                     }
                     node[relationshipKey] = node[relationshipKey] 
-                    ? [...node[relationshipKey], ...node[relationshipKey].some(node => node.nodeId === nextNodeMerged.nodeId) ? [] : [nextNodeMerged]] 
-                    : [nextNodeMerged]
+                    ? {
+                        ...node[relationshipKey],
+                        [nextNodeMerged.nodeId]: nextNodeMerged
+                    }
+                    :{
+                        [nextNodeMerged.nodeId]: nextNodeMerged
+                    }
                     buildTree(nextNodeMerged as any, nextPathIndex as `p_${string}`)
                 })
             })
@@ -148,82 +158,8 @@ export const extractSubgraphFactory = <
             rootNode: rootNode,
         }
     })
-    return Ok(resultTree as SubgraphTree<NodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>)
+    return Ok(resultTree as ExtractOutputTree<NodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>)
 })
 
-export type NextNodeTypeFromPath<
-    NodeDefinitionMap extends AnyNodeDefinitionMap,
-    PathType extends 
-        | keyof NodeDefinitionMap
-        | `${string}-${keyof NodeDefinitionMap&string}` 
-        | `${string}->${keyof NodeDefinitionMap&string}`
-> = PathType extends keyof NodeDefinitionMap
-    ? PathType
-    : PathType extends `${string}<-${string}-${infer Tail}`
-        ? Tail extends keyof NodeDefinitionMap
-            ? Tail
-            : NextNodeTypeFromPath<NodeDefinitionMap, Tail>
-        : PathType extends `${string}-${string}->${infer Tail}`
-            ? Tail extends keyof NodeDefinitionMap
-                ? Tail
-                : NextNodeTypeFromPath<NodeDefinitionMap, Tail>
-            : never
-
-export type PreviousNodeTypeFromPath<
-    NodeDefinitionMap extends AnyNodeDefinitionMap,
-    PathType extends 
-        | keyof NodeDefinitionMap
-        | `${string}-${keyof NodeDefinitionMap&string}` 
-        | `${string}->${keyof NodeDefinitionMap&string}`,
-    Clipped extends boolean = false
-> = Clipped extends false 
-        ? PathType extends `${infer Path}<-${NodeDefinitionMap[keyof NodeDefinitionMap]['relationshipDefinitionSet'][number]['type']}-${keyof NodeDefinitionMap&string}`
-            ? PreviousNodeTypeFromPath<NodeDefinitionMap, Path, true>
-            : PathType extends `${infer Path}-${NodeDefinitionMap[keyof NodeDefinitionMap]['relationshipDefinitionSet'][number]['type']}->${keyof NodeDefinitionMap&string}`
-                ? PreviousNodeTypeFromPath<NodeDefinitionMap, Path, true>
-                : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
-        : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
 
 
-export type SubgraphTree<
-    NodeDefinitionMap extends AnyNodeDefinitionMap,
-    SubgraphDefinitionRef extends AnySubgraphDefinition,
-    PathType extends keyof SubgraphDefinitionRef['subgraphPathDefinitionMap'],
-> = NodeShape<NodeDefinitionMap[NextNodeTypeFromPath<NodeDefinitionMap, PathType>]> & {
-    [Relationship in SubgraphDefinitionRef['subgraphPathDefinitionMap'][PathType]['subgraphRelationshipSet'][number]]?: 
-    (
-        Relationship extends `-${infer RelationshipType}->${string}`
-            ? NodeDefinitionMap[PreviousNodeTypeFromPath<NodeDefinitionMap, PathType>]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
-                ? AnyRelationshipDefinition extends RelationshipUnionRef
-                    ? (RelationshipUnionRef & {type: RelationshipType})['cardinality'] extends `${string}-many`
-                        ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}>&SubgraphTree<
-                            NodeDefinitionMap,
-                            SubgraphDefinitionRef,
-                            `${PathType&string}${Relationship}`
-                        >)[]
-                        : RelationshipState<RelationshipUnionRef&{type: RelationshipType}>&SubgraphTree<
-                            NodeDefinitionMap,
-                            SubgraphDefinitionRef,
-                            `${PathType&string}${Relationship}`
-                        >
-                    : unknown 
-                : unknown
-            : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
-                ? NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionSet'][number] extends (infer RelationshipUnionRef extends AnyRelationshipDefinition | never)
-                    ? AnyRelationshipDefinition extends RelationshipUnionRef
-                        ? (RelationshipUnionRef & {type: RelationshipType})['cardinality'] extends `many-${string}`
-                            ? (RelationshipState<RelationshipUnionRef&{type: RelationshipType}>&SubgraphTree<
-                                NodeDefinitionMap,
-                                SubgraphDefinitionRef,
-                                `${PathType&string}${Relationship}`
-                            >)[]
-                            : RelationshipState<RelationshipUnionRef&{type: RelationshipType}>&SubgraphTree<
-                                NodeDefinitionMap,
-                                SubgraphDefinitionRef,
-                                `${PathType&string}${Relationship}`
-                            >
-                        : unknown
-                    : unknown
-                : unknown
-    )
-}

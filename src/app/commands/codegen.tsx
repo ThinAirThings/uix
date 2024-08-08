@@ -15,8 +15,7 @@ import { staticObjectsTemplate } from '../../templates/staticObjectsTemplate';
 import { option } from 'pastel';
 import { UixProviderTemplate } from '../../templates/UixProviderTemplate';
 import { clientsTemplate } from '../../templates/clientsTemplate';
-import { useSubgraphTemplate } from '../../templates/hooks/useSubgraphTemplate';
-import { useSubgraphDraftTemplate } from '../../templates/hooks/useSubgraphDraftTemplate';
+import { useUixTemplate } from '../../templates/hooks/useUixTemplate';
 
 export const options = z.object({
     config: z.string().optional().describe(
@@ -54,12 +53,8 @@ const Codegen: FC<{
                     staticObjectsTemplate(uixConfig)
                 )
                 await writeFile(
-                    path.join(outDir, 'useSubgraph.ts'),
-                    useSubgraphTemplate()
-                )
-                await writeFile(
-                    path.join(outDir, 'useSubgraphDraft.ts'),
-                    useSubgraphDraftTemplate()
+                    path.join(outDir, 'useUix.ts'),
+                    useUixTemplate()
                 )
                 await writeFile(
                     path.join(outDir, 'UixProvider.tsx'),

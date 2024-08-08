@@ -1,63 +1,68 @@
 {
-  "firstName": "b6d933e4-1f18-43e6-ab5c-2f5e7fac0abc",
-  "createdAt": 1722207645141,
+  "firstName": "Danielson",
+  "createdAt": 1723046330007,
   "nodeType": "User",
-  "nodeId": "af53ff6c-e781-4fe3-be05-2b00162859cf",
-  "email": "dan.lannan@thinair.cloud",
-  "updatedAt": 1722380721793,
-  "-ACCESS_TO->Organization": [
-    {
-      "accessLevel": "owner",
+  "nodeId": "529d8948-a205-48a7-8c5b-917aaf10cb3e",
+  "email": "dan.lannan@thinair.cloud2",
+  "updatedAt": 1723046330204,
+  "-ACCESS_TO->Organization": {
+    "83cc55a5-adf4-4a50-834f-798b2dffc31a": {
+      "strength": "weak",
+      "accessLevel": "member",
       "relationshipType": "ACCESS_TO",
-      "createdAt": 1722380721668,
+      "createdAt": 1723046330007,
       "name": "Thin Air Computer LLC.",
-      "employees": 10000,
       "nodeType": "Organization",
       "ceo": "Dan Lannan",
-      "nodeId": "8b481f5e-c222-43ad-8287-a55338d8ad3b",
-      "updatedAt": 1722380721793,
-      "<-BELONGS_TO-Project": [
-        {
+      "employees": 100,
+      "nodeId": "83cc55a5-adf4-4a50-834f-798b2dffc31a",
+      "updatedAt": 1723046330204,
+      "<-BELONGS_TO-Project": {
+        "346a7d8b-02e3-47ee-afe4-2083a183d0e6": {
           "relationshipType": "BELONGS_TO",
-          "createdAt": 1722380721668,
+          "strength": "strong",
+          "createdAt": 1723046330007,
           "name": "Thin Air Infinite Canvas",
           "nodeType": "Project",
-          "nodeId": "985ef525-a9ca-4825-a100-eba772ea0b06",
-          "updatedAt": 1722380721793
+          "nodeId": "346a7d8b-02e3-47ee-afe4-2083a183d0e6",
+          "updatedAt": 1723046330204
         }
-      ]
+      }
     },
-    {
+    "c919647e-3255-40f1-8ba0-49c10c77b9a1": {
       "accessLevel": "admin",
       "relationshipType": "ACCESS_TO",
-      "createdAt": 1722380721668,
+      "strength": "weak",
+      "createdAt": 1723046330007,
       "name": "Hirebird",
       "nodeType": "Organization",
       "ceo": "Sam Hogan",
       "employees": 200,
-      "nodeId": "962b25b5-0bf9-4e2e-bb73-812df369026a",
-      "updatedAt": 1722380721793,
-      "<-BELONGS_TO-Project": [
-        {
+      "nodeId": "c919647e-3255-40f1-8ba0-49c10c77b9a1",
+      "updatedAt": 1723046330204,
+      "<-BELONGS_TO-Project": {
+        "b982cbf7-b66c-42a4-96c6-e80ed43d9b44": {
           "relationshipType": "BELONGS_TO",
-          "createdAt": 1722380721668,
+          "strength": "strong",
+          "createdAt": 1723046330007,
           "name": "Mobile Application",
           "nodeType": "Project",
-          "nodeId": "f5463707-96c7-49d5-94cf-2e78ce26b455",
-          "updatedAt": 1722380721793
+          "nodeId": "b982cbf7-b66c-42a4-96c6-e80ed43d9b44",
+          "updatedAt": 1723046330204
         }
-      ]
+      }
     }
-  ],
-  "<-SENT_BY-Message": [
-    {
+  },
+  "<-SENT_BY-Message": {
+    "73f7c431-013d-4ed5-a1ea-c4a8bce02f1b": {
       "relationshipType": "SENT_BY",
-      "createdAt": 1722207645141,
+      "strength": "strong",
+      "createdAt": 1723046330007,
       "text": "Hello, World!",
       "nodeType": "Message",
+      "nodeId": "73f7c431-013d-4ed5-a1ea-c4a8bce02f1b",
       "contentType": "text",
-      "nodeId": "47f85914-7dc1-4e78-9d2b-0929285ee043",
-      "updatedAt": 1722380721793
+      "updatedAt": 1723046330204
     }
-  ]
+  }
 }

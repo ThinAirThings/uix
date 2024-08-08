@@ -2,12 +2,13 @@
 
 import path from "path";
 import { GenericUixConfig } from "../config/defineConfig";
+import dedent from "dedent";
 
 export const staticObjectsTemplate = (config: GenericUixConfig) => {
     return /* ts */`
 // Start of File
 import uixConfig from '${path.relative(config.outdir, config.pathToConfig).split(path.sep).join('/').replace(/\.[^/.]+$/, '')}'
-import { NodeShape, NodeState, GraphDefinition } from '@thinairthings/uix'
+import { NodeShape, NodeState, GraphDefinition, RelationshipState } from '@thinairthings/uix'
 
 export const uixGraph = new GraphDefinition(uixConfig.type, uixConfig.nodeDefinitionSet)
 export const nodeDefinitionMap = uixGraph.nodeDefinitionMap
@@ -21,11 +22,17 @@ ${config.graph.nodeDefinitionMap['Root']
             : ``
         }
 ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
-    /*ts*/`export type ${nodeType}Node = NodeShape<ConfiguredNodeDefinitionMap['${nodeType}']> \n`
+    dedent/*ts*/`export type ${nodeType}Node = NodeShape<ConfiguredNodeDefinitionMap['${nodeType}']> \n`
         ).join('')}
 ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
-    /*ts*/`export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap['${nodeType}']> \n`
-        ).join('')
-        }
+    dedent/*ts*/`
+        export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap['${nodeType}']> 
+        ${config.graph.nodeDefinitionMap[nodeType as keyof typeof config.graph.nodeDefinitionMap]!.relationshipDefinitionSet.map(relationshipDefinition =>
+            dedent/*ts*/`
+                export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
+            `
+            ).join('\n')}
+    `).join('\n')
+    }
 `}
 
