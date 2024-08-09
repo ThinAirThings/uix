@@ -10,6 +10,7 @@ import { useEffect } from "react"
 import { produce, WritableDraft } from "immer"
 
 
+
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useUix = <
     RootNodeType extends keyof ConfiguredNodeDefinitionMap,
@@ -45,14 +46,25 @@ export const useUix = <
 }) => {
     const queryClient = useQueryClient()
     const queryResult = useQuery({
-        queryKey: rootNodeIndex ? [{rootNodeIndex, subgraphDefinition: defineSubgraph?.(new SubgraphDefinition(
-            nodeDefinitionMap,
-            [new SubgraphPathDefinition(
+        queryKey: rootNodeIndex ? [{
+            rootNodeIndex: {
+                nodeType: rootNodeIndex.nodeType,
+                ...Object.fromEntries(nodeDefinitionMap[rootNodeIndex.nodeType]!.uniqueIndexes
+                    .filter((index:string) => !!rootNodeIndex[index as keyof typeof rootNodeIndex])
+                    .map((index: any) => [index, rootNodeIndex[index as keyof typeof rootNodeIndex]])
+                )
+            } as (({
+                nodeType: RootNodeType
+            }) & SubgraphIndex),
+            subgraphDefinition: defineSubgraph?.(new SubgraphDefinition(
                 nodeDefinitionMap,
-                rootNodeIndex.nodeType,
-                []
-            )]
-        )).serialize()}] as const : [] as const,
+                [new SubgraphPathDefinition(
+                    nodeDefinitionMap,
+                    rootNodeIndex.nodeType,
+                    []
+                )]
+            )).serialize()}
+        ] as const : [] as const,
         queryFn: rootNodeIndex ? async ({queryKey: [params]}) => {
             const result = await extractSubgraph(params!.rootNodeIndex, params!.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
@@ -110,7 +122,6 @@ export const useUix = <
                 updatedAt: z.number(),
                 createdAt: z.number()
             }).safeParse(draft as any)
-            console.log(res)
             if (res?.error){
                 const createErrorTree = (issue: ZodIssue, path: any[], acc: Record<string, any>={}) => {
                     if (path.length === 1) {
@@ -134,27 +145,28 @@ export const useUix = <
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
-            previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
-                const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
-                    const findAndReplace = (subgraphNode: WritableDraft<GenericMergeOutputTree>) => {
-                        if (subgraphNode.nodeId === draft.nodeId) {
-                            Object.assign(subgraphNode, draft)
-                            return
-                        }
-                        getRelationshipEntries(subgraphNode).forEach(([_relationshipKey, nodeMap]) => {
-                            Object.entries(nodeMap).forEach(([_nodeId, value]) => {
-                                findAndReplace(value as WritableDraft<GenericMergeOutputTree>)
-                            })
-                        })
-                    }
-                    findAndReplace(previousSubgraphDraft)
-                })
-                queryClient.setQueryData([JSON.parse(paramString)], updatedSubgraph)
-            })
+            // previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
+            //     const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
+            //         const findAndReplace = (subgraphNode: WritableDraft<GenericMergeOutputTree>) => {
+            //             if (subgraphNode?.nodeId === draft.nodeId) {
+            //                 Object.assign(subgraphNode, draft)
+            //                 return
+            //             }
+            //             getRelationshipEntries(subgraphNode).forEach(([_relationshipKey, nodeMap]) => {
+            //                 Object.entries(nodeMap).forEach(([_nodeId, value]) => {
+            //                     findAndReplace(value as WritableDraft<GenericMergeOutputTree>)
+            //                 })
+            //             })
+            //         }
+            //         findAndReplace(previousSubgraphDraft)
+            //     })
+            //     queryClient.setQueryData([JSON.parse(paramString)], updatedSubgraph)
+            // })
             // Send previous data for rollback
             return {previousData: previousSubgraphEntries}
         },
         onError: async (error, variables, context) => {
+            console.error("ON ERROR", error)
             // Rollback
             const {previousData} = context as {previousData: [string, GenericMergeOutputTree][]}
             previousData.forEach(([paramString, previousSubgraph]) => {
@@ -187,7 +199,7 @@ export const useUix = <
                 updater(draft as any)
             })
         },
-        isCommitting: mutation.isPending,
+        isCommitPending: mutation.isPending,
         isCommitSuccessful: mutation.isSuccess,
         isCommitError: mutation.isError,
         commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)

@@ -12,15 +12,14 @@ export * from './definitions/GraphDefinition'
 export * from './types/RelationshipUnion'
 export * from './types/MergeInputTree'
 export * from './types/ConcreteMergeInputTree'
+
 // // Function
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/extractSubgraphFactory'
 
 // Utilities
 export * from './utilities/index'
-
+export {createNeo4jClient} from './clients/neo4j'
 // Types
 export * from './types/index'
 
-// Hooks
-export * from './hooks/useUixFactory'

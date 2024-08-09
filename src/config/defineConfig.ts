@@ -68,5 +68,4 @@ export const defineConfig = <
 ) => ({
     ...options,
     nodeDefinitionSet: options.nodeDefinitionSet,
-    useUix: useUixFactory(new GraphDefinition(options.type, options.nodeDefinitionSet).nodeDefinitionMap)
 })

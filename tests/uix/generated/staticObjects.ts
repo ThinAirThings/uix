@@ -23,6 +23,7 @@ export type CommentNode = NodeShape<ConfiguredNodeDefinitionMap['Comment']>
 export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
 export type ACCESS_TO_Organization_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['User']['relationshipDefinitionMap']['ACCESS_TO']>
 export type ACCESS_TO_Project_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['User']['relationshipDefinitionMap']['ACCESS_TO']>
+export type SUPERVISOR_TO_User_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['User']['relationshipDefinitionMap']['SUPERVISOR_TO']>
 export type OrganizationNodeState = NodeState<ConfiguredNodeDefinitionMap['Organization']>
 export type ChatNodeState = NodeState<ConfiguredNodeDefinitionMap['Chat']> 
 export type CONVERSATION_BETWEEN_User_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['Chat']['relationshipDefinitionMap']['CONVERSATION_BETWEEN']>

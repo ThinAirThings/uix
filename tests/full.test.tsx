@@ -65,23 +65,7 @@ test('Create and update user test', async () => {
     })
     expect(userNodeSubgraph.current.data!.firstName).toBe('Daniel')
     expect(userNodeSubgraph.current.data!.lastName).toBe('Lannan')
-    // const organizationNode = userNodeSubgraph.current.data?.['-ACCESS_TO->Organization'] 
-    //     && Object.values(userNodeSubgraph.current.data['-ACCESS_TO->Organization']).find(org => org.name === 'Thin Air')
-    // const {result: organizationNodeSubgraph} = renderHook(() => useUix({
-    //     rootNodeIndex: organizationNode!,
-    //     defineSubgraph: sg => sg.extendPath('Organization', '<-ACCESS_TO-User'),
-    //     initializeDraft: (data, define) => define({
-    //         ...data,
-    //         ["<-ACCESS_TO-User"]: {
-    //             draft: {
-    //                 email: '',
-    //                 accessLevel: 'member' as "member" | "admin",
-    //                 active: true,
-    //             }
-    //         }
-    //     })
-    // }), { wrapper })
-    // await waitFor(() => expect(organizationNodeSubgraph.current.isSuccess).toBe(true), {timeout: 3000, interval: 1000})
+
 })
 
 test('Create and update organization test', async () => {
@@ -105,12 +89,20 @@ test('Create and update organization test', async () => {
         })
     }, wrapper)
     // Check for nested error handling
-    updateDraft(draft => {
+    await updateDraft(draft => {
         draft['-ACCESS_TO->Organization']['draft1'].name = ''
     })
     await waitFor(() => Object.keys(expect(result.current.draftErrors)).length > 0, {timeout: 3000, interval: 1000})
     expect(result.current.draftErrors['-ACCESS_TO->Organization'].draft1.name).toBe('Please enter your organization')
-    console.log(result.current.draftErrors['-ACCESS_TO->Organization'].draft1.name)
-    // Check for nested error handling
+    
+    const orgName = 'Thin Air1' 
+    rerender()
+    // Update organization
+    await updateDraft(draft => {
+        draft['-ACCESS_TO->Organization']['draft1'].name = orgName
+    })
 
+    await waitFor(() => expect(result.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
+    console.log("OUTPUT", result.current.data?.['-ACCESS_TO->Organization'])
+    // expect(result.current.data?.['-ACCESS_TO->Organization']?.[orgName].name).toBe(orgName)
 })

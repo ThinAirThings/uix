@@ -49,7 +49,12 @@ export const renderUseUix = async <
     await waitFor(() => {expect(result.current.isSuccess).toBe(true)}, {timeout: 3000, interval: 1000})
     const updateDraft = async (updater: Parameters<typeof result.current.updateDraft>[0]) => {
         act(() => {result.current.updateDraft(updater)})
+        rerender()
         act(() => {result.current.commitDraft()})
+        rerender()
+        await waitFor(() => {expect(result.current.isCommitPending).toBe(false)}, {timeout: 3000, interval: 1000})
+        rerender()
+        await waitFor(() => {expect(result.current.isPending).toBe(false)}, {timeout: 3000, interval: 1000})
         rerender()
     }
     return {result, rerender, updateDraft}

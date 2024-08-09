@@ -5,6 +5,8 @@
     "@thinairthings/uix": "3.0.14"
   },
   "changesets": [
+    "chilly-colts-swim",
+    "gentle-foxes-brush",
     "metal-cows-check",
     "stupid-buckets-own"
   ]

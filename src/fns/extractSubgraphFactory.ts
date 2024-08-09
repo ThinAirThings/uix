@@ -137,9 +137,15 @@ export const extractSubgraphFactory = <
                     node[relationshipKey] = node[relationshipKey] 
                     ? {
                         ...node[relationshipKey],
+                        // ...Object.fromEntries(nodeDefinitionMap[nextNodeMerged.nodeType]!.uniqueIndexes
+                        //     .map((index: any) => [nextNodeMerged[index as keyof typeof nextNodeMerged], nextNodeMerged])
+                        // )
                         [nextNodeMerged.nodeId]: nextNodeMerged
                     }
                     :{
+                        // ...Object.fromEntries(nodeDefinitionMap[nextNodeMerged.nodeType]!.uniqueIndexes
+                        //     .map((index: any) => [nextNodeMerged[index as keyof typeof nextNodeMerged], nextNodeMerged])
+                        // )
                         [nextNodeMerged.nodeId]: nextNodeMerged
                     }
                     buildTree(nextNodeMerged as any, nextPathIndex as `p_${string}`)
