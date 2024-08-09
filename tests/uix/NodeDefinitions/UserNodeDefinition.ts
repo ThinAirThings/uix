@@ -4,7 +4,7 @@ import { z } from "zod";
 import { OrganizationNodeDefinition } from "./OrganizationNodeDefinition";
 import { ProjectNodeDefinition } from "./ProjectNodeDefinition";
 
-export const UserNodeDefinition = defineNode('User', z.object({
+const _UserNodeDefinition = defineNode('User', z.object({
     email: z.string().email('Invalid email address'),
     firstName: z.string().min(1, 'Please enter your first name.').optional(),
     lastName: z.string().min(1, 'Please enter your first name.').optional(),
@@ -30,4 +30,13 @@ export const UserNodeDefinition = defineNode('User', z.object({
         relationshipStateSchema: z.object({
             accessLevel: z.enum(['admin', 'member', 'owner']),
         })
+    })
+
+
+export const UserNodeDefinition = _UserNodeDefinition
+    .defineRelationship({
+        relationshipType: 'SUPERVISOR_TO',
+        strength: 'weak',
+        cardinality: 'one-to-many',
+        toNodeDefinition: _UserNodeDefinition,
     })

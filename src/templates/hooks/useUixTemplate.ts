@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient, skipToken } from "@tanstack/reac
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
 import { AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
-import { ZodObject, ZodTypeAny, z, AnyZodObject } from "zod"
+import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
 import { useEffect } from "react"
 import { produce, WritableDraft } from "immer"
@@ -116,9 +116,17 @@ export const useUix = <
             }).safeParse(draft as any)
             console.log(res)
             if (res?.error){
-                console.log(res)
+                const createErrorTree = (issue: ZodIssue, path: any[], acc: Record<string, any>={}) => {
+                    if (path.length === 1) {
+                        acc[path[0]] = issue.message
+                        return acc
+                    }
+                    acc[path[0]] = {}
+                    createErrorTree(issue, path.slice(1), acc[path[0]])
+                    return acc
+                }
                 const errorSet = res?.error?.issues.reduce((acc, issue) => {
-                    acc[issue.path[0] as keyof typeof acc] = issue.message
+                    acc = createErrorTree(issue, issue.path, acc)
                     return acc
                 }, {} as any)
                 setDraftErrors(errorSet)
@@ -185,6 +193,7 @@ export const useUix = <
         },
         isCommitting: mutation.isPending,
         isCommitSuccessful: mutation.isSuccess,
+        isCommitError: mutation.isError,
         commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)
     }
 }

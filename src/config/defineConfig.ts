@@ -1,5 +1,6 @@
 import { AnyNodeDefinitionSet, GenericNodeDefinitionSet } from "../definitions/NodeDefinition";
 import { GraphDefinition } from "../definitions/GraphDefinition";
+import { useUixFactory } from "../hooks/useUixFactory";
 
 /**
  * Represents the configuration for the Uix library.
@@ -64,7 +65,8 @@ export const defineConfig = <
         envPath?: string;
         outdir?: string;
     }
-): UixConfigDefinition<Type, NodeDefinitionSet> => ({
+) => ({
     ...options,
     nodeDefinitionSet: options.nodeDefinitionSet,
+    useUix: useUixFactory(new GraphDefinition(options.type, options.nodeDefinitionSet).nodeDefinitionMap)
 })

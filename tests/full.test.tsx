@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
-import { act, renderHook, waitFor } from '@testing-library/react'
 import {RelationshipState, SubgraphDefinition, SubgraphPathDefinition,} from "@thinairthings/uix"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap, OrganizationNode, OrganizationNodeState } from './uix/generated/staticObjects';
-import {v4 as uuid} from 'uuid'
 // @vitest-environment jsdom
 import { enableMapSet } from 'immer';
 import { mergeSubgraph } from './uix/generated/functionModule';
 import {throwTestError} from './utils/throwTestError'
-import { useSubgraph } from './uix/generated/_useSubgraph'
+import { renderUseUix } from './utils/renderUseUix'
+import { waitFor } from '@testing-library/dom';
+import exp from 'constants';
 enableMapSet()
 
 const createWrapper = () => {
@@ -36,9 +36,8 @@ const subgraphDefinition = (subgraph: SubgraphDefinition<typeof nodeDefinitionMa
     .extendPath('User', '<-CONVERSATION_BETWEEN-Chat')
     .extendPath('User<-CONVERSATION_BETWEEN-Chat', '-CONVERSATION_BETWEEN->User')
 
-test('Query path and optimistic update test', async () => {
+test('Create and update user test', async () => {
     const wrapper = createWrapper()
-    // nodeDefinitionMap.User.relationshipDefinitionMap['ACCESS_TO'].strength
     // Create a new user
     const {data: userNode, error: createUserNodeError} = await mergeSubgraph({
         nodeType: 'User',
@@ -54,131 +53,64 @@ test('Query path and optimistic update test', async () => {
     })
     if (createUserNodeError) throwTestError(createUserNodeError)
     expect(userNode?.email).toBe('dan.lannan@thinair.cloud')
-    const {result: userNodeSubgraph, rerender} = renderHook(() => useSubgraph(userNode, {
+    // Get Data
+    const {result: userNodeSubgraph, updateDraft, rerender} = await renderUseUix({
+        rootNodeIndex: userNode,
         defineSubgraph: subgraphDefinition
-    }), { wrapper })
-    await waitFor(() => {expect(userNodeSubgraph.current.isSuccess).toBe(true)}, {timeout: 3000, interval: 1000})
+    }, wrapper )
     expect(userNodeSubgraph.current.draft!.email).toBe('dan.lannan@thinair.cloud')
-    act(() => {
-        userNodeSubgraph.current.updateDraft(draft => {
-            draft['-ACCESS_TO->Organization']
-            draft.firstName = 'Dan'
-            draft.lastName = 'Lannan'
-        })
+    await updateDraft(draft => {
+        draft.firstName = 'Daniel'
+        draft.lastName = 'Lannan'
     })
-    // act(() => {userNodeSubgraph.current.commitDraft()})
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current.subgraph!.firstName).toBe('Dan')
-    // // Add Organization
-    // act(() => {
-    //     userNodeSubgraph.current.draft
-    //     userNodeSubgraph.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         draft['-ACCESS_TO->Organization'] = [{
-    //             ceo: 'Dan',
-    //             name: 'Thin Air',
-    //             employees: 200,
-    //             accessLevel: 'owner',
-    //         }]
+    expect(userNodeSubgraph.current.data!.firstName).toBe('Daniel')
+    expect(userNodeSubgraph.current.data!.lastName).toBe('Lannan')
+    // const organizationNode = userNodeSubgraph.current.data?.['-ACCESS_TO->Organization'] 
+    //     && Object.values(userNodeSubgraph.current.data['-ACCESS_TO->Organization']).find(org => org.name === 'Thin Air')
+    // const {result: organizationNodeSubgraph} = renderHook(() => useUix({
+    //     rootNodeIndex: organizationNode!,
+    //     defineSubgraph: sg => sg.extendPath('Organization', '<-ACCESS_TO-User'),
+    //     initializeDraft: (data, define) => define({
+    //         ...data,
+    //         ["<-ACCESS_TO-User"]: {
+    //             draft: {
+    //                 email: '',
+    //                 accessLevel: 'member' as "member" | "admin",
+    //                 active: true,
+    //             }
+    //         }
     //     })
-    // })
-    // act(() => {
-    //     userNodeSubgraph.current.commitDraft()
-    // })
-    // rerender() // Required for isCommitSuccessful to be updated
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current.subgraph?.['-ACCESS_TO->Organization']?.[0].name).toBe('Thin Air')
-    // // Add Project to organization
-    // act(() => {
-    //     userNodeSubgraph.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         const org = draft['-ACCESS_TO->Organization']?.find(org => org.name === 'Thin Air')!
-    //         org['<-BELONGS_TO-Project'] = [{
-    //             name: 'Uix',
-    //             description: 'Write uix'
-    //         }]
-    //     })
-    // })
-    // act(() => {
-    //     userNodeSubgraph.current.commitDraft()
-    // })
-    // rerender() // Required for isCommitSuccessful to be updated
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current.subgraph?.['-ACCESS_TO->Organization']?.[0]['<-BELONGS_TO-Project']?.[0].name).toBe('Uix')
-    // // Add Other Project to Organization
-    // act(() => {
-    //     userNodeSubgraph.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         draft['-ACCESS_TO->Organization']?.find(org => org.name === 'Thin Air')!['<-BELONGS_TO-Project']?.push({
-    //             name: 'Hirebird',
-    //             description: 'Write Hirebird'
-    //         })
-    //     })
-    // })
-    // act(() => {
-    //     userNodeSubgraph.current.commitDraft()
-    // })
-    // rerender() // Required for isCommitSuccessful to be updated
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current
-    //     .subgraph?.['-ACCESS_TO->Organization']
-    //     ?.find(org => org.name === 'Thin Air')
-    //     ?.['<-BELONGS_TO-Project']?.find(project => project.name === 'Hirebird')?.name).toBe('Hirebird')
-    // // Test Single Project Deletion
-    // act(() => {
-    //     userNodeSubgraph.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         const projects = draft['-ACCESS_TO->Organization']?.find(org => org.name === 'Thin Air')?.['<-BELONGS_TO-Project']
-    //         const projectIndex = projects?.findIndex(project => project.name === 'Uix')
-    //         if (projectIndex !== undefined) projects?.splice(projectIndex, 1)
-    //     })
-    // })
-    // act(() => {
-    //     userNodeSubgraph.current.commitDraft()
-    // })
-    // rerender() // Required for isCommitSuccessful to be updated
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current
-    //     .subgraph?.['-ACCESS_TO->Organization']
-    //     ?.find(org => org.name === 'Thin Air')
-    //     ?.['<-BELONGS_TO-Project']?.find(project => project.name === 'Uix')).toBe(undefined)
-    // // Test Remove Self from Organization
-    // act(() => {
-    //     userNodeSubgraph.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         const orgIndex = draft['-ACCESS_TO->Organization']?.findIndex(org => org.name === 'Thin Air')
-    //         if (orgIndex !== undefined) draft['-ACCESS_TO->Organization']?.splice(orgIndex, 1)
-    //     })
-    // })
-    // act(() => {
-    //     userNodeSubgraph.current.commitDraft()
-    // })
-    // rerender() // Required for isCommitSuccessful to be updated
-    // await waitFor(() => expect(userNodeSubgraph.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(userNodeSubgraph.current
-    //     .subgraph?.['-ACCESS_TO->Organization']
-    //     ?.find(org => org.name === 'Thin Air')).toBe(undefined)
+    // }), { wrapper })
+    // await waitFor(() => expect(organizationNodeSubgraph.current.isSuccess).toBe(true), {timeout: 3000, interval: 1000})
+})
 
-    // const {result: organizationNodeResult} = renderHook(() => useSubgraph({
-    //     'nodeType': 'Organization',
-    //     'name': 'Thin Air'
-    // }, {
-    //     defineSubgraph: (subgraph) => subgraph.extendPath('Organization', '<-ACCESS_TO-User')
-    // }), {wrapper}) 
-    // await waitFor(() => expect(organizationNodeResult.current.isSuccess).toBe(true), {timeout: 3000, interval: 1000})
-    // // Test Add User to Organization
-    // act(() => {
-    //     organizationNodeResult.current.updateDraft(draft => {
-    //         if (!draft) return
-    //         draft['<-ACCESS_TO-User'] = [{
-    //             accessLevel: 'member',
-    //             ...userNode
-    //         }]
-    //     })
-    // })
-    // act(() => {
-    //     organizationNodeResult.current.commitDraft()
-    // })
-    // await waitFor(() => expect(organizationNodeResult.current.isCommitSuccessful).toBe(true), {timeout: 3000, interval: 1000})
-    // expect(organizationNodeResult.current.subgraph?.['<-ACCESS_TO-User']?.[0].email).toBe('dan.lannan@thinair.cloud')
+test('Create and update organization test', async () => {
+    const wrapper = createWrapper()
+    const {result, updateDraft, rerender} = await renderUseUix({
+        rootNodeIndex: {
+            nodeType: 'User',
+            email: "dan.lannan@thinair.cloud"
+        },
+        defineSubgraph: sg => sg.extendPath('User', '-ACCESS_TO->Organization'),
+        initializeDraft: (data, define) => define({
+            ...data,
+            ["-ACCESS_TO->Organization"]: {
+                draft1: {
+                    name: '',
+                    ceo: 'Dan',
+                    employees: 200,
+                    accessLevel: 'admin'
+                }
+            }
+        })
+    }, wrapper)
+    // Check for nested error handling
+    updateDraft(draft => {
+        draft['-ACCESS_TO->Organization']['draft1'].name = ''
+    })
+    await waitFor(() => Object.keys(expect(result.current.draftErrors)).length > 0, {timeout: 3000, interval: 1000})
+    expect(result.current.draftErrors['-ACCESS_TO->Organization'].draft1.name).toBe('Please enter your organization')
+    console.log(result.current.draftErrors['-ACCESS_TO->Organization'].draft1.name)
+    // Check for nested error handling
+
 })

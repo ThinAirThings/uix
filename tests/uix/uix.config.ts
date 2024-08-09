@@ -7,7 +7,11 @@ import { ProjectNodeDefinition } from './NodeDefinitions/ProjectNodeDefinition'
 import {KanbanNodeDefinition} from './NodeDefinitions/KanbanNodeDefinition'
 import {TaskNodeDefinition} from './NodeDefinitions/TaskNodeDefinition'
 import {CommentNodeDefinition} from './NodeDefinitions/CommentNodeDefinition'
-export default defineConfig({
+
+
+
+
+export const uixConfig =  defineConfig({
     type: 'Base',
     nodeDefinitionSet: [
         UserNodeDefinition,
@@ -23,3 +27,5 @@ export default defineConfig({
     outdir: 'tests/uix/generated',
     envPath: '.env.test',
 })
+
+export default uixConfig

@@ -1,9 +1,38 @@
-import {RelativeRelationshipMap} from '@thinairthings/uix'
+import {AnyNodeDefinitionMap, defineConfig, GraphDefinition, mergeSubgraphFactory, useUixFactory} from '@thinairthings/uix'
 import {nodeDefinitionMap} from './generated/staticObjects'
+import { UserNodeDefinition } from './NodeDefinitions/UserNodeDefinition'
+import { OrganizationNodeDefinition } from './NodeDefinitions/OrganizationNodeDefinition'
+import { ChatNodeDefinition } from './NodeDefinitions/ChatNodeDefinition'
+import { MessageNodeDefinition } from './NodeDefinitions/MessageNodeDefinition'
+import { ProjectNodeDefinition } from './NodeDefinitions/ProjectNodeDefinition'
+import { KanbanNodeDefinition } from './NodeDefinitions/KanbanNodeDefinition'
+import { TaskNodeDefinition } from './NodeDefinitions/TaskNodeDefinition'
+import { CommentNodeDefinition } from './NodeDefinitions/CommentNodeDefinition'
+import {useUix} from './uix.config'
 
-type Thing = (RelativeRelationshipMap<typeof nodeDefinitionMap, 'User', 'strong'>)
-type Organization = (RelativeRelationshipMap<typeof nodeDefinitionMap, 'Organization', 'weak'>)
-type Strong = RelativeRelationshipMap<typeof nodeDefinitionMap, 'User', 'strong'>
-type Thing3 = typeof nodeDefinitionMap['User']['relationshipDefinitionSet'][number] & { strength: 'strong' }
-type Thing2 = Required<Thing>['']['to'][number]['nodeType']
-type OrganizationIndex = Organization['']
+
+
+// const useUix = useUixFactory(new GraphDefinition('Main', defineConfig({
+//     type: 'Base',
+//     nodeDefinitionSet: [
+//         UserNodeDefinition,
+//         OrganizationNodeDefinition,
+//         ChatNodeDefinition,
+//         MessageNodeDefinition,
+//         ProjectNodeDefinition,
+//         KanbanNodeDefinition,
+//         TaskNodeDefinition,
+//         CommentNodeDefinition
+//         // PaymentTierDefinition
+//     ],
+//     outdir: 'tests/uix/generated',
+//     envPath: '.env.test',
+// }).nodeDefinitionSet).nodeDefinitionMap)
+
+// const {data} = useUix({
+//     rootNodeIndex: {
+//         nodeType: 'User',
+//         email: ''
+//     },
+//     defineSubgraph: (subgraph) => subgraph.extendPath('User', '-ACCESS_TO->Organization')
+// })

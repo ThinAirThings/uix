@@ -22,3 +22,5 @@ export * from './utilities/index'
 // Types
 export * from './types/index'
 
+// Hooks
+export * from './hooks/useUixFactory'
