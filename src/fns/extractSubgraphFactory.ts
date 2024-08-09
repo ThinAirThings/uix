@@ -102,7 +102,7 @@ export const extractSubgraphFactory = <
     } & {
         [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
     }>>(queryString).then(result => {
-        writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
+        // writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
         // writeFileSync('tests/extract:queryString.cypher', queryString)
         const records = result.records
         const rootNode = records?.[0]?.get(rootVariable)?.properties 
@@ -132,6 +132,7 @@ export const extractSubgraphFactory = <
                     const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
                     const nextNodeMerged = {
                         fromNodeId: node.nodeId,
+                        fromNodeType: node.nodeType,
                         ...relationship.properties,
                         ...nextNode,
                     }
@@ -164,7 +165,7 @@ export const extractSubgraphFactory = <
         buildTree(rootNode as any, rootStringIndex)
         return rootNode
     })
-    writeFileSync('tests/extract:queryString.cypher', queryString)
+    // writeFileSync('tests/extract:queryString.cypher', queryString)
     if (!resultTree) return UixErr({
         subtype: 'ExpectedRuntimeError',
         message: "The root node requested was not found. This is likely due to it not existing in the database.",

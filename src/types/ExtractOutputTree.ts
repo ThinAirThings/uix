@@ -1,5 +1,5 @@
 import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition"
-import { RelationshipState } from "../definitions/RelationshipDefinition"
+import { RelationshipMerge, RelationshipState } from "../definitions/RelationshipDefinition"
 import { AnySubgraphDefinition } from "../definitions/SubgraphDefinition"
 
 
@@ -36,6 +36,37 @@ export type PreviousNodeTypeFromPath<
                 : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
         : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
 
+export type ExtractOutputTreeOmitRelationshipMetadata<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    SubgraphDefinitionRef extends AnySubgraphDefinition,
+    PathType extends keyof SubgraphDefinitionRef['subgraphPathDefinitionMap'],
+> = NodeShape<NodeDefinitionMap[NextNodeTypeFromPath<NodeDefinitionMap, PathType>]> & {
+    [Relationship in SubgraphDefinitionRef['subgraphPathDefinitionMap'][PathType]['subgraphRelationshipSet'][number]]?: 
+    (
+        Relationship extends `-${infer RelationshipType}->${string}`
+            ? {
+                [id: string]: RelationshipState<
+                    NodeDefinitionMap[PreviousNodeTypeFromPath<NodeDefinitionMap, PathType>]['relationshipDefinitionMap'][RelationshipType]
+                > & ExtractOutputTree<
+                    NodeDefinitionMap,
+                    SubgraphDefinitionRef,
+                    `${PathType&string}${Relationship}`
+                >
+            }
+            : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+                ? {
+                    [id: string]: RelationshipState<
+                        NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionMap'][RelationshipType]
+                    > & ExtractOutputTree<
+                            NodeDefinitionMap,
+                        SubgraphDefinitionRef,
+                        `${PathType&string}${Relationship}`
+                    >
+                }
+                : unknown
+    )
+}
+// 
 export type ExtractOutputTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     SubgraphDefinitionRef extends AnySubgraphDefinition,
@@ -45,8 +76,10 @@ export type ExtractOutputTree<
     (
         Relationship extends `-${infer RelationshipType}->${string}`
             ? {
-                    [id: string]: {fromNodeId: string} & RelationshipState<
-                        NodeDefinitionMap[PreviousNodeTypeFromPath<NodeDefinitionMap, PathType>]['relationshipDefinitionMap'][RelationshipType]
+                    [id: string]: RelationshipMerge<
+                        NodeDefinitionMap,
+                        PreviousNodeTypeFromPath<NodeDefinitionMap, PathType>,
+                        RelationshipType
                     > & ExtractOutputTree<
                         NodeDefinitionMap,
                         SubgraphDefinitionRef,
@@ -55,9 +88,11 @@ export type ExtractOutputTree<
                 }
             : Relationship extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
                 ? {
-                    [id: string]: {fromNodeId: string} & RelationshipState<
-                        NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionMap'][RelationshipType]
-                    >&ExtractOutputTree<
+                    [id: string]: RelationshipMerge<
+                        NodeDefinitionMap,
+                        RelatedNodeType,
+                        RelationshipType
+                    > & ExtractOutputTree<
                             NodeDefinitionMap,
                         SubgraphDefinitionRef,
                         `${PathType&string}${Relationship}`

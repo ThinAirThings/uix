@@ -1,5 +1,6 @@
 import { TypeOf, ZodObject } from "zod"
-import { AnyNodeDefinition, GenericNodeDefinition } from "./NodeDefinition"
+import { AnyNodeDefinition, AnyNodeDefinitionMap, GenericNodeDefinition } from "./NodeDefinition"
+import { RelationshipTypeUnion } from "../types/RelationshipUnion"
 
 
 //  _   _ _   _ _ _ _          _____                  
@@ -23,6 +24,15 @@ export type RelationshipDefinitionMap<RelationshipDefinitionSet extends AnyRelat
 }
 export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
 export type StrengthTypeSet = 'strong' | 'weak'
+export type RelationshipMerge<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    PreviousNodeType extends keyof NodeDefinitionMap,
+    RelationshipType extends RelationshipTypeUnion<NodeDefinitionMap, PreviousNodeType>,
+> = {
+    fromNodeId: string
+    fromNodeType: PreviousNodeType
+    relationshipType: RelationshipType
+} & RelationshipState<NodeDefinitionMap[PreviousNodeType]['relationshipDefinitionMap'][RelationshipType]>
 export type RelationshipState<T extends AnyRelationshipDefinition> = TypeOf<T['stateSchema']>
 export type RelationshipShape<T extends AnyRelationshipDefinition> = RelationshipState<T> & {
     relatedNodeId: string

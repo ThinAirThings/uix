@@ -2,7 +2,7 @@ import { AnyZodObject, z, ZodObject, ZodTypeAny } from "zod"
 import { AnyNodeDefinitionMap, NodeState } from "../definitions/NodeDefinition"
 import { AnySubgraphDefinition, SubgraphDefinition } from "../definitions/SubgraphDefinition"
 import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition"
-import { ExtractOutputTree } from "../types"
+import { ExtractOutputTree, ExtractOutputTreeOmitRelationshipMetadata } from "../types"
 import { MergeInputTree } from "../types/MergeInputTree"
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { extractSubgraphFactory, GenericMergeOutputTree } from "../fns/extractSubgraphFactory"
@@ -48,7 +48,7 @@ export const useUixFactory = <
         [K in keyof NodeState<NodeDefinitionMap[RootNodeType]>]: ZodTypeAny
     }>,
     initializeDraft?: (
-        data: ExtractOutputTree<NodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>,
+        data: ExtractOutputTreeOmitRelationshipMetadata<NodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>,
         initialize: <T extends MergeInputTree<NodeDefinitionMap, RootNodeType>>(freeze: T) => T
     ) => Data
 }) => {

@@ -4,11 +4,10 @@ import path from "path";
 import { GenericUixConfig } from "../config/defineConfig";
 import dedent from "dedent";
 
-export const staticObjectsTemplate = (config: GenericUixConfig) => {
-    return /* ts */`
+export const staticObjectsTemplate = (config: GenericUixConfig) => /* ts */`
 // Start of File
 import uixConfig from '${path.relative(config.outdir, config.pathToConfig).split(path.sep).join('/').replace(/\.[^/.]+$/, '')}'
-import { NodeShape, NodeState, GraphDefinition, RelationshipState } from '@thinairthings/uix'
+import { NodeShape, NodeState, GraphDefinition, RelationshipState, RelationshipMerge } from '@thinairthings/uix'
 
 export const uixGraph = new GraphDefinition(uixConfig.type, uixConfig.nodeDefinitionSet)
 export const nodeDefinitionMap = uixGraph.nodeDefinitionMap
@@ -29,10 +28,16 @@ ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
         export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap['${nodeType}']> 
         ${config.graph.nodeDefinitionMap[nodeType as keyof typeof config.graph.nodeDefinitionMap]!.relationshipDefinitionSet.map(relationshipDefinition =>
             dedent/*ts*/`
-                export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
+            export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = RelationshipMerge<
+                ConfiguredNodeDefinitionMap,
+                '${nodeType}',
+                '${relationshipDefinition.type}'
+            >
             `
             ).join('\n')}
     `).join('\n')
     }
-`}
+`
+
+// export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
 

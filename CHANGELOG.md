@@ -1,5 +1,17 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.8
+
+### Patch Changes
+
+- remove print statements
+
+## 4.0.0-next.7
+
+### Patch Changes
+
+- fix bug where records were being duplicated (Lucas' user wraparound bug)
+
 ## 4.0.0-next.6
 
 ### Patch Changes

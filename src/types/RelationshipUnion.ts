@@ -15,3 +15,19 @@ export type RelationshipUnion<
                 : never
     }[keyof NodeDefinitionMap[FromNodeType]['relationshipDefinitionMap']]
 }[keyof NodeDefinitionMap]
+
+export type RelationshipTypeUnion<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap,
+> = ({
+    [RelationshipType in keyof NodeDefinitionMap[NodeType]['relationshipDefinitionMap']]: 
+        RelationshipType
+    }[keyof NodeDefinitionMap[NodeType]['relationshipDefinitionMap']]
+) | {
+    [FromNodeType in keyof NodeDefinitionMap]: {
+        [RelationshipType in keyof NodeDefinitionMap[FromNodeType]['relationshipDefinitionMap']]:
+            NodeType extends NodeDefinitionMap[FromNodeType]['relationshipDefinitionMap'][RelationshipType]['toNodeDefinition']['type']
+                ? RelationshipType
+                : never
+    }[keyof NodeDefinitionMap[FromNodeType]['relationshipDefinitionMap']]
+}[keyof NodeDefinitionMap]
