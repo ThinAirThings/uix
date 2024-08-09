@@ -1,17 +1,15 @@
 
-const relationshipStringTemplate = () => '`-${string}->${string}`|`<-${string}-${string}`'
 
 export const useUixTemplate = () => /*ts*/`
 'use client'
 import { useQuery, useMutation, useQueryClient, skipToken } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
-import { AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
+import { validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
 import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
 import { useEffect } from "react"
 import { produce, WritableDraft } from "immer"
-
 
 
 export const cacheKeyMap = new Map<string, Set<string>>()
@@ -95,19 +93,7 @@ export const useUix = <
         : subgraph
     ) as Data | undefined)
     
-    type DraftErrorTree<
-        DraftTree extends Record<string, any>
-    > = {
-        [K in keyof DraftTree as Exclude<K, 'nodeId'|'createdAt'|'updatedAt'|'nodeType'>]: 
-            K extends ${relationshipStringTemplate()}
-                ? {
-                    [Id in keyof DraftTree[K]]: DraftErrorTree<DraftTree[K][Id]> 
-                }
-                : string
-    }
     const [draftErrors, setDraftErrors] = useImmer({} as DraftErrorTree<Data>)
-
-    
     const mutation = useMutation({
         mutationFn: async () => {
             if (!draft || !subgraph) return
@@ -116,29 +102,12 @@ export const useUix = <
         },
         onMutate: async () => {
             if (!draft || !subgraph) return
-            const res = (
+            const errorSet = validateDraftSchema<Data>(
                 modifySchema?.(createNestedZodSchema(nodeDefinitionMap, draft as any) as any)
-                ?? createNestedZodSchema(nodeDefinitionMap, draft as any)
-            ).extend({
-                nodeId: z.string(),
-                nodeType: z.string(),
-                updatedAt: z.number(),
-                createdAt: z.number()
-            }).safeParse(draft as any)
-            if (res?.error){
-                const createErrorTree = (issue: ZodIssue, path: any[], acc: Record<string, any>={}) => {
-                    if (path.length === 1) {
-                        acc[path[0]] = issue.message
-                        return acc
-                    }
-                    acc[path[0]] = {}
-                    createErrorTree(issue, path.slice(1), acc[path[0]])
-                    return acc
-                }
-                const errorSet = res?.error?.issues.reduce((acc, issue) => {
-                    acc = createErrorTree(issue, issue.path, acc)
-                    return acc
-                }, {} as any)
+                ?? createNestedZodSchema(nodeDefinitionMap, draft as any),
+                draft
+            )
+            if (errorSet) {
                 setDraftErrors(errorSet)
                 throw new Error('Invalid draft')
             }
@@ -148,23 +117,7 @@ export const useUix = <
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
-            // previousSubgraphEntries && previousSubgraphEntries.forEach(([paramString, previousSubgraph]) => {
-            //     const updatedSubgraph = produce(previousSubgraph, previousSubgraphDraft => {
-            //         const findAndReplace = (subgraphNode: WritableDraft<GenericMergeOutputTree>) => {
-            //             if (subgraphNode?.nodeId === draft.nodeId) {
-            //                 Object.assign(subgraphNode, draft)
-            //                 return
-            //             }
-            //             getRelationshipEntries(subgraphNode).forEach(([_relationshipKey, nodeMap]) => {
-            //                 Object.entries(nodeMap).forEach(([_nodeId, value]) => {
-            //                     findAndReplace(value as WritableDraft<GenericMergeOutputTree>)
-            //                 })
-            //             })
-            //         }
-            //         findAndReplace(previousSubgraphDraft)
-            //     })
-            //     queryClient.setQueryData([JSON.parse(paramString)], updatedSubgraph)
-            // })
+            // Handle Caching
             // Send previous data for rollback
             return {previousData: previousSubgraphEntries}
         },

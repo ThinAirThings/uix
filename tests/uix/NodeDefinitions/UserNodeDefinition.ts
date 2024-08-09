@@ -10,7 +10,6 @@ const _UserNodeDefinition = defineNode('User', z.object({
     lastName: z.string().min(1, 'Please enter your first name.').optional(),
     phoneNumber: z.string().min(10, 'Please enter a valid phone number.').optional(),
     profilePictureUrl: z.string().optional(),
-    activeOrganizationId: z.string().optional(),
 }))
     .defineUniqueIndexes(['email'])
     .defineRelationship({

@@ -102,7 +102,7 @@ export const extractSubgraphFactory = <
     } & {
         [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
     }>>(queryString).then(result => {
-        // writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
+        writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
         // writeFileSync('tests/extract:queryString.cypher', queryString)
         const records = result.records
         const rootNode = records?.[0]?.get(rootVariable)?.properties 
@@ -119,6 +119,7 @@ export const extractSubgraphFactory = <
                 variable.startsWith(pathIndex)
                 && pathIndex.split('_').length === variable.split('_').length - 1
             ) as `p_${string}`[]
+            
             nextPathIndexSet.forEach(nextPathIndex => {
                 records.forEach(record => {
                     const segments = record.get(nextPathIndex)?.segments
@@ -133,6 +134,12 @@ export const extractSubgraphFactory = <
                         fromNodeId: node.nodeId,
                         ...relationship.properties,
                         ...nextNode,
+                    }
+                    // Check if the previous node is the same as the current node
+                    const previousPath = nextPathIndex.split('_').slice(0, -1).join('_') as `p_${string}`
+                    if (previousPath && previousPath !== 'p_0') {
+                        const previousNode = record.get(previousPath)?.end.properties as GenericNodeShape
+                        if (previousNode.nodeId !== node.nodeId) return
                     }
                     node[relationshipKey] = node[relationshipKey] 
                     ? {
@@ -157,7 +164,7 @@ export const extractSubgraphFactory = <
         buildTree(rootNode as any, rootStringIndex)
         return rootNode
     })
-    // writeFileSync('tests/extract:resultTree.json', JSON.stringify(resultTree, null, 2))
+    writeFileSync('tests/extract:queryString.cypher', queryString)
     if (!resultTree) return UixErr({
         subtype: 'ExpectedRuntimeError',
         message: "The root node requested was not found. This is likely due to it not existing in the database.",

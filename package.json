@@ -1,7 +1,7 @@
 {
     "name": "@thinairthings/uix",
     "author": "Dan Lannan",
-    "version": "4.0.0-next.5",
+    "version": "4.0.0-next.6",
     "type": "module",
     "types": "./dist/lib/index.d.ts",
     "bin": {
