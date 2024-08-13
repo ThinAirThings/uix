@@ -13,7 +13,7 @@ export type DeepPartial<T> = {
 export type MergeInputTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
-> = NodeState<NodeDefinitionMap[NodeType]> & {
+> = (NodeState<NodeDefinitionMap[NodeType]> & {
         nodeId?: string
         delete?: boolean
     } & {
@@ -34,6 +34,6 @@ export type MergeInputTree<
                     NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionMap'][RelationshipType]
                 > & MergeInputTree<NodeDefinitionMap, RelatedNodeType>
             }
-            : unknown
+            : never
     )
-}
+})

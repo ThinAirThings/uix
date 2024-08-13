@@ -80,24 +80,5 @@ test('Integration test', async () => {
         }
     } as const) 
     if (createUserNodeError) throwTestError(createUserNodeError)
-    const {
-        data: updatedUserNode, 
-        error: updatedUserNodeError
-    } = await mergeSubgraph(produce(createdUserNode, (draft) => {
-        draft.firstName = 'Danielson'
-    }))
 
-    if (updatedUserNodeError) throwTestError(updatedUserNodeError)
-    await writeFile('tests/merge:data.json', JSON.stringify(updatedUserNode, null, 2))
-
-    // Test Extraction
-    const {data: extractedUser, error: extactUserError} = await extractSubgraph({
-        nodeType: 'User',
-        email: 'dan.lannan@thinair.cloud2'
-    }, (subgraph) => subgraph
-        .extendPath('User', '-ACCESS_TO->Organization')
-    )    
-    if (extactUserError) throwTestError(extactUserError)
-    await writeFile('tests/merge:extractedUser.json', JSON.stringify(extractedUser, null, 2))
-    // await writeFile('tests/mergev2:queryString.cypher', userNodeA!)
 })

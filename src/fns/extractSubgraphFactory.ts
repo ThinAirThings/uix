@@ -104,6 +104,7 @@ export const extractSubgraphFactory = <
     }>>(queryString).then(result => {
         // writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
         // writeFileSync('tests/extract:queryString.cypher', queryString)
+        console.log('result.records', result.records.length)
         const records = result.records
         const rootNode = records?.[0]?.get(rootVariable)?.properties 
         if (!rootNode) return null

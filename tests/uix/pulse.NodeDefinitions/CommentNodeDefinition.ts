@@ -1,6 +1,6 @@
 import { defineNode } from "@thinairthings/uix";
 import { z } from "zod";
-import { UserNodeDefinition } from "./UserNodeDefinition";
+import { UserNodeDefinition } from "../hb.NodeDefinitions/UserNodeDefinition";
 import { TaskNodeDefinition } from "./TaskNodeDefinition";
 
 export const CommentNodeDefinition = defineNode(

@@ -4,7 +4,7 @@
 import { defineNode } from "@thinairthings/uix";
 import { z } from "zod";
 import { ChatNodeDefinition } from "./ChatNodeDefinition";
-import { UserNodeDefinition } from "./UserNodeDefinition";
+import { UserNodeDefinition } from "../hb.NodeDefinitions/UserNodeDefinition";
 
 export const MessageNodeDefinition = defineNode('Message', z.discriminatedUnion('contentType', [
     z.object({

@@ -187,7 +187,7 @@ export const mergeSubgraphFactory = <
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
-    // writeFileSync('tests/merge:queryString.cypher', queryString)
+    writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
     } & {

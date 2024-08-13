@@ -14,14 +14,16 @@
         "dev": "nodemon",
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
-        "test:merge": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run merge --test-timeout=100000",
+        "test:merge:hb": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hb.merge --test-timeout=100000",
+        "test:extract:hb": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hb.extract --test-timeout=100000",
         "test:full": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run full --test-timeout=100000",
         "test:cache": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run cache --test-timeout=100000",
         "test:extract": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run extract --test-timeout=100000",
         "test:hooks": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooks --test-timeout=100000",
         "test:hooksv2": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooksv2 --test-timeout=100000",
         "test:hooksv3": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hooksv3 --test-timeout=100000",
-        "uix": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/uix.config.ts",
+        "uix:pulse": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/pulse.uix.config.ts",
+        "uix:hirebird": "dotenvx run -f .env.test -- node ./dist/cli/cli.js --config=./tests/uix/hb.uix.config.ts",
         "wipset": "changeset && changeset version && changeset publish && git add . && git commit -m 'wipset' && git push"
     },
     "exports": {

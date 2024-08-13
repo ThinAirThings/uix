@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { defineNode } from "@thinairthings/uix";
 import { OrganizationNodeDefinition } from "./OrganizationNodeDefinition";
-import { UserNodeDefinition } from "./UserNodeDefinition";
+import { UserNodeDefinition } from "../hb.NodeDefinitions/UserNodeDefinition";
 
 
 export const ProjectNodeDefinition = defineNode('Project', z.object({

@@ -1,10 +1,10 @@
 
 import { defineNode } from "@thinairthings/uix";
 import { z } from "zod";
-import { OrganizationNodeDefinition } from "./OrganizationNodeDefinition";
-import { ProjectNodeDefinition } from "./ProjectNodeDefinition";
+import { CompanyNodeDefinition } from "./CompanyNodeDefinition";
+import { JobNodeDefinition } from "./JobNodeDefinition";
 
-const _UserNodeDefinition = defineNode('User', z.object({
+export const _UserNodeDefinition = defineNode('User', z.object({
     email: z.string().email('Invalid email address'),
     firstName: z.string().min(1, 'Please enter your first name.').optional(),
     lastName: z.string().min(1, 'Please enter your first name.').optional(),
@@ -13,21 +13,12 @@ const _UserNodeDefinition = defineNode('User', z.object({
 }))
     .defineUniqueIndexes(['email'])
     .defineRelationship({
-        relationshipType: 'ACCESS_TO',
+        relationshipType: 'BELONGS_TO',
         cardinality: 'many-to-many',
         strength: 'weak',
-        toNodeDefinition: OrganizationNodeDefinition,
+        toNodeDefinition: CompanyNodeDefinition,
         relationshipStateSchema: z.object({
             accessLevel: z.enum(['admin', 'member', 'owner'])
-        })
-    })
-    .defineRelationship({
-        relationshipType: 'ACCESS_TO',
-        strength: 'weak',
-        cardinality: 'many-to-many',
-        toNodeDefinition: ProjectNodeDefinition,
-        relationshipStateSchema: z.object({
-            accessLevel: z.enum(['admin', 'member', 'owner']),
         })
     })
 
@@ -38,4 +29,10 @@ export const UserNodeDefinition = _UserNodeDefinition
         strength: 'weak',
         cardinality: 'one-to-many',
         toNodeDefinition: _UserNodeDefinition,
+    })
+    .defineRelationship({
+        relationshipType: 'SWIPED_ON',
+        strength: 'weak',
+        cardinality: 'one-to-many',
+        toNodeDefinition: JobNodeDefinition,
     })

@@ -1,7 +1,7 @@
 
 import {defineNode} from "@thinairthings/uix"
 import { z } from "zod"
-import { UserNodeDefinition } from "./UserNodeDefinition"
+import { UserNodeDefinition } from "../hb.NodeDefinitions/UserNodeDefinition"
 
 
 export const ChatNodeDefinition = defineNode('Chat', z.object({
