@@ -16,9 +16,3 @@ export const JobNodeDefinition = defineNode('Job',z.object({
         strength: 'strong',
         toNodeDefinition: CompanyNodeDefinition,
     })
-    .defineRelationship({
-        cardinality: 'many-to-one',
-        relationshipType: 'POSTED_BY',
-        strength: 'weak',
-        toNodeDefinition: _UserNodeDefinition,
-    })

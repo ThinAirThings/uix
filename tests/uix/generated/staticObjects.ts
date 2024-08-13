@@ -21,10 +21,20 @@ ConfiguredNodeDefinitionMap,
 'User',
 'BELONGS_TO'
 >
+export type POSTED_Job_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'POSTED'
+>
 export type SUPERVISOR_TO_User_Relationship = RelationshipMerge<
 ConfiguredNodeDefinitionMap,
 'User',
 'SUPERVISOR_TO'
+>
+export type SWIPED_ON_Job_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'SWIPED_ON'
 >
 export type CompanyNodeState = NodeState<ConfiguredNodeDefinitionMap['Company']>
 export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap['Job']> 
@@ -32,9 +42,4 @@ export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap['Job']>
 ConfiguredNodeDefinitionMap,
 'Job',
 'BELONGS_TO'
->
-export type POSTED_BY_User_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'Job',
-'POSTED_BY'
 >

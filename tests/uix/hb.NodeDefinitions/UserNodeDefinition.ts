@@ -21,6 +21,12 @@ export const _UserNodeDefinition = defineNode('User', z.object({
             accessLevel: z.enum(['admin', 'member', 'owner'])
         })
     })
+    .defineRelationship({
+        cardinality: 'many-to-one',
+        relationshipType: 'POSTED',
+        strength: 'weak',
+        toNodeDefinition: JobNodeDefinition,
+    })
 
 
 export const UserNodeDefinition = _UserNodeDefinition
