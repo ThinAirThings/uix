@@ -36,7 +36,7 @@ export type PreviousNodeTypeFromPath<
                 : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
         : NextNodeTypeFromPath<NodeDefinitionMap, PathType>
 
-export type ExtractOutputTreeOmitRelationshipMetadata<
+export type ExtractOutputTreeWithoutRelationshipMetadata<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     SubgraphDefinitionRef extends AnySubgraphDefinition,
     PathType extends keyof SubgraphDefinitionRef['subgraphPathDefinitionMap'],

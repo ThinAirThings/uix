@@ -1,14 +1,15 @@
 
+
 'use client'
 import { useQuery, useMutation, useQueryClient, skipToken } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
-import { validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries} from "@thinairthings/uix"
+import {  validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries, RelationshipKey, treeRecursion} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
 import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { produce, WritableDraft } from "immer"
-
+import _ from "lodash"
 
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useUix = <
@@ -17,7 +18,10 @@ export const useUix = <
         [UniqueIndex in ConfiguredNodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
     }),
     SubgraphDefinitionRef extends AnySubgraphDefinition,
-    Data extends (MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) | ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+    Data extends 
+        | MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType> 
+        | ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+    = ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>&MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType> 
 >({
     rootNodeIndex,
     defineSubgraph,
@@ -86,15 +90,16 @@ export const useUix = <
         } : skipToken
     })
     const subgraph = queryResult.data
-    const [draft, updateDraft] = useImmer(((initializeDraft && subgraph) 
+    const initialDraftRef = useRef(((initializeDraft && subgraph) 
         ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
         : subgraph
     ) as Data | undefined)
-    
+    const [draft, updateDraft] = useImmer(initialDraftRef.current)
     const [draftErrors, setDraftErrors] = useImmer({} as DraftErrorTree<Data>)
     const mutation = useMutation({
         mutationFn: async () => {
             if (!draft || !subgraph) return
+            if (_.isEqual(draft, initialDraftRef.current)) return
             await mergeSubgraph(draft as any)
             return null as any
         },
@@ -110,14 +115,44 @@ export const useUix = <
                 throw new Error('Invalid draft')
             }
             setDraftErrors({} as DraftErrorTree<Data>)
-            const previousSubgraphEntries = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
+            const subgraphsContainingDraft = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
             // Handle Caching
+            // Add Metadata To Draft
+            const draftWithMetadata = treeRecursion({
+                treeNode: JSON.parse((JSON.stringify(draft))) as any, 
+                operation: ({treeNode, relationshipKey, mapId, parentNodeMap}) => {
+                    const nodeType = relationshipKey?.split('-')[2]!.replace('>', '')
+                    if (nodeType) {treeNode['nodeType'] = nodeType}
+                    if (!treeNode['createdAt']) {treeNode['createdAt'] = Date.now()}
+                    if (!treeNode['updatedAt']) {treeNode['updatedAt'] = Date.now()}
+                    if (!treeNode['nodeId']) {treeNode['nodeId'] = mapId} else {
+                        if (!parentNodeMap) return 'continue'
+                        parentNodeMap[treeNode['nodeId']] = treeNode
+                        delete parentNodeMap[mapId!]
+                    } 
+                    return 'continue'
+                }
+            })
+            subgraphsContainingDraft && subgraphsContainingDraft.forEach(([paramString, subgraphContainingDraft]) => {
+                queryClient.setQueryData([JSON.parse(paramString)], produce(subgraphContainingDraft, (draftOfSubgraphContainingDraft) => {
+                    treeRecursion({
+                        treeNode: draftOfSubgraphContainingDraft, 
+                        operation: ({treeNode}) => {
+                            if (treeNode.nodeId === draft.nodeId) {
+                                Object.assign(treeNode, _.merge(JSON.parse((JSON.stringify(treeNode))), draftWithMetadata))
+                                return 'exit'
+                            }
+                            return 'continue'
+                        }
+                    })
+                }))
+            })
             // Send previous data for rollback
-            return {previousData: previousSubgraphEntries}
+            return {previousData: subgraphsContainingDraft}
         },
         onError: async (error, variables, context) => {
             console.error("ON ERROR", error)
@@ -134,6 +169,8 @@ export const useUix = <
                     queryKey: [JSON.parse(paramString)]
                 })
             })
+            // Note: You could do something to reduce networks calls here. On success you can assume the data is correct and update the cache
+            // without having to invalidate all the queries.
         }
     })
     useEffect(() => {
@@ -147,6 +184,10 @@ export const useUix = <
         ...queryResult,
         draft,
         draftErrors,
+        resetDraft: () => updateDraft(draft => {
+            if (!draft) return
+            Object.assign(draft, initialDraftRef.current)
+        }),
         updateDraft: (updater: (callbackDraft: WritableDraft<NonNullable<typeof draft>>) => void) => {
             if (!draft) return
             updateDraft(draft => {

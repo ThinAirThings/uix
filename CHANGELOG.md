@@ -1,5 +1,23 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.11
+
+### Minor Changes
+
+- Update caching layer and add draft reset
+
+## 4.0.0-next.10
+
+### Minor Changes
+
+- add detachment and deletion of nodes (rough draft)
+
+## 4.0.0-next.9
+
+### Patch Changes
+
+- remove relationship metadata on drafts
+
 ## 4.0.0-next.8
 
 ### Patch Changes

@@ -87,3 +87,29 @@ export const ProjectNodeDefinition = defineNode(
 ```
 
 The above example would be "You have ACCESS_TO a project".
+
+
+
+### To Do:
+- Add deletion mechanism
+- Rewrite the caching strategy to handle optimistic updates
+
+### What is the caching strategy:
+Basically, each nodeId is included in a map where the nodeId maps to a set of queryKeys. The idea here is that if you go and get a subgraph of data, upon receiving the set of all nodes in that query, each of the nodes are added to a cache map where the value of the entry in the map is the query key for each useUix query that referenced that node.
+
+After creating a new node via a draft, we need to optimistically update all the subgraphs which that node now becomes apart of. In order to handle this case, we would need to find all subgraphs which contain the previous related node and update it with the draft node. You would also need to assign a nodeId on the client side to handle this case. 
+
+If the previous node is found in a subgraph, you would invalidate the whole subgraph and optimistically update it. The best way to do this would be to optimistically update the tree and then invalidate it if a new reference is returned from Immer.
+
+So, once you've made an optimistic update to a previousNode, you'd go into the queryKeyCacheMap using the previousNode nodeId and then send the returned parameters into a 
+
+```ts
+type DraftTree = Record<string, any> | {
+  [relationshipType: string]: DraftTree
+}
+const findModifiedPaths = (draftNode: DraftTree) => {
+  const queryNode = queryClient.getQueryData(queryKeyCacheMap.get(draftNode.nodeId))
+}
+queryClient.invalidate([queryKeyCacheMap[previousNode.nodeId]])
+```
+

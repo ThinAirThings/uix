@@ -1,6 +1,6 @@
 import { ZodObject, ZodTypeAny } from "zod";
 import { ConfiguredNodeDefinitionMap } from "../uix/generated/staticObjects";
-import {AnySubgraphDefinition, ExtractOutputTree, MergeInputTree, NodeState, SubgraphDefinition, SubgraphPathDefinition} from "@thinairthings/uix"
+import {AnySubgraphDefinition, DeepPartial, ExtractOutputTree, MergeInputTree, NodeState, SubgraphDefinition, SubgraphPathDefinition} from "@thinairthings/uix"
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useUix } from "../uix/generated/useUix";
 import { FC, ReactNode } from "react";
@@ -14,7 +14,10 @@ export const renderUseUix = async <
         [UniqueIndex in ConfiguredNodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
     }),
     SubgraphDefinitionRef extends AnySubgraphDefinition,
-    Data extends (MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) | ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>= ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+    Data extends 
+        | (MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>) 
+        | ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>
+    = ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>&MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType> 
 >({
     rootNodeIndex,
     defineSubgraph,
@@ -36,7 +39,7 @@ export const renderUseUix = async <
         [K in keyof NodeState<ConfiguredNodeDefinitionMap[RootNodeType]>]: ZodTypeAny
     }>,
     initializeDraft?: (
-        data: ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>,
+        data: ExtractOutputTree<ConfiguredNodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>, 
         initialize: <T extends MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>>(freeze: T) => T
     ) => Data
 }, wrapper: FC<{children: ReactNode}>) => {

@@ -21,11 +21,7 @@ test('Query path test', async () => {
         .extendPath('User<-CONVERSATION_BETWEEN-Chat', '-CONVERSATION_BETWEEN->User')
     )
     writeFileSync('tests/extract:output.json', JSON.stringify(subgraph, null, 2))
-    if (subgraphError) throwTestError(subgraphError)
-    const thing1 = subgraph['-ACCESS_TO->Organization']?.map(node => {
-        console.log(node)
-        return node.ceo
-    })        
+    if (subgraphError) throwTestError(subgraphError)    
 })
 
 type Path1_Segment1 = 'User'

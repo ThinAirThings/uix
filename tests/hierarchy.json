@@ -1,375 +1,408 @@
 {
-  "createdAt": 1723225397108,
+  "createdAt": 1723406722229,
   "nodeType": "User",
-  "nodeId": "e433b955-6bc7-4447-a272-1b4aef03d9e7",
+  "nodeId": "d7c9d901-af70-47df-b135-5a8fcff8000a",
   "email": "root@root.com",
-  "updatedAt": 1723229613481,
+  "updatedAt": 1723406722229,
   "-ACCESS_TO->Organization": {
-    "ffcf800b-2464-4683-8dab-7c2304247f8c": {
-      "fromNodeId": "e433b955-6bc7-4447-a272-1b4aef03d9e7",
+    "9416c7d5-3a96-469c-888a-e41d3676ff1a": {
+      "fromNodeId": "d7c9d901-af70-47df-b135-5a8fcff8000a",
+      "fromNodeType": "User",
       "relationshipType": "ACCESS_TO",
       "accessLevel": "admin",
       "strength": "weak",
-      "createdAt": 1723226986602,
+      "createdAt": 1723406722229,
       "name": "hirebird",
       "ceo": "sam",
       "employees": 200,
       "nodeType": "Organization",
-      "nodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
-      "updatedAt": 1723229613481,
+      "nodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+      "updatedAt": 1723406722229,
       "<-ACCESS_TO-User": {
-        "68a19566-7adc-422f-962c-e3563823e04a": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "9e62f589-ded8-4990-ba26-11498118feac": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "68a19566-7adc-422f-962c-e3563823e04a",
+          "nodeId": "9e62f589-ded8-4990-ba26-11498118feac",
           "email": "L4_childC@L4.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "5637329d-c7d4-40e8-aa63-b4e2304315cb": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "92ce88c5-6ee3-455a-b895-3fb63123d9ce": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "5637329d-c7d4-40e8-aa63-b4e2304315cb",
+          "nodeId": "92ce88c5-6ee3-455a-b895-3fb63123d9ce",
           "email": "L3_childE@L3.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "68a19566-7adc-422f-962c-e3563823e04a": {
-              "fromNodeId": "5637329d-c7d4-40e8-aa63-b4e2304315cb",
+            "9e62f589-ded8-4990-ba26-11498118feac": {
+              "fromNodeId": "92ce88c5-6ee3-455a-b895-3fb63123d9ce",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "68a19566-7adc-422f-962c-e3563823e04a",
+              "nodeId": "9e62f589-ded8-4990-ba26-11498118feac",
               "email": "L4_childC@L4.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             }
           }
         },
-        "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "0f52c9af-8dd3-4625-a92e-f71808cec8c8": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9",
+          "nodeId": "0f52c9af-8dd3-4625-a92e-f71808cec8c8",
           "email": "L3_childD@L3.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "90469f02-7efb-4f05-b7c7-8913468b280f": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+          "nodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
           "email": "L2_childC@L2.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "5637329d-c7d4-40e8-aa63-b4e2304315cb": {
-              "fromNodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+            "92ce88c5-6ee3-455a-b895-3fb63123d9ce": {
+              "fromNodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "5637329d-c7d4-40e8-aa63-b4e2304315cb",
+              "nodeId": "92ce88c5-6ee3-455a-b895-3fb63123d9ce",
               "email": "L3_childE@L3.com",
-              "updatedAt": 1723229613481,
+              "updatedAt": 1723406722229,
               "-SUPERVISOR_TO->User": {
-                "68a19566-7adc-422f-962c-e3563823e04a": {
-                  "fromNodeId": "5637329d-c7d4-40e8-aa63-b4e2304315cb",
+                "9e62f589-ded8-4990-ba26-11498118feac": {
+                  "fromNodeId": "92ce88c5-6ee3-455a-b895-3fb63123d9ce",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "68a19566-7adc-422f-962c-e3563823e04a",
+                  "nodeId": "9e62f589-ded8-4990-ba26-11498118feac",
                   "email": "L4_childC@L4.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 }
               }
             },
-            "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9": {
-              "fromNodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+            "0f52c9af-8dd3-4625-a92e-f71808cec8c8": {
+              "fromNodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9",
+              "nodeId": "0f52c9af-8dd3-4625-a92e-f71808cec8c8",
               "email": "L3_childD@L3.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             }
           }
         },
-        "ac0eb48d-4798-462d-b91f-c5513a8ce772": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "d67a13d3-cb93-4696-b9ea-4ad138ff692f": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723225397108,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "ac0eb48d-4798-462d-b91f-c5513a8ce772",
+          "nodeId": "d67a13d3-cb93-4696-b9ea-4ad138ff692f",
           "email": "L1_childB@L1.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61": {
-              "fromNodeId": "ac0eb48d-4798-462d-b91f-c5513a8ce772",
+            "90469f02-7efb-4f05-b7c7-8913468b280f": {
+              "fromNodeId": "d67a13d3-cb93-4696-b9ea-4ad138ff692f",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+              "nodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
               "email": "L2_childC@L2.com",
-              "updatedAt": 1723229613481,
+              "updatedAt": 1723406722229,
               "-SUPERVISOR_TO->User": {
-                "5637329d-c7d4-40e8-aa63-b4e2304315cb": {
-                  "fromNodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+                "92ce88c5-6ee3-455a-b895-3fb63123d9ce": {
+                  "fromNodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "5637329d-c7d4-40e8-aa63-b4e2304315cb",
+                  "nodeId": "92ce88c5-6ee3-455a-b895-3fb63123d9ce",
                   "email": "L3_childE@L3.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 },
-                "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9": {
-                  "fromNodeId": "9cfa1bbb-eb18-48d6-8a6b-735ce978ad61",
+                "0f52c9af-8dd3-4625-a92e-f71808cec8c8": {
+                  "fromNodeId": "90469f02-7efb-4f05-b7c7-8913468b280f",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "1eaef5c4-310f-42e7-9fe4-f9bf62a9e3e9",
+                  "nodeId": "0f52c9af-8dd3-4625-a92e-f71808cec8c8",
                   "email": "L3_childD@L3.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 }
               }
             }
           }
         },
-        "76922d34-e7fb-456c-b87b-3261496f17e3": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "76922d34-e7fb-456c-b87b-3261496f17e3",
+          "nodeId": "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a",
           "email": "L3_childC@L3.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "c2000afa-0737-4564-b34e-758a40755e25": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "cf758abd-17b1-4610-8f87-a259a55b4147": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "c2000afa-0737-4564-b34e-758a40755e25",
+          "nodeId": "cf758abd-17b1-4610-8f87-a259a55b4147",
           "email": "L2_childB@L2.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "76922d34-e7fb-456c-b87b-3261496f17e3": {
-              "fromNodeId": "c2000afa-0737-4564-b34e-758a40755e25",
+            "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a": {
+              "fromNodeId": "cf758abd-17b1-4610-8f87-a259a55b4147",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "76922d34-e7fb-456c-b87b-3261496f17e3",
+              "nodeId": "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a",
               "email": "L3_childC@L3.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             }
           }
         },
-        "be0ed75e-cb7c-4404-b1b2-faae2c55095d": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "7f41e570-e505-4e41-8e76-86b81ec7a79c": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "be0ed75e-cb7c-4404-b1b2-faae2c55095d",
+          "nodeId": "7f41e570-e505-4e41-8e76-86b81ec7a79c",
           "email": "L3_childB@L3.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "6b89da4f-4982-4e74-a654-54a9312c6b5c": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "d03286a1-9219-46a8-a7c0-86fc1024f969": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "6b89da4f-4982-4e74-a654-54a9312c6b5c",
+          "nodeId": "d03286a1-9219-46a8-a7c0-86fc1024f969",
           "email": "L4_childB@L4.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "1b386b1a-ab43-4da8-9ee8-61c99a12dec3": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "a34aa226-bb6e-4fe8-a4eb-a629e612084e": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "1b386b1a-ab43-4da8-9ee8-61c99a12dec3",
+          "nodeId": "a34aa226-bb6e-4fe8-a4eb-a629e612084e",
           "email": "L4_childA@L4.com",
-          "updatedAt": 1723229613481
+          "updatedAt": 1723406722229
         },
-        "9d226db1-42a8-4f63-9f0d-ab8007c688b5": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "05de4be3-fe59-4b77-939d-1445dcb64530": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+          "nodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
           "email": "L3_childA@L3.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "6b89da4f-4982-4e74-a654-54a9312c6b5c": {
-              "fromNodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+            "d03286a1-9219-46a8-a7c0-86fc1024f969": {
+              "fromNodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "6b89da4f-4982-4e74-a654-54a9312c6b5c",
+              "nodeId": "d03286a1-9219-46a8-a7c0-86fc1024f969",
               "email": "L4_childB@L4.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             },
-            "1b386b1a-ab43-4da8-9ee8-61c99a12dec3": {
-              "fromNodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+            "a34aa226-bb6e-4fe8-a4eb-a629e612084e": {
+              "fromNodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "1b386b1a-ab43-4da8-9ee8-61c99a12dec3",
+              "nodeId": "a34aa226-bb6e-4fe8-a4eb-a629e612084e",
               "email": "L4_childA@L4.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             }
           }
         },
-        "8fa85019-2b67-4bd6-b250-d5f4b917803b": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "f6843153-f235-42ea-83a6-4ac953d0244d": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723226691471,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+          "nodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
           "email": "L2_childA@L2.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "be0ed75e-cb7c-4404-b1b2-faae2c55095d": {
-              "fromNodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+            "7f41e570-e505-4e41-8e76-86b81ec7a79c": {
+              "fromNodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "be0ed75e-cb7c-4404-b1b2-faae2c55095d",
+              "nodeId": "7f41e570-e505-4e41-8e76-86b81ec7a79c",
               "email": "L3_childB@L3.com",
-              "updatedAt": 1723229613481
+              "updatedAt": 1723406722229
             },
-            "9d226db1-42a8-4f63-9f0d-ab8007c688b5": {
-              "fromNodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+            "05de4be3-fe59-4b77-939d-1445dcb64530": {
+              "fromNodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+              "nodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
               "email": "L3_childA@L3.com",
-              "updatedAt": 1723229613481,
+              "updatedAt": 1723406722229,
               "-SUPERVISOR_TO->User": {
-                "6b89da4f-4982-4e74-a654-54a9312c6b5c": {
-                  "fromNodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+                "d03286a1-9219-46a8-a7c0-86fc1024f969": {
+                  "fromNodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "6b89da4f-4982-4e74-a654-54a9312c6b5c",
+                  "nodeId": "d03286a1-9219-46a8-a7c0-86fc1024f969",
                   "email": "L4_childB@L4.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 },
-                "1b386b1a-ab43-4da8-9ee8-61c99a12dec3": {
-                  "fromNodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+                "a34aa226-bb6e-4fe8-a4eb-a629e612084e": {
+                  "fromNodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "1b386b1a-ab43-4da8-9ee8-61c99a12dec3",
+                  "nodeId": "a34aa226-bb6e-4fe8-a4eb-a629e612084e",
                   "email": "L4_childA@L4.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 }
               }
             }
           }
         },
-        "7f5cd248-e55f-45c7-bf9b-d096cb586408": {
-          "fromNodeId": "ffcf800b-2464-4683-8dab-7c2304247f8c",
+        "acedef0a-bf77-4d82-a3eb-5ff1850f1b93": {
+          "fromNodeId": "9416c7d5-3a96-469c-888a-e41d3676ff1a",
+          "fromNodeType": "Organization",
           "relationshipType": "ACCESS_TO",
           "accessLevel": "admin",
           "strength": "weak",
-          "createdAt": 1723225397108,
+          "createdAt": 1723406722229,
           "nodeType": "User",
-          "nodeId": "7f5cd248-e55f-45c7-bf9b-d096cb586408",
+          "nodeId": "acedef0a-bf77-4d82-a3eb-5ff1850f1b93",
           "email": "L1_childA@L1.com",
-          "updatedAt": 1723229613481,
+          "updatedAt": 1723406722229,
           "-SUPERVISOR_TO->User": {
-            "c2000afa-0737-4564-b34e-758a40755e25": {
-              "fromNodeId": "7f5cd248-e55f-45c7-bf9b-d096cb586408",
+            "cf758abd-17b1-4610-8f87-a259a55b4147": {
+              "fromNodeId": "acedef0a-bf77-4d82-a3eb-5ff1850f1b93",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "c2000afa-0737-4564-b34e-758a40755e25",
+              "nodeId": "cf758abd-17b1-4610-8f87-a259a55b4147",
               "email": "L2_childB@L2.com",
-              "updatedAt": 1723229613481,
+              "updatedAt": 1723406722229,
               "-SUPERVISOR_TO->User": {
-                "76922d34-e7fb-456c-b87b-3261496f17e3": {
-                  "fromNodeId": "c2000afa-0737-4564-b34e-758a40755e25",
+                "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a": {
+                  "fromNodeId": "cf758abd-17b1-4610-8f87-a259a55b4147",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "76922d34-e7fb-456c-b87b-3261496f17e3",
+                  "nodeId": "1b6a67ca-eced-4fa6-a2cc-c51ea2c74d4a",
                   "email": "L3_childC@L3.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 }
               }
             },
-            "8fa85019-2b67-4bd6-b250-d5f4b917803b": {
-              "fromNodeId": "7f5cd248-e55f-45c7-bf9b-d096cb586408",
+            "f6843153-f235-42ea-83a6-4ac953d0244d": {
+              "fromNodeId": "acedef0a-bf77-4d82-a3eb-5ff1850f1b93",
+              "fromNodeType": "User",
               "relationshipType": "SUPERVISOR_TO",
               "strength": "weak",
-              "createdAt": 1723226691471,
+              "createdAt": 1723406722229,
               "nodeType": "User",
-              "nodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+              "nodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
               "email": "L2_childA@L2.com",
-              "updatedAt": 1723229613481,
+              "updatedAt": 1723406722229,
               "-SUPERVISOR_TO->User": {
-                "be0ed75e-cb7c-4404-b1b2-faae2c55095d": {
-                  "fromNodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+                "7f41e570-e505-4e41-8e76-86b81ec7a79c": {
+                  "fromNodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "be0ed75e-cb7c-4404-b1b2-faae2c55095d",
+                  "nodeId": "7f41e570-e505-4e41-8e76-86b81ec7a79c",
                   "email": "L3_childB@L3.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 },
-                "9d226db1-42a8-4f63-9f0d-ab8007c688b5": {
-                  "fromNodeId": "8fa85019-2b67-4bd6-b250-d5f4b917803b",
+                "05de4be3-fe59-4b77-939d-1445dcb64530": {
+                  "fromNodeId": "f6843153-f235-42ea-83a6-4ac953d0244d",
+                  "fromNodeType": "User",
                   "relationshipType": "SUPERVISOR_TO",
                   "strength": "weak",
-                  "createdAt": 1723226691471,
+                  "createdAt": 1723406722229,
                   "nodeType": "User",
-                  "nodeId": "9d226db1-42a8-4f63-9f0d-ab8007c688b5",
+                  "nodeId": "05de4be3-fe59-4b77-939d-1445dcb64530",
                   "email": "L3_childA@L3.com",
-                  "updatedAt": 1723229613481
+                  "updatedAt": 1723406722229
                 }
               }
             }
