@@ -42,7 +42,7 @@ export class SubgraphDefinition<
         pathType: PathType,
         relationship: Relationship
     ){
-        const nodeDefinition = this.pathDefinitionSet.find(path => path.pathType === pathType)!
+        if (this.pathDefinitionSet.some(path => path.pathType === pathType+relationship)) return this
         this.pathDefinitionSet = [
             ...this.pathDefinitionSet.filter(node => node.pathType !== pathType)
         ] as any

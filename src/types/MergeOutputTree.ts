@@ -1,8 +1,10 @@
-import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition";
+import { AnyNodeDefinitionMap, GenericNodeShape, NodeShape } from "../definitions/NodeDefinition";
 import { AnyRelationshipDefinition, RelationshipState } from "../definitions/RelationshipDefinition";
 import { MergeInputTree } from "./MergeInputTree";
 
-
+export type GenericMergeOutputTree = GenericNodeShape | {
+    [key: string]: GenericMergeOutputTree
+}
 
 
 export type MergeOutputTree<

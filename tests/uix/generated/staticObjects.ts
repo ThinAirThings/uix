@@ -14,6 +14,7 @@ export type NodeKey<T extends keyof ConfiguredNodeDefinitionMap> = {
 export type UserNode = NodeShape<ConfiguredNodeDefinitionMap['User']> 
 export type CompanyNode = NodeShape<ConfiguredNodeDefinitionMap['Company']> 
 export type JobNode = NodeShape<ConfiguredNodeDefinitionMap['Job']> 
+export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap['Message']> 
 
 export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
     export type BELONGS_TO_Company_Relationship = RelationshipMerge<
@@ -42,4 +43,10 @@ export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap['Job']>
 ConfiguredNodeDefinitionMap,
 'Job',
 'BELONGS_TO'
+>
+export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap['Message']> 
+    export type SENT_BY_User_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'Message',
+'SENT_BY'
 >

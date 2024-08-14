@@ -16,7 +16,6 @@ export * from './types/ConcreteMergeInputTree'
 // // Function
 export * from './fns/mergeSubgraphFactory'
 export * from './fns/extractSubgraphFactory'
-export * from './fns/extractSubgraphFactoryv2'
 
 // Utilities
 export * from './utilities/index'

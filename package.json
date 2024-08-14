@@ -1,7 +1,7 @@
 {
     "name": "@thinairthings/uix",
     "author": "Dan Lannan",
-    "version": "4.0.0-next.11",
+    "version": "4.0.0-next.15",
     "type": "module",
     "types": "./dist/lib/index.d.ts",
     "bin": {
@@ -15,6 +15,7 @@
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
         "test:merge:hb": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hb.merge --test-timeout=100000",
+        "test:useUix:hb": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hb.useUix --test-timeout=100000",
         "test:extract:hb": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run hb.extract --test-timeout=100000",
         "test:full": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run full --test-timeout=100000",
         "test:cache": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run cache --test-timeout=100000",

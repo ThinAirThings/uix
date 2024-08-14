@@ -10,7 +10,6 @@ import { removeRelationshipEntries } from "../utilities/removeRelationshipEntrie
 import { getRelationshipEntries } from "../utilities/getRelationshipEntries"
 import { MergeInputTree } from "../types/MergeInputTree"
 import { MergeOutputTree } from "../types/MergeOutputTree"
-import { writeFileSync } from "fs"
 
 
 
@@ -187,7 +186,7 @@ export const mergeSubgraphFactory = <
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
-    writeFileSync('tests/merge:queryString.cypher', queryString)
+    // writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
     } & {

@@ -7,9 +7,10 @@ import {  validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDef
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
 import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { produce, WritableDraft } from "immer"
 import _ from "lodash"
+import {v4 as uuid} from 'uuid'
 
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useUix = <
@@ -48,7 +49,7 @@ export const useUix = <
     ) => Data
 }) => {
     const queryClient = useQueryClient()
-    const queryResult = useQuery({
+    const {data, isPending} = useQuery({
         queryKey: rootNodeIndex ? [{
             rootNodeIndex: {
                 nodeType: rootNodeIndex.nodeType,
@@ -86,10 +87,15 @@ export const useUix = <
                 })
             }
             addNodeToCache(subgraph)
+            initialDraftRef.current = ((initializeDraft && subgraph) 
+                ? initializeDraft(result.data, (initializedDraft) => initializedDraft) 
+                : subgraph
+            ) as any
+            updateDraft(initialDraftRef.current)
             return result.data 
         } : skipToken
     })
-    const subgraph = queryResult.data
+    const subgraph = data
     const initialDraftRef = useRef(((initializeDraft && subgraph) 
         ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
         : subgraph
@@ -97,11 +103,9 @@ export const useUix = <
     const [draft, updateDraft] = useImmer(initialDraftRef.current)
     const [draftErrors, setDraftErrors] = useImmer({} as DraftErrorTree<Data>)
     const mutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (data:Data) => {
             if (!draft || !subgraph) return
-            if (_.isEqual(draft, initialDraftRef.current)) return
-            await mergeSubgraph(draft as any)
-            return null as any
+            return await mergeSubgraph(data as any)
         },
         onMutate: async () => {
             if (!draft || !subgraph) return
@@ -114,13 +118,14 @@ export const useUix = <
                 setDraftErrors(errorSet)
                 throw new Error('Invalid draft')
             }
-            setDraftErrors({} as DraftErrorTree<Data>)
+            !_.isEqual(draftErrors, {}) && setDraftErrors({} as DraftErrorTree<Data>)
             const subgraphsContainingDraft = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
             // Handle Caching
+            console.log("Running optimistic update")
             // Add Metadata To Draft
             const draftWithMetadata = treeRecursion({
                 treeNode: JSON.parse((JSON.stringify(draft))) as any, 
@@ -162,7 +167,8 @@ export const useUix = <
                 queryClient.setQueryData([JSON.parse(paramString)], previousSubgraph)
             })
         },
-        onSuccess: () => {
+        onSuccess: (result) => {
+            console.log("Result", result)
             if (!draft) return
             cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
@@ -174,30 +180,50 @@ export const useUix = <
         }
     })
     useEffect(() => {
-        if (!subgraph || mutation.isPending) return
-        updateDraft(((initializeDraft && subgraph) 
+        if (!subgraph || mutation.isPending || _.isEqual(initialDraftRef.current, subgraph)) return
+        initialDraftRef.current = ((initializeDraft && subgraph) 
             ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
             : subgraph
-        ) as any)
+        ) as any
+        updateDraft(initialDraftRef.current as any)
     }, [subgraph])
     return {
-        ...queryResult,
+        data,
+        isPending,
         draft,
+        draftDidChange: !_.isEqual(draft, initialDraftRef.current),
         draftErrors,
-        resetDraft: () => updateDraft(draft => {
+        isCommitPending: mutation.isPending,
+        isCommitSuccessful: mutation.isSuccess,
+        isCommitError: mutation.isError,
+        resetDraft: useCallback(() => updateDraft(draft => {
             if (!draft) return
             Object.assign(draft, initialDraftRef.current)
-        }),
-        updateDraft: (updater: (callbackDraft: WritableDraft<NonNullable<typeof draft>>) => void) => {
+        }), [draft]),
+        updateDraft: useCallback((updater: (callbackDraft: WritableDraft<NonNullable<typeof draft>>) => void) => {
             if (!draft) return
             updateDraft(draft => {
                 updater(draft as any)
             })
-        },
-        isCommitPending: mutation.isPending,
-        isCommitSuccessful: mutation.isSuccess,
-        isCommitError: mutation.isError,
-        commitDraft: (options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(undefined, options)
+        }, [draft]),
+        commit: useCallback(
+            (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
+                mutation.mutate(treeRecursion({
+                    treeNode: JSON.parse((JSON.stringify(data))) as any, 
+                    operation: ({treeNode, relationshipKey, mapId, parentNodeMap}) => {
+                        const nodeType = relationshipKey?.split('-')[2]!.replace('>', '')
+                        if (nodeType) {treeNode['nodeType'] = nodeType}
+                        if (!treeNode['createdAt']) {treeNode['createdAt'] = Date.now()}
+                        if (!treeNode['updatedAt']) {treeNode['updatedAt'] = Date.now()}
+                        if (!treeNode['nodeId']) {treeNode['nodeId'] = uuid()}
+                        if (!parentNodeMap) return 'continue'
+                        parentNodeMap[treeNode['nodeId']] = treeNode
+                        delete parentNodeMap[mapId!]
+                        return 'continue'
+                    }
+                }), options)
+            }
+        , [mutation.mutate])
     }
 }
 

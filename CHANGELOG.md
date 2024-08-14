@@ -1,5 +1,29 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.15
+
+### Patch Changes
+
+- fix: use require instead of dynamic import
+
+## 4.0.0-next.14
+
+### Patch Changes
+
+- fix: fs imports
+
+## 4.0.0-next.13
+
+### Patch Changes
+
+- fix bug in extractSubgraph not allowing parallel calls
+
+## 4.0.0-next.12
+
+### Minor Changes
+
+- update the api for useUix commit
+
 ## 4.0.0-next.11
 
 ### Minor Changes

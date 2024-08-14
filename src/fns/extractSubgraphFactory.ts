@@ -5,14 +5,10 @@ import { AnySubgraphDefinition, GenericSubgraphDefinition, SubgraphDefinition } 
 import { Ok, UixErr } from "../types/Result";
 import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition";
 import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
-import { EagerResult, Integer, Node, Path, Relationship } from "neo4j-driver";
-import { writeFileSync } from "fs";
+import { EagerResult, Integer, Node, Path, PathSegment, Relationship } from "neo4j-driver";
 import { ExtractOutputTree } from "../types/ExtractOutputTree";
 
 
-export type GenericMergeOutputTree = GenericNodeShape | {
-    [key: string]: GenericMergeOutputTree
-}
 
 export const extractSubgraphFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
@@ -92,81 +88,67 @@ export const extractSubgraphFactory = <
         })
     }
     buildTree(subgraph, rootNode.nodeType as string, `(${rootVariable})`, '0')
-    queryString += dedent/*cypher*/`
-        return ${variableList.join(', ')}
-    `
-    const resultTree = await neo4jDriver().executeQuery<EagerResult<{
-        [Key: `p_${string}`]: Path<Integer>
-    } & {
-        [Key: `r_${string}`]: Relationship<Integer, GenericRelationshipShape>
-    } & {
-        [Key: `n_${string}`]: Node<Integer, GenericNodeShape>
-    }>>(queryString).then(result => {
-        // writeFileSync('tests/extract:records.json', JSON.stringify(result.records, null, 2))
-        // writeFileSync('tests/extract:queryString.cypher', queryString)
-        console.log('result.records', result.records.length)
-        const records = result.records
-        const rootNode = records?.[0]?.get(rootVariable)?.properties 
-        if (!rootNode) return null
-        const buildTree = (
-            node: GenericNodeShape & {
-                [r:string]: {
-                    [id: string]: GenericNodeShape
-                }
-            }, 
-            pathIndex: `p_${string}`
-        ) => {
-            const nextPathIndexSet = variableList.filter(variable => 
-                variable.startsWith(pathIndex)
-                && pathIndex.split('_').length === variable.split('_').length - 1
-            ) as `p_${string}`[]
-            
-            nextPathIndexSet.forEach(nextPathIndex => {
-                records.forEach(record => {
-                    const segments = record.get(nextPathIndex)?.segments
-                    if (!segments) return
-                    const nextPath = segments[segments.length-1]!
-                    const relationship = nextPath.relationship as Relationship<Integer, GenericRelationshipShape>
-                    const rightEndcap = relationship.start === nextPath.start.identity  ? '->' : '-'
-                    const leftEndcap = relationship.start === nextPath.end.identity ? '<-' : '-'
-                    const nextNode = nextPath.end.properties as GenericNodeShape
-                    const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
-                    const nextNodeMerged = {
-                        fromNodeId: node.nodeId,
-                        fromNodeType: node.nodeType,
-                        ...relationship.properties,
-                        ...nextNode,
-                    }
-                    // Check if the previous node is the same as the current node
-                    const previousPath = nextPathIndex.split('_').slice(0, -1).join('_') as `p_${string}`
-                    if (previousPath && previousPath !== 'p_0') {
-                        const previousNode = record.get(previousPath)?.end.properties as GenericNodeShape
-                        if (previousNode.nodeId !== node.nodeId) return
-                    }
-                    node[relationshipKey] = node[relationshipKey] 
-                    ? {
-                        ...node[relationshipKey],
-                        // ...Object.fromEntries(nodeDefinitionMap[nextNodeMerged.nodeType]!.uniqueIndexes
-                        //     .map((index: any) => [nextNodeMerged[index as keyof typeof nextNodeMerged], nextNodeMerged])
-                        // )
-                        [nextNodeMerged.nodeId]: nextNodeMerged
-                    }
-                    :{
-                        // ...Object.fromEntries(nodeDefinitionMap[nextNodeMerged.nodeType]!.uniqueIndexes
-                        //     .map((index: any) => [nextNodeMerged[index as keyof typeof nextNodeMerged], nextNodeMerged])
-                        // )
-                        [nextNodeMerged.nodeId]: nextNodeMerged
-                    }
-                    buildTree(nextNodeMerged as any, nextPathIndex as `p_${string}`)
-                })
-            })
-            return node
+    const filteredVariableList = variableList.filter(v => v.includes('n'))
+    const findLongestPaths = (variableList: string[], paths: string[]=[]) => {
+        if (variableList.length < 2  ) {
+            paths.push(variableList[0]!)
+            return
         }
-        const rootStringIndex = `p_0`
-        buildTree(rootNode as any, rootStringIndex)
-        return rootNode
+        if (variableList[1]!.split('_').length > variableList[0]!.split('_').length) {
+            findLongestPaths(variableList.slice(1), paths)
+        } else {
+            paths.push(variableList[0]!)
+            findLongestPaths(variableList.slice(1), paths)
+        }
+        return paths
+    }
+    const longestPathSet = findLongestPaths(filteredVariableList)
+    queryString += dedent/*cypher*/`
+        with n_0 ${longestPathSet ? `, ${longestPathSet.map((path, idx) => `collect(${path.replace('n', 'p')}) as p_${idx}`).join(', ')}` : ''}
+        return n_0 ${longestPathSet ? `, ${longestPathSet.map((_, idx) => `p_${idx}`).join('+')} as pathSet` : ''}
+    `
+    
+    const resultTree = await neo4jDriver().executeQuery<EagerResult<{
+        pathSet: Path<Integer>[]
+        n_0: Node<Integer, GenericNodeShape>
+    }>>(queryString).then(result => {
+        const records = result.records
+        type TreeNode = GenericNodeShape & RelationshipState<any> & {
+            [r:string]: {
+                [id: string]: GenericNodeShape
+            }
+        }
+        const rootNodeRef = records?.[0]?.get(rootVariable)?.properties as TreeNode
+        const pathSet = records?.[0]?.has('pathSet') && records[0].get('pathSet') as Path<Integer>[]
+        if (!rootNodeRef) return null
+        if (!pathSet) return rootNodeRef
+        pathSet.forEach((path) => {
+            const buildTree = (node: TreeNode, pathSegment: PathSegment<Integer> | undefined) => {
+                if(!pathSegment) return node
+                const relationship = pathSegment.relationship as Relationship<Integer, GenericRelationshipShape>
+                const rightEndcap = relationship.start === pathSegment.start.identity  ? '->' : '-'
+                const leftEndcap = relationship.start === pathSegment.end.identity ? '<-' : '-'
+                const nextNode = pathSegment.end.properties as GenericNodeShape
+                const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
+                if (!node[relationshipKey]) node[relationshipKey] = {}
+                node[relationshipKey][nextNode.nodeId] = node[relationshipKey][nextNode.nodeId] ?? {
+                    fromNodeId: node.nodeId,
+                    fromNodeType: node.nodeType,
+                    ...relationship.properties,
+                    ...nextNode,
+                }
+                return buildTree(node[relationshipKey][nextNode.nodeId] as TreeNode, path.segments.shift())
+            }
+            buildTree(rootNodeRef, path.segments.shift())
+        })
+
+        return rootNodeRef
     })
-    // writeFileSync('tests/extract:queryString.cypher', queryString)
+    if (process.env.TEST_ENV === "true") {
+        const fs = require('fs')
+        fs.writeFileSync('tests/extract:queryString.cypher', queryString)
+        fs.writeFileSync('tests/extract:resultTree.json', JSON.stringify(resultTree, null, 2))
+    }
     if (!resultTree) return UixErr({
         subtype: 'ExpectedRuntimeError',
         message: "The root node requested was not found. This is likely due to it not existing in the database.",

@@ -49,6 +49,11 @@ test('Integration test', async () => {
                     })(),
                 }
             }, 
+        },
+        '<-SENT_BY-Message': {
+            'draft1': {
+                text: 'Hello, world!'
+            }
         }
     } as const) 
     if (createUserNodeError) throwTestError(createUserNodeError)
