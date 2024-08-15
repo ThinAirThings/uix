@@ -15,6 +15,7 @@ export type UserNode = NodeShape<ConfiguredNodeDefinitionMap['User']>
 export type CompanyNode = NodeShape<ConfiguredNodeDefinitionMap['Company']> 
 export type JobNode = NodeShape<ConfiguredNodeDefinitionMap['Job']> 
 export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap['Message']> 
+export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap['Project']> 
 
 export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
     export type BELONGS_TO_Company_Relationship = RelationshipMerge<
@@ -49,4 +50,10 @@ export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap['Message']>
 ConfiguredNodeDefinitionMap,
 'Message',
 'SENT_BY'
+>
+export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap['Project']> 
+    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'Project',
+'BELONGS_TO'
 >

@@ -1,17 +1,17 @@
 
 
 export const useUixTemplate = () => /*ts*/`
-
 'use client'
 import { useQuery, useMutation, useQueryClient, skipToken } from "@tanstack/react-query"
 import { ConfiguredNodeDefinitionMap, nodeDefinitionMap } from "./staticObjects"
-import {  validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries, RelationshipKey, treeRecursion} from "@thinairthings/uix"
+import {  validateDraftSchema, DraftErrorTree, AnyNodeDefinitionMap, SubgraphDefinition, SubgraphPathDefinition, QueryError, GenericMergeOutputTree, AnySubgraphDefinition, NodeState, ExtractOutputTree, MergeInputTree, getRelationshipEntries, RelationshipKey, treeRecursion, testEnvLog, GenericNodeShape} from "@thinairthings/uix"
 import { extractSubgraph, mergeSubgraph } from "./functionModule"
-import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue } from "zod"
+import { ZodObject, ZodTypeAny, z, AnyZodObject, ZodIssue, custom } from "zod"
 import { useImmer } from "@thinairthings/use-immer"
 import { useCallback, useEffect, useRef } from "react"
 import { produce, WritableDraft } from "immer"
 import _ from "lodash"
+import {v4 as uuid} from 'uuid'
 
 export const cacheKeyMap = new Map<string, Set<string>>()
 export const useUix = <
@@ -50,7 +50,7 @@ export const useUix = <
     ) => Data
 }) => {
     const queryClient = useQueryClient()
-    const {data, isPending} = useQuery({
+    const {data, isPending, isError} = useQuery({
         queryKey: rootNodeIndex ? [{
             rootNodeIndex: {
                 nodeType: rootNodeIndex.nodeType,
@@ -74,7 +74,7 @@ export const useUix = <
             const result = await extractSubgraph(params!.rootNodeIndex, params!.subgraphDefinition)
             if (result.error) throw new QueryError(result.error)
             const subgraph = result.data as GenericMergeOutputTree
-            const addNodeToCache = (node: GenericMergeOutputTree) => {
+            ((addNodeToCache=(node: GenericMergeOutputTree) => {
                 cacheKeyMap.set(
                     node.nodeId as string, 
                     cacheKeyMap.get(node.nodeId as string) 
@@ -86,8 +86,7 @@ export const useUix = <
                         addNodeToCache(value as GenericMergeOutputTree)
                     })
                 })
-            }
-            addNodeToCache(subgraph)
+            })=> addNodeToCache(subgraph))()
             initialDraftRef.current = ((initializeDraft && subgraph) 
                 ? initializeDraft(result.data, (initializedDraft) => initializedDraft) 
                 : subgraph
@@ -104,52 +103,45 @@ export const useUix = <
     const [draft, updateDraft] = useImmer(initialDraftRef.current)
     const [draftErrors, setDraftErrors] = useImmer({} as DraftErrorTree<Data>)
     const mutation = useMutation({
-        mutationFn: async (data:Data) => {
-            if (!draft || !subgraph) return
-            await mergeSubgraph(data as any)
-            return null as any
+        mutationFn: async (mergeInput:Data) => {
+            const {data, error} = await mergeSubgraph(mergeInput as any)
+            if (error) throw new QueryError(error)
+            return data
         },
-        onMutate: async () => {
-            if (!draft || !subgraph) return
-            const errorSet = validateDraftSchema<Data>(
-                modifySchema?.(createNestedZodSchema(nodeDefinitionMap, draft as any) as any)
-                ?? createNestedZodSchema(nodeDefinitionMap, draft as any),
-                draft
-            )
-            if (errorSet) {
-                setDraftErrors(errorSet)
-                throw new Error('Invalid draft')
-            }
-            setDraftErrors({} as DraftErrorTree<Data>)
-            const subgraphsContainingDraft = cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()]
+        onMutate: async (mergeInputTree: Data) => {
+            const cachedTreeSet = cacheKeyMap.has(mergeInputTree.nodeId as string) && [...cacheKeyMap.get(mergeInputTree.nodeId as string)!.values()]
                 .map(paramString => [
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
             // Handle Caching
-            // Add Metadata To Draft
-            const draftWithMetadata = treeRecursion({
-                treeNode: JSON.parse((JSON.stringify(draft))) as any, 
-                operation: ({treeNode, relationshipKey, mapId, parentNodeMap}) => {
-                    const nodeType = relationshipKey?.split('-')[2]!.replace('>', '')
-                    if (nodeType) {treeNode['nodeType'] = nodeType}
-                    if (!treeNode['createdAt']) {treeNode['createdAt'] = Date.now()}
-                    if (!treeNode['updatedAt']) {treeNode['updatedAt'] = Date.now()}
-                    if (!treeNode['nodeId']) {treeNode['nodeId'] = mapId} else {
+            const mergeInputTreePostDeletion = treeRecursion({
+                treeNode: structuredClone(mergeInputTree) as GenericNodeShape & {detach?:boolean, delete?:boolean},
+                operation: ({treeNode: mergeInputNode, parentNodeMap}) => {
+                    if (mergeInputNode['delete'] || mergeInputNode['detach']) {
                         if (!parentNodeMap) return 'continue'
-                        parentNodeMap[treeNode['nodeId']] = treeNode
-                        delete parentNodeMap[mapId!]
-                    } 
+                        delete parentNodeMap[mergeInputNode.nodeId]
+                    }
                     return 'continue'
                 }
             })
-            subgraphsContainingDraft && subgraphsContainingDraft.forEach(([paramString, subgraphContainingDraft]) => {
-                queryClient.setQueryData([JSON.parse(paramString)], produce(subgraphContainingDraft, (draftOfSubgraphContainingDraft) => {
+            updateDraft(mergeInputTreePostDeletion as any)
+            cachedTreeSet && cachedTreeSet.forEach(([paramString, cachedTree]) => {
+                queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
-                        treeNode: draftOfSubgraphContainingDraft, 
-                        operation: ({treeNode}) => {
-                            if (treeNode.nodeId === draft.nodeId) {
-                                Object.assign(treeNode, _.merge(JSON.parse((JSON.stringify(treeNode))), draftWithMetadata))
+                        treeNode: cachedTreeDraft, 
+                        operation: ({treeNode: cachedTreeNodeDraft}) => {
+                            if (cachedTreeNodeDraft.nodeId === mergeInputTree.nodeId) {
+                                Object.assign(cachedTreeNodeDraft, _.mergeWith(
+                                    JSON.parse((JSON.stringify(cachedTreeNodeDraft))
+                                ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
+                                    if (_.isObject(cachedNode) && _.isObject(inputNode)) {
+                                        _.difference(Object.keys(cachedNode), Object.keys(inputNode)).forEach(key => {
+                                            delete cachedNode[key]
+                                        })
+                                        return _.mergeWith(cachedNode, inputNode, customMerge)
+                                    }
+                                }) => customMerge)()))
                                 return 'exit'
                             }
                             return 'continue'
@@ -158,19 +150,25 @@ export const useUix = <
                 }))
             })
             // Send previous data for rollback
-            return {previousData: subgraphsContainingDraft}
+            return {previousData: cachedTreeSet}
         },
         onError: async (error, variables, context) => {
             console.error("ON ERROR", error)
             // Rollback
-            const {previousData} = context as {previousData: [string, GenericMergeOutputTree][]}
-            previousData.forEach(([paramString, previousSubgraph]) => {
-                queryClient.setQueryData([JSON.parse(paramString)], previousSubgraph)
+            const {previousData: cachedTreeSet} = context as {previousData: [string, GenericMergeOutputTree][]}
+            cachedTreeSet.forEach(([paramString, cachedTree]) => {
+                queryClient.setQueryData([JSON.parse(paramString)], cachedTree)
             })
         },
-        onSuccess: () => {
-            if (!draft) return
-            cacheKeyMap.has(draft.nodeId as string) && [...cacheKeyMap.get(draft.nodeId as string)!.values()].forEach(paramString => {
+        onSuccess: (mergeOutput) => {
+            testEnvLog("MergeOutput", mergeOutput)
+            testEnvLog("Data", data)
+            if (_.isEqualWith(mergeOutput, data, (_, __, key) => {
+                // Ignore updatedAt
+                if (key === 'updatedAt') return true
+            })) return
+            testEnvLog("Running invalidation")
+            cacheKeyMap.has(mergeOutput.nodeId as string) && [...cacheKeyMap.get(mergeOutput.nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
                     queryKey: [JSON.parse(paramString)]
                 })
@@ -190,9 +188,13 @@ export const useUix = <
     return {
         data,
         isPending,
+        isError,
         draft,
         draftDidChange: !_.isEqual(draft, initialDraftRef.current),
         draftErrors,
+        isCommitPending: mutation.isPending,
+        isCommitSuccessful: mutation.isSuccess,
+        isCommitError: mutation.isError,
         resetDraft: useCallback(() => updateDraft(draft => {
             if (!draft) return
             Object.assign(draft, initialDraftRef.current)
@@ -203,10 +205,38 @@ export const useUix = <
                 updater(draft as any)
             })
         }, [draft]),
-        isCommitPending: mutation.isPending,
-        isCommitSuccessful: mutation.isSuccess,
-        isCommitError: mutation.isError,
-        commit: (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => mutation.mutate(data, options)
+        commit: useCallback(
+            (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
+                const errorSet = validateDraftSchema<Data>(
+                    modifySchema?.(createNestedZodSchema(nodeDefinitionMap, data as any) as any)
+                    ?? createNestedZodSchema(nodeDefinitionMap, data as any),
+                    data
+                )
+                if (errorSet) {
+                    setDraftErrors(errorSet)
+                    return
+                }
+                !_.isEqual(draftErrors, {}) && setDraftErrors({} as DraftErrorTree<Data>)
+                mutation.mutate(treeRecursion({
+                    treeNode: JSON.parse((JSON.stringify(data))) as any, 
+                    operation: ({treeNode, relationshipKey, mapId, parentNode, parentNodeMap}) => {
+                        const nodeType = relationshipKey?.split('-')[2]!.replace('>', '')
+                        if (nodeType) {treeNode['nodeType'] = nodeType}
+                        if (!treeNode['createdAt']) {treeNode['createdAt'] = Date.now()}
+                        if (!treeNode['updatedAt']) {treeNode['updatedAt'] = Date.now()}
+                        if (!treeNode['fromNodeId']) {parentNode && (treeNode['fromNodeId'] = parentNode.nodeId)}
+                        if (!treeNode['fromNodeType']) {parentNode && (treeNode['fromNodeType'] = parentNode.nodeType)}
+                        if (!treeNode['nodeId']) {
+                            if (parentNodeMap){delete parentNodeMap[mapId!]}
+                            treeNode['nodeId'] = uuid()
+                        }
+                        if (!parentNodeMap) return 'continue'
+                        parentNodeMap[treeNode['nodeId']] = treeNode
+                        return 'continue'
+                    }
+                }), options)
+            }
+        , [mutation.mutate])
     }
 }
 

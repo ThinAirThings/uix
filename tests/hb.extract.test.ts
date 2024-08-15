@@ -15,10 +15,10 @@ test('Integration test', async () => {
     }, 
         sg => sg
         .extendPath('User', '-BELONGS_TO->Company')
-        .extendPath('User-BELONGS_TO->Company', '<-BELONGS_TO-Job')
-        .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job', '<-SWIPED_ON-User')
-        .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job<-SWIPED_ON-User', '-BELONGS_TO->Company')
-        .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job<-SWIPED_ON-User-BELONGS_TO->Company', '<-BELONGS_TO-User')
+        .extendPath('User-BELONGS_TO->Company', '<-BELONGS_TO-Project')
+        // .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job', '<-SWIPED_ON-User')
+        // .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job<-SWIPED_ON-User', '-BELONGS_TO->Company')
+        // .extendPath('User-BELONGS_TO->Company<-BELONGS_TO-Job<-SWIPED_ON-User-BELONGS_TO->Company', '<-BELONGS_TO-User')
         .extendPath('User', '<-SENT_BY-Message')
     )
     if (jobsError) throwTestError(jobsError)

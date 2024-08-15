@@ -88,24 +88,11 @@ export const extractSubgraphFactory = <
         })
     }
     buildTree(subgraph, rootNode.nodeType as string, `(${rootVariable})`, '0')
-    const filteredVariableList = variableList.filter(v => v.includes('n'))
-    const findLongestPaths = (variableList: string[], paths: string[]=[]) => {
-        if (variableList.length < 2  ) {
-            paths.push(variableList[0]!)
-            return
-        }
-        if (variableList[1]!.split('_').length > variableList[0]!.split('_').length) {
-            findLongestPaths(variableList.slice(1), paths)
-        } else {
-            paths.push(variableList[0]!)
-            findLongestPaths(variableList.slice(1), paths)
-        }
-        return paths
-    }
-    const longestPathSet = findLongestPaths(filteredVariableList)
+    const pathVariableList = variableList.filter(v => v.includes('p'))
+    console.log(pathVariableList)
     queryString += dedent/*cypher*/`
-        with n_0 ${longestPathSet ? `, ${longestPathSet.map((path, idx) => `collect(${path.replace('n', 'p')}) as p_${idx}`).join(', ')}` : ''}
-        return n_0 ${longestPathSet ? `, ${longestPathSet.map((_, idx) => `p_${idx}`).join('+')} as pathSet` : ''}
+        with n_0 ${pathVariableList.length ? `, ${pathVariableList.map((path, idx) => `collect(${path}) as p_${idx}`).join(', ')}` : ''}
+        return n_0 ${pathVariableList.length ? `, ${pathVariableList.map((_, idx) => `p_${idx}`).join('+')} as pathSet` : ''}
     `
     
     const resultTree = await neo4jDriver().executeQuery<EagerResult<{

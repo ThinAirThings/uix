@@ -223,6 +223,8 @@ export const mergeSubgraphFactory = <
                 const nextNode = path.end.properties as GenericNodeShape
                 const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
                 const nextNodeMerged = {
+                    fromNodeId: node.nodeId,
+                    fromNodeType: node.nodeType,
                     ...relationship.properties,
                     ...nextNode,
                 }
@@ -240,6 +242,11 @@ export const mergeSubgraphFactory = <
         }
         return buildTree(rootNode as any, rootStringIndex)
     })
+    if (process.env.TEST_ENV === "true") {
+        const fs = require('fs')
+        fs.writeFileSync('tests/merge:queryString.cypher', queryString)
+        fs.writeFileSync('tests/merge:resultTree.json', JSON.stringify(result, null, 2))
+    }
     console.log("MERGE RESULT", result)
     return Ok(result as MergeOutputTree<NodeDefinitionMap, NodeType, InputTree>)
 })

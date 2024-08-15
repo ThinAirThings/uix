@@ -1,5 +1,23 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.18
+
+### Patch Changes
+
+- fix extract bug
+
+## 4.0.0-next.17
+
+### Patch Changes
+
+- fix extraction bug
+
+## 4.0.0-next.16
+
+### Patch Changes
+
+- general performance improvements
+
 ## 4.0.0-next.15
 
 ### Patch Changes
