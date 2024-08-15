@@ -24,7 +24,7 @@ set n_t0_i0 += $n_t0_i0_state,
                 n_t0_i0_t0_i0.updatedAt = timestamp()
 
         on match
-            set n_t0_i0_t0_i0 += $n_t0_i0_t0_i0_state,
+            set n_t0_i0_t0_i0 += apoc.map.removeKey($n_t0_i0_t0_i0_state, 'nodeId'),
                 n_t0_i0_t0_i0:Node,
                 n_t0_i0_t0_i0.updatedAt = timestamp()
 
@@ -53,7 +53,7 @@ set r_t0_i0_t0_i0 += $r_t0_i0_t0_i0_state,
                 n_t0_i0_t0_i1.updatedAt = timestamp()
 
         on match
-            set n_t0_i0_t0_i1 += $n_t0_i0_t0_i1_state,
+            set n_t0_i0_t0_i1 += apoc.map.removeKey($n_t0_i0_t0_i1_state, 'nodeId'),
                 n_t0_i0_t0_i1:Node,
                 n_t0_i0_t0_i1.updatedAt = timestamp()
 
@@ -82,7 +82,7 @@ set r_t0_i0_t0_i1 += $r_t0_i0_t0_i1_state,
                 n_t0_i0_t0_i2.updatedAt = timestamp()
 
         on match
-            set n_t0_i0_t0_i2 += $n_t0_i0_t0_i2_state,
+            set n_t0_i0_t0_i2 += apoc.map.removeKey($n_t0_i0_t0_i2_state, 'nodeId'),
                 n_t0_i0_t0_i2:Node,
                 n_t0_i0_t0_i2.updatedAt = timestamp()
 

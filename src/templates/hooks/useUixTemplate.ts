@@ -125,7 +125,6 @@ export const useUix = <
                     return 'continue'
                 }
             })
-            updateDraft(mergeInputTreePostDeletion as any)
             cachedTreeSet && cachedTreeSet.forEach(([paramString, cachedTree]) => {
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
@@ -137,7 +136,7 @@ export const useUix = <
                                 ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
                                     if (_.isObject(cachedNode) && _.isObject(inputNode)) {
                                         _.difference(Object.keys(cachedNode), Object.keys(inputNode)).forEach(key => {
-                                            delete cachedNode[key]
+                                            delete cachedNode[key as keyof typeof cachedNode]
                                         })
                                         return _.mergeWith(cachedNode, inputNode, customMerge)
                                     }
@@ -148,6 +147,7 @@ export const useUix = <
                         }
                     })
                 }))
+                // updateDraft(mergeInputTreePostDeletion as any)
             })
             // Send previous data for rollback
             return {previousData: cachedTreeSet}
@@ -163,10 +163,6 @@ export const useUix = <
         onSuccess: (mergeOutput) => {
             testEnvLog("MergeOutput", mergeOutput)
             testEnvLog("Data", data)
-            if (_.isEqualWith(mergeOutput, data, (_, __, key) => {
-                // Ignore updatedAt
-                if (key === 'updatedAt') return true
-            })) return
             testEnvLog("Running invalidation")
             cacheKeyMap.has(mergeOutput.nodeId as string) && [...cacheKeyMap.get(mergeOutput.nodeId as string)!.values()].forEach(paramString => {
                 queryClient.invalidateQueries({
@@ -178,7 +174,7 @@ export const useUix = <
         }
     })
     useEffect(() => {
-        if (!subgraph || mutation.isPending || _.isEqual(initialDraftRef.current, subgraph)) return
+        if (!subgraph || _.isEqual(initialDraftRef.current, subgraph)) return
         initialDraftRef.current = ((initializeDraft && subgraph) 
             ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
             : subgraph
@@ -206,8 +202,8 @@ export const useUix = <
             })
         }, [draft]),
         commit: useCallback(
-            (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
-                const errorSet = validateDraftSchema<Data>(
+            async (data: MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>, options?: Parameters<typeof mutation['mutate']>[1]) => {
+                const errorSet = await validateDraftSchema<Data>(
                     modifySchema?.(createNestedZodSchema(nodeDefinitionMap, data as any) as any)
                     ?? createNestedZodSchema(nodeDefinitionMap, data as any),
                     data

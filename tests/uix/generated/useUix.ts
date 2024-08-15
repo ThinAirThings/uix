@@ -135,7 +135,7 @@ export const useUix = <
                                 ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
                                     if (_.isObject(cachedNode) && _.isObject(inputNode)) {
                                         _.difference(Object.keys(cachedNode), Object.keys(inputNode)).forEach(key => {
-                                            delete cachedNode[key]
+                                            delete cachedNode[key as keyof typeof cachedNode]
                                         })
                                         return _.mergeWith(cachedNode, inputNode, customMerge)
                                     }
@@ -204,13 +204,14 @@ export const useUix = <
             })
         }, [draft]),
         commit: useCallback(
-            (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
-                const errorSet = validateDraftSchema<Data>(
+            async (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
+                const errorSet = await validateDraftSchema<Data>(
                     modifySchema?.(createNestedZodSchema(nodeDefinitionMap, data as any) as any)
                     ?? createNestedZodSchema(nodeDefinitionMap, data as any),
                     data
                 )
                 if (errorSet) {
+                    console.log(errorSet)
                     setDraftErrors(errorSet)
                     return
                 }

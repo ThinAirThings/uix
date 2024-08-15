@@ -102,7 +102,7 @@ export const mergeSubgraphFactory = <
                     n_${path}.updatedAt = timestamp()
 
             on match
-                set n_${path} += $n_${path}_state,
+                set n_${path} += apoc.map.removeKey($n_${path}_state, 'nodeId'),
                     n_${path}:Node,
                     n_${path}.updatedAt = timestamp()
 

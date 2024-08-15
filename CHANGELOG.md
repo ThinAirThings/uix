@@ -1,5 +1,23 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.21
+
+### Patch Changes
+
+- fix logs
+
+## 4.0.0-next.20
+
+### Patch Changes
+
+- add logs
+
+## 4.0.0-next.19
+
+### Patch Changes
+
+- add delete/detach caching
+
 ## 4.0.0-next.18
 
 ### Patch Changes

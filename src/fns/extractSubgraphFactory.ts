@@ -89,7 +89,6 @@ export const extractSubgraphFactory = <
     }
     buildTree(subgraph, rootNode.nodeType as string, `(${rootVariable})`, '0')
     const pathVariableList = variableList.filter(v => v.includes('p'))
-    console.log(pathVariableList)
     queryString += dedent/*cypher*/`
         with n_0 ${pathVariableList.length ? `, ${pathVariableList.map((path, idx) => `collect(${path}) as p_${idx}`).join(', ')}` : ''}
         return n_0 ${pathVariableList.length ? `, ${pathVariableList.map((_, idx) => `p_${idx}`).join('+')} as pathSet` : ''}

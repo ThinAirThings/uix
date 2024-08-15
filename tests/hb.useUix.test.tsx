@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { useUix } from "./uix/generated/_useUix";
+import { useUix } from "./uix/generated/useUix";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { mergeSubgraph } from "./uix/generated/functionModule";
 import {UixProvider} from './uix/generated/UixProvider'
@@ -52,8 +52,8 @@ const MyComponent = forwardRef<UpdateDraftRef, {}>((_, ref) => {
     useEffect(() => {console.log("Render from isCommitPending")}, [isCommitPending])
     useEffect(() => {console.log("Render from isCommitSuccessful", isCommitSuccessful)}, [isCommitSuccessful])
 
-    console.log("Actual:", userNode)
-    console.log("Draft:", draft)
+    // console.log("Actual:", userNode)
+    // console.log("Draft:", draft)
     return (<></>)
 })
 
