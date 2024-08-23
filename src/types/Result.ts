@@ -91,6 +91,8 @@ export const Err = <
         }
     }
 }
+
+type UixErrSubtype = 'CLIError' | 'ExpectedRuntimeError'
 export const UixErr = <
     Subtype extends UixErrSubtype,
     Data extends Record<string, any> | undefined = undefined,
@@ -108,26 +110,7 @@ export const UixErr = <
     message,
     data: data as Data extends Record<string, any> ? Data : undefined
 })
-export enum UixErrSubtype {
-    // Application Errors
-    UIX_CONFIG_NOT_FOUND = 'UIX_CONFIG_NOT_FOUND',
-    CODE_GENERATION_FAILED = 'CODE_GENERATION_FAILED',
-    // Index Errors
-    CREATE_NULL_NODE_FAILED = 'CREATE_NULL_NODE_FAILED',
-    CREATE_UNIQUE_INDEX_FAILED = 'CREATE_UNIQUE_INDEX_FAILED',
-    CREATE_PROPERTY_VECTOR_FAILED = 'CREATE_PROPERTY_VECTOR_FAILED',
-    // CUD Errors
-    CREATE_NODE_FAILED = 'CREATE_NODE_FAILED',
-    DELETE_NODE_FAILED = 'DELETE_NODE_FAILED',
-    UPDATE_NODE_FAILED = 'UPDATE_NODE_FAILED',
 
-    // Read Errors
-    GET_NODE_BY_KEY_FAILED = 'GET_NODE_BY_KEY_FAILED',
-    GET_NODE_BY_INDEX_FAILED = 'GET_NODE_BY_INDEX_FAILED',
-    GET_UNIQUE_CHILD_NODE_FAILED = 'GET_UNIQUE_CHILD_NODE_FAILED',
-
-
-}
 
 export type AnyQueryError = QueryError<any>
 export class QueryError<

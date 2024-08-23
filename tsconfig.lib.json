@@ -4,10 +4,12 @@
         "rootDir": "src",
         "moduleResolution": "bundler",
         "module": "ESNext",
-        "jsx": "react"
+        "jsx": "react",
+        "strictNullChecks": true
     },
     "include": [
-        "src"
+        "src",
+        "scratch"
     ],
     "exclude": [
         "node_modules",

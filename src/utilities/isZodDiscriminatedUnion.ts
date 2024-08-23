@@ -1,5 +1,5 @@
 import { ZodDiscriminatedUnion, ZodTypeAny } from "zod";
-import { AnyZodDiscriminatedUnion } from "../types/NodeType";
+import { AnyZodDiscriminatedUnion } from "../definitions/NodeDefinition";
 
 
 /**

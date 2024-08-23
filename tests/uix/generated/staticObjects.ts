@@ -1,29 +1,59 @@
 
 // Start of File
-import uixConfig from '../uix.config'
-import { NodeShape, NodeState, GraphType } from '@thinairthings/uix'
+import uixConfig from '../hb.uix.config'
+import { NodeShape, NodeState, GraphDefinition, RelationshipState, RelationshipMerge } from '@thinairthings/uix'
 
-export const uixGraph = new GraphType(uixConfig.type, uixConfig.nodeTypeSet)
-export const nodeTypeMap = uixGraph.nodeTypeMap
-export type ConfiguredNodeTypeMap = typeof nodeTypeMap
-export type NodeKey<T extends keyof ConfiguredNodeTypeMap> = {
+export const uixGraph = new GraphDefinition(uixConfig.type, uixConfig.nodeDefinitionSet)
+export const nodeDefinitionMap = uixGraph.nodeDefinitionMap
+export type ConfiguredNodeDefinitionMap = typeof nodeDefinitionMap
+export type NodeKey<T extends keyof ConfiguredNodeDefinitionMap> = {
     nodeType: T
     nodeId: string
 }
-export const rootNodeKey: NodeKey<'Root'> = {nodeType: 'Root', nodeId: '0'}
-export type RootNode = NodeShape<ConfiguredNodeTypeMap['Root']> 
-export type UserNode = NodeShape<ConfiguredNodeTypeMap['User']> 
-export type EducationNode = NodeShape<ConfiguredNodeTypeMap['Education']> 
-export type ProfileNode = NodeShape<ConfiguredNodeTypeMap['Profile']> 
-export type WorkExperienceNode = NodeShape<ConfiguredNodeTypeMap['WorkExperience']> 
-export type WorkPreferenceNode = NodeShape<ConfiguredNodeTypeMap['WorkPreference']> 
-export type JobNode = NodeShape<ConfiguredNodeTypeMap['Job']> 
 
-export type RootNodeState = NodeState<ConfiguredNodeTypeMap['Root']> 
-export type UserNodeState = NodeState<ConfiguredNodeTypeMap['User']> 
-export type EducationNodeState = NodeState<ConfiguredNodeTypeMap['Education']> 
-export type ProfileNodeState = NodeState<ConfiguredNodeTypeMap['Profile']> 
-export type WorkExperienceNodeState = NodeState<ConfiguredNodeTypeMap['WorkExperience']> 
-export type WorkPreferenceNodeState = NodeState<ConfiguredNodeTypeMap['WorkPreference']> 
-export type JobNodeState = NodeState<ConfiguredNodeTypeMap['Job']> 
+export type UserNode = NodeShape<ConfiguredNodeDefinitionMap['User']> 
+export type CompanyNode = NodeShape<ConfiguredNodeDefinitionMap['Company']> 
+export type JobNode = NodeShape<ConfiguredNodeDefinitionMap['Job']> 
+export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap['Message']> 
+export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap['Project']> 
 
+export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
+    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'BELONGS_TO'
+>
+export type POSTED_Job_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'POSTED'
+>
+export type SUPERVISOR_TO_User_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'SUPERVISOR_TO'
+>
+export type SWIPED_ON_Job_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'User',
+'SWIPED_ON'
+>
+export type CompanyNodeState = NodeState<ConfiguredNodeDefinitionMap['Company']>
+export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap['Job']> 
+    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'Job',
+'BELONGS_TO'
+>
+export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap['Message']> 
+    export type SENT_BY_User_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'Message',
+'SENT_BY'
+>
+export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap['Project']> 
+    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
+ConfiguredNodeDefinitionMap,
+'Project',
+'BELONGS_TO'
+>

@@ -7,20 +7,15 @@ import { CommandEnvironment } from '../(components)/CommandEnvironment';
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
-import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
-import { UixErr, UixErrSubtype } from '../../types/Result';
+import { useApplicationStore } from '../(stores)/applicationStore';
+import { UixErr } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
 import { functionModuleTemplate } from '../../templates/functionModuleTemplate';
-import { queryOptionsTemplate } from '../../templates/queryOptions/queryOptionsTemplate';
 import { staticObjectsTemplate } from '../../templates/staticObjectsTemplate';
-import { useUniqueChildTemplate } from '../../templates/hooks/useUniqueChildTemplate';
-import { useNodeKeyTemplate } from '../../templates/hooks/useNodeKeyTemplate';
-import { useNodeSetTemplate } from '../../templates/hooks/useNodeSetTemplate';
-import { useNodeIndexTemplate } from '../../templates/hooks/useNodeIndexTemplate';
-import { useNodeTypeTemplate } from '../../templates/hooks/useNodeTypeTemplate';
 import { option } from 'pastel';
 import { UixProviderTemplate } from '../../templates/UixProviderTemplate';
 import { clientsTemplate } from '../../templates/clientsTemplate';
+import { useUixTemplate } from '../../templates/hooks/useUixTemplate';
 
 export const options = z.object({
     config: z.string().optional().describe(
@@ -43,7 +38,7 @@ const Codegen: FC<{
     Command: () => {
         // Generate Code
         useOperation({
-            dependencies: [useApplicationStore(store => store.uixConfig)],
+            dependencies: [useApplicationStore(store => store.uixConfig)] as const,
             operationKey: 'codeGeneration',
             tryOp: async ([uixConfig]) => {
                 await new Promise(resolve => setTimeout(resolve, 500))
@@ -54,32 +49,12 @@ const Codegen: FC<{
                     functionModuleTemplate(uixConfig)
                 )
                 await writeFile(
-                    path.join(outDir, 'queryOptions.ts'),
-                    queryOptionsTemplate()
-                )
-                await writeFile(
                     path.join(outDir, 'staticObjects.ts'),
                     staticObjectsTemplate(uixConfig)
                 )
                 await writeFile(
-                    path.join(outDir, 'useUniqueChild.ts'),
-                    useUniqueChildTemplate()
-                )
-                await writeFile(
-                    path.join(outDir, 'useNodeKey.ts'),
-                    useNodeKeyTemplate()
-                )
-                await writeFile(
-                    path.join(outDir, 'useNodeSet.ts'),
-                    useNodeSetTemplate()
-                )
-                await writeFile(
-                    path.join(outDir, 'useNodeIndex.ts'),
-                    useNodeIndexTemplate()
-                )
-                await writeFile(
-                    path.join(outDir, 'useNodeType.ts'),
-                    useNodeTypeTemplate()
+                    path.join(outDir, 'useUix.ts'),
+                    useUixTemplate()
                 )
                 await writeFile(
                     path.join(outDir, 'UixProvider.tsx'),
@@ -92,7 +67,7 @@ const Codegen: FC<{
                 return true
             },
             catchOp: (error: Error) => UixErr({
-                subtype: UixErrSubtype.CODE_GENERATION_FAILED,
+                subtype: 'CLIError',
                 message: `Code generation failed: ${error.message}`,
                 data: { error }
             }),

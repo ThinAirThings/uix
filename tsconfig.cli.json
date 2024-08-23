@@ -6,7 +6,7 @@
         "moduleResolution": "node16",
         "module": "node16",
         "sourceMap": true,
-        "jsx": "react"
+        "jsx": "react",
     },
     "include": [
         "src/app"

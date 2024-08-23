@@ -1,5 +1,5 @@
 import { Driver } from "neo4j-driver";
-import { GenericNodeShape } from "../types/NodeType";
+import { GenericNodeShape } from "../definitions/NodeDefinition";
 import dedent from 'dedent'
 import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType";
 
@@ -14,7 +14,7 @@ export const upsertMatches = async (
         // Match the initial nodes and collect the toNodes
         match (:${nodeShape.nodeType} {nodeId: $fromNode.nodeId})<-
             [:CHILD_TO|UNIQUE_TO*]-
-            (toNode:${matchToRelationshipType.weightedNodeTypeSet.map(({ NodeType }) => NodeType.type).join('|')})
+            (toNode:${matchToRelationshipType.weightednodeDefinitionSet.map(({ NodeType }) => NodeType.type).join('|')})
         
         // Match vector nodes and collect embeddings along with weights
         match (vectorNode:${matchToRelationshipType.type})-[:VECTOR_TO]->(toNode)
@@ -22,7 +22,7 @@ export const upsertMatches = async (
             type: labels(vectorNode),
             embedding: vectorNode.nodeTypeEmbedding,
             weight: 
-                CASE ${matchToRelationshipType.weightedNodeTypeSet.map(({ weight, NodeType }) => dedent/*cypher*/`
+                CASE ${matchToRelationshipType.weightednodeDefinitionSet.map(({ weight, NodeType }) => dedent/*cypher*/`
                     WHEN any(label in labels(toNode) WHERE label = '${NodeType.type}') THEN ${weight}`)
             .join(' ')}
                     ELSE 1

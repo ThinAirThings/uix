@@ -1,0 +1,31 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@thinairthings/uix": "3.0.14"
+  },
+  "changesets": [
+    "chilled-dots-sparkle",
+    "chilly-colts-swim",
+    "cuddly-cycles-crash",
+    "cuddly-games-brush",
+    "curvy-waves-appear",
+    "dull-lies-search",
+    "empty-humans-hang",
+    "fair-insects-crash",
+    "famous-dryers-film",
+    "funny-tips-explain",
+    "gentle-foxes-brush",
+    "healthy-wombats-dream",
+    "hip-deers-know",
+    "light-timers-promise",
+    "many-cherries-grab",
+    "metal-cows-check",
+    "modern-forks-burn",
+    "slow-crews-hang",
+    "soft-news-train",
+    "stupid-buckets-own",
+    "wild-lizards-retire",
+    "yellow-radios-peel"
+  ]
+}

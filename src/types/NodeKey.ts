@@ -1,24 +1,24 @@
-import { AnyNodeTypeMap } from "./NodeType"
+import { AnyNodeDefinitionMap } from "../definitions/NodeDefinition"
 
 export type GenericNodeKey = NodeKey<
-    AnyNodeTypeMap,
-    keyof AnyNodeTypeMap
+    AnyNodeDefinitionMap,
+    keyof AnyNodeDefinitionMap
 >
 export type NodeKey<
-    NodeTypeMap extends AnyNodeTypeMap,
-    NodeType extends ({
-        [K in keyof NodeTypeMap]: NodeTypeMap[K]['type'] | `${NodeTypeMap[K]['type']}Vector`
-    }[keyof NodeTypeMap])
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeDefinition extends ({
+        [K in keyof NodeDefinitionMap]: NodeDefinitionMap[K]['type'] | `${NodeDefinitionMap[K]['type']}Vector`
+    }[keyof NodeDefinitionMap])
 > = {
-    nodeType: NodeType
+    nodeType: NodeDefinition
     nodeId: string
 }
 
-export type VectorKeys<NodeTypeMap extends AnyNodeTypeMap> = {
-    [Type in keyof NodeTypeMap]: `${NodeTypeMap[Type]['type']}Vector`
-}[keyof NodeTypeMap]
+export type VectorKeys<NodeDefinitionMap extends AnyNodeDefinitionMap> = {
+    [Type in keyof NodeDefinitionMap]: `${NodeDefinitionMap[Type]['type']}Vector`
+}[keyof NodeDefinitionMap]
 
 export type TypeFromVectorType<
-    NodeTypeMap extends AnyNodeTypeMap,
-    T extends VectorKeys<NodeTypeMap>
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    T extends VectorKeys<NodeDefinitionMap>
 > = T extends `${infer U}Vector` ? U : never

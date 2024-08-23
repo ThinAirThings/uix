@@ -4,6 +4,10 @@
         "rootDir": ".",
         "strict": true,
         "target": "ESNext",
+        // "lib": [
+        //     "ESNext"
+        // ],
         "strictNullChecks": true,
+        "noUncheckedIndexedAccess": true
     }
 }

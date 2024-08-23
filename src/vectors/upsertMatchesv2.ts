@@ -1,5 +1,5 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
-import { GenericNodeShape } from "../types/NodeType";
+import { GenericNodeShape } from "../definitions/NodeDefinition";
 import { GenericMatchToRelationshipType } from "../types/MatchToRelationshipType";
 import dedent from "dedent";
 import { neo4jDriver } from "../clients/neo4j";

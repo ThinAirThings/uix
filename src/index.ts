@@ -1,25 +1,25 @@
 
 // Export config
 export * from './config/defineConfig'
-
-
 // Definitions
-export * from './types/NodeType'
-export * from './types/RelationshipType'
+export * from './definitions/NodeDefinition'
+export * from './definitions/RelationshipDefinition'
+export * from './definitions/SubgraphDefinition'
+export * from './definitions/SubgraphPathDefinition'
 export * from './types/NodeKey'
-export * from './types/types'
 export * from './types/Result'
-export * from './types/GraphType'
-// Function
-export * from './fns/createNodeFactory'
-export * from './fns/updateNodeFactory'
-export * from './fns/deleteNodeFactory'
-export * from './fns/getNodeByKeyFactory'
-export * from './fns/getVectorNodeByKeyFactory'
-export * from './fns/getAllOfNodeTypeFactory'
-export * from './fns/getChildNodeSetFactory'
-export * from './fns/getUniqueChildNodeFactory'
-export * from './fns/getNodeByIndexFactory'
+export * from './definitions/GraphDefinition'
+export * from './types/RelationshipUnion'
+export * from './types/MergeInputTree'
+export * from './types/ConcreteMergeInputTree'
 
-// Clients
-export { createNeo4jClient } from './clients/neo4j'
+// // Function
+export * from './fns/mergeSubgraphFactory'
+export * from './fns/extractSubgraphFactory'
+
+// Utilities
+export * from './utilities/index'
+export {createNeo4jClient} from './clients/neo4j'
+// Types
+export * from './types/index'
+

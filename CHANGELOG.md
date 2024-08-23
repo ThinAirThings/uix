@@ -1,28 +1,134 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
-## 3.1.3
+## 4.0.0-next.23
 
 ### Patch Changes
 
-- fix bug in schema parsing on getNodeByIndex
+- bug fixes
 
-## 3.1.2
+## 4.0.0-next.22
+
+### Patch Changes
+
+- general improvements
+
+## 4.0.0-next.21
+
+### Patch Changes
+
+- fix logs
+
+## 4.0.0-next.20
 
 ### Patch Changes
 
 - add logs
 
-## 3.1.1
+## 4.0.0-next.19
 
 ### Patch Changes
 
-- forgot to build before pushing 3.1.0
+- add delete/detach caching
 
-## 3.1.0
+## 4.0.0-next.18
+
+### Patch Changes
+
+- fix extract bug
+
+## 4.0.0-next.17
+
+### Patch Changes
+
+- fix extraction bug
+
+## 4.0.0-next.16
+
+### Patch Changes
+
+- general performance improvements
+
+## 4.0.0-next.15
+
+### Patch Changes
+
+- fix: use require instead of dynamic import
+
+## 4.0.0-next.14
+
+### Patch Changes
+
+- fix: fs imports
+
+## 4.0.0-next.13
+
+### Patch Changes
+
+- fix bug in extractSubgraph not allowing parallel calls
+
+## 4.0.0-next.12
 
 ### Minor Changes
 
-- 2fa947d: feat: added output parsing to getNodeByIndex. Need to add to all getters still so this is a semi-broken test
+- update the api for useUix commit
+
+## 4.0.0-next.11
+
+### Minor Changes
+
+- Update caching layer and add draft reset
+
+## 4.0.0-next.10
+
+### Minor Changes
+
+- add detachment and deletion of nodes (rough draft)
+
+## 4.0.0-next.9
+
+### Patch Changes
+
+- remove relationship metadata on drafts
+
+## 4.0.0-next.8
+
+### Patch Changes
+
+- remove print statements
+
+## 4.0.0-next.7
+
+### Patch Changes
+
+- fix bug where records were being duplicated (Lucas' user wraparound bug)
+
+## 4.0.0-next.6
+
+### Patch Changes
+
+- wip
+
+## 4.0.0-next.5
+
+### Minor Changes
+
+- add nested error handling for drafts
+
+### Patch Changes
+
+- 13493c5: fix reverse lookup
+
+## 4.0.0-next.1
+
+### Minor Changes
+
+- rewrote hook architecture
+
+## 4.0.0-next.0
+
+### Major Changes
+
+- Uix v4. Create subgraph system
 
 ## 3.0.14
 
