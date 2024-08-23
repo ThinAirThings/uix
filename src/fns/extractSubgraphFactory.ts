@@ -4,9 +4,11 @@ import { AnyNodeDefinitionMap, GenericNodeShape, NodeDefinitionMap, NodeShape } 
 import { AnySubgraphDefinition, GenericSubgraphDefinition, SubgraphDefinition } from "../definitions/SubgraphDefinition";
 import { Ok, UixErr } from "../types/Result";
 import { SubgraphPathDefinition } from "../definitions/SubgraphPathDefinition";
-import { AnyRelationshipDefinition, GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
+import {  GenericRelationshipShape, RelationshipState } from "../definitions/RelationshipDefinition";
 import { EagerResult, Integer, Node, Path, PathSegment, Relationship } from "neo4j-driver";
 import { ExtractOutputTree } from "../types/ExtractOutputTree";
+import _ from "lodash";
+import { insertTextBeforeLastParenthesis } from "../utilities";
 
 
 
@@ -59,6 +61,7 @@ export const extractSubgraphFactory = <
             }
         })\n
     `
+    
     const buildTree = (subgraph: GenericSubgraphDefinition, pathSegment: string, indexedPath: string, pathIdx: string) => {
         const pathLength = pathSegment.split('-').length
         const nextPathSet = subgraph.pathDefinitionSet
@@ -76,11 +79,18 @@ export const extractSubgraphFactory = <
                     nextPathSegments.slice(nextPathSegments.length - 2, nextPathSegments.length - 1)
                 }]${rightEndcap}(${newVariables[2]}:${nextPathSegments[nextPathSegments.length - 1].replace('>', '')})
             `
+            const filterSet = !_.isEmpty(nextPath.options) && Object.entries(nextPath.options).map(([propertyKey, filter]) => 
+                filter && Object.entries(filter).map(([filterKey, filterValue]) =>
+                    filterValue && (filterKey === 'equals') && dedent/*cypher*/`${newVariables[2]}.${propertyKey} = "${filterValue}"` 
+            )).flat().filter(Boolean)
             queryString += dedent/*cypher*/`
-                call {
-                    with ${variableList.join(', ')}
-                    optional match ${newVariables[0]} = ${nextIndexedPath}
-                    return ${newVariables.join(', ')}
+                optional match ${newVariables[0]} = ${
+                    (!filterSet || !filterSet.length)
+                        ? nextIndexedPath
+                        : insertTextBeforeLastParenthesis(
+                            nextIndexedPath,
+                            `where ${filterSet.join(" AND ")}`
+                        )
                 }\n
             `
             variableList.push(...newVariables)

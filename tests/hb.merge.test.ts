@@ -14,7 +14,7 @@ test('Integration test', async () => {
         name: 'Hirebird',
         '<-BELONGS_TO-Job': {
             ...(() => {
-                return Object.fromEntries(Array.from({length: 50}, (_, i) => [
+                return Object.fromEntries(Array.from({length: }, (_, i) => [
                     `draft${i}`, {
                         'title': `Job ${i}`,
                         companyName: 'Hirebird',

@@ -2,11 +2,6 @@ import { AnyNodeDefinitionMap, NodeState } from "../definitions/NodeDefinition"
 import { RelationshipState } from "../definitions/RelationshipDefinition"
 import { RelationshipUnion } from "./RelationshipUnion"
 
-type ExistenceModifiers = {
-    detach?: boolean
-    delete?: boolean
-}
-
 export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>
 }
@@ -14,6 +9,7 @@ export type MergeInputTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
 > = (NodeState<NodeDefinitionMap[NodeType]> & {
+        nodeType?: NodeType
         nodeId?: string
         delete?: boolean
     } & {

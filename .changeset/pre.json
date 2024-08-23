@@ -5,9 +5,11 @@
     "@thinairthings/uix": "3.0.14"
   },
   "changesets": [
+    "chilled-dots-sparkle",
     "chilly-colts-swim",
     "cuddly-cycles-crash",
     "cuddly-games-brush",
+    "curvy-waves-appear",
     "dull-lies-search",
     "empty-humans-hang",
     "fair-insects-crash",

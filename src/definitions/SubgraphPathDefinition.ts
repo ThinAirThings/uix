@@ -12,6 +12,10 @@ export type GenericSubgraphPathDefinition = SubgraphPathDefinition<
     keyof AnyNodeDefinitionMap, 
     RelationshipUnion<AnyNodeDefinitionMap, keyof AnyNodeDefinitionMap>[]
 >
+export type FilterKeys = 'equals'
+export type GenericOptions = Record<string, {
+    [K in FilterKeys]: string | number | boolean | null
+}>
 export class SubgraphPathDefinition<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     PathType extends 
@@ -27,11 +31,13 @@ export class SubgraphPathDefinition<
         public nodeDefinitionMap: NodeDefinitionMap,
         public pathType: PathType,
         public subgraphRelationshipSet: SubgraphRelationshipSet,
+        public options?: GenericOptions
     ){}
     serialize() {
         return {
             pathType: this.pathType,
-            subgraphRelationshipSet: this.subgraphRelationshipSet
+            subgraphRelationshipSet: this.subgraphRelationshipSet,
+            options: this.options
         } as typeof this
     }
 }

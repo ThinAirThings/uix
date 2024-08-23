@@ -13,7 +13,6 @@ import { MergeOutputTree } from "../types/MergeOutputTree"
 
 
 
-
 export const mergeSubgraphFactory = <
     NodeDefinitionMap extends AnyNodeDefinitionMap,
 >(
@@ -181,7 +180,7 @@ export const mergeSubgraphFactory = <
             })
         })
     }
-    treeToQueryString(subgraphRef as any, `t0_i0`)
+    (subgraphRef.delete) || treeToQueryString(subgraphRef as any, `t0_i0`)
     // Add Return Statement
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
@@ -199,7 +198,7 @@ export const mergeSubgraphFactory = <
     )
     .then(result => {
         // writeFileSync('tests/merge:records.json', JSON.stringify(result.records, null, 2))
-        if(subgraphRef.delete ) return Ok({})
+        if(subgraphRef.delete ) return Ok(removeRelationshipEntries(subgraphRef))
         const entityMap = result.records[0]!
         const rootNode = result.records[0]!.get(rootVariable).properties
         const rootStringIndex = rootVariable 

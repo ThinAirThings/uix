@@ -1,5 +1,17 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.23
+
+### Patch Changes
+
+- bug fixes
+
+## 4.0.0-next.22
+
+### Patch Changes
+
+- general improvements
+
 ## 4.0.0-next.21
 
 ### Patch Changes

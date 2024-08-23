@@ -8,11 +8,8 @@ import { DraftErrorTree } from "../types";
 
 export const validateDraftSchema = async <T extends Record<string, any>>(schema: AnyZodObject, draft: any): Promise<DraftErrorTree<T> | null> => {
     const extendedSchema = schema.extend({
-        nodeId: z.string(),
         nodeType: z.string(),
-        updatedAt: z.number(),
-        createdAt: z.number()
-    })
+    }).passthrough()
     const result = await extendedSchema.safeParseAsync(draft)
     if (result?.error) {
         const createErrorTree = (issue: ZodIssue, path: any[], acc: Record<string, any>={}) => {

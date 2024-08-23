@@ -44,7 +44,7 @@ export const useUix = <
     }>,
     initializeDraft?: (
         data: ExtractOutputTree<typeof nodeDefinitionMap, SubgraphDefinitionRef, RootNodeType>,
-        initialize: <T extends MergeInputTree<typeof nodeDefinitionMap, RootNodeType>>(freeze: T) => T
+        initialize: <T extends {nodeType: RootNodeType}&MergeInputTree<typeof nodeDefinitionMap, RootNodeType>>(freeze: T) => T
     ) => Data
 }) => {
     const queryClient = useQueryClient()
@@ -85,7 +85,7 @@ export const useUix = <
                     })
                 })
             })=> addNodeToCache(subgraph))()
-            initialDraftRef.current = ((initializeDraft && subgraph) 
+            initialDraftRef.current = ((initializeDraft && subgraph)
                 ? initializeDraft(result.data, (initializedDraft) => initializedDraft) 
                 : subgraph
             ) as any
@@ -94,8 +94,8 @@ export const useUix = <
         } : skipToken
     })
     const subgraph = data
-    const initialDraftRef = useRef(((initializeDraft && subgraph) 
-        ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
+    const initialDraftRef = useRef((initializeDraft && (subgraph || (rootNodeIndex && Object.keys(rootNodeIndex??{}).length === 1 && 'nodeType' in rootNodeIndex))
+        ? initializeDraft((subgraph??{}) as any, (initializedDraft) => initializedDraft) 
         : subgraph
     ) as Data | undefined)
     const [draft, updateDraft] = useImmer(initialDraftRef.current)
@@ -123,8 +123,8 @@ export const useUix = <
                     return 'continue'
                 }
             })
-            updateDraft(mergeInputTreePostDeletion as any)
             cachedTreeSet && cachedTreeSet.forEach(([paramString, cachedTree]) => {
+                if (!cachedTree) return // Need to figure out why this is sometimes undefined
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
                         treeNode: cachedTreeDraft, 
@@ -146,6 +146,7 @@ export const useUix = <
                         }
                     })
                 }))
+                // updateDraft(mergeInputTreePostDeletion as any)
             })
             // Send previous data for rollback
             return {previousData: cachedTreeSet}
@@ -161,22 +162,25 @@ export const useUix = <
         onSuccess: (mergeOutput) => {
             testEnvLog("MergeOutput", mergeOutput)
             testEnvLog("Data", data)
-            if (_.isEqualWith(mergeOutput, data, (_, __, key) => {
-                // Ignore updatedAt
-                if (key === 'updatedAt') return true
-            })) return
             testEnvLog("Running invalidation")
-            cacheKeyMap.has(mergeOutput.nodeId as string) && [...cacheKeyMap.get(mergeOutput.nodeId as string)!.values()].forEach(paramString => {
-                queryClient.invalidateQueries({
-                    queryKey: [JSON.parse(paramString)]
-                })
+            treeRecursion({
+                treeNode: mergeOutput as GenericNodeShape,
+                operation: ({treeNode}) => {
+                    cacheKeyMap.has(treeNode.nodeId as string) 
+                    && [...cacheKeyMap.get(treeNode.nodeId as string)!.values()].forEach(paramString => {
+                        queryClient.invalidateQueries({
+                            queryKey: [JSON.parse(paramString)]
+                        })
+                    })
+                    return 'continue'
+                }
             })
             // Note: You could do something to reduce networks calls here. On success you can assume the data is correct and update the cache
             // without having to invalidate all the queries.
         }
     })
     useEffect(() => {
-        if (!subgraph || mutation.isPending || _.isEqual(initialDraftRef.current, subgraph)) return
+        if (!subgraph || _.isEqual(initialDraftRef.current, subgraph)) return
         initialDraftRef.current = ((initializeDraft && subgraph) 
             ? initializeDraft(subgraph, (initializedDraft) => initializedDraft) 
             : subgraph
@@ -190,6 +194,7 @@ export const useUix = <
         draft,
         draftDidChange: !_.isEqual(draft, initialDraftRef.current),
         draftErrors,
+        resetDraftErrors: useCallback(() => setDraftErrors({} as DraftErrorTree<Data>), []),
         isCommitPending: mutation.isPending,
         isCommitSuccessful: mutation.isSuccess,
         isCommitError: mutation.isError,
@@ -204,14 +209,13 @@ export const useUix = <
             })
         }, [draft]),
         commit: useCallback(
-            async (data: Data, options?: Parameters<typeof mutation['mutate']>[1]) => {
+            async (data: MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>, options?: Parameters<typeof mutation['mutate']>[1]) => {
                 const errorSet = await validateDraftSchema<Data>(
                     modifySchema?.(createNestedZodSchema(nodeDefinitionMap, data as any) as any)
                     ?? createNestedZodSchema(nodeDefinitionMap, data as any),
                     data
                 )
                 if (errorSet) {
-                    console.log(errorSet)
                     setDraftErrors(errorSet)
                     return
                 }

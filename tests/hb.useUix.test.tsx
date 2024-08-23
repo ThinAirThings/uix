@@ -21,10 +21,21 @@ const MyComponent = forwardRef<UpdateDraftRef, {}>((_, ref) => {
             nodeType: 'User',
             email: 'dan.lannan@thinair.cloud'
         },
-        defineSubgraph: sg => sg.extendPath('User', '-SWIPED_ON->Job'),
+        defineSubgraph: sg => sg
+            .extendPath('User', '-SWIPED_ON->Job', {
+                'title': {
+                    'equals': 'Integration Test Job 2'
+                },
+                'companyName': {
+                    'equals': 'Acme'
+                }
+            })
+            .extendPath('User-SWIPED_ON->Job', '<-POSTED-User')
+            .extendPath('User', '-BELONGS_TO->Company'),
         initializeDraft: draft => ({
-            ...draft,
-        })
+            ...draft, 
+        }),
+
     })
     const nodeToDeleteRef = useRef<GenericNodeShape>()
     useEffect(() => {
@@ -52,13 +63,13 @@ const MyComponent = forwardRef<UpdateDraftRef, {}>((_, ref) => {
     useEffect(() => {console.log("Render from isCommitPending")}, [isCommitPending])
     useEffect(() => {console.log("Render from isCommitSuccessful", isCommitSuccessful)}, [isCommitSuccessful])
 
-    // console.log("Actual:", userNode)
-    // console.log("Draft:", draft)
+    console.log("Actual:", userNode)
+    console.log("Draft:", draft)
     return (<></>)
 })
 
 test('Test Render Cycles', async () => {
-    await mergeSubgraph({
+    const {data} = await mergeSubgraph({
         nodeType: 'User',
         email: 'dan.lannan@thinair.cloud',
         firstName: '',
@@ -75,15 +86,20 @@ test('Test Render Cycles', async () => {
             }
         }
     })
-    let renderCount = 0
-    const ref = React.createRef<UpdateDraftRef>()
-    const TestComponent = () => {
-        return <MyComponent ref={ref}/>
-    }
-    const {rerender, getByText} = render(<TestComponent/>, {
-        wrapper: UixProvider
+    await mergeSubgraph({
+        ...data!,
+        delete: true
     })
-    await setTimeout(1000)
+    // let renderCount = 0
+    // const ref = React.createRef<UpdateDraftRef>()
+    // const TestComponent = () => {
+    //     return <MyComponent ref={ref}/>
+    // }
+    // const {rerender, getByText} = render(<TestComponent/>, {
+    //     wrapper: UixProvider
+    // })
+    // await setTimeout(1000)
+    return
     await act(async () => {
         console.log("Calling updateDraft")
         ref.current?.updateDraft(draft => {

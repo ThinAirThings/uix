@@ -1,36 +1,4 @@
 {
-  "createdAt": 1723722032257,
-  "firstName": "Dan",
-  "nodeType": "User",
-  "nodeId": "eb3f8867-067b-4e07-bb1a-58c181122ed0",
-  "email": "dan.lannan@thinair.cloud",
-  "updatedAt": 1723746169141,
-  "-SWIPED_ON->Job": {
-    "7fe44b3e-9487-41bc-b347-bbebde3396a4": {
-      "fromNodeId": "eb3f8867-067b-4e07-bb1a-58c181122ed0",
-      "fromNodeType": "User",
-      "relationshipType": "SWIPED_ON",
-      "strength": "weak",
-      "createdAt": 1723729771905,
-      "companyName": "Acme",
-      "description": "Do stuff",
-      "nodeType": "Job",
-      "title": "Integration Test Job 3",
-      "nodeId": "7fe44b3e-9487-41bc-b347-bbebde3396a4",
-      "updatedAt": 1723746169141
-    },
-    "09bd92d1-5052-4100-bd6c-723c5e033443": {
-      "fromNodeId": "eb3f8867-067b-4e07-bb1a-58c181122ed0",
-      "fromNodeType": "User",
-      "relationshipType": "SWIPED_ON",
-      "strength": "weak",
-      "createdAt": 1723724905837,
-      "companyName": "Acme",
-      "description": "Do stuff",
-      "nodeType": "Job",
-      "title": "Integration Test Job",
-      "nodeId": "09bd92d1-5052-4100-bd6c-723c5e033443",
-      "updatedAt": 1723746169141
-    }
-  }
+  "data": {},
+  "error": null
 }
