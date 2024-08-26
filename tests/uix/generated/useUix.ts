@@ -12,6 +12,7 @@ import _ from "lodash"
 import {v4 as uuid} from 'uuid'
 
 export const cacheKeyMap = new Map<string, Set<string>>()
+
 export const useUix = <
     RootNodeType extends keyof ConfiguredNodeDefinitionMap,
     SubgraphIndex extends ({
@@ -214,7 +215,7 @@ export const useUix = <
             })
         }, [draft]),
         commit: useCallback(
-            async (data: MergeInputTree<ConfiguredNodeDefinitionMap, RootNodeType>, options?: Parameters<typeof mutation['mutate']>[1]) => {
+            async <NodeType extends keyof ConfiguredNodeDefinitionMap>(data: MergeInputTree<ConfiguredNodeDefinitionMap, NodeType>, options?: Parameters<typeof mutation['mutate']>[1]) => {
                 const errorSet = await validateDraftSchema<Data>(
                     modifySchema?.(createNestedZodSchema(nodeDefinitionMap, data as any) as any)
                     ?? createNestedZodSchema(nodeDefinitionMap, data as any),

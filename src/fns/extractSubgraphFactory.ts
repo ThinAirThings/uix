@@ -8,7 +8,6 @@ import {  GenericRelationshipShape, RelationshipState } from "../definitions/Rel
 import { EagerResult, Integer, Node, Path, PathSegment, Relationship } from "neo4j-driver";
 import { ExtractOutputTree } from "../types/ExtractOutputTree";
 import _ from "lodash";
-import { insertTextBeforeLastParenthesis, insertTextBeforeLastSquareBracket } from "../utilities";
 
 
 
