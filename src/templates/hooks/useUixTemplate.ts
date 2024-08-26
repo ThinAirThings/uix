@@ -14,6 +14,7 @@ import _ from "lodash"
 import {v4 as uuid} from 'uuid'
 
 export const cacheKeyMap = new Map<string, Set<string>>()
+
 export const useUix = <
     RootNodeType extends keyof ConfiguredNodeDefinitionMap,
     SubgraphIndex extends ({
@@ -130,8 +131,12 @@ export const useUix = <
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
                         treeNode: cachedTreeDraft, 
-                        operation: ({treeNode: cachedTreeNodeDraft}) => {
-                            if (cachedTreeNodeDraft.nodeId === mergeInputTree.nodeId) {
+                        operation: ({treeNode: cachedTreeNodeDraft, parentNodeMap}) => {
+                            if (cachedTreeNodeDraft.nodeId === mergeInputTreePostDeletion.nodeId) {
+                                if (mergeInputTreePostDeletion['delete']) {
+                                    parentNodeMap && delete parentNodeMap[mergeInputTreePostDeletion.nodeId]
+                                    return 'exit'
+                                }
                                 Object.assign(cachedTreeNodeDraft, _.mergeWith(
                                     JSON.parse((JSON.stringify(cachedTreeNodeDraft))
                                 ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {

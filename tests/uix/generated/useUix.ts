@@ -48,7 +48,7 @@ export const useUix = <
     ) => Data
 }) => {
     const queryClient = useQueryClient()
-    const {data, isPending, isError} = useQuery({
+    const {data, isPending, isError, isFetching} = useQuery({
         queryKey: rootNodeIndex ? [{
             rootNodeIndex: {
                 nodeType: rootNodeIndex.nodeType,
@@ -128,8 +128,12 @@ export const useUix = <
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
                         treeNode: cachedTreeDraft, 
-                        operation: ({treeNode: cachedTreeNodeDraft}) => {
-                            if (cachedTreeNodeDraft.nodeId === mergeInputTree.nodeId) {
+                        operation: ({treeNode: cachedTreeNodeDraft, parentNodeMap}) => {
+                            if (cachedTreeNodeDraft.nodeId === mergeInputTreePostDeletion.nodeId) {
+                                if (mergeInputTreePostDeletion['delete']) {
+                                    parentNodeMap && delete parentNodeMap[mergeInputTreePostDeletion.nodeId]
+                                    return 'exit'
+                                }
                                 Object.assign(cachedTreeNodeDraft, _.mergeWith(
                                     JSON.parse((JSON.stringify(cachedTreeNodeDraft))
                                 ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
@@ -190,6 +194,7 @@ export const useUix = <
     return {
         data,
         isPending,
+        isFetching,
         isError,
         draft,
         draftDidChange: !_.isEqual(draft, initialDraftRef.current),

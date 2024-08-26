@@ -1,5 +1,11 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.24
+
+### Patch Changes
+
+- moving to non-local linking for local dev
+
 ## 4.0.0-next.23
 
 ### Patch Changes

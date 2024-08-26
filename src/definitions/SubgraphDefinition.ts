@@ -1,6 +1,7 @@
 import { NextNodeTypeFromPath } from "../types/ExtractOutputTree";
-import { RelationshipUnion } from "../types/RelationshipUnion";
+import { RelationshipStateFromRelationshipString, RelationshipUnion } from "../types/RelationshipUnion";
 import { AnyNodeDefinitionMap, NodeShape } from "./NodeDefinition";
+import { RelationshipState } from "./RelationshipDefinition";
 import { AnySubgraphPathDefinitionSet, GenericOptions, GenericSubgraphPathDefinitionSet, SubgraphPathDefinition } from "./SubgraphPathDefinition";
 
 
@@ -61,6 +62,24 @@ export class SubgraphDefinition<
                 NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>
             ]>]?: {
                 equals?: NodeShape<NodeDefinitionMap[NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>]>[K]
+                orderBy?: NodeShape<NodeDefinitionMap[NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>]>[K] extends number ? 'asc' | 'desc' : never
+            }
+        } & {
+            [K in keyof RelationshipStateFromRelationshipString<
+                NodeDefinitionMap, 
+                NextNodeTypeFromPath<NodeDefinitionMap, PathType>, 
+                Relationship
+            > as `rel_${K&string}`]?: {
+                equals?: RelationshipStateFromRelationshipString<
+                    NodeDefinitionMap, 
+                    NextNodeTypeFromPath<NodeDefinitionMap, PathType>, 
+                    Relationship
+                >[K]
+                orderBy?: RelationshipStateFromRelationshipString<
+                    NodeDefinitionMap, 
+                    NextNodeTypeFromPath<NodeDefinitionMap, PathType>, 
+                    Relationship
+                >[K] extends number ? 'asc' | 'desc' : never
             }
         }
     ){

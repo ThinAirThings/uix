@@ -1,4 +1,5 @@
 import { AnyNodeDefinitionMap, NodeShape } from "../definitions/NodeDefinition";
+import { RelationshipState } from "../definitions/RelationshipDefinition";
 
 export type RelationshipUnion<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
@@ -31,3 +32,13 @@ export type RelationshipTypeUnion<
                 : never
     }[keyof NodeDefinitionMap[FromNodeType]['relationshipDefinitionMap']]
 }[keyof NodeDefinitionMap]
+
+export type RelationshipStateFromRelationshipString<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap,
+    RelationshipString extends RelationshipUnion<NodeDefinitionMap, NodeType>
+> = RelationshipString extends `-${infer RelationshipType}->${infer RelatedNodeType}`
+    ? RelationshipState<NodeDefinitionMap[NodeType]['relationshipDefinitionMap'][RelationshipType]>
+    : RelationshipString extends `<-${infer RelationshipType}-${infer RelatedNodeType}`
+        ? RelationshipState<NodeDefinitionMap[RelatedNodeType]['relationshipDefinitionMap'][RelationshipType]>
+        : never

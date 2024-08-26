@@ -1,7 +1,7 @@
 {
     "name": "@thinairthings/uix",
     "author": "Dan Lannan",
-    "version": "4.0.0-next.23",
+    "version": "4.0.0-next.24",
     "type": "module",
     "types": "./dist/lib/index.d.ts",
     "bin": {
@@ -48,6 +48,7 @@
         "@sindresorhus/tsconfig": "^5.0.0",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/react": "^16.0.0",
+        "@types/lodash": "^4.17.7",
         "@types/node": "^20.14.9",
         "@types/react": "^18.3.3",
         "@types/uuid": "^10.0.0",

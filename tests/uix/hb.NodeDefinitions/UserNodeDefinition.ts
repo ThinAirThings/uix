@@ -4,7 +4,7 @@ import { z } from "zod";
 import { CompanyNodeDefinition } from "./CompanyNodeDefinition";
 import { JobNodeDefinition } from "./JobNodeDefinition";
 
-export const _UserNodeDefinition = defineNode('User', z.object({
+const _UserNodeDefinition = defineNode('User', z.object({
     email: z.string().email('Invalid email address'),
     firstName: z.string().min(1, 'Please enter your first name.').optional(),
     lastName: z.string().min(1, 'Please enter your first name.').optional(),
@@ -18,7 +18,7 @@ export const _UserNodeDefinition = defineNode('User', z.object({
         strength: 'weak',
         toNodeDefinition: CompanyNodeDefinition,
         relationshipStateSchema: z.object({
-            accessLevel: z.enum(['admin', 'member', 'owner'])
+            accessLevel: z.enum(['admin', 'member', 'owner']),
         })
     })
     .defineRelationship({
@@ -41,4 +41,7 @@ export const UserNodeDefinition = _UserNodeDefinition
         strength: 'weak',
         cardinality: 'one-to-many',
         toNodeDefinition: JobNodeDefinition,
+        relationshipStateSchema: z.object({
+            lastSelected: z.number()
+        })
     })

@@ -24,10 +24,13 @@ const MyComponent = forwardRef<UpdateDraftRef, {}>((_, ref) => {
         defineSubgraph: sg => sg
             .extendPath('User', '-SWIPED_ON->Job', {
                 'title': {
-                    'equals': 'Integration Test Job 2'
+                    'equals': undefined
                 },
-                'companyName': {
-                    'equals': 'Acme'
+                // 'companyName': {
+                //     'equals': 'Acme'
+                // },
+                'rel_lastSelected': {
+                    'orderBy': 'desc'
                 }
             })
             .extendPath('User-SWIPED_ON->Job', '<-POSTED-User')
@@ -70,35 +73,35 @@ const MyComponent = forwardRef<UpdateDraftRef, {}>((_, ref) => {
 
 test('Test Render Cycles', async () => {
     const {data} = await mergeSubgraph({
-        nodeType: 'User',
+        nodeType: 'User' as const,
         email: 'dan.lannan@thinair.cloud',
         firstName: '',
         '-SWIPED_ON->Job': {
             draft: {
                 'title': "Integration Test Job",
                 'companyName': "Acme",
-                'description': "Do stuff"
+                'description': "Do stuff",
+                'lastSelected': Date.now()-1000
             },
             draft2: {
                 'title': "Integration Test Job 2",
                 'companyName': "Acme",
-                'description': "Do stuff"
+                'description': "Do stuff",
+                'lastSelected': Date.now()
             }
         }
     })
-    await mergeSubgraph({
-        ...data!,
-        delete: true
+
+    let renderCount = 0
+    const ref = React.createRef<UpdateDraftRef>()
+    const TestComponent = () => {
+        return <MyComponent ref={ref}/>
+    }
+    const {rerender, getByText} = render(<TestComponent/>, {
+        wrapper: UixProvider
     })
-    // let renderCount = 0
-    // const ref = React.createRef<UpdateDraftRef>()
-    // const TestComponent = () => {
-    //     return <MyComponent ref={ref}/>
-    // }
-    // const {rerender, getByText} = render(<TestComponent/>, {
-    //     wrapper: UixProvider
-    // })
-    // await setTimeout(1000)
+    // return
+    await setTimeout(1000)
     return
     await act(async () => {
         console.log("Calling updateDraft")

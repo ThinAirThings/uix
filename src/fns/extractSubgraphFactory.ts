@@ -8,7 +8,7 @@ import {  GenericRelationshipShape, RelationshipState } from "../definitions/Rel
 import { EagerResult, Integer, Node, Path, PathSegment, Relationship } from "neo4j-driver";
 import { ExtractOutputTree } from "../types/ExtractOutputTree";
 import _ from "lodash";
-import { insertTextBeforeLastParenthesis } from "../utilities";
+import { insertTextBeforeLastParenthesis, insertTextBeforeLastSquareBracket } from "../utilities";
 
 
 
@@ -81,19 +81,26 @@ export const extractSubgraphFactory = <
             `
             const filterSet = !_.isEmpty(nextPath.options) && Object.entries(nextPath.options).map(([propertyKey, filter]) => 
                 filter && Object.entries(filter).map(([filterKey, filterValue]) =>
-                    filterValue && (filterKey === 'equals') && dedent/*cypher*/`${newVariables[2]}.${propertyKey} = "${filterValue}"` 
+                    filterValue && 
+                    (filterKey === 'equals' && dedent/*cypher*/`${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} = "${filterValue}"`)
             )).flat().filter(Boolean)
-            queryString += dedent/*cypher*/`
-                optional match ${newVariables[0]} = ${
-                    (!filterSet || !filterSet.length)
-                        ? nextIndexedPath
-                        : insertTextBeforeLastParenthesis(
-                            nextIndexedPath,
-                            `where ${filterSet.join(" AND ")}`
-                        )
-                }\n
-            `
             variableList.push(...newVariables)
+            const orderString = !_.isEmpty(nextPath.options) && Object.entries(nextPath.options).map(([propertyKey, filter]) =>
+                filter && Object.entries(filter).map(([filterKey, filterValue]) =>
+                    filterValue && 
+                    (filterKey === 'orderBy' && dedent/*cypher*/`
+                        with ${variableList.join(', ')}
+                        order by ${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} ${filterValue}
+                    `)
+            )).flat().filter(Boolean)
+
+            queryString += dedent/*cypher*/`
+                optional match ${newVariables[0]} = ${nextIndexedPath}
+                ${(filterSet && filterSet.length) ? `where ${filterSet.join(" AND ")}` : ''}
+                ${orderString ? orderString.join('\n') : ''}
+                \n
+            `
+            
             buildTree(subgraph, nextPath.pathType, nextIndexedPath, nextPathIdx)
         })
     }
