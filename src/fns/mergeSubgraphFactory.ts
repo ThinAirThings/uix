@@ -181,9 +181,9 @@ export const mergeSubgraphFactory = <
     }
     (subgraphRef.delete) || treeToQueryString(subgraphRef as any, `t0_i0`)
     // Add Return Statement
-    queryString += dedent/*cypher*/`
+    subgraphRef.delete || (queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
-    `
+    `)
     console.log("QUERY STRING", queryString)
     // writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
