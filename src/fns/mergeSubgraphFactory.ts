@@ -69,7 +69,6 @@ export const mergeSubgraphFactory = <
         })()}
         \n
     `
-
     type RelationshipKey = `<-${string}-${string}-${string}` | `${string}-${string}->${string}`
     type RelatedNodeTree = (GenericNodeShape&{delete?: boolean, detach?:boolean}) & {[id:string]: RelatedNodeTree}
     const subgraphToQueryString = (relationshipKey: RelationshipKey, relatedNode: RelatedNodeTree, path: string, previousNodeType: string) => {
@@ -185,6 +184,7 @@ export const mergeSubgraphFactory = <
     queryString += dedent/*cypher*/`
         return ${variableList.join(', ')}
     `
+    console.log("QUERY STRING", queryString)
     // writeFileSync('tests/merge:queryString.cypher', queryString)
     const result = await neo4jDriver().executeQuery<EagerResult<{
         [Key: `p_${string}`]: Path<Integer>
