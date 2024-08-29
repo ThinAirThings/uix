@@ -41,6 +41,8 @@ export type RelationshipShape<T extends AnyRelationshipDefinition> = Relationshi
 }
 export type GenericRelationshipShape = {
     relationshipType: string
+    cardinality: CardinalityTypeSet
+    strength: StrengthTypeSet
 }
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  

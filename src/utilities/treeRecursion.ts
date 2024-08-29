@@ -1,9 +1,10 @@
-import { RelationshipKey } from "../types"
 import { getRelationshipEntries } from "./getRelationshipEntries"
+import { RelationshipMapKey } from "./subgraphRecursion"
+
 
 
 type TreeNode<T> = T & {
-    [relationship: RelationshipKey]: TreeNode<T>
+    [relationship: RelationshipMapKey]: TreeNode<T>
 }
 
 export const treeRecursion = <T>({
@@ -17,9 +18,9 @@ export const treeRecursion = <T>({
     treeNode: TreeNode<T>,
     parentNode?: TreeNode<T>,
     parentNodeMap?: Record<string, TreeNode<T>>,
-    operation: ({treeNode, relationshipKey, mapId, parentNode, parentNodeMap}:{treeNode: TreeNode<T>, parentNode?: TreeNode<T>, parentNodeMap?: Record<string, TreeNode<T>>, relationshipKey?: RelationshipKey, mapId?: string}) => 'exit' | 'continue',
+    operation: ({treeNode, relationshipKey, mapId, parentNode, parentNodeMap}:{treeNode: TreeNode<T>, parentNode?: TreeNode<T>, parentNodeMap?: Record<string, TreeNode<T>>, relationshipKey?: RelationshipMapKey, mapId?: string}) => 'exit' | 'continue',
     mapId?: string,
-    relationshipKey?: RelationshipKey
+    relationshipKey?: RelationshipMapKey
 }) => {
     if (operation({treeNode, relationshipKey, mapId, parentNode, parentNodeMap}) === 'exit') {
         return treeNode
@@ -32,7 +33,7 @@ export const treeRecursion = <T>({
                 parentNode: treeNode,
                 parentNodeMap: nodeMap,
                 mapId: mapId,
-                relationshipKey: relationshipKey as RelationshipKey
+                relationshipKey: relationshipKey as RelationshipMapKey
             })
         )
     })

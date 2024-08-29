@@ -113,34 +113,27 @@ export const useUix = <
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
-            // Handle Caching
-            const mergeInputTreePostDeletion = treeRecursion({
-                treeNode: structuredClone(mergeInputTree) as GenericNodeShape & {detach?:boolean, delete?:boolean},
-                operation: ({treeNode: mergeInputNode, parentNodeMap}) => {
-                    if (mergeInputNode['delete'] || mergeInputNode['detach']) {
-                        if (!parentNodeMap) return 'continue'
-                        delete parentNodeMap[mergeInputNode.nodeId]
-                    }
-                    return 'continue'
-                }
-            })
+            
             cachedTreeSet && cachedTreeSet.forEach(([paramString, cachedTree]) => {
                 if (!cachedTree) return // Need to figure out why this is sometimes undefined
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {
                     treeRecursion({
                         treeNode: cachedTreeDraft, 
                         operation: ({treeNode: cachedTreeNodeDraft, parentNodeMap}) => {
-                            if (cachedTreeNodeDraft.nodeId === mergeInputTreePostDeletion.nodeId) {
-                                if (mergeInputTreePostDeletion['delete']) {
-                                    parentNodeMap && delete parentNodeMap[mergeInputTreePostDeletion.nodeId]
+                            if (cachedTreeNodeDraft.nodeId === mergeInputTree.nodeId) {
+                                if ((mergeInputTree as GenericNodeShape & {detach?:boolean, delete?:boolean})['delete']) {
+                                    parentNodeMap && delete parentNodeMap[mergeInputTree.nodeId]
                                     return 'exit'
                                 }
                                 Object.assign(cachedTreeNodeDraft, _.mergeWith(
                                     JSON.parse((JSON.stringify(cachedTreeNodeDraft))
-                                ), mergeInputTreePostDeletion, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
+                                ), mergeInputTree, ((customMerge=(cachedNode: GenericNodeShape | undefined, inputNode: GenericNodeShape | undefined) => {
                                     if (_.isObject(cachedNode) && _.isObject(inputNode)) {
-                                        _.difference(Object.keys(cachedNode), Object.keys(inputNode)).forEach(key => {
-                                            delete cachedNode[key as keyof typeof cachedNode]
+                                        const cachedNodeMap: Record<string, GenericNodeShape & {detach?:boolean, delete?:boolean}> = cachedNode as any
+                                        const inputNodeMap: Record<string, GenericNodeShape & {detach?:boolean, delete?:boolean}> = inputNode as any
+                                        Object.entries(inputNodeMap).forEach(([nodeId, node]) => {
+                                            if (!node.delete && !node.detach) return
+                                            delete cachedNodeMap[nodeId]
                                         })
                                         return _.mergeWith(cachedNode, inputNode, customMerge)
                                     }
@@ -151,7 +144,6 @@ export const useUix = <
                         }
                     })
                 }))
-                // updateDraft(mergeInputTreePostDeletion as any)
             })
             // Send previous data for rollback
             return {previousData: cachedTreeSet}

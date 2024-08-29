@@ -91,7 +91,7 @@ test('Test Render Cycles', async () => {
             }
         }
     })
-
+    
     let renderCount = 0
     const ref = React.createRef<UpdateDraftRef>()
     const TestComponent = () => {

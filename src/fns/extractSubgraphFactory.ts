@@ -17,14 +17,13 @@ export const extractSubgraphFactory = <
     nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
     RootNodeType extends keyof NodeDefinitionMap,
-    SubgraphIndex extends ({
-        [UniqueIndex in NodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
-    }),
     SubgraphDefinitionRef extends AnySubgraphDefinition
 >(
     rootNode: (({
         nodeType: RootNodeType
-    }) & SubgraphIndex),
+    }) & ({
+        [UniqueIndex in NodeDefinitionMap[RootNodeType]['uniqueIndexes'][number]]?: string
+    })),
     subgraphArg?: ((subgraph: SubgraphDefinition<
         NodeDefinitionMap, 
         [SubgraphPathDefinition<
