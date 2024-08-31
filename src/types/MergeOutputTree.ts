@@ -11,8 +11,8 @@ export type MergeOutputTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     NodeType extends keyof NodeDefinitionMap,
     StateTree extends {nodeType: NodeType} & Record<string, any>
-> = NodeShape<NodeDefinitionMap[NodeType]> & {
-        [Relationship in keyof StateTree as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap[NodeType]>>]: (
+> = NodeShape<NodeDefinitionMap, NodeType> & {
+        [Relationship in keyof StateTree as Exclude<Relationship, keyof NodeShape<NodeDefinitionMap, NodeType>>]: (
             Relationship extends `-${infer RelationshipType}->${infer RelatedNodeType}`
                 ? {
                     [id: string]: RelationshipState<

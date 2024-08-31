@@ -40,7 +40,7 @@ export type ExtractOutputTreeWithoutRelationshipMetadata<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     SubgraphDefinitionRef extends AnySubgraphDefinition,
     PathType extends keyof SubgraphDefinitionRef['subgraphPathDefinitionMap'],
-> = NodeShape<NodeDefinitionMap[NextNodeTypeFromPath<NodeDefinitionMap, PathType>]> & {
+> = NodeShape<NodeDefinitionMap, NextNodeTypeFromPath<NodeDefinitionMap, PathType>> & {
     [Relationship in SubgraphDefinitionRef['subgraphPathDefinitionMap'][PathType]['subgraphRelationshipSet'][number]]?: 
     (
         Relationship extends `-${infer RelationshipType}->${string}`
@@ -71,7 +71,7 @@ export type ExtractOutputTree<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
     SubgraphDefinitionRef extends AnySubgraphDefinition,
     PathType extends keyof SubgraphDefinitionRef['subgraphPathDefinitionMap'],
-> = NodeShape<NodeDefinitionMap[NextNodeTypeFromPath<NodeDefinitionMap, PathType>]> & {
+> = NodeShape<NodeDefinitionMap, NextNodeTypeFromPath<NodeDefinitionMap, PathType>> & {
     [Relationship in SubgraphDefinitionRef['subgraphPathDefinitionMap'][PathType]['subgraphRelationshipSet'][number]]?: 
     (
         Relationship extends `-${infer RelationshipType}->${string}`

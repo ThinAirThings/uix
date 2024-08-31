@@ -58,11 +58,16 @@ export class SubgraphDefinition<
         pathType: PathType,
         relationship: Relationship,
         options?: {
-            [K in keyof NodeShape<NodeDefinitionMap[
+            limit?: number
+            offset?: number
+        } & {
+            [K in keyof NodeShape<NodeDefinitionMap, 
                 NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>
-            ]>]?: {
-                equals?: NodeShape<NodeDefinitionMap[NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>]>[K]
-                orderBy?: NodeShape<NodeDefinitionMap[NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>]>[K] extends number ? 'asc' | 'desc' : never
+            >]?: {
+                exists?: boolean
+                notEquals?: NodeShape<NodeDefinitionMap, NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>>[K]
+                equals?: NodeShape<NodeDefinitionMap, NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>>[K]
+                orderBy?: NodeShape<NodeDefinitionMap, NodeTypeFromRelationship<NodeDefinitionMap, PathDefinitionSet, PathType, Relationship>>[K] extends number ? 'asc' | 'desc' : never
             }
         } & {
             [K in keyof RelationshipStateFromRelationshipString<

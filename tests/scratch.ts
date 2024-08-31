@@ -17,22 +17,29 @@ import _ from "lodash"
 
 // type PathSegment = `-${string}->${string}` | `<-${string}-${string}`
 
-// const data = {
-//     a: 5,
-//     b: 'b',
-//     c: 7
+const data = {
+    a: 5,
+    b: 'b',
+    c: 7,
+    p: {
+        q: 1,
+    }
+}
+
+const data2 = {
+    d: 'fdsa',
+    e: 'ffff'
+}
+
+console.log(_.pick(data2, []))
+
+// const rel1 = "-SWIPED_ON->Job"
+// const rel2 = "<-BELONGS_TO-Company"
+// console.log(reverseRelationshipMapKey(rel1))
+// console.log(reverseRelationshipMapKey(rel2))
+
+
+// const a = {
+//     ''
 // }
-
-// const data2 = {
-//     d: 'fdsa',
-//     e: 'ffff'
-// }
-
-// console.log(_.merge(data, data2))
-
-const rel1 = "-SWIPED_ON->Job"
-const rel2 = "<-BELONGS_TO-Company"
-console.log(reverseRelationshipMapKey(rel1))
-console.log(reverseRelationshipMapKey(rel2))
-
 

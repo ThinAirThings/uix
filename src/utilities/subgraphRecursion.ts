@@ -8,7 +8,7 @@ export type SubgraphNode<T> = T & {
 export const subgraphRecursion = <T>({
     nextNode, 
     operation, 
-    mapId,
+    nodeId,
     previousNode,
     previousNodeMap,
     relationshipKey
@@ -16,21 +16,21 @@ export const subgraphRecursion = <T>({
     nextNode: SubgraphNode<T>,
     previousNode?: SubgraphNode<T>,
     previousNodeMap?: Record<string, SubgraphNode<T>>,
-    operation: ({nextNode, relationshipKey, mapId, previousNode, previousNodeMap}:{nextNode: SubgraphNode<T>, previousNode?: SubgraphNode<T>, previousNodeMap?: Record<string, SubgraphNode<T>>, relationshipKey?: RelationshipMapKey, mapId?: string}) => 'exit' | 'continue',
-    mapId?: string,
+    operation: ({nextNode, relationshipKey, nodeId, previousNode, previousNodeMap}:{nextNode: SubgraphNode<T>, previousNode?: SubgraphNode<T>, previousNodeMap?: Record<string, SubgraphNode<T>>, relationshipKey?: RelationshipMapKey, nodeId?: string}) => 'exit' | 'continue',
+    nodeId?: string,
     relationshipKey?: RelationshipMapKey
 }) => {
-    if (operation({nextNode, relationshipKey, mapId, previousNode, previousNodeMap}) === 'exit') {
+    if (operation({nextNode, relationshipKey, nodeId, previousNode, previousNodeMap}) === 'exit') {
         return nextNode
     }
     getRelationshipEntries(nextNode).forEach(([relationshipKey, nodeMap]: [string, Record<string, SubgraphNode<T>>]) => {
-        Object.entries(nodeMap).forEach(([mapId, nextNextNode]: [string, SubgraphNode<T>]) =>
+        Object.entries(nodeMap).forEach(([nodeId, nextNextNode]: [string, SubgraphNode<T>]) =>
             subgraphRecursion({
                 nextNode: nextNextNode, 
                 operation: operation,
                 previousNode: nextNode,
                 previousNodeMap: nodeMap,
-                mapId: mapId,
+                nodeId: nodeId,
                 relationshipKey: relationshipKey as RelationshipMapKey
             })
         )

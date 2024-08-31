@@ -4,7 +4,7 @@
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 docker run \
-    --name neo4j-uix \
+    --name neo4j-uix2 \
     -p 7475:7475 -p 7688:7688 \
     -e NEO4J_apoc_export_file_enabled=true \
     -e NEO4J_apoc_import_file_enabled=true \

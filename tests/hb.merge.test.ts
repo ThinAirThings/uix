@@ -12,16 +12,24 @@ test('Integration test', async () => {
     } = await mergeSubgraph({
         nodeType: 'Company',
         name: 'Hirebird',
+        'delete': true,
         '<-BELONGS_TO-Job': {
-            ...(() => {
-                return Object.fromEntries(Array.from({length: }, (_, i) => [
-                    `draft${i}`, {
-                        'title': `Job ${i}`,
-                        companyName: 'Hirebird',
-                        'description': 'Job description'
-                    }
-            ]))})()
+            'someNodeId': {
+                'title': 'Software Engineer',
+                'description': 'Job description',
+                'companyName': 'Hirebird'
+            }
         }
+        // '<-BELONGS_TO-Job': {
+        //     ...(() => {
+        //         return Object.fromEntries(Array.from({length: }, (_, i) => [
+        //             `draft${i}`, {
+        //                 'title': `Job ${i}`,
+        //                 companyName: 'Hirebird',
+        //                 'description': 'Job description'
+        //             }
+        //     ]))})()
+        // }
     })
     if (jobsError) throwTestError(jobsError)
     console.log(JSON.stringify(jobs, null, 2))

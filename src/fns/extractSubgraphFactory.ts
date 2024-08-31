@@ -79,23 +79,31 @@ export const extractSubgraphFactory = <
             `
             const filterSet = !_.isEmpty(nextPath.options) && Object.entries(nextPath.options).map(([propertyKey, filter]) => 
                 filter && Object.entries(filter).map(([filterKey, filterValue]) =>
-                    filterValue && 
-                    (filterKey === 'equals' && dedent/*cypher*/`${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} = "${filterValue}"`)
+                    // Filters 
+                    (filterValue && filterKey === 'equals' && dedent/*cypher*/`${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} = "${filterValue}"`)
+                    ||
+                    (filterValue && filterKey === 'notEquals' && dedent/*cypher*/`${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} <> "${filterValue}"`)
+                    ||
+                    (filterKey === 'exists' && dedent/*cypher*/`${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} IS ${filterValue ? 'NOT NULL' : 'NULL'}`)
             )).flat().filter(Boolean)
             variableList.push(...newVariables)
             const orderString = !_.isEmpty(nextPath.options) && Object.entries(nextPath.options).map(([propertyKey, filter]) =>
                 filter && Object.entries(filter).map(([filterKey, filterValue]) =>
                     filterValue && 
                     (filterKey === 'orderBy' && dedent/*cypher*/`
-                        with ${variableList.join(', ')}
                         order by ${propertyKey.startsWith('rel_') ? newVariables[1] : newVariables[2]}.${propertyKey.replace('rel_', '')} ${filterValue}
                     `)
             )).flat().filter(Boolean)
-
+            const limitString = !_.isEmpty(nextPath.options) && (nextPath.options.limit || nextPath.options.offset) && dedent/*cypher*/`
+                skip ${nextPath.options.offset || 0}
+                limit ${nextPath.options.limit || 25}
+            `
             queryString += dedent/*cypher*/`
                 optional match ${newVariables[0]} = ${nextIndexedPath}
                 ${(filterSet && filterSet.length) ? `where ${filterSet.join(" AND ")}` : ''}
+                ${(limitString || orderString) ? `with ${variableList.join(', ')}` : ''}
                 ${orderString ? orderString.join('\n') : ''}
+                ${limitString ? limitString : ''}
                 \n
             `
             

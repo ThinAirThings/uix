@@ -3,20 +3,36 @@
  * @module NodeDefinition
  */
 
-import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType, ZodDiscriminatedUnion, ZodDiscriminatedUnionOption, UnknownKeysParam, objectOutputType, objectInputType } from "zod";
+import { TypeOf, ZodObject, ZodTypeAny, z, AnyZodObject, ZodDiscriminatedUnion } from "zod";
 import { Integer } from "neo4j-driver";
 import { isZodDiscriminatedUnion } from "../utilities/isZodDiscriminatedUnion";
-import { AnyRelationshipDefinitionSet, CardinalityTypeSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition, RelationshipDefinitionMap } from "./RelationshipDefinition";
+import { AnyRelationshipDefinitionSet, StrengthTypeSet, GenericRelationshipDefinitionSet, RelationshipDefinition, RelationshipDefinitionMap } from "./RelationshipDefinition";
 
-export type GenericNodeDefinitionSet = readonly GenericNodeDefinition[];
+
+
+export type AnyNodeDefinition = NodeDefinition<any, any, any, any>;
 export type AnyNodeDefinitionSet = readonly AnyNodeDefinition[];
 export type AnyNodeDefinitionMap = NodeDefinitionMap<AnyNodeDefinitionSet>;
+
+
+
+export type GenericNodeDefinition = NodeDefinition<
+    Capitalize<string>,
+    AnyZodObject | AnyZodDiscriminatedUnion,
+    ['nodeId'],
+    GenericRelationshipDefinitionSet
+>;
+export type GenericNodeDefinitionSet = readonly GenericNodeDefinition[];
 export type GenericNodeDefinitionMap = NodeDefinitionMap<GenericNodeDefinitionSet>;
+
 export type NodeDefinitionMap<NodeDefinitionSet extends AnyNodeDefinitionSet> = {
     [Type in NodeDefinitionSet[number]['type']]: (NodeDefinitionSet[number] & { type: Type });
 };
-export type NodeState<T extends AnyNodeDefinition> = TypeOf<T['stateSchema']>;
-export type AnyNodeShape = NodeShape<AnyNodeDefinition>;
+export type NodeState<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap
+> = TypeOf<NodeDefinitionMap[NodeType]['stateSchema']>;
+
 export type GenericNodeShape = {
     nodeId: string
     nodeType: string
@@ -24,36 +40,23 @@ export type GenericNodeShape = {
     updatedAt: number
 };
 // 
-export type NodeShape<T extends AnyNodeDefinition> = NodeState<T> & {
+export type NodeShape<
+    NodeDefinitionMap extends AnyNodeDefinitionMap,
+    NodeType extends keyof NodeDefinitionMap
+> = NodeState<NodeDefinitionMap, NodeType> & {
     nodeId: string;
-    nodeType: T['type'];
+    nodeType: NodeType;
     createdAt: number;
     updatedAt: number;
 };
-export type GenericNeo4jNodeShape = Neo4jNodeShape<GenericNodeDefinition>;
-export type AnyNeo4jNodeShape = Neo4jNodeShape<AnyNodeDefinition>;
-export type Neo4jNodeShape<T extends AnyNodeDefinition> = NodeState<T> & {
-    nodeId: string;
-    nodeType: T['type'];
-    createdAt: Integer;
-    updatedAt: Integer;
-};
-export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
 
-export type GenericZodUixState = ZodObject<any> | ZodDiscriminatedUnion<any, any>
-export type AnyNodeDefinition = NodeDefinition<any, any, any, any>;
-export type GenericNodeDefinition = NodeDefinition<
-    Capitalize<string>,
-    AnyZodObject | AnyZodDiscriminatedUnion,
-    ['nodeId'],
-    GenericRelationshipDefinitionSet
->;
+export type AnyZodDiscriminatedUnion = ZodDiscriminatedUnion<any, any>;
 
 export class NodeDefinition<
     Type extends Capitalize<string> = Capitalize<string>,
     StateSchema extends ZodTypeAny = AnyZodObject,
-    UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
-    RelationshipDefinitionSet extends AnyRelationshipDefinitionSet | [] = [],
+    UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | readonly ['nodeId'] = readonly ['nodeId'],
+    RelationshipDefinitionSet extends AnyRelationshipDefinitionSet | readonly [] = readonly [],
 > {
     /**
      * Creates an instance of NodeDefinition.
@@ -66,8 +69,8 @@ export class NodeDefinition<
     constructor(
         public type: Type,
         public stateSchema: StateSchema,
-        public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
-        public relationshipDefinitionSet: RelationshipDefinitionSet = [] as RelationshipDefinitionSet,
+        public uniqueIndexes: UniqueIndexes = ['nodeId'] as const as UniqueIndexes,
+        public relationshipDefinitionSet: RelationshipDefinitionSet = [] as const as RelationshipDefinitionSet,
         public relationshipDefinitionMap: RelationshipDefinitionMap<RelationshipDefinitionSet> = Object.fromEntries(
             relationshipDefinitionSet.map(relationshipDefinition => [relationshipDefinition.type, relationshipDefinition])
         ),
@@ -101,19 +104,16 @@ export class NodeDefinition<
     }
     defineRelationship = <
         RelationshipType extends Uppercase<string>,
-        Cardinality extends CardinalityTypeSet,
         Strength extends StrengthTypeSet,
         ToNodeDefinition extends AnyNodeDefinition,
         RelationshipStateSchema extends ZodObject<any> | undefined = undefined
     >({
         relationshipType,
-        cardinality,
         strength,
         toNodeDefinition,
         relationshipStateSchema
     }: {
         relationshipType: RelationshipType,
-        cardinality: Cardinality,
         strength: Strength,
         toNodeDefinition: ToNodeDefinition,
         relationshipStateSchema?: RelationshipStateSchema
@@ -127,7 +127,6 @@ export class NodeDefinition<
                 new RelationshipDefinition(
                     this,
                     relationshipType,
-                    cardinality,
                     strength,
                     toNodeDefinition,
                     relationshipStateSchema as RelationshipStateSchema
@@ -150,6 +149,5 @@ export const defineNode = <
     stateSchema: StateSchema
 ) => new NodeDefinition(type, stateSchema);
 
-export const defineRootNode = () => defineNode('Root', z.object({}));
 
 

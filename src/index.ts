@@ -11,7 +11,6 @@ export * from './types/Result'
 export * from './definitions/GraphDefinition'
 export * from './types/RelationshipUnion'
 export * from './types/MergeInputTree'
-export * from './types/ConcreteMergeInputTree'
 
 // // Function
 export * from './fns/mergeSubgraphFactory'

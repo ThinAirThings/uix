@@ -8,21 +8,22 @@ import { RelationshipTypeUnion } from "../types/RelationshipUnion"
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|    
-export type AnyRelationshipDefinition = RelationshipDefinition<any, any, any, any, any, any>
+export type AnyRelationshipDefinition = RelationshipDefinition<any, any, any, any, any>
+export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
+
+export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefinition[]
 export type GenericRelationshipDefinition = RelationshipDefinition<
-    AnyNodeDefinition,
+    GenericNodeDefinition,
     Uppercase<string>,
-    CardinalityTypeSet,
     StrengthTypeSet,
-    AnyNodeDefinition,
+    GenericNodeDefinition,
     ZodObject<any> | undefined
 >
-export type GenericRelationshipDefinitionSet = readonly GenericRelationshipDefinition[]
-export type AnyRelationshipDefinitionSet = readonly AnyRelationshipDefinition[]
-export type RelationshipDefinitionMap<RelationshipDefinitionSet extends AnyRelationshipDefinitionSet> = {
+
+export type RelationshipDefinitionMap<RelationshipDefinitionSet extends AnyRelationshipDefinitionSet> = Readonly<{
     [Type in RelationshipDefinitionSet[number]['type']]: (RelationshipDefinitionSet[number] & { type: Type });
-}
-export type CardinalityTypeSet = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
+}>
+
 export type StrengthTypeSet = 'strong' | 'weak'
 export type RelationshipMerge<
     NodeDefinitionMap extends AnyNodeDefinitionMap,
@@ -36,12 +37,10 @@ export type RelationshipMerge<
 export type RelationshipState<T extends AnyRelationshipDefinition> = TypeOf<T['stateSchema']>
 export type RelationshipShape<T extends AnyRelationshipDefinition> = RelationshipState<T> & {
     relatedNodeId: string
-    cardinality: T['cardinality']
     strength: T['strength']
 }
 export type GenericRelationshipShape = {
     relationshipType: string
-    cardinality: CardinalityTypeSet
     strength: StrengthTypeSet
 }
 //  ___       __ _      _ _   _          
@@ -51,7 +50,6 @@ export type GenericRelationshipShape = {
 export class RelationshipDefinition<
     FromNodeDefinition extends AnyNodeDefinition = GenericNodeDefinition,
     RelationshipType extends Uppercase<string> = Uppercase<string>,
-    CardinalityType extends CardinalityTypeSet = CardinalityTypeSet,
     StrengthType extends StrengthTypeSet = StrengthTypeSet,
     ToNodeDefinition extends AnyNodeDefinition = GenericNodeDefinition,
     RelationshipStateSchema extends ZodObject<any> | undefined = undefined,
@@ -63,7 +61,6 @@ export class RelationshipDefinition<
     constructor(
         public fromNodeDefinition: FromNodeDefinition,
         public type: RelationshipType,
-        public cardinality: CardinalityType,
         public strength: StrengthType,
         public toNodeDefinition: ToNodeDefinition,
         public stateSchema: RelationshipStateSchema = undefined as RelationshipStateSchema
@@ -74,6 +71,3 @@ export class RelationshipDefinition<
     // | _ \ || | | / _` / -_) '_(_-<
     // |___/\_,_|_|_\__,_\___|_| /__/
 }
-
-
-type Thing = {} extends {[t:string]: any} ? true : false

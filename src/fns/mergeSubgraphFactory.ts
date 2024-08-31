@@ -10,6 +10,7 @@ import { removeRelationshipEntries } from "../utilities/removeRelationshipEntrie
 import { getRelationshipEntries } from "../utilities/getRelationshipEntries"
 import { MergeInputTree } from "../types/MergeInputTree"
 import { MergeOutputTree } from "../types/MergeOutputTree"
+import { RecursiveExactType } from "../types/RecursiveExactType"
 
 
 export const mergeSubgraphFactory = <
@@ -18,11 +19,13 @@ export const mergeSubgraphFactory = <
     nodeDefinitionMap: NodeDefinitionMap
 ) => neo4jAction(async <
     NodeType extends keyof NodeDefinitionMap,
-    InputTree extends MergeInputTree<NodeDefinitionMap, NodeType>
+    NodeId extends string | undefined = undefined,
+    InputTree extends MergeInputTree<NodeDefinitionMap, NodeType, NodeId> = MergeInputTree<NodeDefinitionMap, NodeType, NodeId>
 >(subgraph: (
-    ({
-        nodeType: NodeType
-    }) & InputTree
+    {nodeType: NodeType, nodeId?:NodeId} & RecursiveExactType<
+        InputTree, 
+        MergeInputTree<NodeDefinitionMap, NodeType, NodeId>
+    >
 )) => {
     const subgraphRef = subgraph
     // Flatten Tree 
@@ -40,8 +43,8 @@ export const mergeSubgraphFactory = <
                     // Handle Deletion
                     match (${rootVariable}:${(subgraphRef).nodeType} { 
                         ${(nodeDefinitionMap[subgraph.nodeType]!).uniqueIndexes
-                            .filter((index:string) => !!subgraph[index])
-                            .map((index: any) => `${index}: "${subgraph[index]}"`).join(', ')
+                            .filter((index:string) => !!subgraph[index as keyof typeof subgraph])
+                            .map((index: any) => `${index}: "${subgraph[index as keyof typeof subgraph]}"`).join(', ')
                         }
                     })
                     detach delete ${rootVariable}
@@ -50,8 +53,8 @@ export const mergeSubgraphFactory = <
             return dedent/*cypher*/`
                 merge (${rootVariable}:${(subgraphRef).nodeType} { 
                     ${(nodeDefinitionMap[subgraph.nodeType]!).uniqueIndexes
-                        .filter((index:string) => !!subgraph[index])
-                        .map((index: any) => `${index}: "${subgraph[index]}"`).join(', ')
+                        .filter((index:string) => !!subgraph[index as keyof typeof subgraph])
+                        .map((index: any) => `${index}: "${subgraph[index as keyof typeof subgraph]}"`).join(', ')
                     }
                 })
                 on create 
@@ -158,8 +161,8 @@ export const mergeSubgraphFactory = <
             ? nodeDefinitionMap[nextNodeType]!.relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
             : nodeDefinitionMap[previousNodeType]!.relationshipDefinitionSet.find((relationship: GenericRelationshipDefinition) => relationship.type === relationshipType).stateSchema
         variableStateEntries.push(
-            [`n_${path}_state`, nodeSchema.parse(removeRelationshipEntries(relatedNode))],
-            relationshipSchema ? [`r_${path}_state`, relationshipSchema.parse(removeRelationshipEntries(relatedNode))] : [`r_${path}_state`, {}],
+            [`n_${path}_state`, nodeSchema.partial().parse(removeRelationshipEntries(relatedNode))],
+            relationshipSchema ? [`r_${path}_state`, relationshipSchema.partial().parse(removeRelationshipEntries(relatedNode))] : [`r_${path}_state`, {}],
         )
         treeToQueryString(relatedNode, `${path}`)
     }
@@ -173,7 +176,7 @@ export const mergeSubgraphFactory = <
                 subgraphToQueryString(key as RelationshipKey, {
                     ...(<any>node),
                     nodeType: nextNodeType,
-                    nodeId: (<GenericNodeShape>node).nodeId ?? uuid(),
+                    nodeId: nodeId??(<GenericNodeShape>node).nodeId ?? uuid(),
                 }, `${path}_t${t_idx}_i${i_idx}`, subgraph.nodeType)
             })
         })
