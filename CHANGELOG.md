@@ -1,5 +1,53 @@
 ## [1.2.5](https://github.com/ThinAirThings/uix/compare/v1.2.4...v1.2.5) (2024-05-23)
 
+## 4.0.0-next.37
+
+### Patch Changes
+
+- fix: stale time to 5 seconds
+
+## 4.0.0-next.36
+
+### Patch Changes
+
+- hotfix the all child detachment bug
+
+## 4.0.0-next.35
+
+### Patch Changes
+
+- rebuild again
+
+## 4.0.0-next.34
+
+### Patch Changes
+
+- rebuild
+
+## 4.0.0-next.33
+
+### Patch Changes
+
+- add logs for extract
+
+## 4.0.0-next.32
+
+### Patch Changes
+
+- remove extra unused propertied from extraction
+
+## 4.0.0-next.31
+
+### Patch Changes
+
+- fix type generation
+
+## 4.0.0-next.30
+
+### Minor Changes
+
+- rewrite merge input tree type system + other updates
+
 ## 4.0.0-next.29
 
 ### Patch Changes

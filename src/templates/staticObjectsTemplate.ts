@@ -21,11 +21,11 @@ ${config.graph.nodeDefinitionMap['Root']
             : ``
         }
 ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
-    dedent/*ts*/`export type ${nodeType}Node = NodeShape<ConfiguredNodeDefinitionMap['${nodeType}']> \n`
+    dedent/*ts*/`export type ${nodeType}Node = NodeShape<ConfiguredNodeDefinitionMap, '${nodeType}'> \n`
         ).join('')}
 ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
     dedent/*ts*/`
-        export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap['${nodeType}']> 
+        export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap, '${nodeType}'> 
         ${config.graph.nodeDefinitionMap[nodeType as keyof typeof config.graph.nodeDefinitionMap]!.relationshipDefinitionSet.map(relationshipDefinition =>
             dedent/*ts*/`
             export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = RelationshipMerge<

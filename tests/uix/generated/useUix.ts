@@ -113,7 +113,7 @@ export const useUix = <
                     paramString, 
                     queryClient.getQueryData([JSON.parse(paramString)])
                 ] as const) as [string, GenericMergeOutputTree][]
-            
+
             cachedTreeSet && cachedTreeSet.forEach(([paramString, cachedTree]) => {
                 if (!cachedTree) return // Need to figure out why this is sometimes undefined
                 queryClient.setQueryData([JSON.parse(paramString)], produce(cachedTree, (cachedTreeDraft) => {

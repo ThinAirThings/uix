@@ -141,8 +141,6 @@ export const extractSubgraphFactory = <
                 const relationshipKey = `${leftEndcap}${relationship.type}${rightEndcap}${nextNode.nodeType}`
                 if (!node[relationshipKey]) node[relationshipKey] = {}
                 node[relationshipKey][nextNode.nodeId] = node[relationshipKey][nextNode.nodeId] ?? {
-                    fromNodeId: node.nodeId,
-                    fromNodeType: node.nodeType,
                     ...relationship.properties,
                     ...nextNode,
                 }
@@ -153,6 +151,7 @@ export const extractSubgraphFactory = <
 
         return rootNodeRef
     })
+    console.log("Extract Query String", queryString)
     if (process.env.TEST_ENV === "true") {
         const fs = require('fs')
         fs.writeFileSync('tests/extract:queryString.cypher', queryString)

@@ -30,8 +30,6 @@ export type RelationshipMerge<
     PreviousNodeType extends keyof NodeDefinitionMap,
     RelationshipType extends RelationshipTypeUnion<NodeDefinitionMap, PreviousNodeType>,
 > = {
-    fromNodeId: string
-    fromNodeType: PreviousNodeType
     relationshipType: RelationshipType
 } & RelationshipState<NodeDefinitionMap[PreviousNodeType]['relationshipDefinitionMap'][RelationshipType]>
 export type RelationshipState<T extends AnyRelationshipDefinition> = TypeOf<T['stateSchema']>

@@ -11,13 +11,13 @@ export type NodeKey<T extends keyof ConfiguredNodeDefinitionMap> = {
     nodeId: string
 }
 
-export type UserNode = NodeShape<ConfiguredNodeDefinitionMap['User']> 
-export type CompanyNode = NodeShape<ConfiguredNodeDefinitionMap['Company']> 
-export type JobNode = NodeShape<ConfiguredNodeDefinitionMap['Job']> 
-export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap['Message']> 
-export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap['Project']> 
+export type UserNode = NodeShape<ConfiguredNodeDefinitionMap, 'User'> 
+export type CompanyNode = NodeShape<ConfiguredNodeDefinitionMap, 'Company'> 
+export type JobNode = NodeShape<ConfiguredNodeDefinitionMap, 'Job'> 
+export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap, 'Message'> 
+export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap, 'Project'> 
 
-export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap['User']> 
+export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap, 'User'> 
     export type BELONGS_TO_Company_Relationship = RelationshipMerge<
 ConfiguredNodeDefinitionMap,
 'User',
@@ -38,20 +38,20 @@ ConfiguredNodeDefinitionMap,
 'User',
 'SWIPED_ON'
 >
-export type CompanyNodeState = NodeState<ConfiguredNodeDefinitionMap['Company']>
-export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap['Job']> 
+export type CompanyNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Company'>
+export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Job'> 
     export type BELONGS_TO_Company_Relationship = RelationshipMerge<
 ConfiguredNodeDefinitionMap,
 'Job',
 'BELONGS_TO'
 >
-export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap['Message']> 
+export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Message'> 
     export type SENT_BY_User_Relationship = RelationshipMerge<
 ConfiguredNodeDefinitionMap,
 'Message',
 'SENT_BY'
 >
-export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap['Project']> 
+export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Project'> 
     export type BELONGS_TO_Company_Relationship = RelationshipMerge<
 ConfiguredNodeDefinitionMap,
 'Project',

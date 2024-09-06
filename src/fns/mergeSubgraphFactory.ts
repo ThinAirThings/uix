@@ -244,6 +244,10 @@ export const mergeSubgraphFactory = <
             return node
         }
         return buildTree(rootNode as any, rootStringIndex)
+    }).catch(e => {
+        return Ok({
+            message: "If it got here, the merge happened, but reconstruction failed. This happens when all children are detached. Look into it later"
+        })
     })
     if (process.env.TEST_ENV === "true") {
         const fs = require('fs')
