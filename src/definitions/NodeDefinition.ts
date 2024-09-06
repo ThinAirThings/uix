@@ -76,7 +76,9 @@ export class NodeDefinition<
         ),
         public shapeSchema = isZodDiscriminatedUnion(stateSchema) ? z.union(stateSchema.options.map((option: AnyZodObject) => option.merge(z.object({
             nodeId: z.string(),
-            nodeType: z.string()
+            nodeType: z.string(),
+            createdAt: z.string(),
+            updatedAt: z.string()
         }))) as [AnyZodObject, AnyZodObject, ...AnyZodObject[]])
             : (stateSchema as unknown as AnyZodObject).merge(z.object({
                 nodeId: z.string(),

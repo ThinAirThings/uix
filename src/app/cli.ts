@@ -12,3 +12,5 @@ const app = new Pastel({
 });
 
 await app.run();
+// Need this to restore the cursor of the cli
+// process.exit(0)

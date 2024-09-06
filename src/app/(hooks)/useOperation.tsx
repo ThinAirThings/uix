@@ -6,7 +6,6 @@ import { applicationStore } from '../(stores)/applicationStore'
 import { Box } from 'ink'
 
 type Strictify<T extends readonly any[]> = { [K in keyof T]-?: T[K] & {} }
-
 export const useOperation = <
     OperationKey extends string,
     T,
