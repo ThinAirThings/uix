@@ -35,7 +35,8 @@ app.get("*", async (request, response) => {
                         request.cookies.set(name, value)
                     )
                 },
-            }
+                
+            },
         }
     )    
     const {
