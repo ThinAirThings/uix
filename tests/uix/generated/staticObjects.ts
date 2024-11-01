@@ -17,43 +17,8 @@ export type JobNode = NodeShape<ConfiguredNodeDefinitionMap, 'Job'>
 export type MessageNode = NodeShape<ConfiguredNodeDefinitionMap, 'Message'> 
 export type ProjectNode = NodeShape<ConfiguredNodeDefinitionMap, 'Project'> 
 
-export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap, 'User'> 
-    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'User',
-'BELONGS_TO'
->
-export type POSTED_Job_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'User',
-'POSTED'
->
-export type SUPERVISOR_TO_User_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'User',
-'SUPERVISOR_TO'
->
-export type SWIPED_ON_Job_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'User',
-'SWIPED_ON'
->
+export type UserNodeState = NodeState<ConfiguredNodeDefinitionMap, 'User'>
 export type CompanyNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Company'>
-export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Job'> 
-    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'Job',
-'BELONGS_TO'
->
-export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Message'> 
-    export type SENT_BY_User_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'Message',
-'SENT_BY'
->
-export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Project'> 
-    export type BELONGS_TO_Company_Relationship = RelationshipMerge<
-ConfiguredNodeDefinitionMap,
-'Project',
-'BELONGS_TO'
->
+export type JobNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Job'>
+export type MessageNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Message'>
+export type ProjectNodeState = NodeState<ConfiguredNodeDefinitionMap, 'Project'>

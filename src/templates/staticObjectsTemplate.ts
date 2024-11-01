@@ -26,18 +26,6 @@ ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
 ${Object.keys(config.graph.nodeDefinitionMap).map(nodeType =>
     dedent/*ts*/`
         export type ${nodeType}NodeState = NodeState<ConfiguredNodeDefinitionMap, '${nodeType}'> 
-        ${config.graph.nodeDefinitionMap[nodeType as keyof typeof config.graph.nodeDefinitionMap]!.relationshipDefinitionSet.map(relationshipDefinition =>
-            dedent/*ts*/`
-            export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = RelationshipMerge<
-                ConfiguredNodeDefinitionMap,
-                '${nodeType}',
-                '${relationshipDefinition.type}'
-            >
-            `
-            ).join('\n')}
     `).join('\n')
     }
 `
-
-// export type ${relationshipDefinition.type}_${relationshipDefinition.toNodeDefinition.type}_Relationship = {fromNodeId: string}&RelationshipState<ConfiguredNodeDefinitionMap['${nodeType}']['relationshipDefinitionMap']['${relationshipDefinition.type}']>
-

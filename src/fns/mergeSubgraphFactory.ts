@@ -249,11 +249,11 @@ export const mergeSubgraphFactory = <
             message: "If it got here, the merge happened, but reconstruction failed. This happens when all children are detached. Look into it later"
         })
     })
-    if (process.env.TEST_ENV === "true") {
-        const fs = require('fs')
-        fs.writeFileSync('tests/merge:queryString.cypher', queryString)
-        fs.writeFileSync('tests/merge:resultTree.json', JSON.stringify(result, null, 2))
-    }
+    // if (process.env.TEST_ENV === "true") {
+    //     const fs = require('fs')
+    //     fs.writeFileSync('tests/merge:queryString.cypher', queryString)
+    //     fs.writeFileSync('tests/merge:resultTree.json', JSON.stringify(result, null, 2))
+    // }
     console.log("MERGE RESULT", result)
     return Ok(result as MergeOutputTree<NodeDefinitionMap, NodeType, InputTree>)
 })

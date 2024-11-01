@@ -152,11 +152,11 @@ export const extractSubgraphFactory = <
         return rootNodeRef
     })
     console.log("Extract Query String", queryString)
-    if (process.env.TEST_ENV === "true") {
-        const fs = require('fs')
-        fs.writeFileSync('tests/extract:queryString.cypher', queryString)
-        fs.writeFileSync('tests/extract:resultTree.json', JSON.stringify(resultTree, null, 2))
-    }
+    // if (process.env.TEST_ENV === "true") {
+    //     const fs = require('fs')
+    //     fs.writeFileSync('tests/extract:queryString.cypher', queryString)
+    //     fs.writeFileSync('tests/extract:resultTree.json', JSON.stringify(resultTree, null, 2))
+    // }
     if (!resultTree) return UixErr({
         subtype: 'ExpectedRuntimeError',
         message: "The root node requested was not found. This is likely due to it not existing in the database.",
